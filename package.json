@@ -1,6 +1,6 @@
 {
   "name": "@whppt/api-express",
-  "description": "Whppt api module",
+  "description": "Whppt api module for express",
   "version": "0.0.0",
   "author": "Svelte Studios (https://www.npmjs.com/settings/svelte-studios/packages)",
   "main": "index.js",
