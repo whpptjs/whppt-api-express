@@ -1,0 +1,17 @@
+module.exports = {
+  FOOTERS: 'footers',
+  HEADERS: 'headers',
+  MAPS: 'maps',
+  TIMES: 'times',
+  IMAGES: 'images',
+  USERS: 'users',
+  PAGES: 'pages',
+  EVENTS: 'events',
+  COLLECTIONS: 'collections',
+  RESEARCH: 'research',
+  RESEARCHERS: 'researchers',
+  HOME: 'home',
+  REDIRECTS: 'redirects',
+  SETTINGS: 'settings',
+  DOCS: 'documents',
+};
