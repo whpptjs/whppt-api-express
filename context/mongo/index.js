@@ -1,7 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017?retryWrites=false&replicaSet=rs';
-const _db = process.env.MONGO_DB || 'dev_sam';
+const draftDb = process.env.MONGO_DB_DRAFT || 'whppt-draft';
+const pubDb = process.env.MONGO_DB_PUB || 'whppt-pub';
+const draft = process.env.DRAFT || true;
 
 module.exports = ({ $logger }) => {
   const $mongo = MongoClient.connect(mongoUrl, {
@@ -9,7 +11,7 @@ module.exports = ({ $logger }) => {
     useNewUrlParser: true,
   })
     .then(client => {
-      const $db = client.db(_db);
+      const $db = client.db(draft ? draftDb : pubDb);
 
       const $startTransaction = function(callback) {
         const session = client.startSession();
@@ -40,8 +42,9 @@ module.exports = ({ $logger }) => {
         return $db.collection(collection).deleteOne({ _id: id }, { session });
       };
 
+      // TODO: Add publishing functions
+
       return {
-        client,
         $db,
         $fetch,
         $save,
