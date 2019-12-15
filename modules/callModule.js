@@ -1,4 +1,4 @@
-module.exports = (context, mod, action, params) => {
+module.exports = (context, mod, action, params, user) => {
   const { $logger, $modules } = context;
   return $modules.then(modules => {
     const actions = modules[mod];
@@ -16,14 +16,14 @@ module.exports = (context, mod, action, params) => {
       });
 
     if (!a.authorise)
-      return a.exec(context, params).catch(err => {
+      return a.exec({ ...context, user }, params).catch(err => {
         $logger.error(err);
         if (err.message && err.message === 404) return { status: 404, error: err };
         return { status: 500, error: err };
       });
 
-    return a.authorise(context, params).then(() =>
-      a.exec(context, params).catch(err => {
+    return a.authorise({ ...context, user }, params).then(() =>
+      a.exec({ ...context, user }, params).catch(err => {
         $logger.error(err);
         if (err.message && err.message === 404) return { status: 404, error: err };
         return { status: 500, error: err };
