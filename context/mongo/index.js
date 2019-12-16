@@ -11,6 +11,7 @@ module.exports = ({ $logger }) => {
     useNewUrlParser: true,
   })
     .then(client => {
+      $logger.info('Connected to mongo on:', mongoUrl);
       const $db = client.db(draft ? draftDb : pubDb);
 
       const $startTransaction = function(callback) {

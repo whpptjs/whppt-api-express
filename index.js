@@ -1,21 +1,17 @@
 const router = require('express-promise-json-router')();
+const Context = require('./context');
+const callModule = require('./modules/callModule');
 
-const context = require('./context');
+module.exports = () =>
+  Context().then(context => {
+    const { $security } = context;
 
-router.get('/api/:mod', ({ user, params: { mod }, query: queryArgs }) => {
-  return callModule(mod, 'get', queryArgs, user);
-});
+    router.get('/api/:mod/:query', $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
+      return callModule(context, mod, query, { ...queryArgs, user });
+    });
 
-router.post('/api/login', ({ body }) => {
-  return callModule('login', 'post', body);
-});
-
-router.post('/api/:mod', ({ user, params: { mod }, body }) => {
-  return callModule(mod, 'post', body, user);
-});
-
-router.delete('/api/:mod', ({ user, params: { mod }, body }) => {
-  return callModule(mod, 'delete', body, user);
-});
-
-module.exports = router;
+    router.post('/api/:mod/:command', $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
+      return callModule(context, mod, command, { ...cmdArgs, user });
+    });
+    return router;
+  });
