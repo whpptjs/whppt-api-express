@@ -1,16 +1,19 @@
-// const assert = require('assert');
-// const COLLECTIONS = require('../COLLECTIONS');
-// const _draft = !!(process.env.DRAFT || true);
+const assert = require('assert');
+const { collections } = require(process.cwd() + '/whppt.config.js');
 
-// const collectionForType = {
-//   page: COLLECTIONS.PAGES,
-//   event: COLLECTIONS.EVENTS,
-//   collection: COLLECTIONS.COLLECTIONS,
-//   research: COLLECTIONS.RESEARCH,
-//   researcher: COLLECTIONS.RESEARCHER,
-// };
+module.exports = {
+  exec({ $mongo: { $db } }, { collection, slug }) {
+    const _collection = collections[collection];
+    assert(_collection, `Collection ${collection} does not exist.`);
 
-module.exports = {};
+    return $db
+      .collection(_collection)
+      .find({ slug })
+      .toArray()
+      .then(page => page);
+  },
+};
+
 // module.exports = {
 //   exec({ $mongo }, { type, slug }) {
 //     return $mongo.then(({ db }) => {

@@ -4,11 +4,10 @@ const Security = require('./security');
 const Mongo = require('./mongo');
 const loadModules = require('./modules/loadModules');
 
-console.log('TCL: process.cwd', process.cwd());
-const config = require(process.cwd() + '/whppt.js');
+const config = require(process.cwd() + '/whppt.config.js');
 
-module.exports = () =>
-  Promise.all([Mongo({ $logger })]).then(([mongo]) => {
+module.exports = () => {
+  return Promise.all([Mongo({ $logger })]).then(([mongo]) => {
     return {
       $id,
       $logger,
@@ -17,3 +16,4 @@ module.exports = () =>
       $modules: loadModules,
     };
   });
+};

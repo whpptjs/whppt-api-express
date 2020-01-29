@@ -13,7 +13,6 @@ module.exports = ({ $logger }) => {
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
       const $db = client.db(draft ? draftDb : pubDb);
-
       const $startTransaction = function(callback) {
         const session = client.startSession();
         return session.withTransaction(() => callback(session));
@@ -32,11 +31,14 @@ module.exports = ({ $logger }) => {
       };
 
       const $save = function(collection, doc, { session } = {}) {
+        doc = { ...doc, createdAt: new Date(doc.createdAt) || new Date(), updatedAt: new Date() };
         return $db.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
       };
 
       const $remove = function(collection, id, { session } = {}) {
-        return $db.collection(collection).updateOne({ _id: id }, { $set: { removed: true } }, { session });
+        return $db
+          .collection(collection)
+          .updateOne({ _id: id }, { $set: { removed: true, removedAt: new Date() } }, { session });
       };
 
       const $delete = function(collection, id, { session } = {}) {

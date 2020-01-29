@@ -7,4 +7,5 @@ module.exports = {
       audience: 'example',
     },
   },
+  collections: { pages: 'pages' },
 };

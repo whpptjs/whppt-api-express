@@ -9,7 +9,9 @@
   },
   "license": "ISC",
   "dependencies": {
-    "consola": "^2.11.0"
+    "body-parser": "latest",
+    "consola": "^2.11.0",
+    "express": "latest"
   },
   "devDependencies": {
     "nodemon": "^2.0.2",
