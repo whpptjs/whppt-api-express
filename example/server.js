@@ -1,6 +1,7 @@
 const express = require('express');
 const consola = require('consola');
 const app = express();
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const Whppt = require('../index');
 
@@ -16,6 +17,7 @@ const Whppt = require('../index');
 const [host, port] = ['localhost', '3001'];
 
 Whppt().then(whppt => {
+  app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
