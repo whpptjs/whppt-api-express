@@ -1,16 +1,18 @@
 const assert = require('assert');
-const { collections } = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
-  exec({ $mongo: { $db } }, { collection, slug }) {
-    const _collection = collections[collection];
-    assert(_collection, `Collection ${collection} does not exist.`);
-
+  exec({ $mongo: { $db } }, { slug }) {
     return $db
-      .collection(_collection)
-      .find({ slug })
-      .toArray()
-      .then(page => page);
+      .collection('pages')
+      .findOne({ slug })
+      .then(page => {
+        if (!page) return { status: 404, message: 'Page not found' };
+        return page;
+      })
+      .catch(err => {
+        console.log(err);
+        throw err;
+      });
   },
 };
 
