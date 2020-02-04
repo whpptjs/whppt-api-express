@@ -5,7 +5,6 @@ module.exports = {
     assert(page, 'A Page Object must be provided.');
 
     page._id = page._id || $id();
-    console.log('PAGE', page);
     return $save('pages', page).then(() => page);
   },
 };
