@@ -4,6 +4,7 @@ const Security = require('./security');
 const Mongo = require('./mongo');
 const loadModules = require('./modules/loadModules');
 const $atdw = require('./atdw');
+const $axios = require('./axios');
 
 const config = require(process.cwd() + '/whppt.config.js');
 
@@ -16,6 +17,7 @@ module.exports = () => {
       $mongo: mongo,
       $modules: loadModules,
       $atdw,
+      $axios,
     };
   });
 };

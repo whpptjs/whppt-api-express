@@ -20,4 +20,9 @@ module.exports = {
     area: 'Barossa',
     limit: '1000',
   },
+  bookEasy: {
+    apiUrl: process.env.BOOKEASY_API_URL,
+    apiKey: process.env.BOOKEASY_API_KEY,
+    vcid: process.env.BOOKEASY_VCID,
+  },
 };
