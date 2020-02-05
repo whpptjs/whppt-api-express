@@ -10,7 +10,7 @@ module.exports = {
         return page;
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         throw err;
       });
   },
