@@ -28,7 +28,6 @@ module.exports = {
         return $axios
           .$get(`https://${apiUrl}/api/getOperatorsInformation?q=${vcid}&operators=${operatorIds}`)
           .then(({ Operators }) => {
-            console.log(listings);
             const listingsToUpdate = filter(listings, l => getBookEasyFromListing(l).externalSystemCode === 'BOOKEASY');
 
             const listingsWithBookEasy = map(listingsToUpdate, listingToUpdate => {
@@ -58,7 +57,7 @@ module.exports = {
                 return Promise.resolve({ statusCode: 200, message: 'OK' });
               })
               .catch(e => {
-                console.log(e);
+                console.error(e);
               });
           })
           .catch(err => {
