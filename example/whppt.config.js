@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   security: {
     provider: 'jwt',
@@ -10,5 +12,12 @@ module.exports = {
   collections: {
     pages: 'pages',
     listing: 'listing',
+  },
+  atdw: {
+    apiUrl: process.env.ATDW_API_URL,
+    apiKey: process.env.ATDW_API_KEY,
+    state: 'SA',
+    area: 'Barossa',
+    limit: '1000',
   },
 };
