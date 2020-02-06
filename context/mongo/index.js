@@ -31,7 +31,7 @@ module.exports = ({ $logger }) => {
       };
 
       const $save = function(collection, doc, { session } = {}) {
-        doc = { ...doc, createdAt: new Date(doc.createdAt) || new Date(), updatedAt: new Date() };
+        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
         return $db.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
       };
 

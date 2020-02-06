@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "axios": "latest",
-    "bcrypt": "^3.0.7",
+    "bcryptjs": "^2.4.3",
     "encoding": "^0.1.12",
     "express-promise-json-router": "^1.0.8",
     "jsonwebtoken": "^8.5.1",

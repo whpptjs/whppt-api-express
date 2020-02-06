@@ -1,5 +1,6 @@
 const assert = require('assert');
 const URI = require('uri-js');
+const Listing = require('./Listing');
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
@@ -13,18 +14,19 @@ module.exports = {
     return $atdw
       .$get(`https://${apiUrl}/api/atlas/products?key=${apiKey}&out=json&st=${state}&ar=${area}&size=${limit}`)
       .then(({ products }) => {
+        const listings = products.map(product => new Listing({ _id: product.productId, atdw: product }));
         const listingOps = [];
 
-        products.forEach(product => {
-          const _id = product.productId;
+        listings.forEach(listing => {
+          const { atdw } = listing;
+          const { scheme, host, path } = URI.parse(atdw.productImage);
 
-          const { scheme, host, path } = URI.parse(product.productImage);
-          product.productImage = `${scheme}://${host}${path}`;
+          atdw.productImage = `${scheme}://${host}${path}`;
 
           listingOps.push({
             updateOne: {
-              filter: { _id },
-              update: { $set: { _id, atdw: product } },
+              filter: { _id: listing._id },
+              update: { $set: listing },
               upsert: true,
             },
           });
