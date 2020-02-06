@@ -29,7 +29,7 @@ module.exports = {
 
             return $db
               .collection('listings')
-              .updateOne({ _id: id }, { $set: { atdw: updatedListing } })
+              .updateOne({ _id: id }, { $set: { atdw: updatedListing, hasFullATDWData: true } })
               .then(() => {
                 return Promise.resolve({ statusCode: 200, message: 'OK' });
               });
