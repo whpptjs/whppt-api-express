@@ -33,7 +33,7 @@ module.exports = {
                   const updatedProduct = { ...atdw, ...listingData };
                   return $db
                     .collection('listings')
-                    .updateOne({ _id }, { $set: { atdw: updatedProduct } })
+                    .updateOne({ _id }, { $set: { atdw: updatedProduct, hasFullATDWData: true } })
                     .then(() => {
                       return Promise.resolve({ statusCode: 200, message: 'OK' });
                     });
