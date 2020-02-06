@@ -1,5 +1,5 @@
 const passport = require('passport');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Jwt = require('./jwt');
 const saltRounds = 10;
 
