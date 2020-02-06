@@ -5,6 +5,6 @@ module.exports = {
     assert(footer, 'A Footer Object must be provided.');
 
     footer._id = footer._id || 'draft_footer';
-    return $save('footer', footer).then(() => footer);
+    return $save('footers', footer).then(() => footer);
   },
 };
