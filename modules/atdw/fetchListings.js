@@ -39,18 +39,13 @@ module.exports = {
               update: {
                 $set: {
                   slug: `${lowerCase(atdw.productCategoryId)}/${camelCase(atdw.productName)}`,
-                  contents: [
-                    {
-                      key: 'Listing',
-                      value: 'Listing',
-                      editorType: 'Listing',
-                      displayType: 'wListing',
-                      listingId: listing._id,
-                    },
-                  ],
+                  contents: [],
+                  listing: {
+                    id: listing._id,
+                  },
                   header: { title: atdw.productName },
                   createdAt: new Date(),
-                  template: 'generic',
+                  template: 'listing',
                   link: { type: 'page' },
                   linkgroup: { type: 'page', links: [], showOnDesktop: true },
                 },
