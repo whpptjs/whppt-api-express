@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { forEach, get, find } = require('lodash');
+const { camelCase, lowerCase, forEach, get, find } = require('lodash');
 const URI = require('uri-js');
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
@@ -86,6 +86,7 @@ module.exports = {
         });
 
         const listingOps = [];
+        const pageOps = [];
 
         forEach(listings, listing => {
           listingOps.push({
@@ -95,10 +96,38 @@ module.exports = {
               upsert: true,
             },
           });
+
+          pageOps.push({
+            updateOne: {
+              filter: { slug: camelCase(atdw.productName) },
+              update: {
+                $set: {
+                  slug: `${lowerCase(atdw.productCategoryId)}/${camelCase(atdw.productName)}`,
+                  contents: [
+                    {
+                      key: 'Listing',
+                      value: 'Listing',
+                      editorType: 'Listing',
+                      displayType: 'wListing',
+                      listingId: listing._id,
+                    },
+                  ],
+                  header: { title: atdw.productName },
+                  createdAt: new Date(),
+                  template: 'generic',
+                  link: { type: 'page' },
+                  linkgroup: { type: 'page', links: [], showOnDesktop: true },
+                },
+              },
+              upsert: true,
+            },
+          });
         });
 
         return Promise.all([$db.collection('listings').bulkWrite(listingOps, { ordered: false })]).then(() => {
-          return Promise.resolve({ statusCode: 200, message: 'OK' });
+          return Promise.all([$db.collection('pages').bulkWrite(pageOps, { ordered: false })]).then(() => {
+            return Promise.resolve({ statusCode: 200, message: 'OK' });
+          });
         });
       })
       .catch(err => {
