@@ -119,10 +119,8 @@ module.exports = {
           });
         });
 
-        return Promise.all([$db.collection('listings').bulkWrite(listingOps, { ordered: false })]).then(() => {
-          return Promise.all([$db.collection('pages').bulkWrite(pageOps, { ordered: false })]).then(() => {
-            return Promise.resolve({ statusCode: 200, message: 'OK' });
-          });
+        return Promise.all([$db.collection('listings').bulkWrite(listingOps, { ordered: false }), $db.collection('pages').bulkWrite(pageOps, { ordered: false })]).then(() => {
+          return Promise.resolve({ statusCode: 200, message: 'OK' });
         });
       })
       .catch(err => {
