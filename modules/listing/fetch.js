@@ -4,15 +4,16 @@ module.exports = {
   exec({ $mongo: { $db } }, query) {
     const { categories, filters, limit = 6, currentPage = 1 } = query;
 
-    const categoryFilters = categories
-      ? {
-          'atdw.productCategoryId': {
-            $in: map(categories, c => {
-              return toUpper(c);
-            }),
-          },
-        }
-      : {};
+    const categoryFilters =
+      categories && categories.length
+        ? {
+            'atdw.productCategoryId': {
+              $in: map(categories, c => {
+                return toUpper(c);
+              }),
+            },
+          }
+        : {};
 
     const listingsQuery = {};
 
