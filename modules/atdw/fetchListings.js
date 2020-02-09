@@ -99,9 +99,10 @@ module.exports = {
 
           pageOps.push({
             updateOne: {
-              filter: { slug: camelCase(listing.atdw.productName) },
+              filter: { _id: listing._id },
               update: {
                 $set: {
+                  _id: listing._id,
                   slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
