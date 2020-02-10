@@ -116,15 +116,16 @@ module.exports = {
 
           pageOps.push({
             updateOne: {
-              filter: { slug: camelCase(atdw.productName) },
+              filter: { _id: listing._id },
               update: {
                 $set: {
-                  slug: `${lowerCase(atdw.productCategoryId)}/${camelCase(atdw.productName)}`,
+                  _id: listing._id,
+                  slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
                     id: listing._id,
                   },
-                  header: { title: atdw.productName },
+                  header: { title: listing.atdw.productName },
                   createdAt: new Date(),
                   template: 'listing',
                   link: { type: 'page' },
