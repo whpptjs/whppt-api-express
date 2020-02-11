@@ -1,34 +1,57 @@
-const { isEmpty, toUpper, map } = require('lodash');
+const { isEmpty, toUpper, map, forEach } = require('lodash');
 
 module.exports = {
   exec({ $mongo: { $db } }, query) {
-    const { categories, filters, limit = 6, currentPage = 1 } = query;
+    const { categoryFilterId, filters, limit = 6, currentPage = 1 } = query;
 
-    const categoryFilters =
-      categories && categories.length
-        ? {
-            'atdw.productCategoryId': {
-              $in: map(categories, c => {
-                return toUpper(c);
-              }),
-            },
-          }
-        : {};
-
+    const categoryQuery = {};
     const listingsQuery = {};
 
     if (filters && !isEmpty(filters)) listingsQuery['atdw.startDate'] = {};
     if (filters && filters.from) listingsQuery['atdw.startDate'].$gte = filters.from;
     if (filters && filters.to) listingsQuery['atdw.startDate'].$lte = filters.to;
 
-    const listings = $db
-      .collection('listings')
-      .find({ ...listingsQuery, ...categoryFilters })
-      .skip(limit * (currentPage - 1))
-      .limit(limit);
+    if (categoryFilterId) {
+      return $db
+        .collection('categories')
+        .findOne({ id: categoryFilterId })
+        .then(category => {
+          categoryQuery.$and = [];
+          forEach(category.filters, orFilter =>
+            categoryQuery.$and.push({
+              'taggedCategories.value': {
+                $in: map(orFilter, or => {
+                  return toUpper(or.trim());
+                }),
+              },
+            })
+          );
+          console.log('TCL: exec -> categoryQuery', categoryQuery);
 
-    return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
-      return { listings, totalListings };
-    });
+          const listings = $db
+            .collection('listings')
+            .find({ ...listingsQuery, ...categoryQuery })
+            .skip(limit * (currentPage - 1))
+            .limit(limit);
+
+          return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
+            return { listings, totalListings };
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          throw err;
+        });
+    } else {
+      const listings = $db
+        .collection('listings')
+        .find({ ...listingsQuery })
+        .skip(limit * (currentPage - 1))
+        .limit(limit);
+
+      return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
+        return { listings, totalListings };
+      });
+    }
   },
 };

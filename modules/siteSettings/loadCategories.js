@@ -1,10 +1,11 @@
 module.exports = {
   exec({ $mongo: { $db } }) {
     return $db
-      .collection('siteSettings')
-      .findOne({id: 'categories'},)
+      .collection('categories')
+      .find()
+      .toArray()
       .then(result => {
-        return result.categories
+        return result;
       })
       .catch(err => {
         console.error(err);

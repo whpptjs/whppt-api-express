@@ -1,6 +1,7 @@
 const assert = require('assert');
 const { map, camelCase, lowerCase, forEach, get, find } = require('lodash');
 const URI = require('uri-js');
+const slugify = require('slugify');
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
@@ -49,8 +50,10 @@ module.exports = {
     ])
       .then(([listings, atdwResults]) => {
         const { products } = atdwResults;
+
         forEach(products, product => {
           const foundListing = find(listings, l => l.atdw && l.atdw.productId === product.productId);
+
           const listing = foundListing || {
             _id: product.productId,
             name: {
@@ -106,6 +109,8 @@ module.exports = {
         const pageOps = [];
 
         forEach(listings, listing => {
+          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
+
           listingOps.push({
             updateOne: {
               filter: { _id: listing._id },
@@ -120,7 +125,8 @@ module.exports = {
               update: {
                 $set: {
                   _id: listing._id,
-                  slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
+                  slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
+                  // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
                     id: listing._id,
