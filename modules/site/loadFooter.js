@@ -3,10 +3,10 @@ const assert = require('assert');
 module.exports = {
   exec({ $mongo: { $db } }) {
     return $db
-      .collection('footers')
-      .findOne({ _id: 'draft_footer' })
+      .collection('site')
+      .findOne({ _id: 'footer' })
       .then(footer => {
-        if (!footer) return { _id: 'draft_footer' };
+        if (!footer) return { _id: 'footer' };
         return footer;
       })
       .catch(err => {
