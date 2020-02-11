@@ -1,10 +1,20 @@
 module.exports = {
-  exec({ $mongo: { $db } }, { categories }) {
+  exec({ $id, $mongo: { $db } }, { categories }) {
+    const ops = [];
+    categories.forEach(category => {
+      ops.push({
+        updateOne: {
+          filter: { id: category.id || $id() },
+          update: { $set: category },
+          upsert: true,
+        },
+      });
+    });
     return $db
-      .collection('siteSettings')
-      .updateOne({id: 'categories'}, {$set: {categories}}, {upsert: true})
+      .collection('categories')
+      .bulkWrite(ops, { ordered: false })
       .then(() => {
-        return categories
+        return categories;
       })
       .catch(err => {
         console.error(err);

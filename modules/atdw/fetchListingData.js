@@ -14,7 +14,7 @@ module.exports = {
     const atdwFields = {
       name: stringFromPath,
       description: stringFromPath,
-      status: stringFromPath,
+      activeStatus: stringFromPath,
       email: function(product) {
         return find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
       },
