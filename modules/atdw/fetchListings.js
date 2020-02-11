@@ -19,7 +19,7 @@ module.exports = {
     const atdwFields = {
       name: stringFromPath,
       description: stringFromPath,
-      status: stringFromPath,
+      activeStatus: stringFromPath,
       email: function(product) {
         return find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
       },
@@ -50,8 +50,10 @@ module.exports = {
     ])
       .then(([listings, atdwResults]) => {
         const { products } = atdwResults;
+
         forEach(products, product => {
           const foundListing = find(listings, l => l.atdw && l.atdw.productId === product.productId);
+
           const listing = foundListing || {
             _id: product.productId,
             name: {
@@ -64,7 +66,7 @@ module.exports = {
               path: 'productDescription',
               provider: 'atdw',
             },
-            status: {
+            activeStatus: {
               value: '',
               path: 'status',
               provider: 'atdw',
@@ -107,6 +109,8 @@ module.exports = {
         const pageOps = [];
 
         forEach(listings, listing => {
+          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
+
           listingOps.push({
             updateOne: {
               filter: { _id: listing._id },

@@ -12,6 +12,7 @@ module.exports = {
   collections: {
     pages: 'pages',
     listing: 'listing',
+    image: 'image',
   },
   atdw: {
     apiUrl: process.env.ATDW_API_URL,

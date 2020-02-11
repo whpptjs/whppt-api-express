@@ -1,9 +1,8 @@
-const Jimp = require("jimp");
+const Jimp = require('jimp');
 // const CWebp = require('cwebp').CWebp;
 // const sharp = require('sharp');
-const { remove } = require("lodash");
-const COLLECTIONS = require("../COLLECTIONS");
-const { $uploadImageToS3, $fetchImageFromS3 } = require("../aws");
+const { remove } = require('lodash');
+const { $uploadImageToS3, $fetchImageFromS3 } = require('../aws');
 
 // sharp.cache(false);
 
@@ -13,12 +12,12 @@ const supportedFormats = {
   jpeg: Jimp.MIME_JPEG,
   tiff: Jimp.MIME_TIFF,
   gif: Jimp.MIME_GIF,
-  auto: Jimp.AUTO
+  auto: Jimp.AUTO,
 };
 
 // TODO: Add suport for webp to image formats
 module.exports = ({ $logger, $mongo }) => {
-  const fetch = function({ id, width, height, quality = 85, format = "auto" }) {
+  const fetch = function({ id, width, height, quality = 85, format = 'auto' }) {
     const mime = supportedFormats[format];
     return $fetchImageFromS3(id).then(({ imageBuffer }) => {
       const response = {};
@@ -65,7 +64,7 @@ module.exports = ({ $logger, $mongo }) => {
   const fetchOriginal = function({ id }) {
     return $mongo.then(({ db }) => {
       return db
-        .collection(COLLECTIONS.IMAGES)
+        .collection('images')
         .findOne({ _id: id })
         .then(storedImage => {
           return $fetchImageFromS3(id).then(({ imageBuffer }) => {
@@ -78,28 +77,23 @@ module.exports = ({ $logger, $mongo }) => {
     });
   };
 
-  const updateImageUsage = function(
-    aggType,
-    agg,
-    image,
-    { db, saveDoc, session }
-  ) {
+  const updateImageUsage = function(aggType, agg, image, { db, saveDoc, session }) {
     const { imageKey, imageKeyDisplay, from, to } = image;
     return Promise.all([
       db
-        .collection(COLLECTIONS.IMAGES)
+        .collection('images')
         .find({ _id: from }, {}, { session })
         .next(),
       db
-        .collection(COLLECTIONS.IMAGES)
+        .collection('images')
         .find({ _id: to }, {}, { session })
-        .next()
+        .next(),
     ]).then(([fromImage, toImage]) => {
       const saves = [];
       if (fromImage) {
         fromImage.uses = fromImage.uses || [];
         remove(fromImage.uses, u => u.aggId === agg._id && u.key === imageKey);
-        saves.push(saveDoc(COLLECTIONS.IMAGES, fromImage, { session }));
+        saves.push(saveDoc('images', fromImage, { session }));
       }
 
       toImage.uses = toImage.uses || [];
@@ -108,9 +102,9 @@ module.exports = ({ $logger, $mongo }) => {
         aggId: agg._id,
         aggType,
         key: imageKey,
-        imageKeyDisplay
+        imageKeyDisplay,
       });
-      saves.push(saveDoc(COLLECTIONS.IMAGES, toImage, { session }));
+      saves.push(saveDoc('images', toImage, { session }));
 
       return Promise.all(saves);
     });
