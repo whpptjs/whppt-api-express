@@ -4,7 +4,7 @@ module.exports = {
   exec({ $id, $mongo: { $save } }, { footer }) {
     assert(footer, 'A Footer Object must be provided.');
 
-    footer._id = footer._id || 'draft_footer';
-    return $save('footers', footer).then(() => footer);
+    footer._id = footer._id || 'footer';
+    return $save('site', footer).then(() => footer);
   },
 };

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { camelCase, lowerCase, forEach, get, find } = require('lodash');
+const { map, camelCase, lowerCase, forEach, get, find } = require('lodash');
 const URI = require('uri-js');
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
@@ -18,7 +18,7 @@ module.exports = {
     const atdwFields = {
       name: stringFromPath,
       description: stringFromPath,
-      // Category: stringFromPath,
+      status: stringFromPath,
       email: function(product) {
         return find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
       },
@@ -31,6 +31,12 @@ module.exports = {
       image: function(product) {
         const { scheme, host, path } = URI.parse(product.productImage);
         return `${scheme}://${host}${path}`;
+      },
+      taggedCategories: function(product) {
+        const tags = map(product.verticalClassifications, category => category.productTypeId);
+        tags.push(product.productCategoryId);
+
+        return tags;
       },
     };
 
@@ -57,6 +63,11 @@ module.exports = {
               path: 'productDescription',
               provider: 'atdw',
             },
+            status: {
+              value: '',
+              path: 'status',
+              provider: 'atdw',
+            },
             physicalAddress: {
               value: '',
               path: 'physicalAddress',
@@ -72,10 +83,16 @@ module.exports = {
               path: 'email',
               provider: 'atdw',
             },
+            taggedCategories: {
+              value: [],
+              path: 'taggedCategories',
+              provider: 'atdw',
+            },
+            hasFullATDWData: false,
           };
           if (!foundListing) listings.push(listing);
 
-          listing.atdw = product;
+          listing.atdw = foundListing && foundListing.atdw ? { ...foundListing.atdw, ...product } : product;
 
           forEach(atdwFields, (getFieldValue, fieldKey) => {
             const property = listing[fieldKey];

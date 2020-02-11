@@ -6,7 +6,7 @@ module.exports = {
       .collection('listings')
       .findOne({ _id: id })
       .then(listing => {
-        return listing;
+        return { listing };
       });
   },
 };

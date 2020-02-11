@@ -2,6 +2,7 @@ const { isEmpty, toUpper, map } = require('lodash');
 
 module.exports = {
   exec({ $mongo: { $db } }, query) {
+    console.log('here');
     const { categories, filters, limit = 6, currentPage = 1 } = query;
 
     const categoryFilters =
