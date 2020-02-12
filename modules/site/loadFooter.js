@@ -6,7 +6,7 @@ module.exports = {
       .collection('site')
       .findOne({ _id: 'footer' })
       .then(footer => {
-        if (!footer) return { _id: 'footer' };
+        if (!footer) return { _id: 'footer', linkGroups: [] };
         return footer;
       })
       .catch(err => {
