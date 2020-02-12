@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Whppt = require('../index');
+const imageRouter = require('../imageRouter');
 
 // const context = require('./context');
 // const seo = require('./api/seo');
@@ -22,6 +23,8 @@ Whppt().then(whppt => {
   app.use(bodyParser.urlencoded({ extended: false }));
 
   app.use(whppt);
+
+  app.use(imageRouter);
 
   app.use((req, res, next) => {
     const err = new Error('Not Found');
