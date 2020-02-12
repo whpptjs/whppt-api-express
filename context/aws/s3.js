@@ -1,8 +1,5 @@
 const S3_BUCKET_NAME = process.env.S3BUCKET || 'media.dev.samuseum.svelteteam.com';
 
-// eslint-disable-next-line no-console
-console.log('TCL: S3_BUCKET_NAME', S3_BUCKET_NAME);
-
 module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
 
