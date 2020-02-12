@@ -38,7 +38,6 @@ module.exports = ({ $logger, $mongo }) => {
   // const fetchWebP = function({ id, width, height, quality = 85, format = 'auto' }) {
   //   // return fetch({ id, width, height, quality, format }).then(({ Body: imageBuffer }) => {
   //   return $fetchImageFromS3(id).then(({ imageBuffer }) => {
-  //     // console.log('TCL: fetchWebP -> imageBuffer', imageBuffer);
   //     const response = {};
   //     // const image = sharp(imageBuffer);
   //     return sharp(imageBuffer)
@@ -53,7 +52,6 @@ module.exports = ({ $logger, $mongo }) => {
   //     // const encoder = new CWebp(imageBuffer);
   //     // encoder.quality(quality);
   //     // return encoder.toBuffer().then(function(buffer) {
-  //     //   console.log('TCL: fetchWebP -> buffer', buffer);
   //     //   response.Body = buffer;
   //     //   response.ContentType = 'image/webp';
   //     //   return response;

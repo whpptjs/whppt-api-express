@@ -26,7 +26,6 @@ module.exports = {
               },
             })
           );
-          console.log('TCL: exec -> categoryQuery', categoryQuery);
 
           const listings = $db
             .collection('listings')
