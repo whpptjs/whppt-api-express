@@ -25,6 +25,7 @@ module.exports = {
           },
         },
       ])
+      .toArray()
       .then(results => {
         return results[0].uniqueValues;
       });
