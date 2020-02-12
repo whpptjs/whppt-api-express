@@ -11,11 +11,6 @@ awsSDK.config.update({
   region: AWS_REGION,
 });
 
-const {
-  uploadImage: $uploadImageToS3,
-  fetchImage: $fetchImageFromS3,
-  uploadDoc: $uploadDocToS3,
-  fetchDoc: $fetchDocFromS3,
-} = S3(awsSDK);
+const { uploadImage: uploadImageToS3, fetchImage: fetchImageFromS3, uploadDoc: uploadDocToS3, fetchDoc: fetchDocFromS3 } = S3(awsSDK);
 
-module.exports = { $uploadImageToS3, $fetchImageFromS3, $uploadDocToS3, $fetchDocFromS3 };
+module.exports = { uploadImageToS3, fetchImageFromS3, uploadDocToS3, fetchDocFromS3 };
