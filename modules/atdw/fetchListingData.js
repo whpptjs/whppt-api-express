@@ -1,42 +1,13 @@
 const assert = require('assert');
-const { map, get, forEach, find, uniqBy } = require('lodash');
-const URI = require('uri-js');
+const { uniq, forEach } = require('lodash');
+const atdwFields = require('./atdwFields');
+const filterMultimedia = require('./filterMultimedia');
 
 // Whppt Config
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $atdw, $mongo: { $db } }, query) {
-    const stringFromPath = function(product, path) {
-      return get(product, path);
-    };
-
-    const atdwFields = {
-      name: stringFromPath,
-      description: stringFromPath,
-      activeStatus: stringFromPath,
-      email: function(product) {
-        return find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
-      },
-      physicalAddress: function(product) {
-        return find(product.addresses, address => address.address_type === 'PHYSICAL');
-      },
-      postalAddress: function(product) {
-        return find(product.addresses, address => address.address_type === 'POSTAL');
-      },
-      image: function(product) {
-        const { scheme, host, path } = URI.parse(product.productImage);
-        return `${scheme}://${host}${path}`;
-      },
-      taggedCategories: function(product) {
-        const tags = map(product.verticalClassifications, category => category.productTypeId);
-        tags.push(product.productCategoryId);
-
-        // should uniq this...
-        return tags;
-      },
-    };
-
     const { id } = query;
     assert(id, 'Please provide a Listing ID');
 
@@ -50,6 +21,7 @@ module.exports = {
         const { multimedia } = listingData;
         listingData.multimedia = filterMultimedia(multimedia);
 
+        // bit of repetitive code here, refactor into own function
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           const property = listing[fieldKey];
 
@@ -57,6 +29,7 @@ module.exports = {
           property.value = getFieldValue(listingData, property.path);
         });
 
+        listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
         listing.atdw = { ...listing.atdw, ...listingData };
         listing.hasFullATDWData = true;
 
@@ -70,14 +43,3 @@ module.exports = {
     );
   },
 };
-
-function filterMultimedia(multimedia) {
-  // trim query params from existing urls
-  multimedia.forEach(media => {
-    const url = URI.parse(media.serverPath);
-    media.serverPath = `${url.scheme}://${url.host}${url.path}`;
-  });
-
-  // filter out duplicates
-  return uniqBy(multimedia, media => media.serverPath);
-}
