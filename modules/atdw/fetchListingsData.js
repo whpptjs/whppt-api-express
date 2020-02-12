@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { forEach } = require('lodash');
+const { uniq, forEach } = require('lodash');
 const atdwFields = require('./atdwFields');
 const filterMultimedia = require('./filterMultimedia');
 
@@ -35,6 +35,7 @@ module.exports = {
         const { multimedia } = listingData;
         listingData.multimedia = await filterMultimedia(multimedia);
 
+        listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
         listing.atdw = { ...atdw, ...listingData };
         listing.hasFullATDWData = true;
 
