@@ -16,6 +16,8 @@ module.exports = {
       .find({ 'atdw.externalSystems.externalSystemCode': 'BOOKEASY' })
       .toArray()
       .then(listings => {
+        assert(listings, 'No listings found with BookEasy Operator Id.');
+
         const operators = [];
 
         listings.forEach(listing => {
