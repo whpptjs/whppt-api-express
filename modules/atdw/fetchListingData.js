@@ -37,6 +37,37 @@ module.exports = {
           .collection('listings')
           .updateOne({ _id: id }, { $set: listing })
           .then(() => {
+            if (listing.atdw.productCategoryId === 'TOUR' && listing.atdw.services && listing.atdw.services.length > 0) {
+              const serviceOps = [];
+              forEach(listing.atdw.services, service => {
+                const newService = {
+                  _id: service.serviceId,
+                  name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
+                  isService: true,
+                  parentId: listing._id,
+                  slug: listing.slug,
+                  taggedCategories: listing.taggedCategories,
+                  multimedia: service.serviceMultimedia,
+                  atdw: { ...service, productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath },
+                };
+                serviceOps.push({
+                  updateOne: {
+                    filter: { _id: newService._id },
+                    update: { $set: newService },
+                    upsert: true,
+                  },
+                });
+              });
+
+              console.log('TCL: exec -> serviceOps', serviceOps);
+
+              return $db
+                .collection('listings')
+                .bulkWrite(serviceOps, { ordered: false })
+                .then(() => {
+                  return Promise.resolve({ statusCode: 200, message: 'OK' });
+                });
+            }
             return Promise.resolve({ statusCode: 200, message: 'OK' });
           });
       }
