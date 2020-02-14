@@ -93,7 +93,8 @@ module.exports = {
         const pageOps = [];
 
         forEach(listings, listing => {
-          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
+          listing.slug = listing.atdw ? `listing/${slugify(listing.name.value, { remove: /[*+~.()'"!:@]/g, lower: true })}` : '';
+          listing.slug = listing.slug.replace(/\/{2,}/g, '/');
 
           listingOps.push({
             updateOne: {
@@ -109,7 +110,7 @@ module.exports = {
               update: {
                 $set: {
                   _id: listing._id,
-                  slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
+                  slug: listing.slug,
                   // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
