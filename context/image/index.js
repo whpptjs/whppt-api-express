@@ -1,6 +1,6 @@
 const Jimp = require('jimp');
 
-const { remove } = require('lodash');
+// const { remove } = require('lodash');
 
 const supportedFormats = {
   png: Jimp.MIME_PNG,
@@ -30,6 +30,40 @@ module.exports = ({ $logger, $mongo, $aws }) => {
   //     });
   //   });
   // };
+
+  const fetch = function({ startX, startY, width, height, scale, orientation, id }) {
+    return $mongo.then(({ db }) => {
+      // const formatSplit = format.split('.');
+      // const mappedFormats = map(formatSplit, s => {
+      //   const sp = s.split('~');
+      //   return { type: sp[0], value: sp[1] };
+      // });
+      // const formats = keyBy(mappedFormats, s => s.type);
+      // const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value);
+      // const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value);
+      // const startX = Number(formats.x.value);
+      // const startY = Number(formats.y.value);
+      // const scale = Number(formats.s.value);
+      // const orientation = Number(formats.o.value);
+
+      return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
+        const response = {};
+
+        return Jimp.read(imageBuffer)
+          .then(imgJimp => {
+            return imgJimp
+              .scale(scale)
+              .crop(-startX, -startY, widthNum, heightNum)
+              .getBufferAsync(Jimp.AUTO);
+          })
+          .then(processedImageBuffer => {
+            response.Body = processedImageBuffer;
+            response.ContentType = Jimp.AUTO;
+            return response;
+          });
+      });
+    });
+  };
 
   const fetchOriginal = function({ id }) {
     return $mongo.then(({ db }) => {
