@@ -7,7 +7,6 @@ module.exports = {
       .find({ 'contents.categoryFilter.id': id })
       .toArray()
       .then(result => {
-        console.log('TCL: exec -> result', result);
         return map(result, page => {
           return page.slug;
         });
