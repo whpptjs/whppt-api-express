@@ -5,7 +5,8 @@
   "author": "Svelte Studios",
   "scripts": {
     "start": "DEBUG=whppt:* nodemon --watch .. server",
-    "db": "run-rs --keep"
+    "db": "run-rs --keep",
+    "db --purge": "run-rs --shell"
   },
   "license": "ISC",
   "dependencies": {

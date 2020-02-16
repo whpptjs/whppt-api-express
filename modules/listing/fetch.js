@@ -1,17 +1,24 @@
-const { isEmpty, toUpper, map, forEach } = require('lodash');
+const { isEmpty, toUpper, map, forEach, flattenDeep, uniq } = require('lodash');
 
 module.exports = {
   exec({ $mongo: { $db } }, query) {
-    const { categoryFilterId, filters, limit = 6, currentPage = 1 } = query;
+    const { categoryFilterId, filters, checkedCategories, limit = 6, currentPage = 1 } = query;
 
     const categoryQuery = {};
     const listingsQuery = {};
+    const checkedCategoriesQuery = {};
 
     if (filters && !isEmpty(filters)) listingsQuery['atdw.startDate'] = {};
     if (filters && filters.from) listingsQuery['atdw.startDate'].$gte = filters.from;
     if (filters && filters.to) listingsQuery['atdw.startDate'].$lte = filters.to;
+    if (checkedCategories && checkedCategories.length) {
+      checkedCategoriesQuery['taggedCategories.value'] = {};
+      checkedCategoriesQuery['taggedCategories.value'].$in = map(checkedCategories, c => {
+        return toUpper(c.trim());
+      });
+    }
 
-    if (categoryFilterId) {
+    if (categoryFilterId && categoryFilterId !== 'none') {
       return $db
         .collection('categories')
         .findOne({ id: categoryFilterId })
@@ -26,16 +33,21 @@ module.exports = {
               },
             })
           );
-          console.log('TCL: exec -> categoryQuery', categoryQuery);
+
+          const listingCategories = uniq(
+            map(flattenDeep(category.filters), f => {
+              return f.trim();
+            })
+          );
 
           const listings = $db
             .collection('listings')
-            .find({ ...listingsQuery, ...categoryQuery })
+            .find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery })
             .skip(limit * (currentPage - 1))
             .limit(limit);
 
           return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
-            return { listings, totalListings };
+            return { listings, totalListings, listingCategories };
           });
         })
         .catch(err => {

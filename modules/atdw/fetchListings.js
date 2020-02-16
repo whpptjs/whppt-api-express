@@ -1,7 +1,7 @@
 const assert = require('assert');
-const { map, camelCase, lowerCase, forEach, get, find } = require('lodash');
-const URI = require('uri-js');
+const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
+const atdwFields = require('./atdwFields');
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
@@ -11,35 +11,6 @@ module.exports = {
 
     assert(apiUrl, 'Please provide an ATDW URL.');
     assert(apiKey, 'Please provide an ATDW API Key.');
-
-    const stringFromPath = function(product, path) {
-      return get(product, path);
-    };
-
-    const atdwFields = {
-      name: stringFromPath,
-      description: stringFromPath,
-      activeStatus: stringFromPath,
-      email: function(product) {
-        return find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
-      },
-      physicalAddress: function(product) {
-        return find(product.addresses, address => address.address_type === 'PHYSICAL');
-      },
-      postalAddress: function(product) {
-        return find(product.addresses, address => address.address_type === 'POSTAL');
-      },
-      image: function(product) {
-        const { scheme, host, path } = URI.parse(product.productImage);
-        return `${scheme}://${host}${path}`;
-      },
-      taggedCategories: function(product) {
-        const tags = map(product.verticalClassifications, category => category.productTypeId);
-        tags.push(product.productCategoryId);
-
-        return tags;
-      },
-    };
 
     return Promise.all([
       $db
@@ -86,13 +57,24 @@ module.exports = {
               path: 'email',
               provider: 'atdw',
             },
+            atdwCategories: {
+              value: [],
+              path: 'atdwCategories',
+              provider: 'atdw',
+            },
+            customCategories: {
+              value: [],
+              path: 'customCategories',
+              provider: '',
+            },
             taggedCategories: {
               value: [],
               path: 'taggedCategories',
-              provider: 'atdw',
+              provider: '',
             },
             hasFullATDWData: false,
           };
+
           if (!foundListing) listings.push(listing);
 
           listing.atdw = foundListing && foundListing.atdw ? { ...foundListing.atdw, ...product } : product;
@@ -103,13 +85,16 @@ module.exports = {
             if (!property || property.provider !== 'atdw') return;
             property.value = getFieldValue(product, property.path);
           });
+
+          listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
         });
 
         const listingOps = [];
         const pageOps = [];
 
         forEach(listings, listing => {
-          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
+          listing.slug = listing.atdw ? `listing/${slugify(listing.name.value, { remove: /[*+~.()'"!:@]/g, lower: true })}` : '';
+          listing.slug = listing.slug.replace(/\/{2,}/g, '/');
 
           listingOps.push({
             updateOne: {
@@ -125,7 +110,7 @@ module.exports = {
               update: {
                 $set: {
                   _id: listing._id,
-                  slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
+                  slug: listing.slug,
                   // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
