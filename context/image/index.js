@@ -1,7 +1,5 @@
 const Jimp = require('jimp');
-
-// const { remove } = require('lodash');
-
+const { map, keyBy } = require('lodash');
 const supportedFormats = {
   png: Jimp.MIME_PNG,
   jpg: Jimp.MIME_JPEG,
@@ -12,56 +10,37 @@ const supportedFormats = {
 };
 
 // TODO: Add suport for webp to image formats
-module.exports = ({ $logger, $mongo, $aws }) => {
-  // const fetch = function({ id, width, height, quality = 85, format = 'auto' }) {
-  //   const mime = supportedFormats[format];
-  //   return $fetchImageFromS3(id).then(({ imageBuffer }) => {
-  //     const response = {};
-  //     return Jimp.read(imageBuffer).then(imageJimp => {
-  //       return imageJimp
-  //         .resize(width, height)
-  //         .quality(quality)
-  //         .getBufferAsync(mime)
-  //         .then(formatedImageBuffer => {
-  //           response.Body = formatedImageBuffer;
-  //           response.ContentType = mime;
-  //           return response;
-  //         });
-  //     });
-  //   });
-  // };
+module.exports = ({ $logger, $mongo: { $db }, $aws }) => {
+  const fetch = function({ format, id }) {
+    const formatSplit = format.split('|');
+    const mappedFormats = map(formatSplit, s => {
+      const sp = s.split('~');
+      return { type: sp[0], value: sp[1] };
+    });
+    console.log('TCL: fetch -> mappedFormats', mappedFormats);
+    const formats = keyBy(mappedFormats, s => s.type);
+    const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value);
+    const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value);
+    const startX = Number(formats.x.value);
+    const startY = Number(formats.y.value);
+    const scale = Number(formats.s.value);
+    const orientation = Number(formats.o.value);
 
-  const fetch = function({ startX, startY, width, height, scale, orientation, id }) {
-    return $mongo.then(({ db }) => {
-      // const formatSplit = format.split('.');
-      // const mappedFormats = map(formatSplit, s => {
-      //   const sp = s.split('~');
-      //   return { type: sp[0], value: sp[1] };
-      // });
-      // const formats = keyBy(mappedFormats, s => s.type);
-      // const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value);
-      // const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value);
-      // const startX = Number(formats.x.value);
-      // const startY = Number(formats.y.value);
-      // const scale = Number(formats.s.value);
-      // const orientation = Number(formats.o.value);
+    return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
+      const response = {};
 
-      return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
-        const response = {};
-
-        return Jimp.read(imageBuffer)
-          .then(imgJimp => {
-            return imgJimp
-              .scale(scale)
-              .crop(-startX, -startY, widthNum, heightNum)
-              .getBufferAsync(Jimp.AUTO);
-          })
-          .then(processedImageBuffer => {
-            response.Body = processedImageBuffer;
-            response.ContentType = Jimp.AUTO;
-            return response;
-          });
-      });
+      return Jimp.read(imageBuffer)
+        .then(imgJimp => {
+          return imgJimp
+            .scale(scale)
+            .crop(-startX, -startY, width, height)
+            .getBufferAsync(Jimp.AUTO);
+        })
+        .then(processedImageBuffer => {
+          response.Body = processedImageBuffer;
+          response.ContentType = Jimp.AUTO;
+          return response;
+        });
     });
   };
 
@@ -115,5 +94,5 @@ module.exports = ({ $logger, $mongo, $aws }) => {
   // };
 
   // return { upload: $uploadImageToS3, fetch, fetchOriginal, updateImageUsage };
-  return { upload: $aws.uploadImageToS3, fetchOriginal };
+  return { upload: $aws.uploadImageToS3, fetchOriginal, fetch };
 };
