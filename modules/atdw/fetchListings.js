@@ -32,6 +32,7 @@ module.exports = {
               path: 'productName',
               provider: 'atdw',
             },
+            listingType: 'product',
             description: {
               value: '',
               path: 'productDescription',
@@ -93,8 +94,7 @@ module.exports = {
         const pageOps = [];
 
         forEach(listings, listing => {
-          listing.slug = listing.atdw ? `listing/${slugify(listing.name.value, { remove: /[*+~.()'"!:@]/g, lower: true })}` : '';
-          listing.slug = listing.slug.replace(/\/{2,}/g, '/');
+          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
 
           listingOps.push({
             updateOne: {
@@ -110,7 +110,7 @@ module.exports = {
               update: {
                 $set: {
                   _id: listing._id,
-                  slug: listing.slug,
+                  slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
                   // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listing: {
