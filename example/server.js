@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const Whppt = require('../index');
 const Image = require('../imageRouter');
+const formidableMiddleware = require('express-formidable');
 
 // const context = require('./context');
 // const seo = require('./api/seo');
@@ -20,7 +21,9 @@ const [host, port] = ['localhost', '3001'];
 Promise.all([Image(), Whppt()]).then(([imageRouter, whppt]) => {
   app.use(cors());
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.urlencoded({ extended: true }));
+
+  app.use(formidableMiddleware());
 
   app.use(whppt);
 

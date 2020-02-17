@@ -10,11 +10,11 @@ const supportedFormats = {
 };
 
 // TODO: Add suport for webp to image formats
-module.exports = ({ $logger, $mongo: { $db }, $aws }) => {
+module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   const fetch = function({ format, id }) {
     const formatSplit = format.split('|');
     const mappedFormats = map(formatSplit, s => {
-      const sp = s.split('~');
+      const sp = s.split('_');
       return { type: sp[0], value: sp[1] };
     });
     console.log('TCL: fetch -> mappedFormats', mappedFormats);
@@ -45,19 +45,36 @@ module.exports = ({ $logger, $mongo: { $db }, $aws }) => {
   };
 
   const fetchOriginal = function({ id }) {
-    return $mongo.then(({ db }) => {
-      return db
-        .collection('images')
-        .findOne({ _id: id })
-        .then(storedImage => {
-          return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
-            const response = imageBuffer;
-            response.Body = imageBuffer;
-            response.ContentType = storedImage.mime;
-            return response;
-          });
-        });
+    // return $db
+    //   .collection('images')
+    //   .findOne({ _id: id })
+    //   .then(storedImage => {
+    return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
+      const response = imageBuffer;
+      response.Body = imageBuffer;
+      response.ContentType = storedImage.mime;
+      return response;
     });
+    // });
+  };
+
+  const upload = function(file) {
+    console.log('TCL: upload -> file', file);
+    console.log('TCL: upload -> file', Object.keys(file));
+    const { buffer, type, name } = file;
+    console.log('TCL: upload -> name', name);
+    console.log('TCL: upload -> type', type);
+    console.log('TCL: upload -> buffer', buffer);
+    const id = $id();
+    const base64Data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+    return $aws.uploadImageToS3(base64Data, id).then(() =>
+      $db.collection('images').insertOne({
+        id,
+        uploadedOn: new Date(),
+        name,
+        type,
+      })
+    );
   };
 
   // const updateImageUsage = function(aggType, agg, image, { db, saveDoc, session }) {
@@ -94,5 +111,5 @@ module.exports = ({ $logger, $mongo: { $db }, $aws }) => {
   // };
 
   // return { upload: $uploadImageToS3, fetch, fetchOriginal, updateImageUsage };
-  return { upload: $aws.uploadImageToS3, fetchOriginal, fetch };
+  return { upload, fetchOriginal, fetch };
 };

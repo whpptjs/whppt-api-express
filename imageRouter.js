@@ -34,6 +34,21 @@ module.exports = () => {
         });
     });
 
+    router.post('/img/upload', (req, res) => {
+      const file = req.files.file;
+      console.log('TCL: file', file);
+      if (!file) return { message: 'Image file not found' };
+
+      return (
+        $image
+          .upload(file)
+          // .then(() => {})
+          .catch(err => {
+            res.status(err.http_code || 500).send(err);
+          })
+      );
+    });
+
     return router;
   });
 };
