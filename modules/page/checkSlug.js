@@ -4,7 +4,7 @@ module.exports = {
       .collection('pages')
       .findOne({ slug })
       .then(page => {
-        return page && page._id
+        return page && page._id;
       })
       .catch(err => {
         console.error(err);
