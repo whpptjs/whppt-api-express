@@ -1,4 +1,5 @@
 const router = require('express-promise-json-router')();
+const Image = require('./imageRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
 
@@ -14,6 +15,10 @@ module.exports = () => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return router;
+    return Image().then(imageRouter => {
+      router.use(imageRouter);
+
+      return router;
+    });
   });
 };

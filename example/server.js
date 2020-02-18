@@ -6,7 +6,7 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const Whppt = require('../index');
-const Image = require('../imageRouter');
+// const Image = require('../imageRouter');
 
 // Currently breaks requests...
 // const formidableMiddleware = require('express-formidable');
@@ -22,7 +22,7 @@ const Image = require('../imageRouter');
 
 const [host, port] = ['localhost', '3001'];
 
-Promise.all([Image(), Whppt()]).then(([imageRouter, whppt]) => {
+Promise.all([Whppt()]).then(([whppt]) => {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -31,8 +31,6 @@ Promise.all([Image(), Whppt()]).then(([imageRouter, whppt]) => {
   // app.use(formidableMiddleware());
 
   app.use(whppt);
-
-  app.use(imageRouter);
 
   app.use((req, res, next) => {
     const err = new Error('Not Found');
