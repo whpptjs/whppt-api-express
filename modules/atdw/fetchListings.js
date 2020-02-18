@@ -58,6 +58,16 @@ module.exports = {
               path: 'email',
               provider: 'atdw',
             },
+            image: {
+              value: '',
+              path: 'productImage',
+              provider: 'atdw',
+            },
+            phone: {
+              value: '',
+              path: 'phone',
+              provider: 'atdw',
+            },
             atdwCategories: {
               value: [],
               path: 'atdwCategories',
@@ -84,7 +94,7 @@ module.exports = {
             const property = listing[fieldKey];
 
             if (!property || property.provider !== 'atdw') return;
-            property.value = getFieldValue(product, property.path);
+            property.value = getFieldValue(product, property.path) || property.value;
           });
 
           listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
@@ -94,7 +104,7 @@ module.exports = {
         const pageOps = [];
 
         forEach(listings, listing => {
-          listing.slug = listing.atdw ? slugify(`listing/${listing.name.value}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : '';
+          listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
 
           listingOps.push({
             updateOne: {

@@ -26,7 +26,7 @@ module.exports = {
           const property = listing[fieldKey];
 
           if (!property || property.provider !== 'atdw') return;
-          property.value = getFieldValue(listingData, property.path);
+          property.value = getFieldValue(listingData, property.path) || property.value;
         });
 
         listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
@@ -65,6 +65,7 @@ module.exports = {
                       activeStatus: listing.activeStatus,
                       atdw: {
                         ...service,
+                        status: listing.atdw.status,
                         productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath,
                         productCategoryId: listing.atdw.productCategoryId,
                       },
