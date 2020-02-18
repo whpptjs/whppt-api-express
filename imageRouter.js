@@ -18,11 +18,12 @@ module.exports = () => {
       return $image
         .fetchOriginal({ id: req.params.imageId })
         .then(response => {
-          // console.log("TCL: response", response);
+          console.log('TCL: response', response);
           if (!response) return res.status(500).send('Image not found');
           res.type(response.ContentType).send(response.Body);
         })
         .catch(err => {
+          console.log('err', err);
           res.status(500).send(err);
         });
     });
@@ -44,14 +45,14 @@ module.exports = () => {
       const file = req.file;
       if (!file) return { message: 'Image file not found' };
 
-      return (
-        $image
-          .upload(file)
-          // .then(() => {})
-          .catch(err => {
-            res.status(err.http_code || 500).send(err);
-          })
-      );
+      $image
+        .upload(file)
+        .then(() => {
+          return res.sendStatus(200);
+        })
+        .catch(err => {
+          res.status(err.http_code || 500).send(err);
+        });
     });
 
     return router;
