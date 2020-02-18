@@ -59,15 +59,12 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   };
 
   const upload = function(file) {
-    console.log('TCL: upload -> file', file);
-    console.log('TCL: upload -> file', Object.keys(file));
-    const { buffer, type, name } = file;
+    const { buffer, mimetype: type, originalname: name } = file;
     console.log('TCL: upload -> name', name);
     console.log('TCL: upload -> type', type);
-    console.log('TCL: upload -> buffer', buffer);
     const id = $id();
-    const base64Data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-    return $aws.uploadImageToS3(base64Data, id).then(() =>
+    // const data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+    return $aws.uploadImageToS3(buffer, id).then(() =>
       $db.collection('images').insertOne({
         id,
         uploadedOn: new Date(),

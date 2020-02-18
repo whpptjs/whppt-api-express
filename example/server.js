@@ -23,7 +23,7 @@ const [host, port] = ['localhost', '3001'];
 Promise.all([Image(), Whppt()]).then(([imageRouter, whppt]) => {
   app.use(cors());
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.urlencoded({ extended: false }));
 
   // Currently breaks requests...
   // app.use(formidableMiddleware());
