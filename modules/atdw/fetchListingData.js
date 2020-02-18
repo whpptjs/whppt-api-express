@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { uniq, forEach } = require('lodash');
+const { uniq, forEach, map, find, get } = require('lodash');
 const atdwFields = require('./atdwFields');
 const filterMultimedia = require('./filterMultimedia');
 
@@ -26,7 +26,7 @@ module.exports = {
           const property = listing[fieldKey];
 
           if (!property || property.provider !== 'atdw') return;
-          property.value = getFieldValue(listingData, property.path);
+          property.value = getFieldValue(listingData, property.path) || property.value;
         });
 
         listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
@@ -38,34 +38,59 @@ module.exports = {
           .updateOne({ _id: id }, { $set: listing })
           .then(() => {
             if (listing.atdw.productCategoryId === 'TOUR' && listing.atdw.services && listing.atdw.services.length > 0) {
-              const serviceOps = [];
-              forEach(listing.atdw.services, service => {
-                const newService = {
-                  _id: service.serviceId,
-                  name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
-                  isService: true,
-                  parentId: listing._id,
-                  slug: listing.slug,
-                  taggedCategories: listing.taggedCategories,
-                  multimedia: service.serviceMultimedia,
-                  atdw: { ...service, productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath },
-                };
-                serviceOps.push({
-                  updateOne: {
-                    filter: { _id: newService._id },
-                    update: { $set: newService },
-                    upsert: true,
-                  },
-                });
+              const serviceIds = map(listing.atdw.services, s => {
+                return s.serviceId;
               });
-
-              console.log('TCL: exec -> serviceOps', serviceOps);
 
               return $db
                 .collection('listings')
-                .bulkWrite(serviceOps, { ordered: false })
-                .then(() => {
-                  return Promise.resolve({ statusCode: 200, message: 'OK' });
+                .find({ _id: { $in: serviceIds } })
+                .toArray()
+                .then(serviceListings => {
+                  const serviceOps = [];
+                  forEach(listing.atdw.services, service => {
+                    const foundService = find(serviceListings, s => s._id === service.serviceId);
+
+                    const newService = foundService || {
+                      _id: service.serviceId,
+                      name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
+                      parentId: listing._id,
+                      slug: listing.slug,
+                      listingType: 'service',
+                      image: { value: get(service, 'serviceMultimedia[0].serverPath'), path: 'serviceMultimedia[0].serverPath', provider: 'atdw' },
+                      taggedCategories: { value: [], provider: '' },
+                      atdwCategories: { value: listing.atdwCategories.value, provider: 'atdw' },
+                      customCategories: { value: [], provider: '' },
+                      multimedia: service.serviceMultimedia,
+                      activeStatus: listing.activeStatus,
+                      atdw: {
+                        ...service,
+                        status: listing.atdw.status,
+                        productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath,
+                        productCategoryId: listing.atdw.productCategoryId,
+                      },
+                    };
+
+                    newService.taggedCategories.value = uniq([...newService.atdwCategories.value, ...newService.customCategories.value]);
+
+                    if (newService.name.provider === 'atdw') newService.name.value = service.serviceName;
+                    if (newService.taggedCategories.provider === 'atdw') newService.taggedCategories.value = listing.atdwCategories.value;
+
+                    serviceOps.push({
+                      updateOne: {
+                        filter: { _id: newService._id },
+                        update: { $set: newService },
+                        upsert: true,
+                      },
+                    });
+                  });
+
+                  return $db
+                    .collection('listings')
+                    .bulkWrite(serviceOps, { ordered: false })
+                    .then(() => {
+                      return Promise.resolve({ statusCode: 200, message: 'OK' });
+                    });
                 });
             }
             return Promise.resolve({ statusCode: 200, message: 'OK' });

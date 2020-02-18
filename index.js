@@ -1,9 +1,7 @@
 const router = require('express-promise-json-router')();
+const Image = require('./imageRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
-
-const cache = require('express-cache-headers');
-const oneDay = 60 * 60 * 24;
 
 module.exports = () => {
   return Context().then(context => {
@@ -17,6 +15,10 @@ module.exports = () => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return router;
+    return Image().then(imageRouter => {
+      router.use(imageRouter);
+
+      return router;
+    });
   });
 };
