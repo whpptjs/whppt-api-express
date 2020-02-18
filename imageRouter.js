@@ -32,7 +32,7 @@ module.exports = () => {
       return $image
         .fetch({ id: req.params.imageId, format: req.params.format })
         .then(response => {
-          // console.log("TCL: response", response);
+          console.log('TCL: response', response);
           if (!response) return res.status(500).send('Image not found');
           res.type(response.ContentType).send(response.Body);
         })

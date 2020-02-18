@@ -35,11 +35,11 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
           return imgJimp
             .scale(scale)
             .crop(-startX, -startY, widthNum, heightNum)
-            .getBufferAsync(Jimp.AUTO);
+            .getBufferAsync(Jimp.MIME_PNG);
         })
         .then(processedImageBuffer => {
           response.Body = processedImageBuffer;
-          response.ContentType = Jimp.AUTO;
+          response.ContentType = Jimp.MIME_PNG;
           return response;
         });
     });
