@@ -3,6 +3,12 @@ const Context = require('./context');
 
 const cache = require('express-cache-headers');
 const oneDay = 60 * 60 * 24;
+// const formidableMiddleware = require('express-formidable');
+
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single('file');
 
 module.exports = () => {
   return Context().then(context => {
@@ -12,11 +18,12 @@ module.exports = () => {
       return $image
         .fetchOriginal({ id: req.params.imageId })
         .then(response => {
-          // console.log("TCL: response", response);
+          console.log('TCL: response', response);
           if (!response) return res.status(500).send('Image not found');
           res.type(response.ContentType).send(response.Body);
         })
         .catch(err => {
+          console.log('err', err);
           res.status(500).send(err);
         });
     });
@@ -34,19 +41,18 @@ module.exports = () => {
         });
     });
 
-    router.post('/img/upload', (req, res) => {
-      const file = req.files.file;
-      console.log('TCL: file', file);
+    router.post('/img/upload', upload, (req, res) => {
+      const file = req.file;
       if (!file) return { message: 'Image file not found' };
 
-      return (
-        $image
-          .upload(file)
-          // .then(() => {})
-          .catch(err => {
-            res.status(err.http_code || 500).send(err);
-          })
-      );
+      $image
+        .upload(file)
+        .then(() => {
+          return res.sendStatus(200);
+        })
+        .catch(err => {
+          res.status(err.http_code || 500).send(err);
+        });
     });
 
     return router;

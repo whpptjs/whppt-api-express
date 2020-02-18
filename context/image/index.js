@@ -1,5 +1,6 @@
 const Jimp = require('jimp');
 const { map, keyBy } = require('lodash');
+
 const supportedFormats = {
   png: Jimp.MIME_PNG,
   jpg: Jimp.MIME_JPEG,
@@ -33,7 +34,7 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
         .then(imgJimp => {
           return imgJimp
             .scale(scale)
-            .crop(-startX, -startY, width, height)
+            .crop(-startX, -startY, widthNum, heightNum)
             .getBufferAsync(Jimp.AUTO);
         })
         .then(processedImageBuffer => {
@@ -45,34 +46,37 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   };
 
   const fetchOriginal = function({ id }) {
-    // return $db
-    //   .collection('images')
-    //   .findOne({ _id: id })
-    //   .then(storedImage => {
-    return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
-      const response = imageBuffer;
-      response.Body = imageBuffer;
-      response.ContentType = storedImage.mime;
-      return response;
-    });
-    // });
+    return $db
+      .collection('images')
+      .findOne({ _id: id })
+      .then(storedImage => {
+        return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
+          const response = imageBuffer;
+          response.Body = imageBuffer;
+          response.ContentType = storedImage.type;
+          return response;
+        });
+      });
   };
 
   const upload = function(file) {
-    console.log('TCL: upload -> file', file);
-    console.log('TCL: upload -> file', Object.keys(file));
-    const { buffer, type, name } = file;
-    console.log('TCL: upload -> name', name);
-    console.log('TCL: upload -> type', type);
-    console.log('TCL: upload -> buffer', buffer);
+    const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
-    const base64Data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-    return $aws.uploadImageToS3(base64Data, id).then(() =>
+    // const data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+    return $aws.uploadImageToS3(buffer, id).then(() =>
       $db.collection('images').insertOne({
-        id,
+        _id: id,
         uploadedOn: new Date(),
         name,
         type,
+      })
+    );
+  };
+
+  const remove = function(id) {
+    return $aws.removeImageFromS3(id).then(() =>
+      $db.collection('images').deleteOne({
+        id,
       })
     );
   };
@@ -111,5 +115,5 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   // };
 
   // return { upload: $uploadImageToS3, fetch, fetchOriginal, updateImageUsage };
-  return { upload, fetchOriginal, fetch };
+  return { upload, fetchOriginal, fetch, remove };
 };
