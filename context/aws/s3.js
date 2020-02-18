@@ -1,4 +1,4 @@
-const S3_BUCKET_NAME = process.env.S3BUCKET || 'media.dev.samuseum.svelteteam.com';
+const S3_BUCKET_NAME = process.env.S3_BUCKET;
 
 module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
