@@ -72,6 +72,14 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
     );
   };
 
+  const remove = function(id) {
+    return $aws.removeImageFromS3(id).then(() =>
+      $db.collection('images').deleteOne({
+        id,
+      })
+    );
+  };
+
   // const updateImageUsage = function(aggType, agg, image, { db, saveDoc, session }) {
   //   const { imageKey, imageKeyDisplay, from, to } = image;
   //   return Promise.all([
@@ -106,5 +114,5 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   // };
 
   // return { upload: $uploadImageToS3, fetch, fetchOriginal, updateImageUsage };
-  return { upload, fetchOriginal, fetch };
+  return { upload, fetchOriginal, fetch, remove };
 };
