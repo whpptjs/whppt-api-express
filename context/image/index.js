@@ -60,8 +60,6 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
 
   const upload = function(file) {
     const { buffer, mimetype: type, originalname: name } = file;
-    console.log('TCL: upload -> name', name);
-    console.log('TCL: upload -> type', type);
     const id = $id();
     // const data = new Buffer.from(buffer.replace(/^data:image\/\w+;base64,/, ''), 'base64');
     return $aws.uploadImageToS3(buffer, id).then(() =>

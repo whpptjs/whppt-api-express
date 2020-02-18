@@ -42,8 +42,6 @@ module.exports = () => {
 
     router.post('/img/upload', upload, (req, res) => {
       const file = req.file;
-      console.log('TCL: req.body', Object.keys(req));
-      console.log('TCL: file', file);
       if (!file) return { message: 'Image file not found' };
 
       return (
