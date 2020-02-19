@@ -37,7 +37,6 @@ module.exports = {
             listing.atdw = { ...atdw, ...listingData };
             listing.hasFullATDWData = true;
 
-            console.log(listing.name);
             ops.push({
               updateOne: {
                 filter: { _id },
@@ -50,12 +49,10 @@ module.exports = {
         });
 
         return Promise.all(listingPromises).then(() => {
-          console.log('Begin Save');
           return $db
             .collection('listings')
             .bulkWrite(ops, { ordered: false })
             .then(() => {
-              console.log('Done Save');
               return Promise.resolve({ statusCode: 200, message: 'OK' });
             });
         });
