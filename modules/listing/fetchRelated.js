@@ -3,7 +3,6 @@ const { toUpper, map, shuffle } = require('lodash');
 module.exports = {
   exec({ $mongo: { $db } }, query) {
     const { categories, _id, limit = 6 } = query;
-    console.log('TCL: exec -> _id', _id);
 
     const categoriesQuery = {};
     categoriesQuery['_id'] = {};

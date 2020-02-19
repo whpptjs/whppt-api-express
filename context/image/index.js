@@ -21,33 +21,32 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
 
     const formats = keyBy(mappedFormats, s => s.type);
 
-    const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value);
-    const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value);
+    const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
+    const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
 
-    const startX = Number(formats.x.value);
-    const startY = Number(formats.y.value);
+    const startX = Math.abs(Number(formats.x.value)) || 0;
+    const startY = Math.abs(Number(formats.y.value)) || 0;
 
-    const scale = Number(formats.s.value);
+    const scale = Math.abs(Number(formats.s.value)) || 0.5;
 
-    const orientation = Number(formats.o.value);
+    // const orientation = Number(formats.o.value) || Jimp.AUTO;
 
-    return $aws.fetchImageFromS3(id).then(({ imageBuffer }) => {
+    return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
+      const imageType = storedImage.type.split('/')[1];
+      const { imageBuffer } = s3Image;
+
       const response = {};
 
       return Jimp.read(imageBuffer)
         .then(imgJimp => {
-          return (
-            imgJimp
-              .scale(scale)
-              .crop(-startX, -startY, widthNum, heightNum)
-              // TODO: Need to load image and get mime type to pass through middleware
-              .getBufferAsync(Jimp.MIME_PNG)
-          );
+          return imgJimp
+            .scale(scale)
+            .crop(startX, startY, widthNum, heightNum)
+            .getBufferAsync(supportedFormats[imageType]);
         })
         .then(processedImageBuffer => {
           response.Body = processedImageBuffer;
-          // TODO: Need to load image and get mime type to pass through middleware
-          response.ContentType = Jimp.MIME_PNG;
+          response.ContentType = supportedFormats[imageType];
           return response;
         });
     });
