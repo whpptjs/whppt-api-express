@@ -7,18 +7,19 @@ module.exports = {
     const categoriesQuery = {};
     categoriesQuery['_id'] = {};
     categoriesQuery['_id'].$ne = _id;
-    categoriesQuery['parentId'] = {};
-    categoriesQuery['parentId'].$ne = _id;
     categoriesQuery['taggedCategories.value'] = {};
     categoriesQuery['taggedCategories.value'].$in = map(categories, c => {
       return toUpper(c.trim());
     });
     const toursQuery = {};
     toursQuery.$or = [{ 'atdw.productCategoryId': { $ne: 'TOUR' } }, { listingType: { $ne: 'product' } }];
+    const parentQuery = {};
+    parentQuery['parentId'] = {};
+    parentQuery['parentId'].$ne = _id;
 
     return $db
       .collection('listings')
-      .find({ ...categoriesQuery, ...toursQuery })
+      .find({ ...categoriesQuery, ...toursQuery, ...parentQuery })
       .toArray()
       .then(listings => {
         return { listings: shuffle(listings).slice(0, limit) };
