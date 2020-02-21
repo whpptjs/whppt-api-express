@@ -7,6 +7,7 @@ module.exports = {
     return $db
       .collection('images')
       .aggregate([
+        { $sort: { uploadedOn: -1 } },
         {
           $facet: {
             total: [{ $count: 'count' }],
