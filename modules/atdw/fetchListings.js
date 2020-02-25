@@ -134,6 +134,10 @@ module.exports = {
                       property: 'items',
                     },
                   },
+                  /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+                  listing: {
+                    id: listing._id,
+                  },
                   createdAt: new Date(),
                   template: 'listing',
                   link: { type: 'page' },

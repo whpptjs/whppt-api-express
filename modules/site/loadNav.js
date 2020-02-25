@@ -1,4 +1,6 @@
+const { get } = require('lodash');
 const assert = require('assert');
+const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
   exec({ $mongo: { $db } }) {
@@ -6,7 +8,10 @@ module.exports = {
       .collection('site')
       .findOne({ _id: 'nav' })
       .then(nav => {
-        if (!nav) return { _id: 'nav', menus: [] };
+        if (!nav) {
+          const defaultFooter = get(config, 'defaults.nav');
+          return { ...defaultFooter, _id: 'nav' };
+        }
         return nav;
       })
       .catch(err => {
