@@ -123,9 +123,7 @@ module.exports = {
                   slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
                   // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
-                  listing: {
-                    id: listing._id,
-                  },
+                  listingId: listing._id,
                   header: { title: listing.atdw.productName },
                   createdAt: new Date(),
                   template: 'listing',
