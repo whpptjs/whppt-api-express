@@ -1,4 +1,4 @@
-const S3_BUCKET_NAME = process.env.S3BUCKET || 'media.dev.samuseum.svelteteam.com';
+const S3_BUCKET_NAME = process.env.S3_BUCKET;
 
 module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
@@ -67,5 +67,14 @@ module.exports = awsSDK => {
     });
   };
 
-  return { uploadImage, fetchImage, uploadDoc, fetchDoc };
+  const removeImage = function(id) {
+    return new Promise((resolve, reject) => {
+      s3.deleteObjects({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, (err, data) => {
+        if (err) return reject(err);
+        resolve({ data });
+      });
+    });
+  };
+
+  return { uploadImage, fetchImage, uploadDoc, fetchDoc, removeImage };
 };

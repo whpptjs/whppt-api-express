@@ -7,58 +7,60 @@ const filterMultimedia = require('./filterMultimedia');
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  async exec({ $atdw, $mongo: { $db } }) {
+  exec({ $atdw, $mongo: { $db } }, { limit }) {
     const { apiUrl, apiKey } = atdw;
 
     assert(apiUrl, 'Please provide an ATDW URL.');
     assert(apiKey, 'Please provide an ATDW API Key.');
 
-    try {
-      const listings = await $db
-        .collection('listings')
-        .find()
-        .toArray();
+    return $db
+      .collection('listings')
+      .find()
+      .limit(Number(limit))
+      .toArray()
+      .then(listings => {
+        const ops = [];
 
-      const ops = [];
+        const listingPromises = listings.map(listing => {
+          const { _id } = listing;
+          return $atdw.$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`).then(listingData => {
+            forEach(atdwFields, (getFieldValue, fieldKey) => {
+              const property = listing[fieldKey];
 
-      for (const listing of listings) {
-        const { _id } = listing;
-        const listingData = await $atdw.$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`);
+              if (!property || property.provider !== 'atdw') return;
+              property.value = getFieldValue(listingData, property.path);
+            });
+            const { multimedia } = listingData;
+            listingData.multimedia = filterMultimedia(multimedia);
 
-        forEach(atdwFields, (getFieldValue, fieldKey) => {
-          const property = listing[fieldKey];
+            listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
+            listing.atdw = { ...atdw, ...listingData };
+            listing.hasFullATDWData = true;
 
-          if (!property || property.provider !== 'atdw') return;
-          property.value = getFieldValue(listingData, property.path);
+            ops.push({
+              updateOne: {
+                filter: { _id },
+                update: {
+                  $set: listing,
+                },
+              },
+            });
+          });
         });
 
-        const { multimedia } = listingData;
-        listingData.multimedia = await filterMultimedia(multimedia);
-
-        listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
-        listing.atdw = { ...atdw, ...listingData };
-        listing.hasFullATDWData = true;
-
-        ops.push({
-          updateOne: {
-            filter: { _id },
-            update: {
-              $set: listing,
-            },
-          },
+        return Promise.all(listingPromises).then(() => {
+          return $db
+            .collection('listings')
+            .bulkWrite(ops, { ordered: false })
+            .then(() => {
+              return Promise.resolve({ statusCode: 200, message: 'OK' });
+            });
         });
-      }
-
-      return $db
-        .collection('listings')
-        .bulkWrite(ops, { ordered: false })
-        .then(() => {
-          return Promise.resolve({ statusCode: 200, message: 'OK' });
-        });
-    } catch (err) {
-      console.error(`Unable to update data from ATDW for product`);
-      throw new Error(err);
-    }
+      })
+      .catch(err => {
+        console.error(`Unable to update data from ATDW for product`);
+        throw new Error(err);
+      });
   },
 };
 

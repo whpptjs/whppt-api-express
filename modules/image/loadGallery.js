@@ -1,14 +1,17 @@
 module.exports = {
   exec({ $mongo: { $db } }, query) {
-    const { limit = 9, currentPage = 1 } = query;
+    const { limit, currentPage } = query;
+    const numLimit = Number(limit);
+    const numCurrentPage = Number(currentPage);
 
     return $db
       .collection('images')
       .aggregate([
+        { $sort: { uploadedOn: -1 } },
         {
           $facet: {
             total: [{ $count: 'count' }],
-            images: [{ $skip: limit * (currentPage - 1) }, { $limit: limit }],
+            images: [{ $skip: numLimit * (numCurrentPage - 1) }, { $limit: numLimit }],
           },
         },
       ])

@@ -15,7 +15,7 @@ module.exports = () => {
     return {
       $id,
       $logger,
-      $image: Image({ $logger, $mongo, $aws }),
+      $image: Image({ $logger, $mongo, $aws, $id }),
       $security: Security({ $logger, $id, config }),
       $mongo,
       $modules: loadModules,

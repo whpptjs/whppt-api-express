@@ -1,4 +1,6 @@
+const { get } = require('lodash');
 const assert = require('assert');
+const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
   exec({ $mongo: { $db } }) {
@@ -6,7 +8,10 @@ module.exports = {
       .collection('site')
       .findOne({ _id: 'footer' })
       .then(footer => {
-        if (!footer) return { _id: 'footer', linkGroups: [] };
+        if (!footer) {
+          const defaultFooter = get(config, 'defaults.footer');
+          return { ...defaultFooter, _id: 'footer' };
+        }
         return footer;
       })
       .catch(err => {
