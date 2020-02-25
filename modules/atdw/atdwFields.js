@@ -23,12 +23,16 @@ module.exports = {
   },
   physicalAddress(product, path) {
     if (path !== 'physicalAddress') return stringFromPath(product, path);
-    const address = find(product.addresses, address => address.attributeIdAddress === 'PHYSICAL');
+    const address = find(product.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
+    console.log();
     if (!address) return '';
-    return `${address.addressLine1}, ${address.cityName}, ${address.stateName}, ${address.countryName}`;
+    return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
-  postalAddress(product) {
-    return find(product.addresses, address => address.address_type === 'POSTAL');
+  postalAddress(product, path) {
+    if (path !== 'postalAddress') return stringFromPath(product, path);
+    const address = find(product.addresses, address => address.attributeIdAddress === 'POSTAL' || address.address_type === 'POSTAL');
+    if (!address) return '';
+    return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
   image(product, propertyPath) {
     if (propertyPath !== 'image') return stringFromPath(product, propertyPath);
@@ -41,9 +45,5 @@ module.exports = {
     const tags = map(product.verticalClassifications, category => category.productTypeId);
     tags.push(product.productCategoryId);
     return tags;
-  },
-  customCategories(product) {
-    // this should just be same or []
-    // hmmm....
   },
 };
