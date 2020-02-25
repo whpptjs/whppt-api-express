@@ -114,17 +114,26 @@ module.exports = {
             },
           });
 
+          const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
           pageOps.push({
             updateOne: {
               filter: { _id: listing._id },
               update: {
                 $set: {
                   _id: listing._id,
-                  slug: slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }),
-                  // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
+                  slug: pageSlug,
                   contents: [],
                   listingId: listing._id,
-                  header: { title: listing.atdw.productName },
+                  header: {
+                    title: listing.atdw.productName,
+                    breadcrumb: {
+                      items: [
+                        { type: 'page', href: '/', text: 'Home' },
+                        { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
+                      ],
+                      property: 'items',
+                    },
+                  },
                   createdAt: new Date(),
                   template: 'listing',
                   link: { type: 'page' },
