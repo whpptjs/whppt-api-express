@@ -124,6 +124,10 @@ module.exports = {
                   // slug: `${lowerCase(listing.atdw.productCategoryId)}/${camelCase(listing.atdw.productName)}`,
                   contents: [],
                   listingId: listing._id,
+                  /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+                  listing: {
+                    id: listing._id,
+                  },
                   header: { title: listing.atdw.productName },
                   createdAt: new Date(),
                   template: 'listing',
