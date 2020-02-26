@@ -24,7 +24,6 @@ module.exports = {
   physicalAddress(product, path) {
     if (path !== 'physicalAddress') return stringFromPath(product, path);
     const address = find(product.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
-    console.log();
     if (!address) return '';
     return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
