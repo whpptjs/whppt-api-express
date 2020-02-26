@@ -34,7 +34,7 @@ module.exports = {
     return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
   image(product, propertyPath) {
-    if (propertyPath !== 'image') return stringFromPath(product, propertyPath);
+    if (propertyPath !== 'productImage') return stringFromPath(product, propertyPath);
     if (!product.productImage) return;
 
     const { scheme, host, path } = parse(product.productImage);
