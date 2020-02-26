@@ -8,7 +8,7 @@ module.exports = {
       .collection('site')
       .findOne({ _id: 'nav' })
       .then(nav => {
-        if (!footer) {
+        if (!nav) {
           const defaultFooter = get(config, 'defaults.nav');
           return { ...defaultFooter, _id: 'nav' };
         }
