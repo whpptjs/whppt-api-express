@@ -1,20 +1,20 @@
 module.exports = {
-  exec({ $id, $mongo: { $db } }, { categories }) {
+  exec({ $id, $mongo: { $db } }, { redirects }) {
     const ops = [];
-    categories.forEach(category => {
+    redirects.forEach(redirect => {
       ops.push({
         updateOne: {
-          filter: { _id: category._id || $id() },
-          update: { $set: category },
+          filter: { _id: redirect._id || $id() },
+          update: { $set: redirect },
           upsert: true,
         },
       });
     });
     return $db
-      .collection('categories')
+      .collection('redirects')
       .bulkWrite(ops, { ordered: false })
       .then(() => {
-        return categories;
+        return redirects;
       })
       .catch(err => {
         console.error(err);

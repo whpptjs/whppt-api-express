@@ -1,10 +1,10 @@
 const { map } = require('lodash');
 
 module.exports = {
-  exec({ $mongo: { $db } }, { id }) {
+  exec({ $mongo: { $db } }, { _id }) {
     return $db
       .collection('pages')
-      .find({ 'contents.categoryFilter.id': id })
+      .find({ 'contents.categoryFilter._id': _id })
       .toArray()
       .then(result => {
         return map(result, page => {
