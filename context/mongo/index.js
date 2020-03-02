@@ -1,9 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017?retryWrites=false&replicaSet=rs';
-const draftDb = process.env.MONGO_DB_DRAFT || 'whppt-draft';
+const db = process.env.MONGO_DB || 'whppt-draft';
 const pubDb = process.env.MONGO_DB_PUB || 'whppt-pub';
-const draft = process.env.DRAFT || true;
+const draft = process.env.DRAFT === 'true';
 
 module.exports = ({ $logger }) => {
   const $mongo = MongoClient.connect(mongoUrl, {
@@ -12,7 +12,7 @@ module.exports = ({ $logger }) => {
   })
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
-      const $db = client.db(draft ? draftDb : pubDb);
+      const $db = client.db(db);
       const $startTransaction = function(callback) {
         const session = client.startSession();
         return session.withTransaction(() => callback(session));
@@ -24,8 +24,7 @@ module.exports = ({ $logger }) => {
           .find({ _id: id })
           .toArray()
           .then(results => {
-            if (!results.length)
-              throw new Error(`Could not find document for Id "${id}" in collection "${collection}"`);
+            if (!results.length) throw new Error(`Could not find document for Id "${id}" in collection "${collection}"`);
             return results[0];
           });
       };
@@ -36,9 +35,7 @@ module.exports = ({ $logger }) => {
       };
 
       const $remove = function(collection, id, { session } = {}) {
-        return $db
-          .collection(collection)
-          .updateOne({ _id: id }, { $set: { removed: true, removedAt: new Date() } }, { session });
+        return $db.collection(collection).updateOne({ _id: id }, { $set: { removed: true, removedAt: new Date() } }, { session });
       };
 
       const $delete = function(collection, id, { session } = {}) {
