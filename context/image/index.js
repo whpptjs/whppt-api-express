@@ -40,7 +40,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       return Jimp.read(imageBuffer)
         .then(imgJimp => {
           return imgJimp
-            .quality(60)
+            .quality(70)
             .scale(scale)
             .crop(startX, startY, widthNum, heightNum)
             .getBufferAsync(supportedFormats[imageType]);

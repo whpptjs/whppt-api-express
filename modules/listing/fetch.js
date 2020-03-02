@@ -25,7 +25,7 @@ module.exports = {
     if (categoryFilterId && categoryFilterId !== 'none') {
       return $db
         .collection('categories')
-        .findOne({ id: categoryFilterId })
+        .findOne({ _id: categoryFilterId })
         .then(category => {
           categoryQuery.$and = [];
           forEach(category.filters, orFilter =>
