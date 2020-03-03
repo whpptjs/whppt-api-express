@@ -27,6 +27,7 @@ module.exports = {
       ])
       .toArray()
       .then(results => {
+        if (!results || !results.length) return [];
         return results[0].uniqueValues;
       });
   },
