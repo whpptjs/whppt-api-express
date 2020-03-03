@@ -140,6 +140,8 @@ module.exports = {
                   },
                   createdAt: new Date(),
                   template: 'listing',
+                  og: { title: '', keywords: '', image: { imageId: '', crop: {} } },
+                  twitter: { title: '', keywords: '', image: { imageId: '', crop: {} } },
                   link: { type: 'page' },
                   linkgroup: { type: 'page', links: [], showOnDesktop: true },
                 },
