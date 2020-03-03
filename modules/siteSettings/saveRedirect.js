@@ -1,11 +1,14 @@
 module.exports = {
-  exec({ $id, $mongo: { $db } }, { redirect }) {
+  exec({ $id, $mongo: { $save } }, { redirect }) {
     redirect._id = redirect._id || $id();
-    return $db
-      .collection('redirects')
-      .updateOne({ _id: redirect._id }, { $set: redirect }, { upsert: true })
-      .then(() => {
-        return redirect;
-      });
+    return $save('redirects', redirect).then(() => {
+      return redirect;
+    });
+    // return $db
+    //   .collection('redirects')
+    //   .updateOne({ _id: redirect._id }, { $set: redirect }, { upsert: true })
+    //   .then(() => {
+    //     return redirect;
+    //   });
   },
 };
