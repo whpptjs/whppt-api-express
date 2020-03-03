@@ -20,6 +20,8 @@ module.exports = {
         .toArray();
 
       for (const listing of listings) {
+        const originalListing = listing;
+
         const { _id } = listing;
         const listingData = await $atdw.$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`);
 
@@ -33,7 +35,8 @@ module.exports = {
         const { multimedia } = listingData;
         listingData.multimedia = await filterMultimedia(multimedia);
 
-        listing.atdw = { ...atdw, ...listingData };
+        // Need to merge original with new data here...
+        listing.atdw = { ...originalListing.atdw, ...listingData };
         listing.hasFullATDWData = true;
 
         await $db.collection('listings').updateOne({ _id }, { $set: listing });

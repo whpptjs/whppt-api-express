@@ -1,9 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017?retryWrites=false&replicaSet=rs';
-const draftDb = process.env.MONGO_DB_DRAFT || 'whppt-draft';
+const db = process.env.MONGO_DB || 'whppt-draft';
 const pubDb = process.env.MONGO_DB_PUB || 'whppt-pub';
-const draft = process.env.DRAFT || true;
+const draft = process.env.DRAFT === 'true';
 
 module.exports = ({ $logger }) => {
   const $mongo = MongoClient.connect(mongoUrl, {
@@ -12,7 +12,9 @@ module.exports = ({ $logger }) => {
   })
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
-      const $db = client.db(draft ? draftDb : pubDb);
+      console.log('process.env.DRAFT', process.env.DRAFT);
+      console.log('draft', draft);
+      const $db = client.db(draft ? db : pubDb);
       const $dbPub = client.db(pubDb);
 
       const $startTransaction = function(callback) {
