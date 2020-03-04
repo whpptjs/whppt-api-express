@@ -12,8 +12,6 @@ module.exports = ({ $logger }) => {
   })
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
-      console.log('process.env.DRAFT', process.env.DRAFT);
-      console.log('draft', draft);
       const $db = client.db(draft ? db : pubDb);
       const $dbPub = client.db(pubDb);
 

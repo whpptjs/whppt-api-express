@@ -22,7 +22,6 @@ module.exports = () => {
           res.type(response.ContentType).send(response.Body);
         })
         .catch(err => {
-          console.log('err', err);
           res.status(500).send(err);
         });
     });
