@@ -57,6 +57,7 @@ module.exports = ({ $logger }) => {
 
       return {
         $db,
+        $dbPub,
         $fetch,
         $save,
         $publish,

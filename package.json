@@ -29,9 +29,6 @@
   "dependencies": {
     "aws-sdk": "^2.616.0",
     "axios": "latest",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-2": "^6.24.1",
     "bcryptjs": "^2.4.3",
     "encoding": "^0.1.12",
     "express-cache-headers": "^0.1.4",
