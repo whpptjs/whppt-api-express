@@ -2,13 +2,14 @@ const assert = require('assert');
 const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
 const atdwFields = require('./atdwFields');
+const isProduction = process.env.NODE_ENV === 'production';
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  exec({ $atdw, $mongo: { $db } }) {
+  exec({ $atdw, $mongo: { $db, $dbPub } }) {
     const { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
-
     assert(apiUrl, 'Please provide an ATDW URL.');
     assert(apiKey, 'Please provide an ATDW API Key.');
 
@@ -17,9 +18,13 @@ module.exports = {
         .collection('listings')
         .find()
         .toArray(),
+      $db
+        .collection('pages')
+        .find({ template: 'listing' })
+        .toArray(),
       $atdw.$get(`https://${apiUrl}/api/atlas/products?key=${apiKey}&out=json&st=${state}&ar=${area}&size=${limit}`),
     ])
-      .then(([listings, atdwResults]) => {
+      .then(([listings, pages, atdwResults]) => {
         const { products } = atdwResults;
 
         forEach(products, product => {
@@ -114,44 +119,99 @@ module.exports = {
             },
           });
 
+          const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
+
           const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
-          pageOps.push({
-            updateOne: {
-              filter: { _id: listing._id },
-              update: {
-                $set: {
-                  _id: listing._id,
-                  slug: pageSlug,
-                  contents: [],
-                  listingId: listing._id,
-                  header: {
-                    title: listing.atdw.productName,
-                    breadcrumb: {
-                      items: [
-                        { type: 'page', href: '/', text: 'Home' },
-                        { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
-                      ],
-                      property: 'items',
+          if (!foundPage)
+            pageOps.push({
+              updateOne: {
+                filter: { _id: listing._id },
+                update: {
+                  $set: {
+                    _id: listing._id,
+                    slug: pageSlug,
+                    contents: [],
+                    listingId: listing._id,
+                    header: {
+                      title: listing.atdw.productName,
+                      breadcrumb: {
+                        items: [
+                          { type: 'page', href: '/', text: 'Home' },
+                          { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
+                        ],
+                        property: 'items',
+                      },
                     },
+                    /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+                    listing: {
+                      id: listing._id,
+                    },
+                    createdAt: new Date(),
+                    template: 'listing',
+                    og: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                    twitter: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                    link: { type: 'page' },
+                    linkgroup: { type: 'page', links: [], showOnDesktop: true },
                   },
-                  /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
-                  listing: {
-                    id: listing._id,
-                  },
-                  createdAt: new Date(),
-                  template: 'listing',
-                  og: { title: '', keywords: '', image: { imageId: '', crop: {} } },
-                  twitter: { title: '', keywords: '', image: { imageId: '', crop: {} } },
-                  link: { type: 'page' },
-                  linkgroup: { type: 'page', links: [], showOnDesktop: true },
                 },
+                upsert: true,
               },
-              upsert: true,
-            },
-          });
+            });
+          // pageOps.push(
+          //   foundPage
+          //     ? {
+          //         updateOne: {
+          //           filter: { _id: listing._id },
+          //           update: {
+          //             $set: { ...foundPage, slug: pageSlug, header: { ...foundPage.header, title: listing.atdw && listing.atdw.productName } },
+          //           },
+          //           upsert: true,
+          //         },
+          //       }
+          //     : {
+          //         updateOne: {
+          //           filter: { _id: listing._id },
+          //           update: {
+          //             $set: {
+          //               _id: listing._id,
+          //               slug: pageSlug,
+          //               contents: [],
+          //               listingId: listing._id,
+          //               header: {
+          //                 title: listing.atdw.productName,
+          //                 breadcrumb: {
+          //                   items: [
+          //                     { type: 'page', href: '/', text: 'Home' },
+          //                     { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
+          //                   ],
+          //                   property: 'items',
+          //                 },
+          //               },
+          //               /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+          //               listing: {
+          //                 id: listing._id,
+          //               },
+          //               createdAt: new Date(),
+          //               template: 'listing',
+          //               og: { title: '', keywords: '', image: { imageId: '', crop: {} } },
+          //               twitter: { title: '', keywords: '', image: { imageId: '', crop: {} } },
+          //               link: { type: 'page' },
+          //               linkgroup: { type: 'page', links: [], showOnDesktop: true },
+          //             },
+          //           },
+          //           upsert: true,
+          //         },
+          //       }
+          // );
         });
 
-        return Promise.all([$db.collection('listings').bulkWrite(listingOps, { ordered: false }), $db.collection('pages').bulkWrite(pageOps, { ordered: false })]).then(() => {
+        const promises = [$db.collection('listings').bulkWrite(listingOps, { ordered: false })];
+
+        if (pageOps && pageOps.length) promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
+
+        if (isProduction) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
+
+        return Promise.all(promises).then(() => {
           return Promise.resolve({ statusCode: 200, message: 'OK' });
         });
       })
