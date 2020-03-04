@@ -2,7 +2,7 @@ const assert = require('assert');
 const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
 const atdwFields = require('./atdwFields');
-const isProduction = process.env.NODE_ENV === 'production';
+const isDraft = process.env.DRAFT === 'true';
 
 const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
@@ -106,9 +106,9 @@ module.exports = {
         if (pageOps && pageOps.length) {
           promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
         }
-        if (isProduction && pageOps && pageOps.length) promises.push($dbPub.collection('pages').bulkWrite(pageOps, { ordered: false }));
+        if (isDraft && pageOps && pageOps.length) promises.push($dbPub.collection('pages').bulkWrite(pageOps, { ordered: false }));
 
-        if (isProduction) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
+        if (isDraft) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
 
         if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
 
