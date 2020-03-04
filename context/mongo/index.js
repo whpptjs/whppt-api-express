@@ -50,9 +50,9 @@ module.exports = ({ $logger }) => {
         return $dbPub.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
       };
 
-      const $unpublish = function(collection, doc, { session } = {}) {
-        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
-        return $dbPub.collection(collection).deleteOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+      const $unpublish = function(collection, _id, { session } = {}) {
+        console.log('$unpublish -> _id', _id);
+        return $dbPub.collection(collection).deleteOne({ _id }, { session });
       };
 
       return {
