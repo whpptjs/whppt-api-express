@@ -9,10 +9,6 @@ const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 module.exports = {
   exec({ $atdw, $mongo: { $db, $dbPub } }) {
     let { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
-    apiUrl = 'atlas.atdw-online.com.au';
-    apiKey = '30be57ce27f84465bde566c2c908f978';
-    assert(apiUrl, 'Please provide an ATDW URL.');
-    assert(apiKey, 'Please provide an ATDW API Key.');
 
     return Promise.all([
       $db
