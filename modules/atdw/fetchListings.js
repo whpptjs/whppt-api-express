@@ -3,7 +3,7 @@ const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
 const atdwFields = require('./atdwFields');
 
-const { atdw } = require(`${process.cwd()}/whppt.config.js`);
+const { atdw, algoliaListingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $atdw, $mongo: { $db } }) {
@@ -25,66 +25,7 @@ module.exports = {
         forEach(products, product => {
           const foundListing = find(listings, l => l.atdw && l.atdw.productId === product.productId);
 
-          const listing = foundListing || {
-            _id: product.productId,
-            name: {
-              value: '',
-              path: 'productName',
-              provider: 'atdw',
-            },
-            listingType: 'product',
-            description: {
-              value: '',
-              path: 'productDescription',
-              provider: 'atdw',
-            },
-            activeStatus: {
-              value: '',
-              path: 'status',
-              provider: 'atdw',
-            },
-            physicalAddress: {
-              value: '',
-              path: 'physicalAddress',
-              provider: 'atdw',
-            },
-            postalAddress: {
-              value: '',
-              path: 'postalAddress',
-              provider: 'atdw',
-            },
-            email: {
-              value: '',
-              path: 'email',
-              provider: 'atdw',
-            },
-            image: {
-              value: '',
-              path: 'productImage',
-              provider: 'atdw',
-            },
-            phone: {
-              value: '',
-              path: 'phone',
-              provider: 'atdw',
-            },
-            atdwCategories: {
-              value: [],
-              path: 'atdwCategories',
-              provider: 'atdw',
-            },
-            customCategories: {
-              value: [],
-              path: 'customCategories',
-              provider: '',
-            },
-            taggedCategories: {
-              value: [],
-              path: 'taggedCategories',
-              provider: '',
-            },
-            hasFullATDWData: false,
-          };
+          const listing = foundListing || defaultListing(product);
 
           if (!foundListing) listings.push(listing);
 
@@ -102,9 +43,11 @@ module.exports = {
 
         const listingOps = [];
         const pageOps = [];
+        const configCallbackOps = [];
 
         forEach(listings, listing => {
           listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
+          const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
 
           listingOps.push({
             updateOne: {
@@ -113,8 +56,6 @@ module.exports = {
               upsert: true,
             },
           });
-
-          const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
           pageOps.push({
             updateOne: {
               filter: { _id: listing._id },
@@ -140,8 +81,6 @@ module.exports = {
                   },
                   createdAt: new Date(),
                   template: 'listing',
-                  og: { title: '', keywords: '', image: { imageId: '', crop: {} } },
-                  twitter: { title: '', keywords: '', image: { imageId: '', crop: {} } },
                   link: { type: 'page' },
                   linkgroup: { type: 'page', links: [], showOnDesktop: true },
                 },
@@ -149,11 +88,14 @@ module.exports = {
               upsert: true,
             },
           });
+
+          if (algoliaListingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
         });
 
-        return Promise.all([$db.collection('listings').bulkWrite(listingOps, { ordered: false }), $db.collection('pages').bulkWrite(pageOps, { ordered: false })]).then(() => {
-          return Promise.resolve({ statusCode: 200, message: 'OK' });
-        });
+        const promises = [$db.collection('listings').bulkWrite([listingOps[0]], { ordered: false }), $db.collection('pages').bulkWrite([pageOps[0]], { ordered: false })];
+        if (configCallbackOps.length) promises.push(algoliaListingCallback(configCallbackOps));
+
+        return Promise.all(promises).then(() => Promise.resolve({ statusCode: 200, message: 'OK' }));
       })
       .catch(err => {
         console.error(err);
@@ -161,3 +103,64 @@ module.exports = {
       });
   },
 };
+
+const defaultListing = product => ({
+  _id: product.productId,
+  name: {
+    value: '',
+    path: 'productName',
+    provider: 'atdw',
+  },
+  listingType: 'product',
+  description: {
+    value: '',
+    path: 'productDescription',
+    provider: 'atdw',
+  },
+  activeStatus: {
+    value: '',
+    path: 'status',
+    provider: 'atdw',
+  },
+  physicalAddress: {
+    value: '',
+    path: 'physicalAddress',
+    provider: 'atdw',
+  },
+  postalAddress: {
+    value: '',
+    path: 'postalAddress',
+    provider: 'atdw',
+  },
+  email: {
+    value: '',
+    path: 'email',
+    provider: 'atdw',
+  },
+  image: {
+    value: '',
+    path: 'productImage',
+    provider: 'atdw',
+  },
+  phone: {
+    value: '',
+    path: 'phone',
+    provider: 'atdw',
+  },
+  atdwCategories: {
+    value: [],
+    path: 'atdwCategories',
+    provider: 'atdw',
+  },
+  customCategories: {
+    value: [],
+    path: 'customCategories',
+    provider: '',
+  },
+  taggedCategories: {
+    value: [],
+    path: 'taggedCategories',
+    provider: '',
+  },
+  hasFullATDWData: false,
+});
