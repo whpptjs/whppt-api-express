@@ -8,7 +8,7 @@ module.exports = {
     page._id = page._id || $id();
     return $save('pages', page).then(() => {
       return $publish('pages', page).then(() => {
-        if (publishCallBack) return page;
+        if (!publishCallBack) return page;
         return publishCallBack(page).then(() => page);
       });
     });

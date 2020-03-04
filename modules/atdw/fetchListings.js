@@ -103,7 +103,10 @@ module.exports = {
 
         const promises = [$db.collection('listings').bulkWrite(listingOps, { ordered: false })];
 
-        if (pageOps && pageOps.length) promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
+        if (pageOps && pageOps.length) {
+          promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
+        }
+        if (isProduction && pageOps && pageOps.length) promises.push($dbPub.collection('pages').bulkWrite(pageOps, { ordered: false }));
 
         if (isProduction) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
 
