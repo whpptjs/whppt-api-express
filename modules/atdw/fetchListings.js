@@ -8,7 +8,7 @@ const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $atdw, $mongo: { $db, $dbPub } }) {
-    let { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
+    const { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
 
     return Promise.all([
       $db
