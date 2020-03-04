@@ -12,7 +12,11 @@ module.exports = ({ $logger }) => {
   })
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
-      const $db = client.db(db);
+      console.log('process.env.DRAFT', process.env.DRAFT);
+      console.log('draft', draft);
+      const $db = client.db(draft ? db : pubDb);
+      const $dbPub = client.db(pubDb);
+
       const $startTransaction = function(callback) {
         const session = client.startSession();
         return session.withTransaction(() => callback(session));
@@ -43,11 +47,22 @@ module.exports = ({ $logger }) => {
       };
 
       // TODO: Add publishing functions
+      const $publish = function(collection, doc, { session } = {}) {
+        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
+        return $dbPub.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+      };
+
+      const $unpublish = function(collection, doc, { session } = {}) {
+        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
+        return $dbPub.collection(collection).deleteOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+      };
 
       return {
         $db,
         $fetch,
         $save,
+        $publish,
+        $unpublish,
         $remove,
         $delete,
         $startTransaction,
