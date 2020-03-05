@@ -6,6 +6,7 @@ module.exports = {
     assert(page, 'A Page Object must be provided.');
 
     page._id = page._id || $id();
+    page.published = true;
     return $save('pages', page).then(() => {
       return $publish('pages', page).then(() => {
         if (!publishCallBack) return page;

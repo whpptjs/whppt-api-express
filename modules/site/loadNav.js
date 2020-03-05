@@ -15,7 +15,6 @@ module.exports = {
         return nav;
       })
       .catch(err => {
-        console.log(err);
         throw err;
       });
   },

@@ -2,24 +2,26 @@ const assert = require('assert');
 const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
 const atdwFields = require('./atdwFields');
+const isDraft = process.env.DRAFT === 'true';
 
-const { atdw, algoliaListingCallback } = require(`${process.cwd()}/whppt.config.js`);
+const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  exec({ $atdw, $mongo: { $db } }) {
+  exec({ $atdw, $mongo: { $db, $dbPub } }) {
     const { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
-
-    assert(apiUrl, 'Please provide an ATDW URL.');
-    assert(apiKey, 'Please provide an ATDW API Key.');
 
     return Promise.all([
       $db
         .collection('listings')
         .find()
         .toArray(),
+      $db
+        .collection('pages')
+        .find({ template: 'listing' })
+        .toArray(),
       $atdw.$get(`https://${apiUrl}/api/atlas/products?key=${apiKey}&out=json&st=${state}&ar=${area}&size=${limit}`),
     ])
-      .then(([listings, atdwResults]) => {
+      .then(([listings, pages, atdwResults]) => {
         const { products } = atdwResults;
 
         forEach(products, product => {
@@ -47,7 +49,6 @@ module.exports = {
 
         forEach(listings, listing => {
           listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
-          const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
 
           listingOps.push({
             updateOne: {
@@ -56,44 +57,60 @@ module.exports = {
               upsert: true,
             },
           });
-          pageOps.push({
-            updateOne: {
-              filter: { _id: listing._id },
-              update: {
-                $set: {
-                  _id: listing._id,
-                  slug: pageSlug,
-                  contents: [],
-                  listingId: listing._id,
-                  header: {
-                    title: listing.atdw.productName,
-                    breadcrumb: {
-                      items: [
-                        { type: 'page', href: '/', text: 'Home' },
-                        { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
-                      ],
-                      property: 'items',
-                    },
-                  },
-                  /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
-                  listing: {
-                    id: listing._id,
-                  },
-                  createdAt: new Date(),
-                  template: 'listing',
-                  link: { type: 'page' },
-                  linkgroup: { type: 'page', links: [], showOnDesktop: true },
-                },
-              },
-              upsert: true,
-            },
-          });
 
-          if (algoliaListingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
+          const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
+
+          const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
+
+          if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
+
+          if (!foundPage)
+            pageOps.push({
+              updateOne: {
+                filter: { _id: listing._id },
+                update: {
+                  $set: {
+                    _id: listing._id,
+                    slug: pageSlug,
+                    contents: [],
+                    listingId: listing._id,
+                    header: {
+                      title: listing.atdw.productName,
+                      breadcrumb: {
+                        items: [
+                          { type: 'page', href: '/', text: 'Home' },
+                          { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
+                        ],
+                        property: 'items',
+                      },
+                    },
+                    /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+                    listing: {
+                      id: listing._id,
+                    },
+                    createdAt: new Date(),
+                    template: 'listing',
+                    og: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                    twitter: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                    link: { type: 'page' },
+                    linkgroup: { type: 'page', links: [], showOnDesktop: true },
+                  },
+                },
+                upsert: true,
+              },
+            });
         });
 
-        const promises = [$db.collection('listings').bulkWrite([listingOps[0]], { ordered: false }), $db.collection('pages').bulkWrite([pageOps[0]], { ordered: false })];
-        if (configCallbackOps.length) promises.push(algoliaListingCallback(configCallbackOps));
+        const promises = [$db.collection('listings').bulkWrite(listingOps, { ordered: false })];
+
+        if (pageOps && pageOps.length) {
+          promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
+        }
+        if (isDraft && pageOps && pageOps.length) promises.push($dbPub.collection('pages').bulkWrite(pageOps, { ordered: false }));
+
+        if (isDraft) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
+
+        if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
 
         return Promise.all(promises).then(() => Promise.resolve({ statusCode: 200, message: 'OK' }));
       })

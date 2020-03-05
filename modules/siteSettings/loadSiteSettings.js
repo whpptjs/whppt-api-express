@@ -1,10 +1,9 @@
 module.exports = {
-  exec({ $mongo: { $db } }) {
-    return $db
-      .collection('site')
-      .findOne({ _id: 'siteSettings' })
-      .then(result => {
-        return result;
+  exec({ $mongo: { $fetch } }) {
+    return $fetch('site', 'siteSettings')
+      .then(res => {
+        console.log('exec -> res', res);
+        return res;
       })
       .catch(err => {
         console.error(err);
@@ -12,3 +11,19 @@ module.exports = {
       });
   },
 };
+
+// module.exports = {
+//   exec({ $mongo: { $db } }) {
+//     return $db
+//       .collection('site')
+//       .findOne({ _id: 'siteSettings' })
+//       .then(result => {
+//         console.log('exec -> result', result);
+//         return result;
+//       })
+//       .catch(err => {
+//         console.error(err);
+//         throw err;
+//       });
+//   },
+// };
