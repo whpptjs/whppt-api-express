@@ -2,7 +2,6 @@ module.exports = {
   exec({ $mongo: { $fetch } }) {
     return $fetch('site', 'siteSettings')
       .then(res => {
-        console.log('exec -> res', res);
         return res;
       })
       .catch(err => {
