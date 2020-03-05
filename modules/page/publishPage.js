@@ -9,7 +9,8 @@ module.exports = {
     page.published = true;
     return $save('pages', page).then(() => {
       return $publish('pages', page).then(() => {
-        if (!publishCallBack) return page;
+        if (!publishCallBack || page.template === 'listing') return page;
+
         return publishCallBack(page).then(() => page);
       });
     });
