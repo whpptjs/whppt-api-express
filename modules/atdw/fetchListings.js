@@ -64,51 +64,52 @@ module.exports = {
 
           if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
 
-          if (!foundPage)
-            pageOps.push({
-              updateOne: {
-                filter: { _id: listing._id },
-                update: {
-                  $set: {
-                    _id: listing._id,
-                    slug: pageSlug,
-                    contents: [],
-                    listingId: listing._id,
-                    header: {
-                      title: listing.atdw.productName,
-                      breadcrumb: {
-                        items: [
-                          { type: 'page', href: '/', text: 'Home' },
-                          { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
-                        ],
-                        property: 'items',
-                      },
-                    },
-                    /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
-                    listing: {
-                      id: listing._id,
-                    },
-                    createdAt: new Date(),
-                    template: 'listing',
-                    og: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
-                    twitter: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
-                    link: { type: 'page' },
-                    linkgroup: { type: 'page', links: [], showOnDesktop: true },
+          const newPage = foundPage
+            ? { ...foundPage }
+            : {
+                _id: listing._id,
+                slug: pageSlug,
+                contents: [],
+                listingId: listing._id,
+                header: {
+                  title: listing.atdw.productName,
+                  breadcrumb: {
+                    items: [
+                      { type: 'page', href: '/', text: 'Home' },
+                      { type: 'page', href: `/${pageSlug}`, text: listing.atdw.productName },
+                    ],
+                    property: 'items',
                   },
                 },
-                upsert: true,
-              },
-            });
-        });
+                /* TODO: REMOVE LISTING OBJECT AT 1.0.0 RELEASE, BREAKING CHANGE */
+                listing: {
+                  id: listing._id,
+                },
+                createdAt: new Date(),
+                template: 'listing',
+                og: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                twitter: { title: listing.atdw.productName, keywords: '', image: { imageId: '', crop: {} } },
+                link: { type: 'page' },
+                linkgroup: { type: 'page', links: [], showOnDesktop: true },
+              };
 
+          // if (listing.name.provider === 'atdw') newPage.header.title = listing.atdw.productName;
+
+          pageOps.push({
+            updateOne: {
+              filter: { _id: listing._id },
+              update: {
+                $set: newPage,
+              },
+              upsert: true,
+            },
+          });
+        });
         const promises = [$db.collection('listings').bulkWrite(listingOps, { ordered: false })];
 
         if (pageOps && pageOps.length) {
           promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
         }
-        if (isDraft && pageOps && pageOps.length) promises.push($dbPub.collection('pages').bulkWrite(pageOps, { ordered: false }));
-
-        if (isDraft) promises.push($dbPub.collection('listings').bulkWrite(listingOps, { ordered: false }));
 
         if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
 
