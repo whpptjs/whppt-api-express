@@ -3,10 +3,15 @@ module.exports = {
     const { slug } = query;
 
     return $db
-      .collection('listings')
+      .collection('pages')
       .findOne({ slug })
-      .then(listing => {
-        return { listing };
+      .then(page => {
+        return $db
+          .collection('listings')
+          .findOne({ _id: page._id })
+          .then(listing => {
+            return { listing };
+          });
       });
   },
 };
