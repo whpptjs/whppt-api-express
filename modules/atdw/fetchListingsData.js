@@ -17,10 +17,14 @@ module.exports = {
     };
 
     return loadListings($db)
-      .then(listings => chainPromises(listings))
-      .then(listings => Promise.all(map(listings, listing => updateProductServices($db, listing))))
-      .then(listings => Promise.all(map(listings, listing => updateProductDetails($db, listing))))
+      .then(listings => {
+        return chainPromises(listings)
+          .then(() => Promise.all(map(listings, listing => updateProductServices($db, listing))))
+          .then(() => Promise.all(map(listings, listing => updateProductDetails($db, listing))))
+          .then(() => console.log('Finished'));
+      })
       .catch(err => {
+        // TODO: if 404 set listing as removed in mongo
         console.log(err);
         throw err;
       });
@@ -57,16 +61,12 @@ const fetchProductDetails = ($atdw, listing) => {
 };
 
 const updateProductServices = ($db, listing) => {
-  if (!(listing.atdw.productCategoryId === 'TOUR' && listing.atdw.services && listing.atdw.services.length)) return;
+  if (!(listing.atdw.productCategoryId === 'TOUR' && listing.atdw.services && listing.atdw.services.length)) return Promise.resolve();
 
   return Promise.all(
-    map(listing.atdw.services, s => {
+    map(listing.atdw.services, (s, index) => {
       const service = createServiceListing(s, listing);
-      return $db.collection('listings').updateOne({
-        filter: { _id: service._id },
-        update: { $set: service },
-        upsert: true,
-      });
+      return $db.collection('listings').updateOne({ _id: service._id }, { $set: service }, { upsert: true });
     })
   );
 };
@@ -76,7 +76,6 @@ const updateProductDetails = ($db, listing) => {
 };
 
 function createServiceListing(service, listing) {
-  console.log(service.serviceId);
   const _service = {
     _id: service.serviceId,
     name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
