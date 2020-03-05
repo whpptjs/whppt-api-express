@@ -51,7 +51,6 @@ module.exports = ({ $logger }) => {
       };
 
       const $unpublish = function(collection, _id, { session } = {}) {
-        console.log('$unpublish -> _id', _id);
         return $dbPub.collection(collection).deleteOne({ _id }, { session });
       };
 

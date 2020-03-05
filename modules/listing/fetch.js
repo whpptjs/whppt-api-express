@@ -83,7 +83,6 @@ module.exports = {
       // .limit(limit);
 
       return Promise.all([listings.toArray(), count.count()]).then(([listings, totalListings]) => {
-        console.log('exec -> totalListings', totalListings);
         return { listings, totalListings };
       });
     }
