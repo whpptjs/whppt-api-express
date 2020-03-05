@@ -10,8 +10,8 @@ module.exports = {
       .updateOne({ _id }, { $set: { published: false } })
       .then(() => {
         return $unpublish('pages', _id).then(() => {
-          if (!unPublishCallBack) return page;
-          return unPublishCallBack(page).then(() => page);
+          if (!unPublishCallBack) return;
+          return unPublishCallBack(page);
         });
       });
   },

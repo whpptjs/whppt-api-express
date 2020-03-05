@@ -48,7 +48,7 @@ module.exports = {
         const configCallbackOps = [];
 
         forEach(listings, listing => {
-          listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
+          // listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
 
           listingOps.push({
             updateOne: {
