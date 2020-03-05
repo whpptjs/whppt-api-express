@@ -7,7 +7,7 @@ const timeout = n => new Promise(resolve => setTimeout(resolve, n));
 
 module.exports = {
   $get(path) {
-    return timeout(1000).then(() => {
+    return timeout(1).then(() => {
       console.log(path);
       return atdw.get(path, { responseType: 'arraybuffer' }).then(({ data }) => {
         // return atdw.get(path, {}).then(({ data }) => {
