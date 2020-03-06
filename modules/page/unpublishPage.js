@@ -3,7 +3,6 @@ const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $mongo: { $unpublish, $db } }, { _id }) {
-    console.log('exec -> _id', _id);
     assert(_id, 'A Page Id must be provided.');
     return $db
       .collection('pages')

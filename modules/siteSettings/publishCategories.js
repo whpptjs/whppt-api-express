@@ -6,7 +6,6 @@ module.exports = {
       //   .drop()
       //   .then(() => {
       const ops = [];
-      console.log('publish -> ops', ops);
       categories.forEach(category => {
         ops.push({
           updateOne: {
@@ -16,7 +15,6 @@ module.exports = {
           },
         });
       });
-      console.log('publish -> ops', ops);
       return $dbPub
         .collection('categories')
         .bulkWrite(ops, { ordered: false })
