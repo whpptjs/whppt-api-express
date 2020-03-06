@@ -11,7 +11,7 @@ module.exports = {
     const chainPromises = listings => {
       let p = Promise.resolve();
       forEach(listings, listing => {
-        p = p.then(() => fetchProductDetails($atdw, listing)).catch(err => console.log(err));
+        p = p.then(() => fetchProductDetails($atdw, listing));
       });
       return p;
     };
@@ -20,12 +20,10 @@ module.exports = {
       .then(listings => {
         return chainPromises(listings)
           .then(() => Promise.all(map(listings, listing => updateProductServices($db, listing))))
-          .then(() => Promise.all(map(listings, listing => updateProductDetails($db, listing))))
-          .then(() => console.log('Finished'));
+          .then(() => Promise.all(map(listings, listing => updateProductDetails($db, listing))));
       })
       .catch(err => {
         // TODO: if 404 set listing as removed in mongo
-        console.log(err);
         throw err;
       });
   },

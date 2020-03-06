@@ -1,13 +1,11 @@
 module.exports = {
   exec({ $id, $mongo: { $dbPub, $db, $startTransaction } }, { redirects }) {
     function publish(session) {
-      console.log('test -> session', session);
       // return $dbPub
       //   .collection('redirects')
       //   .drop()
       //   .then(() => {
       const ops = [];
-      console.log('publish -> ops', ops);
       redirects.forEach(redirect => {
         ops.push({
           updateOne: {
@@ -17,7 +15,6 @@ module.exports = {
           },
         });
       });
-      console.log('publish -> ops', ops);
       return $dbPub
         .collection('redirects')
         .bulkWrite(ops, { ordered: false })
@@ -26,7 +23,6 @@ module.exports = {
           return redirects;
         })
         .catch(err => {
-          console.error(err);
           throw err;
         });
       // });
