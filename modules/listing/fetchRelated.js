@@ -19,30 +19,44 @@ module.exports = {
     parentQuery['parentId'] = {};
     parentQuery['parentId'].$ne = _id;
 
-    return $db
-      .collection('listings')
-      .find({ ...categoriesQuery, ...toursQuery, ...parentQuery, ...idQuery })
-      .toArray()
-      .then(listings => {
-        if (!listings.length || !listings.length) {
-          return $db
-            .collection('listings')
-            .find({ ...idQuery, ...parentQuery, ...toursQuery })
-            .toArray()
-            .then(listings => {
-              if (!listings || !listings.length) return { listings: [] };
-              return { listings: shuffle(listings).slice(0, limit) };
-            })
-            .catch(err => {
-              console.error(err);
-              throw err;
-            });
-        }
-        return { listings: shuffle(listings).slice(0, limit) };
-      })
-      .catch(err => {
-        console.error(err);
-        throw err;
-      });
+    return (
+      $db
+        .collection('listings')
+        // .find({ ...categoriesQuery, ...toursQuery, ...parentQuery, ...idQuery })
+        .aggregate([
+          { $match: { ...categoriesQuery, ...toursQuery, ...parentQuery, ...idQuery } },
+          { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+          { $addFields: { slug: '$page.slug' } },
+        ])
+        .toArray()
+        .then(listings => {
+          if (!listings.length || !listings.length) {
+            return (
+              $db
+                .collection('listings')
+                // .find({ ...idQuery, ...parentQuery, ...toursQuery })
+                .aggregate([
+                  { $match: { ...idQuery, ...parentQuery, ...toursQuery } },
+                  { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+                  { $addFields: { slug: '$page.slug' } },
+                ])
+                .toArray()
+                .then(listings => {
+                  if (!listings || !listings.length) return { listings: [] };
+                  return { listings: shuffle(listings).slice(0, limit) };
+                })
+                .catch(err => {
+                  console.error(err);
+                  throw err;
+                })
+            );
+          }
+          return { listings: shuffle(listings).slice(0, limit) };
+        })
+        .catch(err => {
+          console.error(err);
+          throw err;
+        })
+    );
   },
 };

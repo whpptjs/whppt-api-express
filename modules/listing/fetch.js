@@ -46,11 +46,19 @@ module.exports = {
 
           const listings = $db
             .collection('listings')
-            .find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery })
-            .skip(limit * (currentPage - 1))
-            .limit(limit);
+            .aggregate([
+              { $match: { ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery } },
+              { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+              { $skip: limit * (currentPage - 1) },
+              { $limit: limit },
+              { $addFields: { slug: '$page.slug' } },
+            ]);
+          const count = $db.collection('listings').find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery });
+          // .find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery })
+          // .skip(limit * (currentPage - 1))
+          // .limit(limit);
 
-          return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
+          return Promise.all([listings.toArray(), count.count()]).then(([listings, totalListings]) => {
             return { listings, totalListings, listingCategories };
           });
         })
@@ -61,11 +69,20 @@ module.exports = {
     } else {
       const listings = $db
         .collection('listings')
-        .find({ ...listingsQuery, ...toursQuery })
-        .skip(limit * (currentPage - 1))
-        .limit(limit);
+        .aggregate([
+          { $match: { ...listingsQuery, ...toursQuery } },
+          { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+          { $skip: limit * (currentPage - 1) },
+          { $limit: limit },
+          { $addFields: { slug: '$page.slug' } },
+        ]);
 
-      return Promise.all([listings.toArray(), listings.count()]).then(([listings, totalListings]) => {
+      const count = $db.collection('listings').find({ ...listingsQuery, ...toursQuery });
+      // .find({ ...listingsQuery, ...toursQuery })
+      // .skip(limit * (currentPage - 1))
+      // .limit(limit);
+
+      return Promise.all([listings.toArray(), count.count()]).then(([listings, totalListings]) => {
         return { listings, totalListings };
       });
     }

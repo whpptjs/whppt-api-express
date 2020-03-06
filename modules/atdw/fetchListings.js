@@ -39,15 +39,15 @@ module.exports = {
           property.value = getFieldValue(product, property.path) || property.value;
         });
 
-        listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
-      });
+          listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
+        });
 
       const listingOps = [];
       const pageOps = [];
       const configCallbackOps = [];
 
-      forEach(listings, listing => {
-        listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
+        forEach(listings, listing => {
+          // listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
 
         listingOps.push({
           updateOne: {

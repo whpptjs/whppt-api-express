@@ -1,4 +1,5 @@
 const { uniq } = require('lodash');
+const { publishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $mongo: { $publish } }, params) {
@@ -6,9 +7,9 @@ module.exports = {
     listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
 
     return $publish('listings', listing).then(() => {
-      // return $fetch('pages', listing._id).then(page => {
-      //   return $publish('pages', page);
-      // });
+      if (!publishCallBack) return listing;
+      listing.itemType = 'listing';
+      return publishCallBack(listing).then(() => listing);
     });
   },
 };
