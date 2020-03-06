@@ -12,7 +12,7 @@ module.exports = ({ $logger }) => {
   })
     .then(client => {
       $logger.info('Connected to mongo on:', mongoUrl);
-      const $db = client.db(draft ? db : pubDb);
+      const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
       const $startTransaction = function(callback) {
