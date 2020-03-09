@@ -45,15 +45,18 @@ module.exports = {
             })
           );
 
-          const listings = $db
-            .collection('listings')
-            .aggregate([
-              { $match: { ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery } },
-              { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
-              { $skip: limit * (currentPage - 1) },
-              { $limit: limit },
-              { $addFields: { slug: '$page.slug' } },
-            ]);
+          const listings = $db.collection('listings').aggregate([
+            { $match: { ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery } },
+            { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+            { $lookup: { from: 'pages', localField: 'parentId', foreignField: '_id', as: 'parentPage' } },
+            { $skip: limit * (currentPage - 1) },
+            { $limit: limit },
+            { $addFields: { slug: '$page.slug', parentSlug: '$parentPage.slug' } },
+            // {$addFields: {slug: {$ifNull: ['$slug', '$parentSlug']}}},
+            // {$addFields: {slug: {$ifNull: ['$parentPage.slug', '$page.slug']}}},
+            // {$unwind: "$slug"},
+            { $project: { page: 0, parentPage: 0 } },
+          ]);
           const count = $db.collection('listings').find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery });
           // .find({ ...categoryQuery, ...listingsQuery, ...checkedCategoriesQuery, ...toursQuery })
           // .skip(limit * (currentPage - 1))
@@ -68,15 +71,18 @@ module.exports = {
           throw err;
         });
     } else {
-      const listings = $db
-        .collection('listings')
-        .aggregate([
-          { $match: { ...listingsQuery, ...toursQuery } },
-          { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
-          { $skip: limit * (currentPage - 1) },
-          { $limit: limit },
-          { $addFields: { slug: '$page.slug' } },
-        ]);
+      const listings = $db.collection('listings').aggregate([
+        { $match: { ...listingsQuery, ...toursQuery } },
+        { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
+        { $lookup: { from: 'pages', localField: 'parentId', foreignField: '_id', as: 'parentPage' } },
+        { $skip: limit * (currentPage - 1) },
+        { $limit: limit },
+        { $addFields: { slug: '$page.slug', parentSlug: '$parentPage.slug' } },
+        // {$addFields: {slug: {$ifNull: ['$slug', '$parentSlug']}}},
+        // {$addFields: {slug: {$ifNull: ['$parentPage.slug', '$page.slug']}}},
+        // {$unwind: "$slug"},
+        { $project: { page: 0, parentPage: 0 } },
+      ]);
 
       const count = $db.collection('listings').find({ ...listingsQuery, ...toursQuery });
       // .find({ ...listingsQuery, ...toursQuery })
