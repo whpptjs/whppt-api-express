@@ -55,7 +55,6 @@ module.exports = {
                       _id: service.serviceId,
                       name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
                       parentId: listing._id,
-                      slug: listing.slug,
                       listingType: 'service',
                       image: { value: get(service, 'serviceMultimedia[0].serverPath'), path: 'serviceMultimedia[0].serverPath', provider: 'atdw' },
                       taggedCategories: { value: [], provider: '' },

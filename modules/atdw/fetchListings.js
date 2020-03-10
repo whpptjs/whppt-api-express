@@ -59,7 +59,7 @@ module.exports = {
 
         const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
 
-        const pageSlug = slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true });
+        const pageSlug = `listing/${slugify(listing.atdw.productName, { remove: '^[a-z](-?[a-z])*$', lower: true, strict: true })}`;
 
         if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
 
