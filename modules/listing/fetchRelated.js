@@ -26,7 +26,9 @@ module.exports = {
         .aggregate([
           { $match: { ...categoriesQuery, ...toursQuery, ...parentQuery, ...idQuery } },
           { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
-          { $addFields: { slug: '$page.slug' } },
+          { $lookup: { from: 'pages', localField: 'parentId', foreignField: '_id', as: 'parentPage' } },
+          { $addFields: { slug: '$page.slug', parentSlug: '$parentPage.slug' } },
+          { $project: { page: 0, parentPage: 0 } },
         ])
         .toArray()
         .then(listings => {
@@ -38,7 +40,9 @@ module.exports = {
                 .aggregate([
                   { $match: { ...idQuery, ...parentQuery, ...toursQuery } },
                   { $lookup: { from: 'pages', localField: '_id', foreignField: '_id', as: 'page' } },
-                  { $addFields: { slug: '$page.slug' } },
+                  { $lookup: { from: 'pages', localField: 'parentId', foreignField: '_id', as: 'parentPage' } },
+                  { $addFields: { slug: '$page.slug', parentSlug: '$parentPage.slug' } },
+                  { $project: { page: 0, parentPage: 0 } },
                 ])
                 .toArray()
                 .then(listings => {

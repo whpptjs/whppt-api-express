@@ -1,11 +1,11 @@
 module.exports = {
-  exec({ $mongo: { $db }, $email }, { to, subject, content, storeAt }) {
+  exec({ $mongo: { $db }, $email }, { to, subject, data, content, storeAt }) {
     return $email.send({ to, subject, html: content }).then(() => {
       return $db.collection(storeAt).insertOne({
         subject,
-        content,
+        data: data || content,
         to,
-        createdAt: new Date(),
+        sentOn: new Date(),
       });
     });
   },
