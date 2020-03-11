@@ -21,7 +21,7 @@ module.exports = {
         return chainPromises(listings)
           .then(() => Promise.all(map(listings, listing => updateProductServices($db, listing))))
           .then(() => Promise.all(map(listings, listing => updateProductDetails($db, listing))))
-          .then(() => Promise.resolve({ statusCode: 200, message: 'Successfully updated Listings' }));
+          .then(() => Promise.resolve({ status: 200, message: 'Successfully updated Listings' }));
       })
       .catch(err => {
         console.log(err);
