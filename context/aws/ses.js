@@ -1,8 +1,7 @@
 module.exports = awsSDK => {
   const ses = new awsSDK.SES();
 
-  const sendEmail = ({ to, subject, html }) => {
-    console.log('sendEmail -> to', to);
+  const sendEmail = ({ from, to, subject, html }) => {
     const params = {
       Destination: {
         ToAddresses: [to],
@@ -24,7 +23,7 @@ module.exports = awsSDK => {
           Data: subject,
         },
       },
-      Source: 'ethan@sveltestudios.com', // placeholder
+      Source: from, // placeholder
     };
 
     return ses.sendEmail(params).promise();
