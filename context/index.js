@@ -21,7 +21,7 @@ module.exports = () => {
       $modules: loadModules,
       $atdw,
       $axios,
-      $email: { send: $aws.sendEmail },
+      $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
     };
   });
 };

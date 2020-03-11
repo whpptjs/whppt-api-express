@@ -1,7 +1,8 @@
 module.exports = awsSDK => {
   const ses = new awsSDK.SES();
 
-  const sendEmail = ({ to, subject, html, text }) => {
+  const sendEmail = ({ to, subject, html }) => {
+    console.log('sendEmail -> to', to);
     const params = {
       Destination: {
         ToAddresses: [to],
@@ -23,11 +24,26 @@ module.exports = awsSDK => {
           Data: subject,
         },
       },
-      Source: 'info@sveltestudios.com', // placeholder
+      Source: 'ethan@sveltestudios.com', // placeholder
     };
 
     return ses.sendEmail(params).promise();
   };
 
-  return { sendEmail };
+  const getDomainIdentities = () => {
+    return ses
+      .listIdentities({
+        IdentityType: 'Domain',
+      })
+      .promise()
+      .then(({ Identities }) => {
+        if (Identities.length < 1) return [];
+        return ses
+          .getIdentityVerificationAttributes({ Identities })
+          .promise()
+          .then(({ VerificationAttributes }) => Object.keys(VerificationAttributes).filter(domain => VerificationAttributes[domain].VerificationStatus === 'Success'));
+      });
+  };
+
+  return { sendEmail, getDomainIdentities };
 };
