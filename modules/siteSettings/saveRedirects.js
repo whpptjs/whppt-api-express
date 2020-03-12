@@ -17,7 +17,6 @@ module.exports = {
         return redirects;
       })
       .catch(err => {
-        console.error(err);
         throw err;
       });
   },

@@ -10,18 +10,14 @@ const axiosInstance = axios.create({
 
 module.exports = {
   exec({}, { email, listId }) {
-    console.log('exec -> listId', listId);
-    console.log('exec -> email', email);
     return axiosInstance
       .post(`https://api.createsend.com/api/v3.2/subscribers/${listId}.json`, {
         EmailAddress: email,
         ConsentToTrack: 'No',
       })
-      .then(res => {
-        console.log('exec -> res', res);
-      })
+      .then(() => {})
       .catch(err => {
-        console.log('exec -> err', err);
+        throw err;
       });
   },
 };

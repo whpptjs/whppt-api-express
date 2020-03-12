@@ -4,11 +4,9 @@ module.exports = {
       .collection('redirects')
       .findOne({ to: redirect.to, from: redirect.from })
       .then(result => {
-        if (result) return true;
-        return false;
+        return !!result;
       })
       .catch(err => {
-        console.error(err);
         throw err;
       });
   },

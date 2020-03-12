@@ -52,6 +52,7 @@ const fetchProductDetails = ($atdw, listing) => {
       .then(productData => {
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           const property = listing[fieldKey];
+          console.log(property);
           if (!property || property.provider !== 'atdw') return;
           property.value = getFieldValue(productData, property.path);
         });
