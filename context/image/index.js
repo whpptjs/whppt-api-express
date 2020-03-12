@@ -20,9 +20,9 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
     const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
 
-    const startX = (formats.x && Math.abs(Number(formats.x.value))) || 0;
-    const startY = (formats.y && Math.abs(Number(formats.y.value))) || 0;
-    const scale = (formats.s && Math.abs(Number(formats.s.value))) || 0.5;
+    const startX = (formats.x && parseInt(Number(formats.x.value))) || 0;
+    const startY = (formats.y && parseInt(Number(formats.y.value))) || 0;
+    const scale = (formats.s && parseInt(Number(formats.s.value))) || 0.5;
 
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
       const { imageBuffer } = s3Image;
