@@ -21,7 +21,6 @@ module.exports = {
     if (hideTours && hideTours !== 'undefined') {
       toursQuery.$or = [{ 'atdw.productCategoryId': { $ne: 'TOUR' } }, { listingType: { $ne: 'product' } }];
     }
-    console.log('exec -> categoryFilterId', categoryFilterId);
 
     if (categoryFilterId && categoryFilterId !== 'none') {
       return $db
@@ -67,7 +66,6 @@ module.exports = {
           });
         })
         .catch(err => {
-          console.error(err);
           throw err;
         });
     } else {

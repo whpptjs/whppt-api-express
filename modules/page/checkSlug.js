@@ -7,7 +7,6 @@ module.exports = {
         return page && page._id;
       })
       .catch(err => {
-        console.error(err);
         throw err;
       });
   },

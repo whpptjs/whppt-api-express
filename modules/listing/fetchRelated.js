@@ -50,7 +50,6 @@ module.exports = {
                   return { listings: shuffle(listings).slice(0, limit) };
                 })
                 .catch(err => {
-                  console.error(err);
                   throw err;
                 })
             );
@@ -58,7 +57,6 @@ module.exports = {
           return { listings: shuffle(listings).slice(0, limit) };
         })
         .catch(err => {
-          console.error(err);
           throw err;
         })
     );

@@ -51,8 +51,11 @@ const fetchProductDetails = ($atdw, listing) => {
       .$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`)
       .then(productData => {
         forEach(atdwFields, (getFieldValue, fieldKey) => {
+          if (fieldKey === 'image') return;
+
           const property = listing[fieldKey];
           if (!property || property.provider !== 'atdw') return;
+
           property.value = getFieldValue(productData, property.path);
         });
 
