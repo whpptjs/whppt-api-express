@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const auth = Buffer.from(process.env.CREATESEND_API_KEY).toString('base64');
+const auth = Buffer.from(process.env.CREATESEND_API_KEY || '').toString('base64');
 
 const axiosInstance = axios.create({
   headers: {
