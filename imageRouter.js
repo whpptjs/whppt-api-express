@@ -27,8 +27,10 @@ module.exports = () => {
     });
 
     router.get('/img/:format/:imageId', cache({ ttl: oneDay }), (req, res) => {
+      const accept = req.headers['accept'];
+
       return $image
-        .fetch({ id: req.params.imageId, format: req.params.format })
+        .fetch({ id: req.params.imageId, format: req.params.format, accept })
         .then(response => {
           if (!response) return res.status(500).send('Image not found');
           res.type(response.ContentType).send(response.Body);

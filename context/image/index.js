@@ -4,11 +4,12 @@ const { map, keyBy } = require('lodash');
 const optimise = {
   jpg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
   jpeg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
+  // png: (image, quality) => ({ contentType: 'image/png', img: image.png({ progressive: false, compressionLevel: 5 }) }),
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
 module.exports = ({ $mongo: { $db }, $aws, $id }) => {
-  const fetch = function({ format, id }) {
+  const fetch = function({ format, id, accept = '' }) {
     const formatSplit = format.split('|');
     const mappedFormats = map(formatSplit, s => {
       const sp = s.split('_');
@@ -35,7 +36,9 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
         // const scaledY = meta.height / 2 + startY;
 
         const croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
-        const imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
+        let imageType;
+        if (formats.f) imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
+        else imageType = accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
         const quality = (formats.q && formats.q.value) || 70;
         const { img: optimisedImage, contentType } = optimise[imageType](croppedImage, quality);
 
