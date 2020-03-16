@@ -20,18 +20,19 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
     const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
 
-    const startX = (formats.x && parseInt(Number(formats.x.value))) || 0;
-    const startY = (formats.y && parseInt(Number(formats.y.value))) || 0;
-    const scale = (formats.s && parseInt(Number(formats.s.value))) || 0.5;
-
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
       const { imageBuffer } = s3Image;
       const image = Sharp(imageBuffer);
       return image.metadata().then(meta => {
+        const startX = (formats.x && parseInt(Number(formats.x.value < 0 ? 0 : formats.x.value))) || 0;
+        const startY = (formats.y && parseInt(Number(formats.y.value < 0 ? 0 : formats.y.value))) || 0;
+        const scale = (formats.s && parseInt(Number(formats.s.value))) || 1;
         const scaledWidth = meta.width * scale;
         const extractWidth = scaledWidth + startX > meta.width ? meta.width - startX : scaledWidth;
         const scaledHeight = meta.height * scale;
         const extractHeight = scaledHeight + startY > meta.height ? meta.height - startY : scaledHeight;
+        // const scaledX = meta.width / 2 + startX;
+        // const scaledY = meta.height / 2 + startY;
 
         const croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
         const imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
