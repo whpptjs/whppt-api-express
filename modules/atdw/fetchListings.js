@@ -47,8 +47,6 @@ module.exports = {
       const configCallbackOps = [];
 
       forEach(listings, listing => {
-        // listing.slug = !listing.slug ? slugify(`listing/${listing.atdw.productName}`, { remove: '^[a-z](-?[a-z])*$', lower: true }) : listing.slug;
-
         listingOps.push({
           updateOne: {
             filter: { _id: listing._id },
@@ -60,6 +58,7 @@ module.exports = {
         const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
 
         const pageSlug = `listing/${slugify(listing.atdw.productName, { remove: '^[a-z](-?[a-z])*$', lower: true, strict: true })}`;
+        pageSlug = pageSlug.replace(/[#?]/g, '');
 
         if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
 
@@ -91,8 +90,6 @@ module.exports = {
               link: { type: 'page' },
               linkgroup: { type: 'page', links: [], showOnDesktop: true },
             };
-
-        // if (listing.name.provider === 'atdw') newPage.header.title = listing.atdw.productName;
 
         pageOps.push({
           updateOne: {

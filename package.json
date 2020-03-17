@@ -1,7 +1,7 @@
 {
   "name": "@whppt/api-express",
   "description": "Whppt api module for express",
-  "version": "0.0.44",
+  "version": "0.0.48",
   "author": "Svelte Studios (https://www.npmjs.com/settings/svelte-studios/packages)",
   "main": "index.js",
   "scripts": {
@@ -18,12 +18,15 @@
   },
   "homepage": "https://github.com/svelte-studios/whppt-api-express",
   "devDependencies": {
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-stage-2": "^7.8.3",
     "ava": "^2.4.0",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-prettier": "^3.1.1",
     "prettier": "^1.19.1",
+    "rembrandt": "^0.1.3",
     "sinon": "^7.5.0"
   },
   "dependencies": {
@@ -34,7 +37,6 @@
     "encoding": "^0.1.12",
     "express-cache-headers": "^0.1.4",
     "express-promise-json-router": "^1.0.8",
-    "jimp": "^0.9.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mongodb": "^3.4.0",
@@ -42,8 +44,20 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "require-glob": "^3.2.0",
+    "sharp": "^0.25.1",
     "slugify": "^1.4.0",
     "uniqid": "^5.2.0",
     "uri-js": "^4.2.2"
+  },
+  "ava": {
+    "babel": {
+      "testOptions": {
+        "babelrc": false,
+        "configFile": false,
+        "presets": [
+          "@babel/preset-env"
+        ]
+      }
+    }
   }
 }

@@ -1,7 +1,6 @@
 const axios = require('axios');
 
-/* TODO: Jake said he's going to move this out of whppt! */
-const auth = process.env.CREATESEND_API_KEY ? Buffer.from(process.env.CREATESEND_API_KEY).toString('base64') : '';
+const auth = Buffer.from(process.env.CREATESEND_API_KEY || '').toString('base64');
 
 const axiosInstance = axios.create({
   headers: {
@@ -11,8 +10,6 @@ const axiosInstance = axios.create({
 
 module.exports = {
   exec({}, { email, listId }) {
-    assert(auth, 'Missing Credentials');
-
     return axiosInstance
       .post(`https://api.createsend.com/api/v3.2/subscribers/${listId}.json`, {
         EmailAddress: email,
@@ -20,7 +17,7 @@ module.exports = {
       })
       .then(() => {})
       .catch(err => {
-        throw err;
+        return err && err.response && err.response.data;
       });
   },
 };
