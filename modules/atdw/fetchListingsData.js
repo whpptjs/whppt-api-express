@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { get, forEach, uniq, map } = require('lodash');
+const { get, forEach, uniq, map, find } = require('lodash');
 const atdwFields = require('./atdwFields');
 const filterMultimedia = require('./filterMultimedia');
 
@@ -94,6 +94,11 @@ function createServiceListing(service, listing) {
     name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
     parentId: listing._id,
     listingType: 'service',
+    physicalAddress: service.physicalAddress || {
+      value: '',
+      path: 'physicalAddress',
+      provider: 'atdw',
+    },
     image: { value: get(service, 'serviceMultimedia[0].serverPath'), path: 'serviceMultimedia[0].serverPath', provider: 'atdw' },
     taggedCategories: { value: [], provider: '' },
     atdwCategories: { value: listing.atdwCategories.value, provider: 'atdw' },
@@ -102,11 +107,19 @@ function createServiceListing(service, listing) {
     activeStatus: listing.activeStatus,
     atdw: {
       ...service,
+      addresses: listing.atdw.addresses,
       status: listing.atdw.status,
       productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath,
       productCategoryId: listing.atdw.productCategoryId,
     },
   };
+
+  if (_service.physicalAddress.provider === 'atdw') {
+    const address = find(_service.atdw.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
+    if (!address) return '';
+    _service.physicalAddress.value = `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName ||
+      address.state}, ${address.countryName || address.country}`;
+  }
 
   _service.taggedCategories.value = uniq([..._service.atdwCategories.value, ..._service.customCategories.value]);
 
