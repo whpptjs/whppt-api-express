@@ -20,6 +20,13 @@ module.exports = ({ $logger }) => {
         return session.withTransaction(() => callback(session));
       };
 
+      const $list = function(collection, removed) {
+        const cursor = $db.collection(collection);
+
+        if (removed) return cursor.find().toArray();
+        return cursor.find({ removed: false }).toArray();
+      };
+
       const $fetch = function(collection, id) {
         return $db
           .collection(collection)
@@ -56,7 +63,8 @@ module.exports = ({ $logger }) => {
 
       return {
         $db,
-        $dbPub,
+        $dbPub, // should be private
+        $list,
         $fetch,
         $save,
         $publish,
