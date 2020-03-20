@@ -6,8 +6,8 @@ module.exports = {
       const local = res.emailLocal || 'no-reply';
       if (!EmailSyntax.validateLocalPart(local)) throw new Error("Email address's local part is invalid.");
       let domain = '';
-      return $email.getDomainList.then(domainList => {
-        domain = res.emailLocal || domainList[0];
+      return $email.getDomainList().then(domainList => {
+        domain = res.emailDomain || domainList[0];
         if (!EmailSyntax.validateDomainName(domain)) throw new Error("Email address's domain name is invalid.");
         const from = `${local}@${domain}`;
         return $email.send({ from, to, subject, html: content }).then(() => {
