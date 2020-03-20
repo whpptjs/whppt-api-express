@@ -5,6 +5,7 @@ module.exports = {
     return $fetch('site', 'siteSettings').then(res => {
       const local = res.emailLocal || 'no-reply';
       if (!EmailSyntax.validateLocalPart(local)) throw new Error("Email address's local part is invalid.");
+      console.log('exec -> validateLocalPart', validateLocalPart);
       let domain = '';
       return $email.getDomainList().then(domainList => {
         domain = res.emailDomain || domainList[0];
