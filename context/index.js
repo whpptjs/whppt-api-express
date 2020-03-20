@@ -22,6 +22,7 @@ module.exports = () => {
       $atdw,
       $axios,
       $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
+      $objectTypes: config.supportedTypes,
     };
   });
 };

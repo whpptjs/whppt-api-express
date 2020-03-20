@@ -9,11 +9,7 @@ module.exports = {
       audience: 'example',
     },
   },
-  collections: {
-    pages: 'pages',
-    listing: 'listing',
-    image: 'image',
-  },
+  supportedTypes: ['book'],
   atdw: {
     apiUrl: process.env.ATDW_API_URL,
     apiKey: process.env.ATDW_API_KEY,
@@ -50,9 +46,6 @@ module.exports = {
           links: [{ text: 'Event Calendar', href: '' }],
         },
       ],
-    },
-    footer: {
-      test: [],
     },
   },
 };
