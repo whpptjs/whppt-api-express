@@ -24,7 +24,7 @@ module.exports = ({ $logger }) => {
         const cursor = $db.collection(collection);
 
         if (removed) return cursor.find().toArray();
-        return cursor.find({ removed: false }).toArray();
+        return cursor.find({ removed: { $ne: true } }).toArray();
       };
 
       const $fetch = function(collection, id) {
@@ -51,14 +51,23 @@ module.exports = ({ $logger }) => {
         return $db.collection(collection).deleteOne({ _id: id }, { session });
       };
 
-      // TODO: Add publishing functions
       const $publish = function(collection, doc, { session } = {}) {
-        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
-        return $dbPub.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+        doc = { ...doc, lastPublished: new Date(), updatedAt: new Date(), published: true };
+        return $db
+          .collection(collection)
+          .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+          .then(() => {
+            return $dbPub.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+          });
       };
 
       const $unpublish = function(collection, _id, { session } = {}) {
-        return $dbPub.collection(collection).deleteOne({ _id }, { session });
+        return $db
+          .collection(collection)
+          .updateOne({ _id }, { $set: { published: false } }, { session })
+          .then(() => {
+            return $dbPub.collection(collection).deleteOne({ _id }, { session });
+          });
       };
 
       return {
