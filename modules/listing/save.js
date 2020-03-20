@@ -1,4 +1,5 @@
 const { uniq } = require('lodash');
+const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $id, $mongo: { $save } }, params) {

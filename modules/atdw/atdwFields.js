@@ -8,7 +8,7 @@ const stringFromPath = function(product, path) {
 module.exports = {
   name: stringFromPath,
   description: stringFromPath,
-  status: stringFromPath,
+  activeStatus: stringFromPath,
   email(product, path) {
     if (path !== 'email') return stringFromPath(product, path);
     const email = find(product.communication, comm => comm.attributeIdCommunication === 'CAEMENQUIR');
