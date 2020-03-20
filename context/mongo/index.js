@@ -24,7 +24,7 @@ module.exports = ({ $logger }) => {
         const cursor = $db.collection(collection);
 
         if (removed) return cursor.find().toArray();
-        return cursor.find({ removed: false }).toArray();
+        return cursor.find({ removed: { $ne: true } }).toArray();
       };
 
       const $fetch = function(collection, id) {

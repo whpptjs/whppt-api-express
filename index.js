@@ -9,6 +9,11 @@ module.exports = () => {
     const { $security } = context;
     const objectRestMethods = ObjectRestMethods(context);
 
+    router.get('/api/obj/:type', $security.authenticate, objectRestMethods.list);
+    router.get('/api/obj/:type/:id', $security.authenticate, objectRestMethods.get);
+    router.post('/api/obj/:type', $security.authenticate, objectRestMethods.post);
+    router.delete('/api/obj/:type/:id', $security.authenticate, objectRestMethods.del);
+
     router.get('/api/:mod/:query', $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
       return callModule(context, mod, query, { ...queryArgs, user });
     });
@@ -16,11 +21,6 @@ module.exports = () => {
     router.post('/api/:mod/:command', $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
-
-    router.get('/api/obj/:type', $security.authenticate, objectRestMethods.list);
-    router.get('/api/obj/:type/:id', $security.authenticate, objectRestMethods.get);
-    router.post('/api/obj/:type', $security.authenticate, objectRestMethods.post);
-    router.delete('/api/obj/:type/:id', $security.authenticate, objectRestMethods.del);
 
     return Promise.all([Image()]).then(([imageRouter]) => {
       router.use(imageRouter);
