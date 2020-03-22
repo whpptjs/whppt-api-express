@@ -1,19 +1,16 @@
-const assert = require('assert');
 const { forEach, find, uniq } = require('lodash');
 const slugify = require('slugify');
 const atdwFields = require('./atdwFields');
-const isDraft = process.env.DRAFT === 'true';
 
 const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $atdw, $mongo: { $db, $dbPub } }) {
     const { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
-
     return Promise.all([
       $db
         .collection('listings')
-        .find()
+        .find({ listingType: 'product' })
         .toArray(),
       $db
         .collection('pages')
@@ -21,7 +18,7 @@ module.exports = {
         .toArray(),
       $atdw.$get(`https://${apiUrl}/api/atlas/products?key=${apiKey}&out=json&st=${state}&ar=${area}&size=${limit}`),
     ]).then(([listings, pages, atdwResults]) => {
-      const { products } = atdwResults;
+      let { products } = atdwResults;
 
       forEach(products, product => {
         const foundListing = find(listings, l => l.atdw && l.atdw.productId === product.productId);
@@ -43,10 +40,46 @@ module.exports = {
       });
 
       const listingOps = [];
+      const publishListingOps = [];
       const pageOps = [];
+      const pubPageOps = [];
+      const unpubItems = [];
       const configCallbackOps = [];
 
       forEach(listings, listing => {
+        if (!find(products, p => p.productId === listing._id) && listing.activeStatus.value === 'ACTIVE') {
+          listing.activeStatus.value = 'INACTIVE';
+          listing.published = false;
+          unpubItems.push({
+            deleteOne: {
+              _id: listing._id,
+            },
+          });
+        }
+
+        const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
+
+        let pageSlug = foundPage ? foundPage.slug : `listing/${slugify(listing.atdw.productName, { remove: '^[a-z](-?[a-z])*$', lower: true, strict: true })}`;
+
+        pageSlug = pageSlug.replace(/[#?]/g, '');
+
+        if (listing.activeStatus.value === 'ACTIVE') {
+          listing.published = true;
+          listing.lastPublished = new Date();
+
+          publishListingOps.push({
+            updateOne: {
+              filter: { _id: listing._id },
+              update: {
+                $set: listing,
+              },
+              upsert: true,
+            },
+          });
+
+          if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
+        }
+
         listingOps.push({
           updateOne: {
             filter: { _id: listing._id },
@@ -55,18 +88,12 @@ module.exports = {
           },
         });
 
-        const foundPage = find(pages, p => p._id === (listing.atdw && listing.atdw.productId));
-
-        const pageSlug = `listing/${slugify(listing.atdw.productName, { remove: '^[a-z](-?[a-z])*$', lower: true, strict: true })}`;
-        pageSlug = pageSlug.replace(/[#?]/g, '');
-
-        if (listingCallback) configCallbackOps.push({ ...listing, slug: pageSlug, itemType: 'listing' });
-
         const newPage = foundPage
-          ? { ...foundPage }
+          ? { ...foundPage, published: listing.activeStatus.value === 'ACTIVE' ? true : false }
           : {
               _id: listing._id,
               slug: pageSlug,
+              published: true,
               contents: [],
               listingId: listing._id,
               header: {
@@ -100,11 +127,40 @@ module.exports = {
             upsert: true,
           },
         });
+
+        if (newPage.published) {
+          pubPageOps.push({
+            updateOne: {
+              filter: { _id: listing._id },
+              update: {
+                $set: newPage,
+              },
+              upsert: true,
+            },
+          });
+        }
       });
+
       const promises = [$db.collection('listings').bulkWrite(listingOps, { ordered: false })];
 
       if (pageOps && pageOps.length) {
         promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
+      }
+
+      console.log('exec -> pubPageOps.length', pubPageOps.length);
+      if (pubPageOps && pubPageOps.length) {
+        promises.push($dbPub.collection('pages').bulkWrite(pubPageOps, { ordered: false }));
+      }
+
+      console.log('exec -> publishListingOps.length', publishListingOps.length);
+      if (publishListingOps && publishListingOps.length) {
+        promises.push($dbPub.collection('listings').bulkWrite(publishListingOps, { ordered: false }));
+      }
+
+      console.log('exec -> unpubItems.length', unpubItems.length);
+      if (unpubItems && unpubItems.length) {
+        promises.push($dbPub.collection('pages').bulkWrite(unpubItems, { ordered: false }));
+        promises.push($dbPub.collection('listings').bulkWrite(unpubItems, { ordered: false }));
       }
 
       if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
