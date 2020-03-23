@@ -24,7 +24,9 @@ module.exports = context => {
   const post = function({ body: obj, params: { type } }) {
     assert(includes($objectTypes, type), `${type} not supported!`);
     obj._id = obj._id || $id();
-    return $save(type, obj);
+    return $save(type, obj).then(() => {
+      return $fetch(type, obj._id);
+    });
   };
 
   const del = function({ params: { type, id }, query: { force } }) {
