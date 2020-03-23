@@ -39,8 +39,7 @@ const loadListings = $db => {
 
 const fetchProductDetails = ($atdw, listing) => {
   let { apiUrl, apiKey } = atdw;
-  apiUrl = 'atlas.atdw-online.com.au';
-  apiKey = '30be57ce27f84465bde566c2c908f978';
+
   assert(apiUrl, 'Please provide an ATDW URL.');
   assert(apiKey, 'Please provide an ATDW API Key.');
 
