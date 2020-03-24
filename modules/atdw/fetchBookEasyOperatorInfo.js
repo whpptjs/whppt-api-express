@@ -5,7 +5,7 @@ const { filter, map, find } = require('lodash');
 const { bookEasy } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  exec({ $axios, $mongo: { $db } }) {
+  exec({ $axios, $mongo: { $db, $dbPub } }) {
     const { apiUrl, apiKey, vcid } = bookEasy;
 
     assert(apiUrl, 'Please provide an Book Easy API URL.');
@@ -42,6 +42,7 @@ module.exports = {
             });
 
             const ops = [];
+            const pubOps = [];
 
             listingsWithBookEasy.forEach(listing => {
               ops.push({
@@ -50,12 +51,29 @@ module.exports = {
                   update: { $set: listing },
                 },
               });
+
+              if (listing.activeStatus.value === 'ACTIVE') {
+                pubOps.push({
+                  updateOne: {
+                    filter: { _id: listing._id },
+                    update: { $set: listing },
+                  },
+                });
+              }
             });
 
             return $db
               .collection('listings')
               .bulkWrite(ops, { ordered: false })
               .then(() => {
+                if (pubOps && pubOps.length) {
+                  return $dbPub
+                    .collection('listings')
+                    .bulkWrite(pubOps, { ordered: false })
+                    .then(() => {
+                      return Promise.resolve({ statusCode: 200, message: 'OK' });
+                    });
+                }
                 return Promise.resolve({ statusCode: 200, message: 'OK' });
               })
               .catch(e => {
