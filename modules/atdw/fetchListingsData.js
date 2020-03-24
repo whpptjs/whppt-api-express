@@ -33,12 +33,12 @@ module.exports = {
 const loadListings = $db => {
   return $db
     .collection('listings')
-    .find({ $or: [{ 'atdw.productCategoryId': 'TOUR' }, { listingType: 'service' }] })
+    .find()
     .toArray();
 };
 
 const fetchProductDetails = ($atdw, listing) => {
-  let { apiUrl, apiKey } = atdw;
+  const { apiUrl, apiKey } = atdw;
 
   assert(apiUrl, 'Please provide an ATDW URL.');
   assert(apiKey, 'Please provide an ATDW API Key.');
@@ -118,18 +118,27 @@ function createServiceListing(service, listing, allListings) {
     },
     image: { value: get(service, 'serviceMultimedia[0].serverPath'), path: 'serviceMultimedia[0].serverPath', provider: 'atdw' },
     taggedCategories: { value: [], provider: '' },
-    atdwCategories: { value: listing.atdwCategories.value, provider: 'atdw' },
+    // atdwCategories: { value: listing.atdwCategories.value, provider: 'atdw' },
     customCategories: { value: [], provider: '' },
     multimedia: service.serviceMultimedia,
-    activeStatus: listing.activeStatus,
+    // activeStatus: listing.activeStatus,
     atdw: {
       ...service,
-      addresses: listing.atdw.addresses,
-      status: listing.atdw.status,
+      // addresses: listing.atdw.addresses,
+      // externalSystems: listing.atdw.externalSystems,
+      // status: listing.atdw.status,
       productImage: service.serviceMultimedia[0] && service.serviceMultimedia[0].serverPath,
-      productCategoryId: listing.atdw.productCategoryId,
+      // productCategoryId: listing.atdw.productCategoryId,
     },
   };
+
+  _service.atdw.externalSystems = listing.atdw.externalSystems;
+  _service.atdw.addresses = listing.atdw.addresses;
+  _service.activeStatus = listing.activeStatus;
+
+  _service.atdw.status = listing.atdw.status;
+  _service.atdw.productCategoryId = listing.atdw.productCategoryId;
+  _service.atdwCategories = { value: listing.atdwCategories.value, provider: 'atdw' };
 
   if (_service.activeStatus.value === 'ACTIVE') {
     _service.published = true;
