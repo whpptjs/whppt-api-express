@@ -46,10 +46,12 @@ const fetchProductDetails = ($atdw, listing) => {
   if (listing.listingType === 'service') return;
 
   const { _id } = listing;
+  console.log('fetching for:', listing.name.value);
   return (
     $atdw
       .$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`)
       .then(productData => {
+        console.log('Done fetching for:', productData.productId);
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           if (fieldKey === 'image' || fieldKey === 'activeStatus') return;
 
@@ -148,8 +150,8 @@ function createServiceListing(service, listing, allListings) {
   if (_service.physicalAddress.provider === 'atdw') {
     const address = find(_service.atdw.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
     if (!address) return '';
-    _service.physicalAddress.value = `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName ||
-      address.state}, ${address.countryName || address.country}`;
+    _service.physicalAddress.value = `${address.addressLine1 || address.address_line || ''}${address.addressLine1 || address.address_line ? ',' : ''} ${address.cityName ||
+      address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   }
 
   _service.taggedCategories.value = uniq([..._service.atdwCategories.value, ..._service.customCategories.value]);
