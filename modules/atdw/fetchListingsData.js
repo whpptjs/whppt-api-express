@@ -63,6 +63,7 @@ const fetchProductDetails = ($atdw, listing) => {
 
         listing.atdw = { ...listing.atdw, ...productData };
         listing.atdw.multimedia = filterMultimedia(productData.multimedia);
+        listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
         listing.hasFullATDWData = true;
       })
       // TODO: if 404 set listing as removed in mongo
