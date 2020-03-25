@@ -148,8 +148,8 @@ function createServiceListing(service, listing, allListings) {
   if (_service.physicalAddress.provider === 'atdw') {
     const address = find(_service.atdw.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
     if (!address) return '';
-    _service.physicalAddress.value = `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName ||
-      address.state}, ${address.countryName || address.country}`;
+    _service.physicalAddress.value = `${address.addressLine1 || address.address_line || ''}${address.addressLine1 || address.address_line ? ',' : ''} ${address.cityName ||
+      address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   }
 
   _service.taggedCategories.value = uniq([..._service.atdwCategories.value, ..._service.customCategories.value]);
