@@ -46,10 +46,12 @@ const fetchProductDetails = ($atdw, listing) => {
   if (listing.listingType === 'service') return;
 
   const { _id } = listing;
+  console.log('fetching for:', listing.name.value);
   return (
     $atdw
       .$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`)
       .then(productData => {
+        console.log('Done fetching for:', productData.productId);
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           if (fieldKey === 'image' || fieldKey === 'activeStatus') return;
 
