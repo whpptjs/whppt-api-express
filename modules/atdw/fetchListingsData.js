@@ -7,17 +7,19 @@ const filterMultimedia = require('./filterMultimedia');
 const { atdw } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  exec({ $atdw, $mongo: { $db, $dbPub, $publish } }) {
+  exec({ $atdw, $mongo: { $db, $dbPub, $publish }, $logger }) {
     const chainPromises = listings => {
       let p = Promise.resolve();
       forEach(listings, listing => {
-        p = p.then(() => fetchProductDetails($atdw, listing));
+        p = p.then(() => fetchProductDetails($atdw, listing, $logger));
       });
       return p;
     };
+    $logger.dev('fetching listings:');
 
     return loadListings($db)
       .then(listings => {
+        $logger.dev('Done loading, got listings: ', listings.length);
         return chainPromises(listings)
           .then(() => Promise.all(map(listings, listing => updateProductServices($db, $dbPub, listing, listings))))
           .then(() => Promise.all(map(listings, listing => updateProductDetails($db, $publish, listing))))
@@ -37,7 +39,7 @@ const loadListings = $db => {
     .toArray();
 };
 
-const fetchProductDetails = ($atdw, listing) => {
+const fetchProductDetails = ($atdw, listing, $logger) => {
   const { apiUrl, apiKey } = atdw;
 
   assert(apiUrl, 'Please provide an ATDW URL.');
@@ -46,12 +48,13 @@ const fetchProductDetails = ($atdw, listing) => {
   if (listing.listingType === 'service') return;
 
   const { _id } = listing;
-  console.log('fetching for:', listing.name.value);
+  $logger.dev('fetching for:', listing.name.value);
+
   return (
     $atdw
       .$get(`https://${apiUrl}/api/atlas/product?key=${apiKey}&out=json&productId=${_id}`)
       .then(productData => {
-        console.log('Done fetching for:', productData.productId);
+        $logger.dev('Done fetching for:', productData.productId);
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           if (fieldKey === 'image' || fieldKey === 'activeStatus') return;
 
@@ -81,8 +84,10 @@ const updateProductServices = ($db, $dbPub, listing, allListings) => {
         .collection('listings')
         .updateOne({ _id: service._id }, { $set: service }, { upsert: true })
         .then(() => {
-          if (service.published === true) {
+          if (service.activeStatus.value === 'ACTIVE') {
             return $dbPub.collection('listings').updateOne({ _id: service._id }, { $set: service }, { upsert: true });
+          } else if (service.activeStatus.value === 'INACTIVE') {
+            return $dbPub.collection('listings').deleteOne({ _id: service._id });
           }
         });
     })
@@ -138,7 +143,9 @@ function createServiceListing(service, listing, allListings) {
 
   _service.atdw.externalSystems = listing.atdw.externalSystems;
   _service.atdw.addresses = listing.atdw.addresses;
-  _service.activeStatus = _service.activeStatus || listing.activeStatus;
+  if (listing.activeStatus.value === 'INACTIVE') {
+    _service.activeStatus = listing.activeStatus;
+  } else _service.activeStatus = _service.activeStatus || listing.activeStatus;
 
   _service.atdw.status = listing.atdw.status;
   _service.atdw.productCategoryId = listing.atdw.productCategoryId;
