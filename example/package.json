@@ -14,8 +14,7 @@
     "consola": "^2.11.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "express": "latest",
-    "jimp": "^0.9.3"
+    "express": "latest"
   },
   "devDependencies": {
     "nodemon": "^2.0.2",
