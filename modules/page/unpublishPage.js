@@ -16,13 +16,27 @@ module.exports = {
             .then(listing => {
               if (listing && listing.atdw) {
                 return $unpublish('listings', _id).then(() => {
-                  if (listing.atdw.services && listing.atdw.services.length) {
-                    return Promise.all(
-                      map(listing.atdw.services, s => {
-                        console.log('exec -> s.serviceId', s.serviceId);
-                        return $unpublish('listings', s.serviceId);
-                      })
-                    );
+                  if (!unPublishCallBack) {
+                    if (listing.atdw.services && listing.atdw.services.length) {
+                      return Promise.all(
+                        map(listing.atdw.services, s => {
+                          return $unpublish('listings', s.serviceId);
+                        })
+                      );
+                    }
+                  } else {
+                    return unPublishCallBack(_id).then(() => {
+                      if (listing.atdw.services && listing.atdw.services.length) {
+                        return Promise.all(
+                          map(listing.atdw.services, s => {
+                            return $unpublish('listings', s.serviceId).then(() => {
+                              // return
+                              return unPublishCallBack(s.serviceId);
+                            });
+                          })
+                        );
+                      }
+                    });
                   }
                 });
               }

@@ -112,6 +112,7 @@ function createServiceListing(service, listing, allListings) {
   const _service = foundService || {
     _id: service.serviceId,
     name: { value: service.serviceName, path: 'serviceName', provider: 'atdw' },
+    description: { value: service.serviceDescription, path: 'serviceDescription', provider: 'atdw' },
     parentId: listing._id,
     listingType: 'service',
     physicalAddress: service.physicalAddress || {
@@ -137,7 +138,7 @@ function createServiceListing(service, listing, allListings) {
 
   _service.atdw.externalSystems = listing.atdw.externalSystems;
   _service.atdw.addresses = listing.atdw.addresses;
-  _service.activeStatus = listing.activeStatus;
+  _service.activeStatus = _service.activeStatus || listing.activeStatus;
 
   _service.atdw.status = listing.atdw.status;
   _service.atdw.productCategoryId = listing.atdw.productCategoryId;
@@ -158,6 +159,7 @@ function createServiceListing(service, listing, allListings) {
   _service.taggedCategories.value = uniq([..._service.atdwCategories.value, ..._service.customCategories.value]);
 
   if (_service.name.provider === 'atdw') _service.name.value = service.serviceName;
+  if (_service.description.provider === 'atdw') _service.description.value = service.serviceDescription;
   if (_service.taggedCategories.provider === 'atdw') _service.taggedCategories.value = listing.atdwCategories.value;
   return _service;
 }
