@@ -11,7 +11,7 @@ module.exports = {
     const chainPromises = listings => {
       let p = Promise.resolve();
       forEach(listings, listing => {
-        p = p.then(() => fetchProductDetails($atdw, listing, $logger));
+        p = p.then(() => fetchProductDetails($atdw, listing, listings, $logger, $dbPub, $db));
       });
       return p;
     };
@@ -21,7 +21,7 @@ module.exports = {
       .then(listings => {
         $logger.dev('Done loading, got listings: ', listings.length);
         return chainPromises(listings)
-          .then(() => Promise.all(map(listings, listing => updateProductServices($db, $dbPub, listing, listings))))
+          .then(() => Promise.all(map(listings, listing => updateProductServices($db, $dbPub, listing, listings, $logger))))
           .then(() => Promise.all(map(listings, listing => updateProductDetails($db, $publish, listing))))
           .then(() => Promise.resolve({ status: 200, message: 'Successfully updated Listings' }));
       })
@@ -39,7 +39,7 @@ const loadListings = $db => {
     .toArray();
 };
 
-const fetchProductDetails = ($atdw, listing, $logger) => {
+const fetchProductDetails = ($atdw, listing, listings, $logger, $dbPub, $db) => {
   const { apiUrl, apiKey } = atdw;
 
   assert(apiUrl, 'Please provide an ATDW URL.');
@@ -49,6 +49,7 @@ const fetchProductDetails = ($atdw, listing, $logger) => {
 
   const { _id } = listing;
   $logger.dev('fetching for:', listing.name.value);
+  $logger.dev('fetching for:', listing._id);
 
   return (
     $atdw
@@ -70,16 +71,52 @@ const fetchProductDetails = ($atdw, listing, $logger) => {
         listing.hasFullATDWData = true;
       })
       // TODO: if 404 set listing as removed in mongo
-      .catch(err => console.error(err))
+      .catch(err => {
+        const unpubServices = [];
+        const updateServices = [];
+        $logger.dev('fetchProductDetails -> listings', listings.length);
+        forEach(listings, l => {
+          if (l.parentId === listing._id) {
+            updateServices.push({
+              updateOne: {
+                filter: { _id: l._id },
+                update: { $set: { ...l, published: false } },
+                upsert: true,
+              },
+            });
+            unpubServices.push({
+              deleteOne: {
+                _id: l._id,
+              },
+            });
+          }
+        });
+        if (unpubServices.length) {
+          return $db
+            .collection('listings')
+            .bulkWrite(updateServices, { ordered: false })
+            .then(() => {
+              return $dbPub
+                .collection('listings')
+                .bulkWrite(unpubServices, { ordered: false })
+                .then(() => {
+                  $logger.dev('services removed due to 404:', unpubServices.length);
+                  console.error(err);
+                });
+            });
+        }
+        $logger.dev('services removed due to 404:', unpubServices.length);
+        console.error(err);
+      })
   );
 };
 
-const updateProductServices = ($db, $dbPub, listing, allListings) => {
+const updateProductServices = ($db, $dbPub, listing, allListings, $logger) => {
   if (!(listing.atdw.productCategoryId === 'TOUR' && listing.atdw.services && listing.atdw.services.length)) return Promise.resolve();
-  console.info('updating service details for listing' + listing._id);
+  console.info('updating service details for listing ' + listing._id);
   return Promise.all(
     map(listing.atdw.services, s => {
-      const service = createServiceListing(s, listing, allListings);
+      const service = createServiceListing(s, listing, allListings, $logger);
       return $db
         .collection('listings')
         .updateOne({ _id: service._id }, { $set: service }, { upsert: true })
@@ -95,6 +132,7 @@ const updateProductServices = ($db, $dbPub, listing, allListings) => {
 };
 
 const updateProductDetails = ($db, $publish, listing) => {
+  if (listing.listingType === 'service') Promise.resolve();
   console.info('updating details for listing ' + listing._id);
   return $db
     .collection('listings')
@@ -111,8 +149,14 @@ const updateProductDetails = ($db, $publish, listing) => {
   // .catch(err => console.error('update failed for ' + listing._id));
 };
 
-function createServiceListing(service, listing, allListings) {
+function createServiceListing(service, listing, allListings, $logger) {
+  $logger.dev('creating service:', service.serviceName);
+  $logger.dev('creating service:', service.serviceId);
+
   const foundService = find(allListings, l => l._id === service.serviceId);
+  if (foundService) {
+    $logger.dev('found service:', service.serviceName);
+  }
 
   const _service = foundService || {
     _id: service.serviceId,
@@ -141,6 +185,10 @@ function createServiceListing(service, listing, allListings) {
     },
   };
 
+  if (!_service.description) _service.description = { value: service.serviceDescription, path: 'serviceDescription', provider: 'atdw' };
+
+  $logger.dev('Service description:', _service.description);
+
   _service.atdw.externalSystems = listing.atdw.externalSystems;
   _service.atdw.addresses = listing.atdw.addresses;
   if (listing.activeStatus.value === 'INACTIVE') {
@@ -168,5 +216,9 @@ function createServiceListing(service, listing, allListings) {
   if (_service.name.provider === 'atdw') _service.name.value = service.serviceName;
   if (_service.description.provider === 'atdw') _service.description.value = service.serviceDescription;
   if (_service.taggedCategories.provider === 'atdw') _service.taggedCategories.value = listing.atdwCategories.value;
+
+  $logger.dev('Service created:', service.serviceId);
+  $logger.dev('Service created:', service.serviceName);
+
   return _service;
 }

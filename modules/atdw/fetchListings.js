@@ -94,6 +94,7 @@ module.exports = {
           : {
               _id: listing._id,
               slug: pageSlug,
+              pageType: 'listing',
               published: true,
               contents: [],
               listingId: listing._id,
