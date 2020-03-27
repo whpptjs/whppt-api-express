@@ -58,20 +58,27 @@ const fetchProductDetails = ($atdw, listing, listings, $logger, $dbPub, $db) => 
         $logger.dev('Done fetching for:', productData.productId);
         forEach(atdwFields, (getFieldValue, fieldKey) => {
           if (fieldKey === 'image' || fieldKey === 'activeStatus') return;
-
+          $logger.dev('Applying atdw field:', fieldKey);
           const property = listing[fieldKey];
+          $logger.dev('Property:', property);
           if (!property || property.provider !== 'atdw') return;
 
           property.value = getFieldValue(productData, property.path);
+          $logger.dev('Property value:', property.value);
         });
 
         listing.atdw = { ...listing.atdw, ...productData };
         listing.atdw.multimedia = filterMultimedia(productData.multimedia);
         listing.taggedCategories.value = uniq([...listing.atdwCategories.value, ...listing.customCategories.value]);
         listing.hasFullATDWData = true;
+
+        $logger.dev('listing atdw data added');
       })
       // TODO: if 404 set listing as removed in mongo
       .catch(err => {
+        $logger.dev('got 404');
+        $logger.error('FETCH LISTINGS DATA ERROR', err);
+
         const unpubServices = [];
         const updateServices = [];
         $logger.dev('fetchProductDetails -> listings', listings.length);
@@ -91,6 +98,7 @@ const fetchProductDetails = ($atdw, listing, listings, $logger, $dbPub, $db) => 
             });
           }
         });
+        $logger.dev('services to unpublish:', unpubServices && unpubServices.length);
         if (unpubServices.length) {
           return $db
             .collection('listings')
@@ -101,12 +109,12 @@ const fetchProductDetails = ($atdw, listing, listings, $logger, $dbPub, $db) => 
                 .bulkWrite(unpubServices, { ordered: false })
                 .then(() => {
                   $logger.dev('services removed due to 404:', unpubServices.length);
-                  console.error(err);
+                  // console.error(err);
                 });
             });
         }
         $logger.dev('services removed due to 404:', unpubServices.length);
-        console.error(err);
+        // console.error(err);
       })
   );
 };
