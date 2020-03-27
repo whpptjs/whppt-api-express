@@ -90,7 +90,7 @@ module.exports = {
         });
 
         const newPage = foundPage
-          ? { ...foundPage, published: listing.activeStatus.value === 'ACTIVE' ? true : false }
+          ? { ...foundPage, published: listing.activeStatus.value === 'ACTIVE' ? true : false, listingId: listing._id }
           : {
               _id: listing._id,
               slug: pageSlug,
