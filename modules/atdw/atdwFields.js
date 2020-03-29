@@ -25,13 +25,15 @@ module.exports = {
     if (path !== 'physicalAddress') return stringFromPath(product, path);
     const address = find(product.addresses, address => address.attributeIdAddress === 'PHYSICAL' || address.address_type === 'PHYSICAL');
     if (!address) return '';
-    return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
+    return `${address.addressLine1 || address.address_line || ''}${address.addressLine1 || address.address_line ? ',' : ''} ${address.cityName ||
+      address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
   postalAddress(product, path) {
     if (path !== 'postalAddress') return stringFromPath(product, path);
     const address = find(product.addresses, address => address.attributeIdAddress === 'POSTAL' || address.address_type === 'POSTAL');
     if (!address) return '';
-    return `${address.addressLine1 || address.address_line}, ${address.cityName || address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
+    return `${address.addressLine1 || address.address_line || ''}${address.addressLine1 || address.address_line ? ',' : ''} ${address.cityName ||
+      address.city}, ${address.stateName || address.state}, ${address.countryName || address.country}`;
   },
   image(product, propertyPath) {
     if (propertyPath !== 'productImage') return stringFromPath(product, propertyPath);

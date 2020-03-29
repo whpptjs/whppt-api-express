@@ -6,7 +6,7 @@ const { atdw, listingCallback } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
   exec({ $atdw, $mongo: { $db, $dbPub } }) {
-    let { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
+    const { apiUrl, apiKey, state = 'SA', area = 'Barossa', limit = '1000' } = atdw;
 
     return Promise.all([
       $db
@@ -90,10 +90,11 @@ module.exports = {
         });
 
         const newPage = foundPage
-          ? { ...foundPage, published: listing.activeStatus.value === 'ACTIVE' ? true : false }
+          ? { ...foundPage, published: listing.activeStatus.value === 'ACTIVE' ? true : false, listingId: listing._id }
           : {
               _id: listing._id,
               slug: pageSlug,
+              pageType: 'listing',
               published: true,
               contents: [],
               listingId: listing._id,
@@ -148,23 +149,20 @@ module.exports = {
         promises.push($db.collection('pages').bulkWrite(pageOps, { ordered: false }));
       }
 
-      console.log('exec -> pubPageOps.length', pubPageOps.length);
       if (pubPageOps && pubPageOps.length) {
         promises.push($dbPub.collection('pages').bulkWrite(pubPageOps, { ordered: false }));
       }
 
-      console.log('exec -> publishListingOps.length', publishListingOps.length);
       if (publishListingOps && publishListingOps.length) {
         promises.push($dbPub.collection('listings').bulkWrite(publishListingOps, { ordered: false }));
       }
 
-      console.log('exec -> unpubItems.length', unpubItems.length);
       if (unpubItems && unpubItems.length) {
         promises.push($dbPub.collection('pages').bulkWrite(unpubItems, { ordered: false }));
         promises.push($dbPub.collection('listings').bulkWrite(unpubItems, { ordered: false }));
       }
 
-      if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
+      // if (configCallbackOps.length) promises.push(listingCallback(configCallbackOps));
 
       return Promise.all(promises).then(() => Promise.resolve({ statusCode: 200, message: 'OK' }));
     });

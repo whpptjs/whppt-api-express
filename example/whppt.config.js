@@ -9,7 +9,7 @@ module.exports = {
       audience: 'example',
     },
   },
-  supportedTypes: ['book'],
+  supportedTypes: ['story'],
   atdw: {
     apiUrl: process.env.ATDW_API_URL,
     apiKey: process.env.ATDW_API_KEY,
