@@ -1,3 +1,5 @@
+const callAction = require('./callAction');
+
 module.exports = (context, mod, action, params) => {
   const { $logger, $modules } = context;
   return $modules.then(modules => {
@@ -15,20 +17,6 @@ module.exports = (context, mod, action, params) => {
         error: new Error(`Could not find Action. ${mod}/${action}`),
       });
 
-    if (!a.authorise) {
-      return a.exec(context, params).catch(err => {
-        $logger.error(err);
-        if (err.message && err.message === 404) return { status: 404, error: err };
-        return { status: 500, error: err };
-      });
-    }
-
-    return a.authorise(context, params).then(() => {
-      return a.exec(context, params).catch(err => {
-        $logger.error(err);
-        if (err.message && err.message === 404) return { status: 404, error: err };
-        return { status: 500, error: err };
-      });
-    });
+    return callAction(context, a, params);
   });
 };
