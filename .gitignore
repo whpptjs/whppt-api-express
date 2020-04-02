@@ -4,3 +4,4 @@ data
 .env
 /example/.env
 .DS_Store
+package-lock.json

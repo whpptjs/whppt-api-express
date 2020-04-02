@@ -5,7 +5,10 @@ const callModule = require('./modules/callModule');
 const ObjectRestMethods = require('./ObjectRestMethods');
 const callAction = require('./modules/callAction');
 
-module.exports = (options = { module: {} }) => {
+module.exports = options => {
+  options = options || {};
+  options.module = options.module || {};
+
   return Context().then(context => {
     const { $security } = context;
     const objectRestMethods = ObjectRestMethods(context);
