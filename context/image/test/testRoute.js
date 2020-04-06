@@ -1,6 +1,7 @@
 const $logger = require('../../logger');
 const Image = require('../index');
 const fs = require('fs');
+var path = require('path');
 
 module.exports = (req, res) => {
   const collection = function() {
@@ -11,7 +12,7 @@ module.exports = (req, res) => {
     };
   };
 
-  const imageBuffer = fs.readFileSync(__dirname + '/ROAD-Cover.jpg');
+  const imageBuffer = fs.readFileSync(path.join(__dirname, 'ROAD-Cover.jpg'));
   const $mongo = { $db: { collection } };
   const $aws = { fetchImageFromS3: () => ({ imageBuffer }) };
   const image = Image({ $logger, $mongo, $aws });
