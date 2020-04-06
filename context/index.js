@@ -5,6 +5,7 @@ const Mongo = require('./mongo');
 const loadModules = require('./modules/loadModules');
 const $atdw = require('./atdw');
 const Image = require('./image');
+const File = require('./file');
 const $axios = require('./axios');
 const $aws = require('./aws');
 
@@ -16,6 +17,7 @@ module.exports = () => {
       $id,
       $logger,
       $image: Image({ $logger, $mongo, $aws, $id }),
+      $file: File({ $logger, $mongo, $aws, $id }),
       $security: Security({ $logger, $id, config }),
       $mongo,
       $modules: loadModules,

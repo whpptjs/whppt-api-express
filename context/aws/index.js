@@ -12,7 +12,14 @@ awsSDK.config.update({
   region: AWS_REGION,
 });
 
-const { uploadImage: uploadImageToS3, fetchImage: fetchImageFromS3, uploadDoc: uploadDocToS3, fetchDoc: fetchDocFromS3, removeImage: removeImageFromS3 } = S3(awsSDK);
+const {
+  uploadImage: uploadImageToS3,
+  fetchImage: fetchImageFromS3,
+  uploadDoc: uploadDocToS3,
+  fetchDoc: fetchDocFromS3,
+  removeImage: removeImageFromS3,
+  removeDoc: removeDocFromS3,
+} = S3(awsSDK);
 const { sendEmail, getDomainIdentities } = SES(awsSDK);
 
-module.exports = { uploadImageToS3, fetchImageFromS3, uploadDocToS3, fetchDocFromS3, removeImageFromS3, sendEmail, getDomainIdentities };
+module.exports = { uploadImageToS3, fetchImageFromS3, uploadDocToS3, fetchDocFromS3, removeImageFromS3, sendEmail, getDomainIdentities, removeDocFromS3 };
