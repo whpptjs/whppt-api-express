@@ -8,6 +8,7 @@ const Image = require('./image');
 const File = require('./file');
 const $axios = require('./axios');
 const $aws = require('./aws');
+const Smtp = require('./smtp');
 
 const config = require(process.cwd() + '/whppt.config.js');
 
@@ -25,6 +26,7 @@ module.exports = () => {
       $axios,
       $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
       $objectTypes: config.supportedTypes,
+      $smtp: Smtp({ $mongo }),
     };
   });
 };
