@@ -5,6 +5,7 @@ const Context = require('./context');
 const callModule = require('./modules/callModule');
 const ObjectRestMethods = require('./ObjectRestMethods');
 const callAction = require('./modules/callAction');
+const seoRouter = require('./seoRouter');
 
 module.exports = options => {
   options = options || {};
@@ -42,6 +43,7 @@ module.exports = options => {
     return Promise.all([Image(), File()]).then(([imageRouter, fileRouter]) => {
       router.use(imageRouter);
       router.use(fileRouter);
+      router.use(seoRouter);
       return router;
     });
   });
