@@ -28,14 +28,17 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
         const startX = (formats.x && parseInt(Number(formats.x.value < 0 ? 0 : formats.x.value))) || 0;
         const startY = (formats.y && parseInt(Number(formats.y.value < 0 ? 0 : formats.y.value))) || 0;
         const scale = (formats.s && parseInt(Number(formats.s.value))) || 1;
+        const blur = (formats.b && parseInt(Number(formats.b.value))) || undefined;
+
         const scaledWidth = meta.width * scale;
         const extractWidth = scaledWidth + startX > meta.width ? meta.width - startX : scaledWidth;
         const scaledHeight = meta.height * scale;
         const extractHeight = scaledHeight + startY > meta.height ? meta.height - startY : scaledHeight;
         // const scaledX = meta.width / 2 + startX;
         // const scaledY = meta.height / 2 + startY;
+        let croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
+        if (blur) croppedImage = croppedImage.blur(blur);
 
-        const croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
         let imageType;
         if (formats.f) imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
         else imageType = accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
