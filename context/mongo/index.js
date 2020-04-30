@@ -52,7 +52,7 @@ module.exports = ({ $logger }) => {
       };
 
       const $publish = function(collection, doc, { session } = {}) {
-        doc = { ...doc, lastPublished: new Date(), updatedAt: new Date(), published: true };
+        doc = { ...doc, lastPublished: new Date(), updatedAt: new Date(), published: true, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date() };
         return $db
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
