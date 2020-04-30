@@ -1,10 +1,12 @@
 const router = require('express-promise-json-router')();
 const Image = require('./imageRouter');
 const ImageV2 = require('./imageRouterV2');
+const File = require('./fileRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
 const ObjectRestMethods = require('./ObjectRestMethods');
 const callAction = require('./modules/callAction');
+const seoRouter = require('./seoRouter');
 
 module.exports = options => {
   options = options || {};
@@ -39,9 +41,11 @@ module.exports = options => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return Promise.all([Image(), ImageV2()]).then(([imageRouter, imageRouterV2]) => {
+    return Promise.all([Image(), ImageV2(), File()]).then(([imageRouter, imageRouterV2, fileRouter]) => {
       router.use(imageRouter);
       router.use(imageRouterV2);
+      router.use(fileRouter);
+      router.use(seoRouter);
       return router;
     });
   });

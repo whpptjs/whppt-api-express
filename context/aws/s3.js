@@ -76,5 +76,14 @@ module.exports = awsSDK => {
     });
   };
 
-  return { uploadImage, fetchImage, uploadDoc, fetchDoc, removeImage };
+  const removeDoc = function(id) {
+    return new Promise((resolve, reject) => {
+      s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, data) => {
+        if (err) return reject(err);
+        resolve({ data });
+      });
+    });
+  };
+
+  return { uploadImage, fetchImage, uploadDoc, fetchDoc, removeImage, removeDoc };
 };
