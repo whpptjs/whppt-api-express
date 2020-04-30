@@ -10,18 +10,19 @@ const optimise = {
 
 module.exports = ({ $mongo: { $db }, $aws, $id }) => {
   const fetch = function({ format, id, accept = '' }) {
-    const formatSplit = format.split('|');
-    const mappedFormats = map(formatSplit, s => {
-      const sp = s.split('_');
-      return { type: sp[0], value: sp[1] };
-    });
-
-    const formats = keyBy(mappedFormats, s => s.type);
-
-    const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
-    const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
-
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
+      if (storedImage.version === 'v2') return fetchV2(storedImage, s3image);
+      const formatSplit = format.split('|');
+      const mappedFormats = map(formatSplit, s => {
+        const sp = s.split('_');
+        return { type: sp[0], value: sp[1] };
+      });
+
+      const formats = keyBy(mappedFormats, s => s.type);
+
+      const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
+      const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
+
       const { imageBuffer } = s3Image;
       const image = Sharp(imageBuffer);
       return image.metadata().then(meta => {
