@@ -8,7 +8,7 @@ const optimise = {
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
-module.exports = ({ $mongo: { $db }, $aws, $id }) => {
+module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id }) => {
   const fetch = function({ format, id, accept = '' }) {
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
       if (storedImage.version === 'v2') return fetchV2(storedImage, s3image);
@@ -70,6 +70,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       });
   };
 
+  //todo - wrap both image uploads inside a transaction
   const upload = function(file) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
@@ -81,14 +82,24 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     });
 
     return image.toBuffer().then(sizedBuffer => {
-      return $aws.uploadImageToS3(sizedBuffer, id).then(() =>
-        $db.collection('images').insertOne({
-          _id: id,
-          uploadedOn: new Date(),
-          name,
-          type,
-        })
-      );
+      return $aws.uploadImageToS3(sizedBuffer, id).then(() => {
+        return $db
+          .collection('images')
+          .insertOne({
+            _id: id,
+            uploadedOn: new Date(),
+            name,
+            type,
+          })
+          .then(() => {
+            return $dbPub.collection('images').insertOne({
+              _id: id,
+              uploadedOn: new Date(),
+              name,
+              type,
+            });
+          });
+      });
     });
   };
 
