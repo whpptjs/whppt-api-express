@@ -1,5 +1,6 @@
 const router = require('express-promise-json-router')();
 const Image = require('./imageRouter');
+const ImageV2 = require('./imageRouterV2');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
 const ObjectRestMethods = require('./ObjectRestMethods');
@@ -38,8 +39,9 @@ module.exports = options => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return Promise.all([Image()]).then(([imageRouter]) => {
+    return Promise.all([Image(), ImageV2()]).then(([imageRouter, imageRouterV2]) => {
       router.use(imageRouter);
+      router.use(imageRouterV2);
       return router;
     });
   });
