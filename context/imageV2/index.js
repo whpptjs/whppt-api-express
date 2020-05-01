@@ -18,6 +18,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
+    console.log('fetch -> format', format);
     if (format.o) return fetchOriginal({ id });
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
       const _sharpImage = Sharp(imageBuffer);
@@ -38,6 +39,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
 
       return optimisedImage.toBuffer().then(processedImageBuffer => {
+        console.log('fetch -> processedImageBuffer', processedImageBuffer);
         return {
           Body: processedImageBuffer,
           ContentType: contentType,
@@ -64,6 +66,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
+    //todo - set quality to 100%
     const image = Sharp(buffer).resize({
       width: 15000,
       height: 2700,
@@ -77,6 +80,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       return $aws.uploadImageToS3(sizedBuffer, id).then(() =>
         $db.collection('images').insertOne({
           _id: id,
+          version: 'v2',
           uploadedOn: new Date(),
           name,
           type,
