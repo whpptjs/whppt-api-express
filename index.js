@@ -27,9 +27,6 @@ module.exports = options => {
     });
 
     router.post('/api/:mod/:command', $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }, _, next) => {
-      console.log('options.module[mod]', options.module[mod]);
-      console.log('command', command);
-      console.log('cmdArgs', cmdArgs);
       if (!options.module[mod] || !options.module[mod].commands || !options.module[mod].commands[command]) return next();
       return callAction(context, options.module[mod].commands[command], { ...cmdArgs, user });
     });
