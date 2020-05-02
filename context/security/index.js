@@ -4,9 +4,9 @@ const Jwt = require('./jwt');
 const saltRounds = 10;
 
 module.exports = ({ $id, $logger, config }) => {
-  const providers = { jwt: Jwt({ $id }) };
+  const providers = { jwt: Jwt({ $id, config: config.security }) };
 
-  passport.use(providers[config.security.provider].init(config.security));
+  passport.use(providers[config.security.provider].init());
   passport.initialize();
 
   $logger.info('Security Configured for provider:', config.security.provider);
