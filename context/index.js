@@ -21,7 +21,7 @@ module.exports = options => {
       $image: Image({ $logger, $mongo, $aws, $id }),
       $imageV2: ImageV2({ $logger, $mongo, $aws, $id }),
       $file: File({ $logger, $mongo, $aws, $id }),
-      $security: Security({ $logger, $id, options }),
+      $security: Security({ $logger, $id, config: options }),
       $mongo,
       $modules: loadModules,
       $atdw,
