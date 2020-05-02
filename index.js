@@ -12,7 +12,7 @@ module.exports = options => {
   options = options || {};
   options.module = options.module || {};
 
-  return Context().then(context => {
+  return Context(options).then(context => {
     const { $security } = context;
     const objectRestMethods = ObjectRestMethods(context);
 
