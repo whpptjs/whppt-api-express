@@ -41,7 +41,7 @@ module.exports = options => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return Promise.all([Image(), ImageV2(), File()]).then(([imageRouter, imageRouterV2, fileRouter]) => {
+    return Promise.all([Image(context), ImageV2(context), File(context)]).then(([imageRouter, imageRouterV2, fileRouter]) => {
       router.use(imageRouter);
       router.use(imageRouterV2);
       router.use(fileRouter);
