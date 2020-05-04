@@ -34,8 +34,10 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete }, $aws, $
 
   const remove = function(fileId) {
     return $startTransaction(session => {
-      return $delete('files', fileId, { session }).then(() => {
-        return $aws.removeDocFromS3(fileId);
+      return $unpublish('files', fileId, { session }).then(() => {
+        return $delete('files', fileId, { session }).then(() => {
+          return $aws.removeDocFromS3(fileId);
+        });
       });
     });
   };
