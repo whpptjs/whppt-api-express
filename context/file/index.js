@@ -1,7 +1,7 @@
 const { map, keyBy } = require('lodash');
 const fileType = require('file-type');
 
-module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete }, $aws, $id }) => {
+module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublish }, $aws, $id }) => {
   const upload = function(file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
