@@ -39,7 +39,6 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
 
       return optimisedImage.toBuffer().then(processedImageBuffer => {
-        console.log('fetch -> processedImageBuffer', processedImageBuffer);
         return {
           Body: processedImageBuffer,
           ContentType: contentType,
@@ -67,26 +66,25 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     const id = $id();
 
     //todo - set quality to 100%
-    const image = Sharp(buffer).resize({
-      width: 15000,
-      height: 2700,
-      options: {
-        withoutEnlargement: true,
-        // fit: Sharp.fit.inside,
-      },
-    });
+    // const image = Sharp(buffer).resize({
+    //   width: 15000,
+    //   height: 2700,
+    //   options: {
+    //     withoutEnlargement: true,
+    //     // fit: Sharp.fit.inside,
+    //   },
+    // });
 
-    return image.toBuffer().then(sizedBuffer => {
-      return $aws.uploadImageToS3(sizedBuffer, id).then(() =>
-        $db.collection('images').insertOne({
-          _id: id,
-          version: 'v2',
-          uploadedOn: new Date(),
-          name,
-          type,
-        })
-      );
-    });
+    return $aws.uploadImageToS3(buffer, id).then(() =>
+      $db.collection('images').insertOne({
+        _id: id,
+        version: 'v2',
+        uploadedOn: new Date(),
+        name,
+        type,
+      })
+    );
+    // });
   };
 
   const remove = function(id) {
