@@ -3,10 +3,16 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 
-module.exports = ({ $id }) => ({
-  init(config) {
+const extractFromCookies = function(req) {
+  if (req && req.cookies) return req.cookies.authToken;
+  return null;
+};
+
+module.exports = ({ $id, config }) => ({
+  init() {
     const opts = {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractFromCookies,
       secretOrKey: (config.jwt && config.jwt.secret) || 'changeme',
       issuer: (config.jwt && config.jwt.issuer) || 'whppt',
       audience: (config.jwt && config.jwt.audience) || '',
@@ -21,7 +27,11 @@ module.exports = ({ $id }) => ({
       passport.authenticate('jwt', function(err, user) {
         if (err) return reject(err);
         if (!user) req.user = { _id: 'guest', name: 'Guest', roles: { guest: true } };
-        else req.user = user;
+        else {
+          user.roles = user.roles || {};
+          user.roles.editor = true;
+          req.user = user;
+        }
         next();
       })(req, res);
     });
@@ -29,13 +39,13 @@ module.exports = ({ $id }) => ({
   createToken(user) {
     return jwt.sign(
       {
-        iss: opts.issuer,
-        aud: opts.audience,
+        iss: config.jwt.issuer,
+        aud: config.jwt.audience,
         sub: user,
         jti: $id(),
         alg: 'HS256',
       },
-      opts.secretOrKey
+      config.jwt.secret
     );
   },
 });

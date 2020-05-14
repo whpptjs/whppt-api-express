@@ -1,29 +1,43 @@
 const { map, keyBy } = require('lodash');
 const fileType = require('file-type');
 
-module.exports = ({ $mongo: { $db, $startTransaction, $delete }, $aws, $id }) => {
+module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublish }, $aws, $id }) => {
   const upload = function(file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
     const fi = fileType.fromBuffer(buffer);
     return fileType.fromBuffer(buffer).then(fType => {
-      return $aws.uploadDocToS3(buffer, id).then(() =>
-        $db.collection('files').insertOne({
-          _id: id,
-          uploadedOn: new Date(),
-          name,
-          type,
-          fileType: fType,
-          description,
-        })
-      );
+      return $aws.uploadDocToS3(buffer, id).then(() => {
+        return $db
+          .collection('files')
+          .insertOne({
+            _id: id,
+            uploadedOn: new Date(),
+            name,
+            type,
+            fileType: fType,
+            description,
+          })
+          .then(() => {
+            $dbPub.collection('files').insertOne({
+              _id: id,
+              uploadedOn: new Date(),
+              name,
+              type,
+              fileType: fType,
+              description,
+            });
+          });
+      });
     });
   };
 
   const remove = function(fileId) {
     return $startTransaction(session => {
-      return $delete('files', fileId, { session }).then(() => {
-        return $aws.removeDocFromS3(fileId);
+      return $unpublish('files', fileId, { session }).then(() => {
+        return $delete('files', fileId, { session }).then(() => {
+          return $aws.removeDocFromS3(fileId);
+        });
       });
     });
   };

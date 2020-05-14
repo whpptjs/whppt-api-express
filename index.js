@@ -1,5 +1,6 @@
 const router = require('express-promise-json-router')();
 const Image = require('./imageRouter');
+const ImageV2 = require('./imageRouterV2');
 const File = require('./fileRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
@@ -10,38 +11,37 @@ const seoRouter = require('./seoRouter');
 module.exports = options => {
   options = options || {};
   options.module = options.module || {};
+  options.apiPrefix = options.apiPrefix || 'api';
 
-  return Context().then(context => {
+  return Context(options).then(context => {
     const { $security } = context;
     const objectRestMethods = ObjectRestMethods(context);
 
-    router.get('/api/obj/:type', $security.authenticate, objectRestMethods.list);
-    router.get('/api/obj/:type/:id', $security.authenticate, objectRestMethods.get);
-    router.post('/api/obj/:type', $security.authenticate, objectRestMethods.post);
-    router.delete('/api/obj/:type/:id', $security.authenticate, objectRestMethods.del);
+    router.get(`/${options.apiPrefix}/obj/:type`, $security.authenticate, objectRestMethods.list);
+    router.get(`/${options.apiPrefix}/obj/:type/:id`, $security.authenticate, objectRestMethods.get);
+    router.post(`/${options.apiPrefix}/obj/:type`, $security.authenticate, objectRestMethods.post);
+    router.delete(`/${options.apiPrefix}/obj/:type/:id`, $security.authenticate, objectRestMethods.del);
 
-    router.get('/api/:mod/:query', $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }, _, next) => {
+    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }, _, next) => {
       if (!options.module[mod] || !options.module[mod].queries || !options.module[mod].queries[query]) return next();
       return callAction(context, options.module[mod].queries[query], { ...queryArgs, user });
     });
 
-    router.post('/api/:mod/:command', $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }, _, next) => {
-      console.log('options.module[mod]', options.module[mod]);
-      console.log('command', command);
-      console.log('cmdArgs', cmdArgs);
+    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }, _, next) => {
       if (!options.module[mod] || !options.module[mod].commands || !options.module[mod].commands[command]) return next();
       return callAction(context, options.module[mod].commands[command], { ...cmdArgs, user });
     });
 
-    router.get('/api/:mod/:query', $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
+    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
       return callModule(context, mod, query, { ...queryArgs, user });
     });
-    router.post('/api/:mod/:command', $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
+    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
 
-    return Promise.all([Image(), File()]).then(([imageRouter, fileRouter]) => {
+    return Promise.all([Image(context), ImageV2(context), File(context)]).then(([imageRouter, imageRouterV2, fileRouter]) => {
       router.use(imageRouter);
+      router.use(imageRouterV2);
       router.use(fileRouter);
       router.use(seoRouter);
       return router;

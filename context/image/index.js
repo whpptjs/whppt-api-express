@@ -8,34 +8,38 @@ const optimise = {
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
-module.exports = ({ $mongo: { $db }, $aws, $id }) => {
+module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id }) => {
   const fetch = function({ format, id, accept = '' }) {
-    const formatSplit = format.split('|');
-    const mappedFormats = map(formatSplit, s => {
-      const sp = s.split('_');
-      return { type: sp[0], value: sp[1] };
-    });
-
-    const formats = keyBy(mappedFormats, s => s.type);
-
-    const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
-    const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
-
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
+      if (storedImage.version === 'v2') return fetchV2(storedImage, s3image);
+      const formatSplit = format.split('|');
+      const mappedFormats = map(formatSplit, s => {
+        const sp = s.split('_');
+        return { type: sp[0], value: sp[1] };
+      });
+
+      const formats = keyBy(mappedFormats, s => s.type);
+
+      const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
+      const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
+
       const { imageBuffer } = s3Image;
       const image = Sharp(imageBuffer);
       return image.metadata().then(meta => {
         const startX = (formats.x && parseInt(Number(formats.x.value < 0 ? 0 : formats.x.value))) || 0;
         const startY = (formats.y && parseInt(Number(formats.y.value < 0 ? 0 : formats.y.value))) || 0;
         const scale = (formats.s && parseInt(Number(formats.s.value))) || 1;
+        const blur = (formats.b && parseInt(Number(formats.b.value))) || undefined;
+
         const scaledWidth = meta.width * scale;
         const extractWidth = scaledWidth + startX > meta.width ? meta.width - startX : scaledWidth;
         const scaledHeight = meta.height * scale;
         const extractHeight = scaledHeight + startY > meta.height ? meta.height - startY : scaledHeight;
         // const scaledX = meta.width / 2 + startX;
         // const scaledY = meta.height / 2 + startY;
+        let croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
+        if (blur) croppedImage = croppedImage.blur(blur);
 
-        const croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
         let imageType;
         if (formats.f) imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
         else imageType = accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
@@ -66,6 +70,7 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
       });
   };
 
+  //todo - wrap both image uploads inside a transaction
   const upload = function(file) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
@@ -77,14 +82,24 @@ module.exports = ({ $mongo: { $db }, $aws, $id }) => {
     });
 
     return image.toBuffer().then(sizedBuffer => {
-      return $aws.uploadImageToS3(sizedBuffer, id).then(() =>
-        $db.collection('images').insertOne({
-          _id: id,
-          uploadedOn: new Date(),
-          name,
-          type,
-        })
-      );
+      return $aws.uploadImageToS3(sizedBuffer, id).then(() => {
+        return $db
+          .collection('images')
+          .insertOne({
+            _id: id,
+            uploadedOn: new Date(),
+            name,
+            type,
+          })
+          .then(() => {
+            return $dbPub.collection('images').insertOne({
+              _id: id,
+              uploadedOn: new Date(),
+              name,
+              type,
+            });
+          });
+      });
     });
   };
 
