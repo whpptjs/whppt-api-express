@@ -12,6 +12,7 @@ const security = require('./security');
 Promise.all([
   Whppt({
     security,
+    disablePublishing: true,
   }),
 ]).then(([whppt]) => {
   app.use(cors());

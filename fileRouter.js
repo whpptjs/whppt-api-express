@@ -12,6 +12,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
 module.exports = context => {
+  console.log('context', context);
   const { $file } = context;
 
   // router.get('/img/:imageId', cache({ ttl: sixMonths }), (req, res) => {

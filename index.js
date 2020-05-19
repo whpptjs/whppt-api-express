@@ -12,6 +12,7 @@ module.exports = options => {
   options = options || {};
   options.module = options.module || {};
   options.apiPrefix = options.apiPrefix || 'api';
+  options.disablePublishing = options.disablePublishing || false;
 
   return Context(options).then(context => {
     const { $security } = context;

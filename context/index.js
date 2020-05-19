@@ -14,13 +14,14 @@ const Smtp = require('./smtp');
 const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = options => {
+  console.log('CONTEXT/INDEX options', options);
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     return {
       $id,
       $logger,
       $image: Image({ $logger, $mongo, $aws, $id }),
-      $imageV2: ImageV2({ $logger, $mongo, $aws, $id }),
-      $file: File({ $logger, $mongo, $aws, $id }),
+      $imageV2: ImageV2({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
+      $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
       $modules: loadModules,
