@@ -14,7 +14,6 @@ const Smtp = require('./smtp');
 const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = options => {
-  console.log('CONTEXT/INDEX options', options);
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     return {
       $id,
