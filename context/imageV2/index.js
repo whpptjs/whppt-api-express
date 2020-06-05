@@ -18,7 +18,6 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
-    console.log('fetch -> format', format);
     if (format.o) return fetchOriginal({ id });
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
       const _sharpImage = Sharp(imageBuffer);
