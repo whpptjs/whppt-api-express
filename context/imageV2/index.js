@@ -18,7 +18,6 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
-    $logger.dev('Fetching ImageV2 Format: %s', format);
     if (format.o) return fetchOriginal({ id });
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
       const _sharpImage = Sharp(imageBuffer);
@@ -39,7 +38,6 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
       const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
 
       return optimisedImage.toBuffer().then(processedImageBuffer => {
-        console.log('fetch -> processedImageBuffer', processedImageBuffer);
         return {
           Body: processedImageBuffer,
           ContentType: contentType,
@@ -67,26 +65,38 @@ module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
     const id = $id();
 
     //todo - set quality to 100%
-    const image = Sharp(buffer).resize({
-      width: 15000,
-      height: 2700,
-      options: {
-        withoutEnlargement: true,
-        // fit: Sharp.fit.inside,
-      },
-    });
+    // const image = Sharp(buffer).resize({
+    //   width: 15000,
+    //   height: 2700,
+    //   options: {
+    //     withoutEnlargement: true,
+    //     // fit: Sharp.fit.inside,
+    //   },
+    // });
 
-    return image.toBuffer().then(sizedBuffer => {
-      return $aws.uploadImageToS3(sizedBuffer, id).then(() =>
-        $db.collection('images').insertOne({
+    return $aws.uploadImageToS3(buffer, id).then(() => {
+      return $db
+        .collection('images')
+        .insertOne({
           _id: id,
           version: 'v2',
           uploadedOn: new Date(),
           name,
           type,
         })
-      );
+        .then(() => {
+          if (disablePublishing) return Promise.resolve();
+          return $dbPub.collection('images').insertOne({
+            _id: id,
+            version: 'v2',
+            uploadedOn: new Date(),
+            name,
+            type,
+          });
+        });
     });
+
+    // });
   };
 
   const remove = function(id) {

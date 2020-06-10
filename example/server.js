@@ -7,8 +7,14 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const Whppt = require('../index');
 const [host, port] = ['localhost', '3001'];
+const security = require('./security');
 
-Promise.all([Whppt()]).then(([whppt]) => {
+Promise.all([
+  Whppt({
+    security,
+    disablePublishing: true,
+  }),
+]).then(([whppt]) => {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));

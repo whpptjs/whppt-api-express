@@ -1,7 +1,7 @@
 const { map, keyBy } = require('lodash');
 const fileType = require('file-type');
 
-module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete }, $aws, $id }) => {
+module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublish }, $aws, $id, disablePublishing }) => {
   const upload = function(file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
@@ -19,7 +19,8 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete }, $aws, $
             description,
           })
           .then(() => {
-            $dbPub.collection('files').insertOne({
+            if (disablePublishing) return Promise.resolve();
+            return $dbPub.collection('files').insertOne({
               _id: id,
               uploadedOn: new Date(),
               name,
@@ -34,8 +35,10 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete }, $aws, $
 
   const remove = function(fileId) {
     return $startTransaction(session => {
-      return $delete('files', fileId, { session }).then(() => {
-        return $aws.removeDocFromS3(fileId);
+      return $unpublish('files', fileId, { session }).then(() => {
+        return $delete('files', fileId, { session }).then(() => {
+          return $aws.removeDocFromS3(fileId);
+        });
       });
     });
   };
