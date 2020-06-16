@@ -14,7 +14,7 @@ const pickFormat = function(format, accept, imageMeta) {
   return (imageType = format.f || imageMeta.type.split('/')[1] || 'jpg');
 };
 
-module.exports = ({ $logger, $mongo: { $db }, $aws, $id }) => {
+module.exports = ({ $logger, $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
