@@ -44,7 +44,7 @@ module.exports = options => {
       router.use(imageRouter);
       router.use(imageRouterV2);
       router.use(fileRouter);
-      router.use(seoRouter);
+      router.use(seoRouter(options));
       return router;
     });
   });
