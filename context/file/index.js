@@ -16,7 +16,7 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublis
             name,
             type,
             fileType: fType,
-            description,
+            description: description || '',
           })
           .then(() => {
             if (disablePublishing) return Promise.resolve();
@@ -26,7 +26,7 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublis
               name,
               type,
               fileType: fType,
-              description,
+              description: description || '',
             });
           });
       });

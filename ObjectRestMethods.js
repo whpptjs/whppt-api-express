@@ -1,11 +1,13 @@
 const includes = require('lodash/includes');
 const assert = require('assert');
 
+const { publishCallBack } = require(`${process.cwd()}/whppt.config.js`);
+
 module.exports = context => {
   const {
     $security,
     $objectTypes,
-    $mongo: { $db, $fetch, $list, $save, $delete, $remove },
+    $mongo: { $publish, $db, $fetch, $list, $save, $delete, $remove },
     $id,
   } = context;
 
@@ -22,6 +24,7 @@ module.exports = context => {
   };
 
   const post = function({ body: obj, params: { type } }) {
+    console.log(includes($objectTypes, type));
     assert(includes($objectTypes, type), `${type} not supported!`);
     obj._id = obj._id || $id();
     return $save(type, obj).then(() => {
@@ -36,5 +39,17 @@ module.exports = context => {
     return $remove(type, id);
   };
 
-  return { list, get, post, del };
+  const publish = function({ body: obj, params: { type } }) {
+    assert(includes($objectTypes, type), `${type} not supported!`);
+
+    return $save(type, obj).then(() => {
+      return $publish(type, obj).then(() => {
+        if (!publishCallBack) return obj;
+
+        return publishCallBack(obj).then(() => obj);
+      });
+    });
+  };
+
+  return { list, get, post, del, publish };
 };

@@ -1,5 +1,7 @@
 module.exports = {
-  exec({ $email: { getDomainList } }) {
-    return getDomainList();
+  exec(context) {
+    console.log(context);
+    // { $email: { getDomainList } }
+    // return getDomainList();
   },
 };
