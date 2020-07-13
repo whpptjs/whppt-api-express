@@ -4,7 +4,6 @@ const Context = require('./context');
 const cache = require('express-cache-headers');
 const oneDay = 60 * 60 * 24;
 const sixMonths = oneDay * 30 * 6;
-// const formidableMiddleware = require('express-formidable');
 
 const multer = require('multer');
 
@@ -12,33 +11,10 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
 module.exports = context => {
-  const { $file } = context;
-
-  // router.get('/img/:imageId', cache({ ttl: sixMonths }), (req, res) => {
-  //   return $image
-  //     .fetchOriginal({ id: req.params.imageId })
-  //     .then(response => {
-  //       if (!response) return res.status(500).send('Image not found');
-  //       res.type(response.ContentType).send(response.Body);
-  //     })
-  //     .catch(err => {
-  //       res.status(500).send(err);
-  //     });
-  // });
-
-  // router.get('/img/:format/:imageId', cache({ ttl: sixMonths }), (req, res) => {
-  //   const accept = req.headers['accept'];
-
-  //   return $image
-  //     .fetch({ id: req.params.imageId, format: req.params.format, accept })
-  //     .then(response => {
-  //       if (!response) return res.status(500).send('Image not found');
-  //       res.type(response.ContentType).send(response.Body);
-  //     })
-  //     .catch(err => {
-  //       res.status(500).send(err);
-  //     });
-  // });
+  const {
+    $file,
+    $mongo: { $db },
+  } = context;
 
   router.post('/file/uploadFile', upload, (req, res) => {
     const file = req.file;
@@ -69,11 +45,23 @@ module.exports = context => {
   });
 
   router.get('/file/getFile/:fileId', cache({ ttl: sixMonths }), (req, res) => {
+    const { fileId } = req.params;
+
+    return $db
+      .collection('files')
+      .findOne({ _id: fileId })
+      .then(file => res.redirect(`/file/${fileId}/${file.name}`));
+  });
+
+  router.get('/file/:id/:name?', cache({ ttl: sixMonths }), (req, res) => {
+    const id = req.params.id && req.params.id.endsWith('/') ? removeTrailingSlash(req.params.id) : req.params.id;
+
     return $file
-      .fetchOriginal({ id: req.params.fileId })
-      .then(response => {
-        if (!response) return res.status(500).send('File not found');
-        res.type(response.ContentType).send(response.Body);
+      .fetchOriginal({ id })
+      .then(fileBuffer => {
+        if (!fileBuffer) return res.status(500).send('File not found');
+
+        return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
       })
       .catch(err => {
         res.status(500).send(err);
@@ -82,3 +70,7 @@ module.exports = context => {
 
   return router;
 };
+
+function removeTrailingSlash(string) {
+  return string.replace(/\/$/, '');
+}
