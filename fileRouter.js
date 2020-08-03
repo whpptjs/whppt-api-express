@@ -50,10 +50,27 @@ module.exports = context => {
     return $db
       .collection('files')
       .findOne({ _id: fileId })
-      .then(file => res.redirect(`/file/${fileId}/${file.name}`));
+      .then(file => {
+        res.redirect(`/file/getFile/${fileId}/${file.name}`);
+      });
   });
 
   router.get('/file/:id/:name?', cache({ ttl: sixMonths }), (req, res) => {
+    const id = req.params.id && req.params.id.endsWith('/') ? removeTrailingSlash(req.params.id) : req.params.id;
+
+    return $file
+      .fetchOriginal({ id })
+      .then(fileBuffer => {
+        if (!fileBuffer) return res.status(500).send('File not found');
+
+        return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });
+  });
+
+  router.get('/file/getFile/:id/:name?', cache({ ttl: sixMonths }), (req, res) => {
     const id = req.params.id && req.params.id.endsWith('/') ? removeTrailingSlash(req.params.id) : req.params.id;
 
     return $file
