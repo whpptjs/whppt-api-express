@@ -1,20 +1,21 @@
 module.exports = {
   exec({ $mongo: { $db } }, query) {
     const { limit, currentPage, search } = query;
-    console.log('exec -> search', search);
     const numLimit = Number(limit);
     const numCurrentPage = Number(currentPage);
 
-    const files = [{ $limit: numLimit || 1000 }];
+    const files = [];
     if (numLimit) {
       files.push({ $skip: numLimit * (numCurrentPage - 1) });
     }
+
+    files.push({ $limit: numLimit || 1000 });
 
     return $db
       .collection('files')
       .aggregate([
         // { $regexMatch: { input: '$description', regex: `/${search}/i` } },
-        { $sort: { uploadedOn: -1 } },
+        { $sort: { name: 1 } },
         {
           $facet: {
             total: [{ $count: 'count' }],

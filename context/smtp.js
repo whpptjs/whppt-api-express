@@ -25,7 +25,6 @@ module.exports = ({ $mongo: { $db } }) => {
         .collection('site')
         .findOne({ _id: 'emailerConfig' })
         .then(emailerConfig => {
-          console.log('sendEmail -> emailerConfig', emailerConfig);
           const transporter = nodemailer.createTransport(emailerConfig && emailerConfig.config);
           return new Promise((resolve, reject) => {
             return transporter.sendMail(template, error => {
