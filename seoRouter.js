@@ -12,32 +12,37 @@ const sitemapEnd = `</urlset>`;
 
 module.exports = function(options) {
   router.get(`/sitemap.xml`, (req, res) => {
-    Context(options)
-      .then(context => {
-        const {
-          $mongo: { $db },
-        } = context;
-        return $db
-          .collection('pages')
-          .find({}, { template: true, slug: true, updatedAt: true })
-          .toArray()
-          .then(pages => {
-            const urls = join(
-              map(
-                pages,
-                p =>
-                  `<url><loc>${baseUrl}/${p.slug}</loc>${p.updatedAt ? `<lastmod>${p.updatedAt.toISOString()}</lastmod>` : `<lastmod>${p.createdAt.toISOString()}</lastmod>`} ${
-                    p.frequency ? `<changefreq>${p.frequency}</changefreq>` : `<changefreq>yearly</changefreq>`
-                  } ${p.priority ? `<priority>${p.priority}</priority>` : `<priority>0.5</priority>`}
-                    </url>`
-              ),
-              '\n'
-            );
-            const sitemap = `${sitemapStart}${urls}${sitemapEnd}`;
-            return res.type('text/xml').send(sitemap);
-          });
-      })
-      .catch(err => res.status(500).send(err));
+    Context(options).then(context => {
+      const {
+        $mongo: { $db },
+      } = context;
+      const pageTypesSitemapDataPromises = map(options.module, module => {
+        return module.queries && module.queries.getSitemapData && module.queries.getSitemapData.exec(context);
+      });
+      const pagesSitemapDataPromise = $db
+        .collection('pages')
+        .find({}, { template: true, slug: true, updatedAt: true, createdAt: true, frequency: true, priority: true })
+        .toArray()
+        .then(pages =>
+          join(
+            map(
+              pages,
+              p =>
+                `<url><loc>${baseUrl}/${p.slug}</loc>${p.updatedAt ? `<lastmod>${p.updatedAt.toISOString()}</lastmod>` : `<lastmod>${p.createdAt.toISOString()}</lastmod>`} ${
+                  p.frequency ? `<changefreq>${p.frequency}</changefreq>` : `<changefreq>yearly</changefreq>`
+                } ${p.priority ? `<priority>${p.priority}</priority>` : `<priority>0.5</priority>`}
+                  </url>`
+            ),
+            '\n'
+          )
+        );
+      return Promise.all([pagesSitemapDataPromise, ...pageTypesSitemapDataPromises])
+        .then(sitemapData => {
+          const sitemap = `${sitemapStart}${join(sitemapData, '\n')}${sitemapEnd}`;
+          return res.type('text/xml').send(sitemap);
+        })
+        .catch(err => res.status(500).send(err));
+    });
   });
 
   router.get('/robots.txt', function(req, res) {
