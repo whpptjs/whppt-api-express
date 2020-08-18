@@ -15,9 +15,6 @@ module.exports = {
         EmailAddress: email,
         ConsentToTrack: 'No',
       })
-      .then(response => {
-        console.log(response);
-      })
       .catch(err => {
         return err && err.response && err.response.data;
       });
