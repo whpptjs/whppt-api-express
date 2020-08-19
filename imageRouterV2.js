@@ -47,9 +47,7 @@ module.exports = context => {
 
     $imageV2
       .upload(file)
-      .then(() => {
-        return res.sendStatus(200);
-      })
+      .then(image => res.json(image))
       .catch(err => {
         res.status(err.http_code || 500).send(err);
       });

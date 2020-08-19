@@ -64,7 +64,7 @@ module.exports = ({ $logger, $mongo: { $db, $dbPub }, $aws, $id, disablePublishi
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
-    //todo - set quality to 100%
+    // todo - set quality to 100%
     // const image = Sharp(buffer).resize({
     //   width: 15000,
     //   height: 2700,
@@ -75,17 +75,20 @@ module.exports = ({ $logger, $mongo: { $db, $dbPub }, $aws, $id, disablePublishi
     // });
 
     return $aws.uploadImageToS3(buffer, id).then(() => {
+      const image = {
+        _id: id,
+        version: 'v2',
+        uploadedOn: new Date(),
+        name,
+        type,
+      };
+
       return $db
         .collection('images')
-        .insertOne({
-          _id: id,
-          version: 'v2',
-          uploadedOn: new Date(),
-          name,
-          type,
-        })
+        .insertOne(image)
         .then(() => {
           if (disablePublishing) return Promise.resolve();
+
           return $dbPub.collection('images').insertOne({
             _id: id,
             version: 'v2',
@@ -93,10 +96,9 @@ module.exports = ({ $logger, $mongo: { $db, $dbPub }, $aws, $id, disablePublishi
             name,
             type,
           });
-        });
+        })
+        .then(() => image);
     });
-
-    // });
   };
 
   const remove = function(id) {

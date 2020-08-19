@@ -36,6 +36,7 @@ module.exports = options => {
     router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
       return callModule(context, mod, query, { ...queryArgs, user });
     });
+
     router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
       return callModule(context, mod, command, { ...cmdArgs, user });
     });
