@@ -33,6 +33,7 @@
     "aws-sdk": "^2.616.0",
     "axios": "latest",
     "bcryptjs": "^2.4.3",
+    "detect-installed": "^2.0.4",
     "email-syntax": "^2.0.2",
     "encoding": "^0.1.12",
     "express-cache-headers": "^0.1.4",

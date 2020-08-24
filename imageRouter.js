@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const cache = require('express-cache-headers');
 const multer = require('multer');
+const { parse } = require('uri-js');
 
 const oneDay = 60 * 60 * 24;
 const sixMonths = oneDay * 30 * 6;
@@ -8,10 +9,12 @@ const sixMonths = oneDay * 30 * 6;
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
+const imagePath = process.env.BASE_IMAGE_URL ? parse(process.env.BASE_IMAGE_URL).path : '/img';
+
 module.exports = context => {
   const { $image } = context;
 
-  router.get('/img/:imageId', cache({ ttl: sixMonths }), (req, res) => {
+  router.get(`${imagePath}/:imageId`, cache({ ttl: sixMonths }), (req, res) => {
     const accept = req.headers['accept'];
 
     return $image
@@ -25,7 +28,7 @@ module.exports = context => {
       });
   });
 
-  router.post('/img/upload', upload, (req, res) => {
+  router.post(`${imagePath}/upload`, upload, (req, res) => {
     const file = req.file;
     if (!file) return { message: 'Image file not found' };
 
