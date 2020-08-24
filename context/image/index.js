@@ -1,57 +1,48 @@
 const Sharp = require('sharp');
-const { map, keyBy } = require('lodash');
 
 const optimise = {
   jpg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
   jpeg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
-  // png: (image, quality) => ({ contentType: 'image/png', img: image.png({ progressive: false, compressionLevel: 5 }) }),
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
-module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id }) => {
+const pickFormat = function(format, accept, imageMeta) {
+  if (!format) return accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
+  if (format === 'orig') return imageMeta.type.split('/')[1];
+
+  return format.f || imageMeta.type.split('/')[1] || 'jpg';
+};
+
+module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
+  // Format options
+  // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
-    return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {
-      if (storedImage.version === 'v2') return fetchV2(storedImage, s3image);
-      const formatSplit = format.split('|');
-      const mappedFormats = map(formatSplit, s => {
-        const sp = s.split('_');
-        return { type: sp[0], value: sp[1] };
-      });
+    if (format.o) return fetchOriginal({ id });
 
-      const formats = keyBy(mappedFormats, s => s.type);
+    return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
+      const _sharpImage = Sharp(imageBuffer);
 
-      const widthNum = formats.w.value === 'auto' ? Jimp.AUTO : Number(formats.w.value) || Jimp.AUTO;
-      const heightNum = formats.h.value === 'auto' ? Jimp.AUTO : Number(formats.h.value) || Jimp.AUTO;
+      const _extractedImage =
+        format.cx && format.cy && format.cw && format.ch
+          ? _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) })
+          : _sharpImage;
 
-      const { imageBuffer } = s3Image;
-      const image = Sharp(imageBuffer);
-      return image.metadata().then(meta => {
-        const startX = (formats.x && parseInt(Number(formats.x.value < 0 ? 0 : formats.x.value))) || 0;
-        const startY = (formats.y && parseInt(Number(formats.y.value < 0 ? 0 : formats.y.value))) || 0;
-        const scale = (formats.s && parseInt(Number(formats.s.value))) || 1;
-        const blur = (formats.b && parseInt(Number(formats.b.value))) || undefined;
+      const _resizedImage =
+        format.w && format.h
+          ? _extractedImage.resize(parseInt(format.w), parseInt(format.h), {
+              withoutEnlargement: true,
+            })
+          : _extractedImage;
 
-        const scaledWidth = meta.width * scale;
-        const extractWidth = scaledWidth + startX > meta.width ? meta.width - startX : scaledWidth;
-        const scaledHeight = meta.height * scale;
-        const extractHeight = scaledHeight + startY > meta.height ? meta.height - startY : scaledHeight;
-        // const scaledX = meta.width / 2 + startX;
-        // const scaledY = meta.height / 2 + startY;
-        let croppedImage = image.extract({ left: startX, top: startY, width: parseInt(extractWidth), height: parseInt(extractHeight) }).resize(widthNum, heightNum);
-        if (blur) croppedImage = croppedImage.blur(blur);
+      const imageType = pickFormat(format.f, accept, imageMeta);
+      const quality = parseInt(format.q) || 70;
+      const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
 
-        let imageType;
-        if (formats.f) imageType = (formats.f && formats.f.value) || storedImage.type.split('/')[1] || 'jpg';
-        else imageType = accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
-        const quality = (formats.q && formats.q.value) || 70;
-        const { img: optimisedImage, contentType } = optimise[imageType](croppedImage, quality);
-
-        return optimisedImage.toBuffer().then(processedImageBuffer => {
-          return {
-            Body: processedImageBuffer,
-            ContentType: contentType,
-          };
-        });
+      return optimisedImage.toBuffer().then(processedImageBuffer => {
+        return {
+          Body: processedImageBuffer,
+          ContentType: contentType,
+        };
       });
     });
   };
@@ -70,36 +61,34 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id }) => {
       });
   };
 
-  //todo - wrap both image uploads inside a transaction
   const upload = function(file) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
-    const image = Sharp(buffer).resize({
-      width: 2700,
-      height: 2700,
-      fit: Sharp.fit.inside,
-    });
+    return $aws.uploadImageToS3(buffer, id).then(() => {
+      const image = {
+        _id: id,
+        version: 'v2',
+        uploadedOn: new Date(),
+        name,
+        type,
+      };
 
-    return image.toBuffer().then(sizedBuffer => {
-      return $aws.uploadImageToS3(sizedBuffer, id).then(() => {
-        return $db
-          .collection('images')
-          .insertOne({
+      return $db
+        .collection('images')
+        .insertOne(image)
+        .then(() => {
+          if (disablePublishing) return Promise.resolve();
+
+          return $dbPub.collection('images').insertOne({
             _id: id,
+            version: 'v2',
             uploadedOn: new Date(),
             name,
             type,
-          })
-          .then(() => {
-            return $dbPub.collection('images').insertOne({
-              _id: id,
-              uploadedOn: new Date(),
-              name,
-              type,
-            });
           });
-      });
+        })
+        .then(() => image);
     });
   };
 

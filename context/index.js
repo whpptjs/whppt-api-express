@@ -5,7 +5,6 @@ const Mongo = require('./mongo');
 const loadModules = require('./modules/loadModules');
 const $atdw = require('./atdw');
 const Image = require('./image');
-const ImageV2 = require('./imageV2');
 const File = require('./file');
 const $axios = require('./axios');
 const $aws = require('./aws');
@@ -18,8 +17,8 @@ module.exports = options => {
     return {
       $id,
       $logger,
-      $image: Image({ $logger, $mongo, $aws, $id }),
-      $imageV2: ImageV2({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
+      // $image: Image({ $logger, $mongo, $aws, $id }),
+      $image: Image({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
