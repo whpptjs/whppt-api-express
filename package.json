@@ -31,8 +31,9 @@
   },
   "dependencies": {
     "aws-sdk": "^2.616.0",
-    "axios": "latest",
+    "axios": "^0.20.0",
     "bcryptjs": "^2.4.3",
+    "debug": "^4.1.1",
     "detect-installed": "^2.0.4",
     "email-syntax": "^2.0.2",
     "encoding": "^0.1.12",
