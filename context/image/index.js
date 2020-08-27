@@ -17,15 +17,17 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
   const fetch = function({ format, id, accept = '' }) {
+    console.log(format);
     if (format.o) return fetchOriginal({ id });
 
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
       const _sharpImage = Sharp(imageBuffer);
 
-      const _extractedImage =
-        format.cx && format.cy && format.cw && format.ch
-          ? _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) })
-          : _sharpImage;
+      let _extractedImage = _sharpImage;
+
+      if (format.cx && format.cy && format.cw && format.ch) {
+        _extractedImage = _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) });
+      }
 
       const _resizedImage =
         format.w && format.h
