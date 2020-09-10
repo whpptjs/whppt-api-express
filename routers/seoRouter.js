@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { join, map } = require('lodash');
-const Context = require('./context');
+const Context = require('../context');
 
 const draft = process.env.DRAFT === 'true';
 

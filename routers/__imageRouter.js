@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Context = require('./context');
+const Context = require('../context');
 
 const cache = require('express-cache-headers');
 const oneDay = 60 * 60 * 24;

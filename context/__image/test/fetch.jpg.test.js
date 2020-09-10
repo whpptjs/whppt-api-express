@@ -36,7 +36,6 @@ test('fetch and format to jpg', t => {
     // Run the comparison
     return rembrandt.compare().then(function(result) {
       if (!result.passed) {
-        console.log('Pixel Difference:', result.differences, 'Percentage Difference', result.percentageDifference, '%');
         fs.writeFileSync(__dirname + '/ROAD-Cover-Type-JPG-Diff.jpg', result.compositionImage);
       }
       t.truthy(result.passed, 'Invalid Image Conversion');
@@ -76,7 +75,6 @@ test('fetch and format to jpeg', t => {
     // Run the comparison
     return rembrandt.compare().then(function(result) {
       if (!result.passed) {
-        console.log('Pixel Difference:', result.differences, 'Percentage Difference', result.percentageDifference, '%');
         fs.writeFileSync(__dirname + '/ROAD-Cover-Type-JPEG-Diff.jpg', result.compositionImage);
       }
       t.truthy(result.passed, 'Invalid Image Conversion');

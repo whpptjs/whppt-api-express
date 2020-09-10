@@ -1,11 +1,11 @@
 const router = require('express-promise-json-router')();
-const Image = require('./imageRouter');
-const File = require('./fileRouter');
+const Image = require('./routers/imageRouter');
+const File = require('./routers/fileRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
-const ObjectRestMethods = require('./ObjectRestMethods');
+const ObjectRestMethods = require('./routers/ObjectRestMethods');
 const callAction = require('./modules/callAction');
-const seoRouter = require('./seoRouter');
+const seoRouter = require('./routers/seoRouter');
 
 module.exports = options => {
   options = options || {};
@@ -17,6 +17,7 @@ module.exports = options => {
     const { $security } = context;
     const objectRestMethods = ObjectRestMethods(context);
 
+    router.get(`/${options.apiPrefix}/obj/:type/checkSlug`, $security.authenticate, objectRestMethods.checkSlug);
     router.get(`/${options.apiPrefix}/obj/:type`, $security.authenticate, objectRestMethods.list);
     router.get(`/${options.apiPrefix}/obj/:type/:id`, $security.authenticate, objectRestMethods.get);
     router.post(`/${options.apiPrefix}/obj/:type`, $security.authenticate, objectRestMethods.post);

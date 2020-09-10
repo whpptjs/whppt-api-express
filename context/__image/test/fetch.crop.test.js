@@ -38,7 +38,6 @@ test('fetch with crop', t => {
     return rembrandt.compare().then(function(result) {
       t.truthy(result.passed, 'Invalid Image Conversion');
       if (!result.passed) {
-        console.log('Pixel Difference:', result.differences, 'Percentage Difference', result.percentageDifference, '%');
         fs.writeFileSync(__dirname + '/ROAD-Cover-Cropped-Diff.jpg', result.compositionImage);
       }
     });
