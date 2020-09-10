@@ -3,7 +3,6 @@ const MongoClient = require('mongodb').MongoClient;
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017?retryWrites=false&replicaSet=rs';
 const db = process.env.MONGO_DB || 'whppt-draft';
 const pubDb = process.env.MONGO_DB_PUB || 'whppt-pub';
-const draft = process.env.DRAFT === 'true';
 
 module.exports = ({ $logger }) => {
   const $mongo = MongoClient.connect(mongoUrl, {

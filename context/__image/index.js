@@ -8,6 +8,7 @@ const optimise = {
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
+/* @deprecated 2.0 */
 module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id }) => {
   const fetch = function({ format, id, accept = '' }) {
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([storedImage, s3Image]) => {

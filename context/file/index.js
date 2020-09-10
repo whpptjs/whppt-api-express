@@ -1,4 +1,3 @@
-const { map, keyBy } = require('lodash');
 const fileType = require('file-type');
 
 module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublish }, $aws, $id, disablePublishing }) => {

@@ -1,7 +1,5 @@
 const uniqid = require('uniqid');
 
-const $id = () => {
-  return uniqid.process();
-};
+const $id = () => uniqid.process();
 
 module.exports = $id;

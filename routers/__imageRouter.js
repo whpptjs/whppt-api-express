@@ -1,16 +1,15 @@
 const router = require('express').Router();
-const Context = require('../context');
 
 const cache = require('express-cache-headers');
 const oneDay = 60 * 60 * 24;
 const sixMonths = oneDay * 30 * 6;
-// const formidableMiddleware = require('express-formidable');
 
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
+/* @deprecated 2.0 */
 module.exports = context => {
   const { $image } = context;
 
