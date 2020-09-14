@@ -1,22 +1,23 @@
-const callAction = require('./callAction');
+// callHandler can come into here
+const callHandler = require('./callHandler');
 
-module.exports = (context, mod, action, params) => {
-  const { $logger, $modules } = context;
+module.exports = (context, mod, handlerName, params) => {
+  const { $modules } = context;
   return $modules.then(modules => {
-    const actions = modules[mod];
-    if (!actions)
+    const module = modules[mod];
+    if (!module)
       return Promise.reject({
         status: 404,
         error: new Error(`Could not find Module. ${mod}`),
       });
 
-    const a = actions[action];
-    if (!a)
+    const handler = module[handlerName];
+    if (!handler)
       return Promise.reject({
         status: 404,
-        error: new Error(`Could not find Action. ${mod}/${action}`),
+        error: new Error(`Could not find Action. ${mod}/${handlerName}`),
       });
 
-    return callAction(context, a, params);
+    return callHandler(context, handler, params);
   });
 };

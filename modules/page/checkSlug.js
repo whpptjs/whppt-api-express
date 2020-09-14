@@ -1,10 +1,8 @@
 module.exports = {
-  exec({ $mongo: { $db } }, { slug, _id }) {
+  exec({ $mongo: { $db } }, { slug, _id, collection }) {
     return $db
-      .collection('pages')
+      .collection(collection)
       .findOne({ slug, _id: { $ne: _id } })
-      .then(page => {
-        return page && page._id;
-      });
+      .then(page => page && page._id);
   },
 };

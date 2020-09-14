@@ -1,9 +1,10 @@
 const assert = require('assert');
 
 module.exports = {
-  exec({ $mongo: { $db } }, { slug }) {
+  exec({ $mongo: { $db } }, { slug, collection }) {
+    // assert
     return $db
-      .collection('pages')
+      .collection(collection)
       .findOne({ slug })
       .then(page => {
         if (!page) return { status: 404, message: 'Page not found' };

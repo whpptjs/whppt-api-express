@@ -13,6 +13,8 @@ const Smtp = require('./smtp');
 // const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = options => {
+  options.modules = options.modules || {};
+
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     return {
       $id,
@@ -22,7 +24,7 @@ module.exports = options => {
       $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
-      $modules: loadModules,
+      $modules: loadModules.then(modules => ({ ...modules, ...options.modules })),
       // $atdw,
       // $axios,
       $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },

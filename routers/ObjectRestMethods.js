@@ -22,7 +22,10 @@ module.exports = context => {
       .then(event => event && event._id);
   };
 
-  const get = function({ params: { type, id } }) {
+  const get = function({ params: { type, id, slug } }) {
+    console.log('slug', slug);
+    if (slug) return $fetch(type, slug);
+
     assert(id, 'Id is required');
     return $fetch(type, id);
   };
