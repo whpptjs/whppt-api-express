@@ -3,46 +3,17 @@ const { map } = require('lodash');
 const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {
-  exec({ $mongo: { $unpublish, $db } }, { _id }) {
+  exec({ $mongo: { $unpublish, $db } }, { _id, collection }) {
     assert(_id, 'A Page Id must be provided.');
+    assert(collection, 'Please provide a collection');
+
     return $db
-      .collection('pages')
+      .collection(collection)
       .updateOne({ _id }, { $set: { published: false } })
       .then(() => {
         return $unpublish('pages', _id).then(() => {
-          return $db
-            .collection('listings')
-            .findOne({ _id })
-            .then(listing => {
-              if (listing && listing.atdw) {
-                return $unpublish('listings', _id).then(() => {
-                  if (!unPublishCallBack) {
-                    if (listing.atdw.services && listing.atdw.services.length) {
-                      return Promise.all(
-                        map(listing.atdw.services, s => {
-                          return $unpublish('listings', s.serviceId);
-                        })
-                      );
-                    }
-                  } else {
-                    return unPublishCallBack(_id).then(() => {
-                      if (listing.atdw.services && listing.atdw.services.length) {
-                        return Promise.all(
-                          map(listing.atdw.services, s => {
-                            return $unpublish('listings', s.serviceId).then(() => {
-                              // return
-                              return unPublishCallBack(s.serviceId);
-                            });
-                          })
-                        );
-                      }
-                    });
-                  }
-                });
-              }
-              if (!unPublishCallBack) return;
-              return unPublishCallBack(_id);
-            });
+          if (!unPublishCallBack) return;
+          return unPublishCallBack(_id);
         });
       });
   },

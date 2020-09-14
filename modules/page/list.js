@@ -1,7 +1,7 @@
 module.exports = {
-  exec({ $mongo: { $db } }) {
+  exec({ $mongo: { $db } }, { collection }) {
     return $db
-      .collection('pages')
+      .collection(collection)
       .find()
       .toArray()
       .then(pages => pages);
