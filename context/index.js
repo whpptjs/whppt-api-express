@@ -3,12 +3,12 @@ const $logger = require('./logger');
 const Security = require('./security');
 const Mongo = require('./mongo');
 const loadModules = require('./modules/loadModules');
-// const $atdw = require('./atdw');
 const Image = require('./image');
 const File = require('./file');
-// const $axios = require('./axios');
 const $aws = require('./aws');
 const Smtp = require('./smtp');
+// const $atdw = require('./atdw');
+// const $axios = require('./axios');
 
 // const config = require(process.cwd() + '/whppt.config.js');
 
@@ -19,17 +19,17 @@ module.exports = options => {
     return {
       $id,
       $logger,
-      // $image: Image({ $logger, $mongo, $aws, $id }),
       $image: Image({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
       $modules: loadModules.then(modules => ({ ...modules, ...options.modules })),
+      $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
+      $smtp: Smtp({ $mongo }),
+      // $image: Image({ $logger, $mongo, $aws, $id }),
       // $atdw,
       // $axios,
-      $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
       // $objectTypes: config.supportedTypes,
-      $smtp: Smtp({ $mongo }),
     };
   });
 };
