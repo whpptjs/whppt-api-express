@@ -1,5 +1,4 @@
 const assert = require('assert');
-const { map } = require('lodash');
 const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {

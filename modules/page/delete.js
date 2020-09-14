@@ -1,5 +1,4 @@
 const assert = require('assert');
-const { map } = require('lodash');
 
 module.exports = {
   exec({ $mongo: { $delete, $db } }, { _id, collection }) {
