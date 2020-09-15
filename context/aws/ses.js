@@ -1,10 +1,11 @@
 module.exports = awsSDK => {
   const ses = new awsSDK.SES();
 
-  const sendEmail = ({ from, to, subject, html }) => {
+  const sendEmail = ({ from, to, cc, subject, html }) => {
     const params = {
       Destination: {
         ToAddresses: [to],
+        CcAddresses: [cc],
       },
       // ConfigurationSetName: "",
       Message: {
