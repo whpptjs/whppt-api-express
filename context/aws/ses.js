@@ -4,8 +4,8 @@ module.exports = awsSDK => {
   const sendEmail = ({ from, to, cc, subject, html }) => {
     const params = {
       Destination: {
-        CcAddresses: [cc],
         ToAddresses: [to],
+        CcAddresses: [cc],
       },
       // ConfigurationSetName: "",
       Message: {
