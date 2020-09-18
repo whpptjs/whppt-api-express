@@ -57,6 +57,16 @@ module.exports = awsSDK => {
     });
   };
 
+  const fetchVideo = function(id) {
+    return new Promise((resolve, reject) => {
+      s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `${id}` }, (err, videoData) => {
+        if (err) return reject(err);
+        if (!videoData || !videoData.Body) return reject(new Error('No video body'));
+        resolve({ videoBuffer: videoData.Body });
+      });
+    });
+  };
+
   const fetchDoc = function(id) {
     return new Promise((resolve, reject) => {
       s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, docData) => {
@@ -85,5 +95,5 @@ module.exports = awsSDK => {
     });
   };
 
-  return { uploadImage, fetchImage, uploadDoc, fetchDoc, removeImage, removeDoc };
+  return { uploadImage, fetchImage, fetchVideo, uploadDoc, fetchDoc, removeImage, removeDoc };
 };
