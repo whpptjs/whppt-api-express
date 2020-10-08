@@ -5,7 +5,6 @@ module.exports = {
   extends: ['prettier', 'plugin:prettier/recommended', 'plugin:import/errors', 'plugin:import/warnings'],
   plugins: ['prettier', 'import'],
   rules: {
-    'prettier/prettier': 'off',
     'import/no-unresolved': ['error', { commonjs: true }],
   },
   overrides: [{ files: ['**/*.js'] }],
