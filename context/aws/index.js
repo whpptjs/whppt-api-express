@@ -26,6 +26,7 @@ const {
   removeImage: removeImageFromS3,
   removeDoc: removeDocFromS3,
 } = S3(awsSDK_S3);
+
 const { sendEmail, getDomainIdentities } = SES(awsSDK_SES);
 
 module.exports = { uploadImageToS3, fetchImageFromS3, fetchVideoFromS3, uploadDocToS3, fetchDocFromS3, removeImageFromS3, sendEmail, getDomainIdentities, removeDocFromS3 };
