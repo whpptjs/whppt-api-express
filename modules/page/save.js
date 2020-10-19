@@ -6,6 +6,7 @@ module.exports = {
     assert(collection, 'Please provide a collection.');
 
     page._id = page._id || $id();
+
     return $save(collection, page).then(() => page);
   },
 };
