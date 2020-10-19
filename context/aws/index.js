@@ -1,5 +1,5 @@
 const awsSDK_S3 = require('aws-sdk');
-const awsSDK_Email = require('aws-sdk');
+const awsSDK_SES = require('aws-sdk');
 const S3 = require('./s3');
 const SES = require('./ses');
 
@@ -13,9 +13,9 @@ awsSDK_S3.config.update({
   region: AWS_REGION,
 });
 
-awsSDK_Email.config.update({
-  accessKeyId: EMAIL_ACCESS_KEY_ID,
-  secretAccessKey: EMAIL_SECRET_ACCESS_KEY,
+awsSDK_SES.config.update({
+  accessKeyId: SES_ACCESS_KEY_ID,
+  secretAccessKey: SES_SECRET_ACCESS_KEY,
   region: AWS_REGION,
 });
 
@@ -28,6 +28,6 @@ const {
   removeImage: removeImageFromS3,
   removeDoc: removeDocFromS3,
 } = S3(awsSDK_S3);
-const { sendEmail, getDomainIdentities } = SES(awsSDK_Email);
+const { sendEmail, getDomainIdentities } = SES(awsSDK_SES);
 
 module.exports = { uploadImageToS3, fetchImageFromS3, fetchVideoFromS3, uploadDocToS3, fetchDocFromS3, removeImageFromS3, sendEmail, getDomainIdentities, removeDocFromS3 };
