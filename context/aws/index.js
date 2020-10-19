@@ -3,19 +3,17 @@ const awsSDK_SES = require('aws-sdk');
 const S3 = require('./s3');
 const SES = require('./ses');
 
-const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
-const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
 const AWS_REGION = process.env.AWS_REGION || 'ap-southeast-2';
 
 awsSDK_S3.config.update({
-  accessKeyId: S3_ACCESS_KEY_ID,
-  secretAccessKey: S3_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
   region: AWS_REGION,
 });
 
 awsSDK_SES.config.update({
-  accessKeyId: SES_ACCESS_KEY_ID,
-  secretAccessKey: SES_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.SES_ACCESS_KEY_ID,
+  secretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
   region: AWS_REGION,
 });
 
