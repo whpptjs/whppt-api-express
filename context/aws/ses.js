@@ -1,4 +1,11 @@
-module.exports = awsSDK => {
+const awsSDK = require('aws-sdk');
+
+module.exports = () => {
+  awsSDK.config.update({
+    accessKeyId: process.env.SES_ACCESS_KEY_ID,
+    secretAccessKey: process.env.SES_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION || 'ap-southeast-2',
+  });
   const ses = new awsSDK.SES();
 
   const sendEmail = ({ from, to, subject, html }) => {
