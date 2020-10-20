@@ -1,6 +1,12 @@
 const S3_BUCKET_NAME = process.env.S3_BUCKET;
+const awsSDK = require('aws-sdk');
 
-module.exports = awsSDK => {
+module.exports = () => {
+  awsSDK.config.update({
+    accessKeyId: process.env.S3_ACCESS_KEY_ID,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION || 'ap-southeast-2',
+  });
   const s3 = new awsSDK.S3();
 
   const uploadImage = function(fileBuffer, id) {
