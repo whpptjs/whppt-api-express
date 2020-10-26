@@ -10,6 +10,7 @@ module.exports = ({ $id, $logger, config }) => {
   passport.initialize();
 
   $logger.info('Security Configured for provider:', config.security.provider);
+
   return {
     authenticate: providers[config.security.provider].authenticate,
     createToken: providers[config.security.provider].createToken,

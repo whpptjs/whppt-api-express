@@ -35,6 +35,9 @@ module.exports = options => {
       $sitemap: {
         filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
       },
+      $roles: {
+        // validate: validateRoles(),
+      },
       // $image: Image({ $logger, $mongo, $aws, $id }),
       // $atdw,
       // $axios,

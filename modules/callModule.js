@@ -3,6 +3,7 @@ const callHandler = require('./callHandler');
 
 module.exports = (context, mod, handlerName, params) => {
   const { $modules } = context;
+
   return $modules.then(modules => {
     const module = modules[mod];
     if (!module)

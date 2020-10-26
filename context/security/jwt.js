@@ -1,6 +1,5 @@
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 
 const extractFromCookies = function(req) {
@@ -11,12 +10,12 @@ const extractFromCookies = function(req) {
 module.exports = ({ $id, config }) => ({
   init() {
     const opts = {
-      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       jwtFromRequest: extractFromCookies,
-      secretOrKey: (config.jwt && config.jwt.secret) || 'changeme',
+      secretOrKey: config.jwt && config.jwt.secret,
       issuer: (config.jwt && config.jwt.issuer) || 'whppt',
       audience: (config.jwt && config.jwt.audience) || '',
     };
+
     return new JwtStrategy(opts, function(jwtPayload, done) {
       // TODO: Verify the token has not been invalidated
       done(null, jwtPayload.sub);
