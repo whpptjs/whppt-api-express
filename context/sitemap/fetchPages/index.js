@@ -1,14 +1,15 @@
 const { flatten, map, take, drop, filter } = require('lodash');
 
-module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug, freq }) => {
-  const filteredCollections = filter($pageTypes, pt => !pt.collection.excludeFromSitemap);
-  const collections = map(filteredCollections, pt => pt.collection.name);
+module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug, freq, pageType, priority }) => {
+  const filteredCollections = filter($pageTypes, pt => !pt.collection || !pt.collection.excludeFromSitemap);
+  const collections = map(filteredCollections, pt => (pt.collection && pt.collection.name) || pt.name);
 
-  // built filters out.
   const filters = {};
 
   if (freq) filters.frequency = freq;
   if (slug) filters.slug = { $regex: slug === '/' ? '' : slug, $options: 'i' };
+  if (pageType) filters.pageType = pageType;
+  if (priority) filters.priority = Number(priority);
 
   return Promise.all(
     map(collections, collection => {

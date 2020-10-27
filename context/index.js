@@ -8,17 +8,13 @@ const File = require('./file');
 const $aws = require('./aws');
 const Smtp = require('./smtp');
 const sitemapQuery = require('./sitemap');
-// const $atdw = require('./atdw');
-// const $axios = require('./axios');
-
-// const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = options => {
   options.modules = options.modules || {};
 
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     const $pageTypes = options.pageTypes;
-    const $fullUrl = slug => `${process.env.BASE_URL}/slug`;
+    const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
 
     return {
       $id,
@@ -38,10 +34,6 @@ module.exports = options => {
       $roles: {
         // validate: validateRoles(),
       },
-      // $image: Image({ $logger, $mongo, $aws, $id }),
-      // $atdw,
-      // $axios,
-      // $objectTypes: config.supportedTypes,
     };
   });
 };
