@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const Context = require('../context');
 
 const cache = require('express-cache-headers');
 const oneDay = 60 * 60 * 24;
@@ -10,12 +9,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
-module.exports = context => {
-  const {
-    $file,
-    $mongo: { $db },
-  } = context;
-
+module.exports = ({ $file, $mongo: { $db } }) => {
   router.post('/file/uploadFile', upload, (req, res) => {
     const file = req.file;
     const description = req.body.description;

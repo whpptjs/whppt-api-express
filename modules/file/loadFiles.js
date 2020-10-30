@@ -1,20 +1,14 @@
 module.exports = {
-  exec({ $mongo: { $db } }, query) {
-    const { limit, currentPage, search } = query;
-    const numLimit = Number(limit);
-    const numCurrentPage = Number(currentPage);
-
+  exec({ $mongo: { $db } }, { page, size }) {
     const files = [];
-    if (numLimit) {
-      files.push({ $skip: numLimit * (numCurrentPage - 1) });
-    }
 
-    files.push({ $limit: numLimit || 1000 });
+    if (size) files.push({ $skip: Number(size) * (Number(page) - 1) });
+
+    files.push({ $limit: Number(size) || 1000 });
 
     return $db
       .collection('files')
       .aggregate([
-        // { $regexMatch: { input: '$description', regex: `/${search}/i` } },
         { $sort: { name: 1 } },
         {
           $facet: {
@@ -24,9 +18,8 @@ module.exports = {
         },
       ])
       .toArray()
-      .then(({ 0: { total, files } }) => ({
-        total: total[0] ? total[0].count : 0,
-        files,
-      }));
+      .then(({ 0: { total, files } }) => {
+        return { files, total: total[0] ? total[0].count : 0 };
+      });
   },
 };

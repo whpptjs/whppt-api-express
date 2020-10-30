@@ -1,10 +1,10 @@
 const fileType = require('file-type');
 
-module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublish }, $aws, $id, disablePublishing }) => {
+module.exports = ({ $mongo: { $db, $dbPub, $delete, $unpublish }, $aws, $id, disablePublishing }) => {
   const upload = function(file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
-    const fi = fileType.fromBuffer(buffer);
+
     return fileType.fromBuffer(buffer).then(fType => {
       return $aws.uploadDocToS3(buffer, id).then(() => {
         return $db
@@ -33,11 +33,9 @@ module.exports = ({ $mongo: { $db, $dbPub, $startTransaction, $delete, $unpublis
   };
 
   const remove = function(fileId) {
-    return $startTransaction(session => {
-      return $unpublish('files', fileId, { session }).then(() => {
-        return $delete('files', fileId, { session }).then(() => {
-          return $aws.removeDocFromS3(fileId);
-        });
+    return $unpublish('files', fileId).then(() => {
+      return $delete('files', fileId).then(() => {
+        return $aws.removeDocFromS3(fileId);
       });
     });
   };
