@@ -10,7 +10,7 @@ module.exports = {
       .collection(collection)
       .updateOne({ _id }, { $set: { published: false } })
       .then(() => {
-        return $unpublish('pages', _id).then(() => {
+        return $unpublish(collection, _id).then(() => {
           if (!unPublishCallBack) return;
           return unPublishCallBack(_id);
         });
