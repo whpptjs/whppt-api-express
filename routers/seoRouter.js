@@ -43,7 +43,7 @@ module.exports = function(options) {
 
   router.get('/robots.txt', function(req, res) {
     res.type('text/plain');
-    if (draft) return res.send('User-agent: *\nDisallow: /');
+    if (draft || process.env.DISABLE_ROBOTS === 'true') return res.send('User-agent: *\nDisallow: /');
     res.send(`User-agent: *
                     Disallow: /login
                     Disallow: /health
