@@ -1,16 +1,14 @@
 const assert = require('assert');
 
 module.exports = {
-  authorise(context, params) {
-    //
+  authorise({ $roles }, { user }) {
+    if ($roles.validate(user)) return Promise.resolve();
 
-    return Promise.reject('Not authorised to perform this action.');
+    return Promise.reject('Not authorised.');
   },
-  exec({ $id, $mongo: { $save } }, role) {
-    assert(role, 'A Nav Object must be provided.');
+  exec({ $id, $mongo: { $save }, $roles }, { role, user }) {
+    assert(role, 'A Role must be provided.');
 
-    if (!role._id) role._id = $id();
-
-    return $save('roles', role).then(() => role);
+    return $roles.save({ role, user }).then(_role => _role);
   },
 };

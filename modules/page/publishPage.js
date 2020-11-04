@@ -8,6 +8,7 @@ module.exports = {
 
     page._id = page._id || $id();
     page.published = true;
+
     return $save(collection, page).then(() => {
       return $publish(collection, page).then(() => {
         if (!publishCallBack) return page;

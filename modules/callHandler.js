@@ -18,6 +18,6 @@ module.exports = (context, messageHandler, params) => {
       });
     })
     .catch(err => {
-      return { status: 403, error: err };
+      return { status: err.status || 401, error: err.message };
     });
 };

@@ -16,12 +16,17 @@
   "bugs": {
     "url": "https://github.com/svelte-studios/whppt-api-express/issues"
   },
+  "bin": {
+    "gen-root-user": "commands/generateRootUser.js"
+  },
   "homepage": "https://github.com/svelte-studios/whppt-api-express",
   "devDependencies": {
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-stage-2": "^7.8.3",
     "ava": "^3.11.0",
+    "chalk": "^4.1.0",
     "debug": "^4.2.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.19.1",
@@ -29,6 +34,7 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.2.13",
     "prettier": "^1.19.1",
+    "prompts": "^2.4.0",
     "rembrandt": "^0.1.3",
     "sinon": "^7.5.0"
   },

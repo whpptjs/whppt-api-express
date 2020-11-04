@@ -36,6 +36,7 @@ module.exports = options => {
       router.use(imageRouter);
       router.use(fileRouter);
       router.use(seoRouter(options));
+
       return router;
     });
   });

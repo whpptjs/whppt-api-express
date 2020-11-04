@@ -22,15 +22,17 @@ module.exports = ({ $id, config }) => ({
     });
   },
   authenticate(req, res, next) {
-    return new Promise((__, reject) => {
-      passport.authenticate('jwt', function(err, user) {
+    return new Promise((_, reject) => {
+      passport.authenticate('jwt', function(err, user, info) {
         if (err) return reject(err);
-        if (!user) req.user = { _id: 'guest', name: 'Guest', roles: { guest: true } };
-        else {
-          user.roles = user.roles || {};
-          user.roles.editor = true;
+
+        if (!user) {
+          req.user = { _id: 'guest', name: 'Guest', roles: [] };
+        } else {
+          user.roles = user.roles || [];
           req.user = user;
         }
+
         next();
       })(req, res);
     });

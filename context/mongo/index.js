@@ -1,16 +1,16 @@
 const MongoClient = require('mongodb').MongoClient;
 
-const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017?retryWrites=false&replicaSet=rs';
-const db = process.env.MONGO_DB || 'whppt-draft';
-const pubDb = process.env.MONGO_DB_PUB || 'whppt-pub';
+const mongoUrl = process.env.MONGO_URL;
+const db = process.env.MONGO_DB;
+const pubDb = process.env.MONGO_DB_PUB;
 
 module.exports = ({ $logger }) => {
-  const $mongo = MongoClient.connect(mongoUrl, {
+  return MongoClient.connect(mongoUrl, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
   })
     .then(client => {
-      $logger.info('Connected to mongo on:', mongoUrl);
+      if ($logger) $logger.info('Connected to mongo on:', mongoUrl);
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
@@ -43,7 +43,16 @@ module.exports = ({ $logger }) => {
       };
 
       const $remove = function(collection, id, { session } = {}) {
-        return $db.collection(collection).updateOne({ _id: id }, { $set: { removed: true, removedAt: new Date() } }, { session });
+        return $db.collection(collection).updateOne(
+          { _id: id },
+          {
+            $set: {
+              removed: true,
+              removedAt: new Date(),
+            },
+          },
+          { session }
+        );
       };
 
       const $delete = function(collection, id, { session } = {}) {
@@ -51,7 +60,13 @@ module.exports = ({ $logger }) => {
       };
 
       const $publish = function(collection, doc, { session } = {}) {
-        doc = { ...doc, lastPublished: new Date(), updatedAt: new Date(), published: true, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date() };
+        doc = {
+          ...doc,
+          lastPublished: new Date(),
+          updatedAt: new Date(),
+          published: true,
+          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+        };
         return $db
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
@@ -83,10 +98,10 @@ module.exports = ({ $logger }) => {
       };
     })
     .catch(err => {
-      $logger.error('Mongo Connection Failed ....');
-      $logger.error(err);
+      if ($logger) {
+        $logger.error('Mongo Connection Failed ....');
+        $logger.error(err);
+      }
       process.exit(1);
     });
-
-  return $mongo;
 };

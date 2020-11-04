@@ -8,8 +8,9 @@ const File = require('./file');
 const $aws = require('./aws');
 const Smtp = require('./smtp');
 const sitemapQuery = require('./sitemap');
+const { validateRoles, saveRole, applyRole } = require('./roles');
 
-module.exports = options => {
+module.exports = (options = {}) => {
   options.modules = options.modules || {};
 
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
@@ -32,7 +33,10 @@ module.exports = options => {
         filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
       },
       $roles: {
-        // validate: validateRoles(),
+        apply: applyRole({ $mongo }),
+        validate: validateRoles(),
+        save: saveRole({ $id, $mongo }),
+        // remove: removeRole(context),
       },
     };
   });

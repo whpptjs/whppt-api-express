@@ -3,7 +3,17 @@ const bcrypt = require('bcryptjs');
 const Jwt = require('./jwt');
 const saltRounds = 10;
 
-module.exports = ({ $id, $logger, config }) => {
+module.exports = ({ $id, $logger, config = {} }) => {
+  const encrypt = password => {
+    return bcrypt.hash(password, saltRounds).then();
+  };
+
+  const compare = (password, hash) => {
+    return bcrypt.compare(password, hash);
+  };
+
+  if (!config.security) return { encrypt, compare };
+
   const providers = { jwt: Jwt({ $id, config: config.security }) };
 
   passport.use(providers[config.security.provider].init());
@@ -14,12 +24,7 @@ module.exports = ({ $id, $logger, config }) => {
   return {
     authenticate: providers[config.security.provider].authenticate,
     createToken: providers[config.security.provider].createToken,
-
-    encrypt(password) {
-      return bcrypt.hash(password, saltRounds).then();
-    },
-    compare(password, hash) {
-      return bcrypt.compare(password, hash);
-    },
+    encrypt,
+    compare,
   };
 };
