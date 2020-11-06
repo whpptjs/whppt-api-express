@@ -1,5 +1,5 @@
 module.exports = () => {
-  return function({ user, requiredRoles }) {
+  return function(user, requiredRoles) {
     if (!user) return false;
 
     if (user.roles.includes('root')) return Promise.resolve();
