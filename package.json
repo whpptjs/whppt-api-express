@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js,.vue .",
-    "test": "jest"
+    "test": "lint && jest"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/svelte-studios/whppt-api-express/issues"
   },
+  "files": [
+    "./cli", "./context", "./routers", "./modules"
+  ],
   "bin": {
     "gen-root-user": "cli/generateRootUser.js"
   },
@@ -40,6 +43,7 @@
     "sinon": "^9.2.1"
   },
   "dependencies": {
+    "@types/jest": "^26.0.15",
     "aws-sdk": "^2.616.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",

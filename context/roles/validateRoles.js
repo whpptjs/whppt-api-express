@@ -1,8 +1,10 @@
 module.exports = () => {
   return function(user, requiredRoles) {
-    if (!user) return false;
+    if (!user) return Promise.reject();
 
     if (user.roles.includes('root')) return Promise.resolve();
+
+    console.log('user is not root user.');
 
     const compareArrays = (arr, target) => target.every(v => arr.includes(v));
 

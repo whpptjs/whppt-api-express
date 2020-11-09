@@ -1,21 +1,27 @@
 const assert = require('assert');
+const { partition, map, uniq } = require('lodash');
 
 module.exports = {
   authorise({ $roles }, { user }) {
     // maybe have somewhere to set site permissions for specific actions, eg. create rolls
-    return $roles.validate({ user, requiredRoles: ['root'] });
+    return $roles.validate(user, ['root']);
   },
-  exec({ $roles }, { page, collection, roles = [] }) {
+  exec({ $mongo: { $save } }, { page, collection, roles = [] }) {
     assert(page, 'Please provide a page');
     assert(roles.length, 'Please provide at least 1 role');
+    assert(collection, 'Please provide at the page collection');
 
-    // how do we know what collection page belongs to?
-    // we dont have access to pageType from plugin on the api side
-    // maybe accept it as arg?
+    const [editorRoles, publisherRoles] = partition(roles, r => r.level === 'editor');
 
-    // assign role to page and save
+    const editorRoleIds = map(editorRoles, er => er._id);
+    const publisherRoleIds = map(publisherRoles, pr => pr._id);
 
-    // save the page with the new roles
-    return false;
+    if (!page.editorRoles) page.editorRoles = [];
+    if (!page.publisherRoles) page.publisherRoles = [];
+
+    page.editorRoles = uniq([...page.editorRoles, ...editorRoleIds]);
+    page.publisherRoles = uniq([...page.publisherRoles, ...publisherRoleIds]);
+
+    return $save(collection, page).then(() => page);
   },
 };
