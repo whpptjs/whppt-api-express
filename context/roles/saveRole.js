@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { pick } = require('lodash');
 
 module.exports = ({ $id, $mongo: { $db } }) => {
   return function({ role, user }) {
@@ -7,7 +8,7 @@ module.exports = ({ $id, $mongo: { $db } }) => {
     if (!role._id) role._id = $id();
     role.createdAt = role.createdAt ? new Date(role.createdAt) : new Date();
     role.updatedAt = new Date();
-    role.createdBy = user;
+    role.createdBy = { ...pick(user, ['_id', 'username', 'email']) };
 
     return $db
       .collection('roles')

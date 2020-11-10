@@ -11,13 +11,13 @@ test('roles can be applied to page with correct levels', () => {
   const editorRole = {
     _id: 'najosfd78',
     name: 'Editor',
-    level: 'editor',
+    level: { editor: true, publisher: false },
   };
 
   const publisherRole = {
     _id: 'nkjau3i4',
     name: 'Publisher',
-    level: 'publisher',
+    level: { editor: false, publisher: true },
   };
 
   const $mongo = {
