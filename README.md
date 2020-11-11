@@ -35,8 +35,8 @@
 [npm-downloads-src]: https://img.shields.io/npm/dt/@whppt/api-express.svg
 [npm-downloads-href]: https://npmjs.com/package/@whppt/api-express
 
-[github-actions-ci-src]: https://github.com/whpptjs/api-express/workflows/ci/badge.svg
-[github-actions-ci-href]: https://github.com/whpptjs/api-express/actions?query=workflow%3Aci
+[github-actions-ci-src]: https://github.com/whpptjs/whppt-api-express/workflows/ci/badge.svg
+[github-actions-ci-href]: https://github.com/whpptjs/whppt-api-express/actions?query=workflow%3Aci
 
 [codecov-src]: https://img.shields.io/codecov/c/github/whpptjs/api-express.svg
 [codecov-href]: https://codecov.io/gh/whpptjs/api-express
