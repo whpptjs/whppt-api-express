@@ -19,7 +19,11 @@ test.skip('can list all users', () => {
 
   const context = {
     $mongo: {
-      $db: sinon.fake.resolves(users),
+      $db: {
+        collection: collection => sinon.fake.resolves(collection),
+        find: () => sinon.fake.resolves(users),
+        toArray: () => sinon.fake.resolves(users),
+      },
     },
   };
 
