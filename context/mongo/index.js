@@ -14,19 +14,19 @@ module.exports = ({ $logger }) => {
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
-      const $startTransaction = function(callback) {
+      const $startTransaction = function (callback) {
         const session = client.startSession();
         return session.withTransaction(() => callback(session));
       };
 
-      const $list = function(collection, removed) {
+      const $list = function (collection, removed) {
         const cursor = $db.collection(collection);
 
         if (removed) return cursor.find().toArray();
         return cursor.find({ removed: { $ne: true } }).toArray();
       };
 
-      const $fetch = function(collection, id) {
+      const $fetch = function (collection, id) {
         return $db
           .collection(collection)
           .find({ _id: id })
@@ -37,12 +37,12 @@ module.exports = ({ $logger }) => {
           });
       };
 
-      const $save = function(collection, doc, { session } = {}) {
+      const $save = function (collection, doc, { session } = {}) {
         doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
         return $db.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
       };
 
-      const $remove = function(collection, id, { session } = {}) {
+      const $remove = function (collection, id, { session } = {}) {
         return $db.collection(collection).updateOne(
           { _id: id },
           {
@@ -55,11 +55,11 @@ module.exports = ({ $logger }) => {
         );
       };
 
-      const $delete = function(collection, id, { session } = {}) {
+      const $delete = function (collection, id, { session } = {}) {
         return $db.collection(collection).deleteOne({ _id: id }, { session });
       };
 
-      const $publish = function(collection, doc, { session } = {}) {
+      const $publish = function (collection, doc, { session } = {}) {
         doc = {
           ...doc,
           lastPublished: new Date(),
@@ -75,7 +75,7 @@ module.exports = ({ $logger }) => {
           });
       };
 
-      const $unpublish = function(collection, _id, { session } = {}) {
+      const $unpublish = function (collection, _id, { session } = {}) {
         return $db
           .collection(collection)
           .updateOne({ _id }, { $set: { published: false } }, { session })
