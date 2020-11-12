@@ -5,16 +5,17 @@ module.exports = {
   authorise({ $roles, $mongo: { $save } }, { user }) {
     return $roles.validate(user, []);
   },
-  exec({ $mongo: { $save } }, args) {
-    const { roles = [], selectedUser } = args;
-    assert(roles.length, 'Please provide at least one role.');
+  exec({ $mongo: { $save } }, { roles = [], selectedUser }) {
     assert(selectedUser, 'Please provide a user to apply the roles to.');
 
     const roleIds = map(roles, r => (r._id ? r._id : r));
 
     // probably should check to make sure all roles exist in roles collection
 
-    selectedUser.roles = selectedUser.roles ? uniq([...selectedUser.roles, ...roleIds]) : [...roleIds];
+    // TODO: adjust for below scenario
+    // still not 100% on this approach, relies on the client to accommodate for roles such as root
+    // this can currently overwrite the root users "root" role unless passed along side the other roles
+    selectedUser.roles = uniq(roleIds);
 
     return $save('users', selectedUser).then(() => selectedUser);
   },
