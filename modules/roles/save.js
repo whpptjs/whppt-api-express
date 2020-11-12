@@ -2,11 +2,11 @@ const assert = require('assert');
 
 module.exports = {
   authorise({ $roles }, { user }) {
-    if ($roles.validate(user)) return Promise.resolve();
+    if ($roles.validate(user, [])) return Promise.resolve();
 
     return Promise.reject('Not authorised.');
   },
-  exec({ $id, $mongo: { $save }, $roles }, { role, user }) {
+  exec({ $id, $roles }, { role, user }) {
     assert(role, 'A Role must be provided.');
 
     return $roles.save({ role, user }).then(_role => _role);

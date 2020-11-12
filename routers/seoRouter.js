@@ -11,7 +11,7 @@ const sitemapStart = `<?xml version="1.0" encoding="UTF-8"?>
 
 const sitemapEnd = `</urlset>`;
 
-module.exports = function(options) {
+module.exports = function (options) {
   router.get(`/sitemap.xml`, (req, res) => {
     Context(options).then(({ $sitemap }) => {
       return $sitemap
@@ -41,7 +41,7 @@ module.exports = function(options) {
     });
   });
 
-  router.get('/robots.txt', function(req, res) {
+  router.get('/robots.txt', function (req, res) {
     res.type('text/plain');
     if (draft || process.env.DISABLE_ROBOTS === 'true') return res.send('User-agent: *\nDisallow: /');
     res.send(`User-agent: *

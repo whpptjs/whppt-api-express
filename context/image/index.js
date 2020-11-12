@@ -49,7 +49,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
     });
   };
 
-  const fetchOriginal = function({ id }) {
+  const fetchOriginal = function ({ id }) {
     return $db
       .collection('images')
       .findOne({ _id: id })
@@ -63,7 +63,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
       });
   };
 
-  const upload = function(file) {
+  const upload = function (file) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
@@ -94,7 +94,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
     });
   };
 
-  const remove = function(id) {
+  const remove = function (id) {
     return $aws.removeImageFromS3(id).then(() =>
       $db.collection('images').deleteOne({
         id,

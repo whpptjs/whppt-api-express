@@ -5,25 +5,31 @@
   "author": "Svelte Studios (https://www.npmjs.com/settings/svelte-studios/packages)",
   "main": "index.js",
   "scripts": {
-    "test": "ava"
+    "lint": "eslint --ext .js,.vue .",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/svelte-studios/whppt-api-express.git"
   },
   "keywords": [],
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/svelte-studios/whppt-api-express/issues"
   },
+  "files": [
+    "./cli",
+    "./context",
+    "./routers",
+    "./modules"
+  ],
   "bin": {
-    "gen-root-user": "commands/generateRootUser.js"
+    "gen-root-user": "cli/generateRootUser.js"
   },
   "homepage": "https://github.com/svelte-studios/whppt-api-express",
   "devDependencies": {
-    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-env": "^7.12.1",
     "@babel/preset-stage-2": "^7.8.3",
-    "ava": "^3.11.0",
     "chalk": "^4.1.0",
     "debug": "^4.2.0",
     "dotenv": "^8.2.0",
@@ -31,14 +37,17 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-prettier": "^3.1.1",
+    "faker": "^5.1.0",
     "husky": "^4.2.5",
+    "jest": "^26.6.3",
     "lint-staged": "^10.2.13",
-    "prettier": "^1.19.1",
+    "prettier": "^2.1.2",
     "prompts": "^2.4.0",
     "rembrandt": "^0.1.3",
-    "sinon": "^7.5.0"
+    "sinon": "^9.2.1"
   },
   "dependencies": {
+    "@types/jest": "^26.0.15",
     "aws-sdk": "^2.616.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
