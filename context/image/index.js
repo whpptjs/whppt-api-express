@@ -4,18 +4,19 @@ const optimise = {
   jpg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
   jpeg: (image, quality) => ({ contentType: 'image/jpeg', img: image.jpeg({ quality, chromaSubsampling: '4:4:4' }) }),
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
+  png: (image, quality) => ({ contentType: 'image/png', img: image.png({ quality }) }),
 };
 
 const pickFormat = function(format, accept, imageMeta) {
-  if (!format) return accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
-  if (format === 'orig') return imageMeta.type.split('/')[1];
+  if (!format.f) return accept.indexOf('image/webp') !== -1 ? 'webp' : format.t ? 'png' : 'jpg';
+  if (format.f === 'orig') return imageMeta.type.split('/')[1];
 
-  return format.f || imageMeta.type.split('/')[1] || 'jpg';
+  return format.f || imageMeta.type.split('/')[1] || format.t ? 'png' : 'jpg';
 };
 
 module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
   // Format options
-  // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
+  // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true', t: 'true' }
   const fetch = function({ format, id, accept = '' }) {
     if (format.o) return fetchOriginal({ id });
 
@@ -35,7 +36,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
             })
           : _extractedImage;
 
-      const imageType = pickFormat(format.f, accept, imageMeta);
+      const imageType = pickFormat(format, accept, imageMeta);
       const quality = parseInt(format.q) || 70;
       const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
 
