@@ -16,6 +16,7 @@ const pickFormat = function (format, accept, imageMeta) {
 module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
+  // Something is wrong here?
   const fetch = function ({ format, id, accept = '' }) {
     if (format.o) return fetchOriginal({ id });
 
