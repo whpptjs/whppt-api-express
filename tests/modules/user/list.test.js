@@ -2,7 +2,7 @@ const sinon = require('sinon');
 const { random, internet, date } = require('faker');
 const listUsers = require('../../../modules/user/list');
 
-test.skip('can list all users', () => {
+test('can list all users', () => {
   const users = [];
 
   for (let i = 0; i < 5; i++) {
@@ -17,12 +17,16 @@ test.skip('can list all users', () => {
     users.push(user);
   }
 
+  const collection = {
+    find: sinon.fake.returns({
+      toArray: sinon.fake.resolves(users),
+    }),
+  };
+
   const context = {
     $mongo: {
       $db: {
-        collection: collection => sinon.fake.resolves(collection),
-        find: () => sinon.fake.resolves(users),
-        toArray: () => sinon.fake.resolves(users),
+        collection: sinon.fake.returns(collection),
       },
     },
   };
@@ -30,6 +34,8 @@ test.skip('can list all users', () => {
   const args = {};
 
   return listUsers.exec(context, args).then(response => {
-    console.log(response);
+    expect(context.$mongo.$db.collection.firstArg).toBe('users');
+    expect(collection.find.firstArg).toStrictEqual({ _id: { $ne: 'guest' } });
+    expect(response.users.length).toEqual(5);
   });
 });

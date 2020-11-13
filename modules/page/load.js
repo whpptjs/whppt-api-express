@@ -1,6 +1,12 @@
 const assert = require('assert');
 
 module.exports = {
+  authorise({ $roles, $mongo: { $db } }, { user, slug, collection }) {
+    return $db
+      .collection(collection)
+      .findOne({ slug }, { editorRoles: true, publisherRoles: true })
+      .then(page => $roles.validate(user, [page.editorRoles, page.publisherRoles]));
+  },
   exec({ $mongo: { $db } }, { slug, collection }) {
     assert(collection, 'Please provide a collection.');
 

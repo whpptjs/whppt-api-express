@@ -12,7 +12,15 @@ module.exports = ({ $id, $mongo: { $db } }) => {
 
     return $db
       .collection('roles')
-      .updateOne({ _id: role._id }, { $set: role }, { upsert: true })
-      .then(() => role);
+      .find({ name: role.name })
+      .toArray()
+      .then(existingRoles => {
+        if (existingRoles && existingRoles.length) throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
+
+        return $db
+          .collection('roles')
+          .updateOne({ _id: role._id }, { $set: role }, { upsert: true })
+          .then(() => role);
+      });
   };
 };
