@@ -14,9 +14,19 @@ test('can list roles for user', () => {
     roles.push(role);
   }
 
+  const args = {
+    page: 1,
+    perPage: 5,
+  };
+
   const collection = {
     find: sinon.fake.returns({
-      toArray: sinon.fake.resolves(roles),
+      count: sinon.fake.resolves(roles.length),
+      limit: sinon.fake.returns({
+        skip: sinon.fake.returns({
+          toArray: sinon.fake.resolves(roles),
+        }),
+      }),
     }),
   };
 
@@ -28,7 +38,7 @@ test('can list roles for user', () => {
     },
   };
 
-  return listRoles.exec(context).then(response => {
+  return listRoles.exec(context, args).then(response => {
     expect(context.$mongo.$db.collection.firstArg).toEqual('roles');
     expect(response.roles.length).toEqual(5);
   });
