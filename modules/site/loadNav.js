@@ -3,14 +3,16 @@ const assert = require('assert');
 const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
-  exec({ $mongo: { $db } }) {
+  exec({ $mongo: { $db } }, { domainId }) {
+    const query = { _id: domainId && domainId !== 'undefined' ? `nav_${domainId}` : 'nav' };
+
     return $db
       .collection('site')
-      .findOne({ _id: 'nav' })
+      .findOne(query)
       .then(nav => {
         if (!nav) {
-          const defaultFooter = get(config, 'defaults.nav');
-          return { ...defaultFooter, _id: 'nav' };
+          const defaultNav = get(config, 'defaults.nav');
+          return { ...defaultNav, _id: domainId && domainId !== 'undefined' ? `nav_${domainId}` : 'nav' };
         }
         return nav;
       })

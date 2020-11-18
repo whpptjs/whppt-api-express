@@ -3,14 +3,19 @@ const assert = require('assert');
 const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
-  exec({ $mongo: { $db } }) {
+  exec({ $mongo: { $db } }, { domainId }) {
+    const query = { _id: domainId && domainId !== 'undefined' ? `footer_${domainId}` : 'footer' };
+
+    // if (domainId && domainId !== 'undefined') query.domainId = domainId;
+    // else query.$or = [{ domainId: { $exists: false } }, { domainId: { $eq: '' } }];
+
     return $db
       .collection('site')
-      .findOne({ _id: 'footer' })
+      .findOne(query)
       .then(footer => {
         if (!footer) {
           const defaultFooter = get(config, 'defaults.footer');
-          return { ...defaultFooter, _id: 'footer' };
+          return { ...defaultFooter, _id: domainId && domainId !== 'undefined' ? `footer_${domainId}` : 'footer' };
         }
         return footer;
       })
