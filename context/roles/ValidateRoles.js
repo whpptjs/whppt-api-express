@@ -2,7 +2,7 @@ const { map, intersection } = require('lodash');
 
 module.exports = () => {
   return function (user, requiredRoles = []) {
-    if (process.env.DRAFT) return Promise.resolve();
+    if (!process.env.DRAFT || process.env.DRAFT === 'false') return Promise.resolve();
 
     if (!userHasRoles(user)) return Promise.reject({ status: 401, message: 'Unauthorised: Missing required role(s)' });
 
