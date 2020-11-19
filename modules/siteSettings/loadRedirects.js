@@ -1,10 +1,10 @@
 const { take, drop } = require('lodash');
 
 module.exports = {
-  exec({ $mongo: { $db } }, { page, size }) {
+  exec({ $mongo: { $db } }, { page, size, domainId }) {
     return $db
       .collection('redirects')
-      .find()
+      .find({ domainId })
       .toArray()
       .then(redirects => {
         if (!page && !size) return { redirects, total: redirects.length };

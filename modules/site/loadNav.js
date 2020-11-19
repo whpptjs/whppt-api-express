@@ -4,7 +4,8 @@ const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
   exec({ $mongo: { $db } }, { domainId }) {
-    const query = { _id: domainId && domainId !== 'undefined' ? `nav_${domainId}` : 'nav' };
+    if (!domainId || domainId === 'undefined') return { status: 500, message: 'Error: no domain found' };
+    const query = { _id: `nav_${domainId}`, domainId };
 
     return $db
       .collection('site')
@@ -12,7 +13,7 @@ module.exports = {
       .then(nav => {
         if (!nav) {
           const defaultNav = get(config, 'defaults.nav');
-          return { ...defaultNav, _id: domainId && domainId !== 'undefined' ? `nav_${domainId}` : 'nav' };
+          return { ...defaultNav, _id: `nav_${domainId}`, domainId };
         }
         return nav;
       })

@@ -4,10 +4,8 @@ const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
   exec({ $mongo: { $db } }, { domainId }) {
-    const query = { _id: domainId && domainId !== 'undefined' ? `footer_${domainId}` : 'footer' };
-
-    // if (domainId && domainId !== 'undefined') query.domainId = domainId;
-    // else query.$or = [{ domainId: { $exists: false } }, { domainId: { $eq: '' } }];
+    if (!domainId || domainId === 'undefined') return { status: 500, message: 'Error: no domain found' };
+    const query = { _id: `footer_${domainId}`, domainId };
 
     return $db
       .collection('site')
@@ -15,7 +13,7 @@ module.exports = {
       .then(footer => {
         if (!footer) {
           const defaultFooter = get(config, 'defaults.footer');
-          return { ...defaultFooter, _id: domainId && domainId !== 'undefined' ? `footer_${domainId}` : 'footer' };
+          return { ...defaultFooter, _id: `footer_${domainId}`, domainId };
         }
         return footer;
       })
