@@ -1,7 +1,7 @@
 const fileType = require('file-type');
 
 module.exports = ({ $mongo: { $db, $dbPub, $delete, $unpublish }, $aws, $id, disablePublishing }) => {
-  const upload = function(file, description) {
+  const upload = function (file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
@@ -32,7 +32,7 @@ module.exports = ({ $mongo: { $db, $dbPub, $delete, $unpublish }, $aws, $id, dis
     });
   };
 
-  const remove = function(fileId) {
+  const remove = function (fileId) {
     return $unpublish('files', fileId).then(() => {
       return $delete('files', fileId).then(() => {
         return $aws.removeDocFromS3(fileId);
@@ -40,7 +40,7 @@ module.exports = ({ $mongo: { $db, $dbPub, $delete, $unpublish }, $aws, $id, dis
     });
   };
 
-  const fetchOriginal = function({ id }) {
+  const fetchOriginal = function ({ id }) {
     return $db
       .collection('files')
       .findOne({ _id: id })

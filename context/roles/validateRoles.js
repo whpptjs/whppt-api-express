@@ -1,5 +1,5 @@
 module.exports = () => {
-  return function(user, requiredRoles = []) {
+  return function (user, requiredRoles = []) {
     if (!user) return Promise.reject();
 
     if (user.roles.includes('root') || requiredRoles.length < 1) return Promise.resolve();
