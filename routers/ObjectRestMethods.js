@@ -8,11 +8,11 @@ module.exports = context => {
     $id,
   } = context;
 
-  const list = function ({ params: { type }, query: { showRemoved = false } }) {
+  const list = function({ params: { type }, query: { showRemoved = false } }) {
     return $list(type, showRemoved);
   };
 
-  const checkSlug = function ({ params: { type }, query: { slug, id } }) {
+  const checkSlug = function({ params: { type }, query: { slug, id } }) {
     assert(slug, 'Slug is required');
     if (slug.startsWith('/')) slug.replace('/^(/)/', '');
 
@@ -22,26 +22,26 @@ module.exports = context => {
       .then(event => event && event._id);
   };
 
-  const get = function ({ params: { type, id, slug } }) {
+  const get = function({ params: { type, id, slug } }) {
     if (slug) return $fetch(type, slug);
 
     assert(id, 'Id is required');
     return $fetch(type, id);
   };
 
-  const post = function ({ body: obj, params: { type } }) {
+  const post = function({ body: obj, params: { type } }) {
     obj._id = obj._id || $id();
     return $save(type, obj).then(() => {
       return $fetch(type, obj._id).then(newObj => newObj);
     });
   };
 
-  const del = function ({ params: { type, id }, query: { force } }) {
+  const del = function({ params: { type, id }, query: { force } }) {
     if (force) return $delete(type, id);
     return $remove(type, id);
   };
 
-  const publish = function ({ body: obj, params: { type } }) {
+  const publish = function({ body: obj, params: { type } }) {
     return $save(type, obj).then(() => {
       return $publish(type, obj).then(() => {
         if (!publishCallBack) return obj;
