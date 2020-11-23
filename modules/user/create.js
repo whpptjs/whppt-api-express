@@ -10,8 +10,13 @@ module.exports = {
     assert(username || email, 'Missing Field: Please provide a username or email');
 
     return findExistingUsers($db, username, email).then(existingUser => {
-      const error =
-        existingUser && username === existingUser.username ? 'Username already taken, please try another username' : 'Email address already taken, please try another email';
+      let error = '';
+
+      if (existingUser && existingUser.username && username === existingUser.username) error = 'Username already taken, please try another username';
+      if (existingUser && existingUser.email && existingUser.email !== '' && email === existingUser.email) error = 'Email address already taken, please try another email';
+
+      console.log(existingUser);
+
       assert(!existingUser, error);
 
       const user = {
@@ -24,7 +29,7 @@ module.exports = {
         user.passwordResetToken = { token, tokenExpiry };
 
         return $save('users', user).then(() => {
-          return generateResetLink(token);
+          return generateResetLink(token, email);
         });
       });
     });
@@ -55,9 +60,14 @@ async function generateAccessToken(userId) {
 }
 
 async function findExistingUsers($db, username, email) {
-  return $db.collection('users').findOne({ $or: [{ username }, { email }] });
+  const searchParams = [];
+
+  if (username) searchParams.push({ username });
+  if (email) searchParams.push({ email });
+
+  return $db.collection('users').findOne({ $or: searchParams });
 }
 
-function generateResetLink(token) {
-  return `${process.env.BASE_URL}/?token=${token}`;
+function generateResetLink(token, email) {
+  return `${process.env.BASE_URL}/?token=${token}&email=${email}`;
 }
