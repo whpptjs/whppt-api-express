@@ -27,7 +27,7 @@ module.exports = ({ $id, config }) => ({
         if (err) return reject(err);
 
         if (!user) {
-          req.user = { _id: 'guest', name: 'Guest', roles: [] };
+          req.user = { _id: 'guest', username: 'Guest', roles: [] };
         } else {
           user.roles = user.roles || [];
           req.user = user;

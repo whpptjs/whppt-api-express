@@ -10,17 +10,20 @@ module.exports = ({ $id, $mongo: { $db } }) => {
     role.updatedAt = new Date();
     role.createdBy = { ...pick(user, ['_id', 'username', 'email']) };
 
-    return $db
-      .collection('roles')
-      .find({ name: role.name })
-      .toArray()
-      .then(existingRoles => {
-        if (existingRoles && existingRoles.length) throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
-
-        return $db
-          .collection('roles')
-          .updateOne({ _id: role._id }, { $set: role }, { upsert: true })
-          .then(() => role);
-      });
+    return checkForExistingRole($db, role).then(() => {
+      return $db
+        .collection('roles')
+        .updateOne({ _id: role._id }, { $set: role }, { upsert: true })
+        .then(() => role);
+    });
   };
 };
+
+async function checkForExistingRole($db, role) {
+  const existingRoles = await $db
+    .collection('roles')
+    .find({ _id: { $ne: role._id }, name: role.name })
+    .toArray();
+
+  if (existingRoles.length) throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
+}

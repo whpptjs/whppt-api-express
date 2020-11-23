@@ -33,7 +33,7 @@ module.exports = (options = {}) => {
         filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
       },
       $roles: {
-        validate: ValidateRoles(),
+        validate: ValidateRoles({ $mongo }),
         save: saveRole({ $id, $mongo }),
       },
     };

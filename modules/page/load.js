@@ -5,7 +5,11 @@ module.exports = {
     return $db
       .collection(collection)
       .findOne({ slug }, { editorRoles: true, publisherRoles: true })
-      .then(page => $roles.validate(user, [page.editorRoles, page.publisherRoles]));
+      .then(page => {
+        console.log('user', user);
+        console.log('page', page);
+        return $roles.validate(user, [page.viewerRoles]);
+      });
   },
   exec({ $mongo: { $db } }, { slug, collection }) {
     assert(collection, 'Please provide a collection.');
