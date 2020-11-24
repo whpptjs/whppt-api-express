@@ -6,8 +6,7 @@ module.exports = {
       .collection(collection)
       .findOne({ slug }, { editorRoles: true, publisherRoles: true })
       .then(page => {
-        console.log('user', user);
-        console.log('page', page);
+        if (!page) return { status: 404, message: 'Page not found' };
         return $roles.validate(user, [page.viewerRoles]);
       });
   },

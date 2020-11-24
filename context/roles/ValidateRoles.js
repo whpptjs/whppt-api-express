@@ -11,14 +11,14 @@ module.exports = ({ $mongo: { $db } }) => {
       .then(userRoles => {
         if (rootRoleIsRequired(requiredRoles) && userHasRootRole(user)) return Promise.resolve();
 
-        if (!userHasRoles(user)) return Promise.reject({ status: 401, message: 'Unauthorised: Missing required role(s)' });
+        if (!userHasRoles(user)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
 
-        if (requiresAdmin && !hasAdminRoles(userRoles)) return Promise.reject({ status: 401, message: 'Unauthorised: Missing required role(s)' });
+        if (requiresAdmin && !hasAdminRoles(userRoles)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
 
         if ((requiresAdmin && hasAdminRoles(userRoles)) || doesNotRequireRoles(requiredRoles)) return Promise.resolve();
 
         if (!checkAndRoles(checkOrRoles(user.roles, requiredRoles))) {
-          return Promise.reject({ status: 401, message: 'Unauthorised: Missing required role(s)' });
+          return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
         }
 
         return Promise.resolve();

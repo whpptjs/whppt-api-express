@@ -15,8 +15,6 @@ module.exports = {
       if (existingUser && existingUser.username && username === existingUser.username) error = 'Username already taken, please try another username';
       if (existingUser && existingUser.email && existingUser.email !== '' && email === existingUser.email) error = 'Email address already taken, please try another email';
 
-      console.log(existingUser);
-
       assert(!existingUser, error);
 
       const user = {
