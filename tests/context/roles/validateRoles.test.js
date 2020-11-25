@@ -44,7 +44,7 @@ describe('', () => {
     const find = sinon.stub();
     context.$mongo.$db.collection.withArgs('roles').returns({ find });
     find.withArgs({ _id: { $in: user.roles } }).returns({ toArray: () => Promise.resolve(userRoles) });
-    find.withArgs({ admin: true }, { id: true }).returns({ toArray: () => Promise.resolve(adminRoles) });
+    find.withArgs({ admin: true }, { _id: true }).returns({ toArray: () => Promise.resolve(adminRoles) });
 
     const validate = ValidateRoles(context);
     return validate(user, requiredRoles).then(() => {

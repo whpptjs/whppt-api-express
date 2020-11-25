@@ -9,7 +9,7 @@ module.exports = ({ $mongo: { $db }, $env }) => {
       .find({ _id: { $in: user.roles } })
       .toArray();
 
-    const adminRolesQuery = $db.collection('roles').find({ admin: true }, { id: true }).toArray();
+    const adminRolesQuery = $db.collection('roles').find({ admin: true }, { _id: true }).toArray();
 
     return Promise.all([userRolesQuery, adminRolesQuery]).then(([userRoles, adminRoles]) => {
       const fisrtOrRoles = requiredRoles.shift() || [];
