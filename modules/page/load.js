@@ -2,16 +2,24 @@ const assert = require('assert');
 
 module.exports = {
   authorise({ $roles, $mongo: { $db } }, { user, slug, collection }) {
+    console.log('🚀 ~ file: load.js ~ line 5 ~ authorise ~ user', user);
     return $db
-      .collection(collection)
-      .findOne({ slug }, { editorRoles: true, publisherRoles: true })
-      .then(page => {
-        if (!page) return { status: 404, message: 'Page not found' };
-        const requiredRoles = ['root'];
+      .collection('roles')
+      .find({ admin: true }, { id: true })
+      .toArray()
+      .then(adminRoles => {
+        return $db
+          .collection(collection)
+          .findOne({ slug }, { editorRoles: true, publisherRoles: true })
+          .then(page => {
+            if (!page) return { status: 404, message: 'Page not found' };
+            const requiredRoles = ['root', ...adminRoles.map(r => r._id)];
+            console.log('🚀 ~ file: load.js ~ line 13 ~ return$db.collection ~ requiredRoles', requiredRoles);
 
-        if (page.viewerRoles && page.viewerRoles.length) requiredRoles.push(...page.viewerRoles);
+            if (page.viewerRoles && page.viewerRoles.length) requiredRoles.push(...page.viewerRoles);
 
-        return $roles.validate(user, [requiredRoles]);
+            return $roles.validate(user, [requiredRoles]);
+          });
       });
   },
   exec({ $mongo: { $db } }, { slug, collection }) {
