@@ -12,7 +12,9 @@ module.exports = ({ $mongo: { $db }, $env }) => {
     const adminRolesQuery = $db.collection('roles').find({ admin: true }, { id: true }).toArray();
 
     return Promise.all([userRolesQuery, adminRolesQuery]).then(([userRoles, adminRoles]) => {
-      const _requiredRoles = [[...requiredRoles.shift(), ...adminRoles.map(r => r._id)], ...requiredRoles];
+      const fisrtOrRoles = requiredRoles.shift() || [];
+      const firstOrRolesIncludingAdminRoles = [fisrtOrRoles, ...adminRoles.map(r => r._id)];
+      const _requiredRoles = [firstOrRolesIncludingAdminRoles, ...requiredRoles];
 
       if (rootRoleIsRequired(_requiredRoles) && userHasRootRole(user)) return Promise.resolve();
 
