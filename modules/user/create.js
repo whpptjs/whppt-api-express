@@ -53,6 +53,7 @@ async function generateAccessToken(userId) {
       valid: true,
     };
   } catch (err) {
+    console.log(err);
     return Promise.reject('Crypto support is disabled.');
   }
 }

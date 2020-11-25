@@ -1,6 +1,6 @@
 module.exports = {
   authorise({ $roles }, { user }) {
-    return $roles.validate(user, [], true);
+    return $roles.validate(user, ['root'], true);
   },
   exec({ $mongo: { $db } }, { page = 1, perPage = 100 }) {
     const query = $db.collection('roles').find({});
