@@ -18,6 +18,7 @@ module.exports = (context, messageHandler, params) => {
       });
     })
     .catch(err => {
+      $logger.error(err);
       return { status: err.status || 401, error: err.message };
     });
 };

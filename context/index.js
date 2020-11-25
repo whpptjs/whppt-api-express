@@ -10,6 +10,8 @@ const Smtp = require('./smtp');
 const sitemapQuery = require('./sitemap');
 const { ValidateRoles, saveRole } = require('./roles');
 
+const $env = { draft: process.env.DRAFT === 'true' };
+
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
 
@@ -33,9 +35,10 @@ module.exports = (options = {}) => {
         filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
       },
       $roles: {
-        validate: ValidateRoles({ $mongo }),
+        validate: ValidateRoles({ $mongo, $env }),
         save: saveRole({ $id, $mongo }),
       },
+      $env,
     };
   });
 };

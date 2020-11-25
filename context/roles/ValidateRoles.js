@@ -1,28 +1,35 @@
 const { flatten, find, map, intersection } = require('lodash');
 
-module.exports = ({ $mongo: { $db } }) => {
+module.exports = ({ $mongo: { $db }, $env }) => {
   return function (user, requiredRoles = [], requiresAdmin = false) {
-    if (!process.env.DRAFT || process.env.DRAFT === 'false') return Promise.resolve();
+    if (!$env.draft || $env.draft === 'false') return Promise.resolve();
 
-    return $db
+    const userRolesQuery = $db
       .collection('roles')
       .find({ _id: { $in: user.roles } })
-      .toArray()
-      .then(userRoles => {
-        if (rootRoleIsRequired(requiredRoles) && userHasRootRole(user)) return Promise.resolve();
+      .toArray();
 
-        if (!userHasRoles(user)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
+    const adminRolesQuery = $db.collection('roles').find({ admin: true }, { _id: true }).toArray();
 
-        if (requiresAdmin && !hasAdminRoles(userRoles)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
+    return Promise.all([userRolesQuery, adminRolesQuery]).then(([userRoles, adminRoles]) => {
+      const fisrtOrRoles = requiredRoles.shift() || [];
+      const firstOrRolesIncludingAdminRoles = [fisrtOrRoles, ...adminRoles.map(r => r._id)];
+      const _requiredRoles = [firstOrRolesIncludingAdminRoles, ...requiredRoles];
 
-        if ((requiresAdmin && hasAdminRoles(userRoles)) || doesNotRequireRoles(requiredRoles)) return Promise.resolve();
+      if (rootRoleIsRequired(_requiredRoles) && userHasRootRole(user)) return Promise.resolve();
 
-        if (!checkAndRoles(checkOrRoles(user.roles, requiredRoles))) {
-          return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
-        }
+      if (!userHasRoles(user)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
 
-        return Promise.resolve();
-      });
+      if (requiresAdmin && !hasAdminRoles(userRoles)) return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
+
+      if ((requiresAdmin && hasAdminRoles(userRoles)) || doesNotRequireRoles(_requiredRoles)) return Promise.resolve();
+
+      if (!checkAndRoles(checkOrRoles(user.roles, _requiredRoles))) {
+        return Promise.reject({ status: 403, message: 'Unauthorised: Missing required role(s)' });
+      }
+
+      return Promise.resolve();
+    });
   };
 };
 
