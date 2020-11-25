@@ -7,7 +7,11 @@ module.exports = {
       .findOne({ slug }, { editorRoles: true, publisherRoles: true })
       .then(page => {
         if (!page) return { status: 404, message: 'Page not found' };
-        return $roles.validate(user, [['root', ...page.viewerRoles]]);
+        const requiredRoles = ['root'];
+
+        if (page.viewerRoles && page.viewerRoles.length) requiredRoles.push(...page.viewerRoles);
+
+        return $roles.validate(user, [requiredRoles]);
       });
   },
   exec({ $mongo: { $db } }, { slug, collection }) {
