@@ -36,6 +36,7 @@ module.exports = (options = {}) => {
         validate: ValidateRoles({ $mongo }),
         save: saveRole({ $id, $mongo }),
       },
+      $env: { draft: process.env.DRAFT === 'true' },
     };
   });
 };
