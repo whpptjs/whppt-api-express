@@ -4,7 +4,6 @@ module.exports = ({ $mongo: { $db }, $env }) => {
   return function (user, requiredRoles = [], requiresAdmin = false) {
     if (!$env.draft || $env.draft === 'false') return Promise.resolve();
 
-    console.log('🚀 ~ file: ValidateRoles.js ~ line 4 ~ requiredRoles', requiredRoles);
     const userRolesQuery = $db
       .collection('roles')
       .find({ _id: { $in: user.roles } })
@@ -14,8 +13,6 @@ module.exports = ({ $mongo: { $db }, $env }) => {
 
     return Promise.all([userRolesQuery, adminRolesQuery]).then(([userRoles, adminRoles]) => {
       const _requiredRoles = [[...requiredRoles.shift(), ...adminRoles.map(r => r._id)], ...requiredRoles];
-
-      console.log('🚀 ~ file: ValidateRoles.js ~ line 32 ~ returnPromise.all ~ _requiredRoles', _requiredRoles);
 
       if (rootRoleIsRequired(_requiredRoles) && userHasRootRole(user)) return Promise.resolve();
 
