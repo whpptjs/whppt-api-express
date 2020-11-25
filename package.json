@@ -1,7 +1,7 @@
 {
   "name": "@whppt/api-express",
   "description": "Whppt api module for express",
-  "version": "2.0.0-rc10",
+  "version": "2.0.0-rc11",
   "author": "Svelte Studios (https://www.npmjs.com/settings/svelte-studios/packages)",
   "main": "index.js",
   "scripts": {
@@ -48,8 +48,8 @@
     "@types/jest": "^26.0.15",
     "aws-sdk": "^2.616.0",
     "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.5",
     "chalk": "^4.1.0",
+    "cookie-parser": "^1.4.5",
     "email-syntax": "^2.0.2",
     "encoding": "^0.1.12",
     "express": "^4.17.1",
