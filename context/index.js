@@ -6,11 +6,12 @@ const loadModules = require('./modules/loadModules');
 const Image = require('./image');
 const File = require('./file');
 const $aws = require('./aws');
-const Smtp = require('./smtp');
+const Email = require('./email');
 const sitemapQuery = require('./sitemap');
 const { ValidateRoles, saveRole } = require('./roles');
 
-const $env = { draft: process.env.DRAFT === 'true' };
+const $env = process.env;
+$env.DRAFT = 'true';
 
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
@@ -19,7 +20,7 @@ module.exports = (options = {}) => {
     const $pageTypes = options.pageTypes;
     const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
 
-    return {
+    const _context = {
       $id,
       $logger,
       $image: Image({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
@@ -27,8 +28,6 @@ module.exports = (options = {}) => {
       $security: Security({ $logger, $id, config: options }),
       $mongo,
       $modules: loadModules.then(modules => ({ ...modules, ...options.modules })),
-      $email: { send: $aws.sendEmail, getDomainList: $aws.getDomainIdentities },
-      $smtp: Smtp({ $mongo }),
       $pageTypes,
       $fullUrl,
       $sitemap: {
@@ -40,5 +39,9 @@ module.exports = (options = {}) => {
       },
       $env,
     };
+
+    _context.$email = Email(_context);
+
+    return _context;
   });
 };
