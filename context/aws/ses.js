@@ -1,3 +1,4 @@
+// TODO: Implement as the AwsApi email provider
 module.exports = awsSDK => {
   const ses = new awsSDK.SES();
 
