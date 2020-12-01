@@ -1,5 +1,18 @@
-const { map } = require('lodash');
+const { intersection, map } = require('lodash');
 
-module.exports = (_, sitemap) => {
-  return Promise.resolve().then(() => map(sitemap, page => ({ ...page, canAccess: true })));
+module.exports = ({ $mongo: { $db } }, { user, sitemap }) => {
+  return $db
+    .collection('roles')
+    .find({ _id: { $in: user.roles }, admin: true })
+    .toArray()
+    .then(userAdminRoles => {
+      return map(sitemap, page => {
+        const { publisherRoles = [] } = page;
+
+        const matchingPublisherRoles = intersection(publisherRoles, user.roles);
+        const publishableByYou = Boolean((matchingPublisherRoles.length === publisherRoles.length && publisherRoles.length > 0) || userAdminRoles.length > 0);
+
+        return { ...page, publishableByYou };
+      });
+    });
 };

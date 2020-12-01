@@ -1,4 +1,4 @@
-const { flatten, map, take, drop, filter } = require('lodash');
+const { orderBy, flatten, map, take, drop, filter } = require('lodash');
 
 module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug, freq, pageType, priority, lastModTo, lastModFrom }) => {
   const filteredCollections = filter($pageTypes, pt => !pt.collection || !pt.collection.excludeFromSitemap);
@@ -38,6 +38,6 @@ module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug,
 
     if (!page && !size) return { sitemap: fullSitemap, total: fullSitemap.length };
 
-    return { sitemap: take(drop(fullSitemap, size * (page - 1)), size), total: fullSitemap.length };
+    return { sitemap: take(drop(orderBy(fullSitemap, ['slug'], ['asc']), size * (page - 1)), size), total: fullSitemap.length };
   });
 };
