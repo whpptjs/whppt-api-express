@@ -3,7 +3,7 @@ const S3_BUCKET_NAME = process.env.S3_BUCKET;
 module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
 
-  const uploadImage = function(fileBuffer, id) {
+  const uploadImage = function (fileBuffer, id) {
     const uploadImagePromise = new Promise((resolve, reject) => {
       s3.putObject(
         {
@@ -25,7 +25,7 @@ module.exports = awsSDK => {
     });
   };
 
-  const uploadDoc = function(fileBuffer, id, meta) {
+  const uploadDoc = function (fileBuffer, id, meta) {
     const uploadDocPromise = new Promise((resolve, reject) => {
       s3.putObject(
         {
@@ -47,7 +47,7 @@ module.exports = awsSDK => {
     });
   };
 
-  const fetchImage = function(id) {
+  const fetchImage = function (id) {
     return new Promise((resolve, reject) => {
       s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, (err, imageData) => {
         if (err) return reject(err);
@@ -57,7 +57,7 @@ module.exports = awsSDK => {
     });
   };
 
-  const fetchDoc = function(id) {
+  const fetchDoc = function (id) {
     return new Promise((resolve, reject) => {
       s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, docData) => {
         if (err) return reject(err);
@@ -67,7 +67,7 @@ module.exports = awsSDK => {
     });
   };
 
-  const removeImage = function(id) {
+  const removeImage = function (id) {
     return new Promise((resolve, reject) => {
       s3.deleteObjects({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, (err, data) => {
         if (err) return reject(err);
@@ -76,7 +76,7 @@ module.exports = awsSDK => {
     });
   };
 
-  const removeDoc = function(id) {
+  const removeDoc = function (id) {
     return new Promise((resolve, reject) => {
       s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, data) => {
         if (err) return reject(err);
