@@ -6,7 +6,7 @@ const optimise = {
   webp: (image, quality) => ({ contentType: 'image/webp', img: image.webp({ quality }) }),
 };
 
-const pickFormat = function (format, accept, imageMeta) {
+const pickFormat = function(format, accept, imageMeta) {
   if (!format) return accept.indexOf('image/webp') !== -1 ? 'webp' : 'jpg';
   if (format === 'orig') return imageMeta.type.split('/')[1];
 
@@ -16,7 +16,7 @@ const pickFormat = function (format, accept, imageMeta) {
 module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
   // Format options
   // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
-  const fetch = function ({ format, id, accept = '' }) {
+  const fetch = function({ format, id, accept = '' }) {
     if (format.o) return fetchOriginal({ id });
 
     return Promise.all([$db.collection('images').findOne({ _id: id }), $aws.fetchImageFromS3(id)]).then(([imageMeta, { imageBuffer }]) => {
@@ -48,7 +48,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
     });
   };
 
-  const fetchOriginal = function ({ id }) {
+  const fetchOriginal = function({ id }) {
     return $db
       .collection('images')
       .findOne({ _id: id })
@@ -62,7 +62,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
       });
   };
 
-  const upload = function (file) {
+  const upload = function(file) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();
 
@@ -93,7 +93,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
     });
   };
 
-  const remove = function (id) {
+  const remove = function(id) {
     return $aws.removeImageFromS3(id).then(() =>
       $db.collection('images').deleteOne({
         id,

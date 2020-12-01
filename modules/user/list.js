@@ -3,6 +3,9 @@ module.exports = {
     return $roles.validate(user, ['root']);
   },
   exec({ $mongo: { $db } }, args) {
-    return $db.collection('users').find().toArray();
+    return $db
+      .collection('users')
+      .find()
+      .toArray();
   },
 };

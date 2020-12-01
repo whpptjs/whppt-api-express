@@ -2,7 +2,7 @@ const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const jwt = require('jsonwebtoken');
 
-const extractFromCookies = function (req) {
+const extractFromCookies = function(req) {
   if (req && req.cookies) return req.cookies.authToken;
   return null;
 };
@@ -16,14 +16,14 @@ module.exports = ({ $id, config }) => ({
       audience: (config.jwt && config.jwt.audience) || '',
     };
 
-    return new JwtStrategy(opts, function (jwtPayload, done) {
+    return new JwtStrategy(opts, function(jwtPayload, done) {
       // TODO: Verify the token has not been invalidated
       done(null, jwtPayload.sub);
     });
   },
   authenticate(req, res, next) {
     return new Promise((_, reject) => {
-      passport.authenticate('jwt', function (err, user, info) {
+      passport.authenticate('jwt', function(err, user, info) {
         if (err) return reject(err);
 
         if (!user) {
