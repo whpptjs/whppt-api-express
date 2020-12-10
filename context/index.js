@@ -1,3 +1,5 @@
+const { forEach } = require('lodash');
+
 const $id = require('./id');
 const $logger = require('./logger');
 const Security = require('./security');
