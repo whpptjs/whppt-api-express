@@ -3,7 +3,7 @@ module.exports = {
     return $roles.validate(user, [], true);
   },
   exec({ $mongo: { $save } }, { siteSettings }) {
-    siteSettings._id = 'siteSettings';
+    // siteSettings._id = 'siteSettings';
 
     return $save('site', siteSettings);
   },
