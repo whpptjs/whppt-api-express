@@ -26,7 +26,7 @@ const Context = require('../../context');
 const sinon = require('sinon');
 
 describe('Service plugin to context', () => {
-  test('supplying a service should register the service in the context', () => {
+  test.skip('supplying a service should register the service in the context', () => {
     Mongo.mockReturnValue(Promise.resolve());
     loadModules.mockReturnValue(Promise.resolve({}));
 
