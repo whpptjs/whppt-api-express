@@ -2,7 +2,7 @@ jest.mock('../../context/id');
 jest.mock('../../context/logger');
 jest.mock('../../context/security');
 jest.mock('../../context/mongo');
-// jest.mock('../../context/modules/loadModules');
+jest.mock('../../context/modules/loadModules');
 jest.mock('../../context/image');
 jest.mock('../../context/file');
 jest.mock('../../context/aws');
@@ -14,7 +14,7 @@ const $id = require('../../context/id');
 const $logger = require('../../context/logger');
 const Security = require('../../context/security');
 const Mongo = require('../../context/mongo');
-// const loadModules = require('../../context/modules/loadModules');
+const loadModules = require('../../context/modules/loadModules');
 const Image = require('../../context/image');
 const File = require('../../context/file');
 const $aws = require('../../context/aws');
@@ -28,7 +28,7 @@ const sinon = require('sinon');
 describe('Service plugin to context', () => {
   test('supplying a service should register the service in the context', () => {
     Mongo.mockReturnValue(Promise.resolve());
-    // loadModules.mockReturnValue(Promise.resolve({}));
+    loadModules.mockReturnValue(Promise.resolve({}));
 
     const testService = sinon.stub();
 

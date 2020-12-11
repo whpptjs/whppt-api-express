@@ -23,6 +23,9 @@ module.exports = (options = {}) => {
     const $pageTypes = options.pageTypes;
     const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
 
+    const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
+    console.log('🚀 ~ file: index.js ~ line 29 ~ returnPromise.all ~ $modules', $modules);
+
     const _context = {
       $id,
       $logger,
@@ -30,7 +33,7 @@ module.exports = (options = {}) => {
       $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
-      $modules: loadModules.then(modules => ({ ...modules, ...options.modules })),
+      $modules,
       $pageTypes,
       $fullUrl,
       $sitemap: {
