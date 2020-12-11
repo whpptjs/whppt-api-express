@@ -1,3 +1,5 @@
+const { forEach } = require('lodash');
+
 const $id = require('./id');
 const $logger = require('./logger');
 const Security = require('./security');
@@ -15,10 +17,13 @@ $env.DRAFT = 'true';
 
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
+  options.services = options.services || {};
 
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     const $pageTypes = options.pageTypes;
     const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
+
+    const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
 
     const _context = {
       $id,
@@ -27,7 +32,7 @@ module.exports = (options = {}) => {
       $file: File({ $logger, $mongo, $aws, $id, disablePublishing: options.disablePublishing }),
       $security: Security({ $logger, $id, config: options }),
       $mongo,
-      $modules: loadModules.then(modules => ({ ...modules, ...options.modules })),
+      $modules,
       $pageTypes,
       $fullUrl,
       $sitemap: {
@@ -41,6 +46,10 @@ module.exports = (options = {}) => {
     };
 
     _context.$email = Email(_context);
+
+    forEach(options.services, (serviceValue, serviceName) => {
+      _context[`$${serviceName}`] = serviceValue(_context);
+    });
 
     return _context;
   });

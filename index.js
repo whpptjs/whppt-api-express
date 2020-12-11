@@ -13,7 +13,7 @@ module.exports = options => {
   options.disablePublishing = options.disablePublishing || false;
 
   return Context(options).then(context => {
-    const { $security } = context;
+    const { $security, $logger } = context;
     // const objectRestMethods = ObjectRestMethods(context);
 
     /* @deprecated 2.0 */
@@ -25,11 +25,17 @@ module.exports = options => {
     // router.delete(`/${options.apiPrefix}/obj/:type/:id`, $security.authenticate, objectRestMethods.del);
 
     router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, ({ user, params: { mod, query }, query: queryArgs }) => {
-      return callModule(context, mod, query, { ...queryArgs, user });
+      return callModule(context, mod, query, { ...queryArgs, user }).catch(({ status, error }) => {
+        $logger.error('Error in route: %s %s %O %O', mod, query, queryArgs, error);
+        return { status, error };
+      });
     });
 
     router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs }) => {
-      return callModule(context, mod, command, { ...cmdArgs, user });
+      return callModule(context, mod, command, { ...cmdArgs, user }).catch(({ status, error }) => {
+        $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
+        return { status, error };
+      });
     });
 
     return Promise.all([Image(context), File(context)]).then(([imageRouter, fileRouter]) => {

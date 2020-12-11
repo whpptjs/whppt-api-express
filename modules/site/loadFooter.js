@@ -4,7 +4,7 @@ const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {
   exec({ $mongo: { $db } }, { domainId }) {
-    if (!domainId || domainId === 'undefined') return { status: 500, message: 'Error: no domain found' };
+    if (!domainId || domainId === 'undefined') return Promise.reject({ status: 500, message: 'Error: no domain found' });
     const query = { _id: `footer_${domainId}`, domainId };
 
     return $db
@@ -16,9 +16,6 @@ module.exports = {
           return { ...defaultFooter, _id: `footer_${domainId}`, domainId };
         }
         return footer;
-      })
-      .catch(err => {
-        throw err;
       });
   },
 };
