@@ -24,7 +24,6 @@ module.exports = (options = {}) => {
     const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
 
     const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
-    console.log('🚀 ~ file: index.js ~ line 29 ~ returnPromise.all ~ $modules', $modules);
 
     const _context = {
       $id,
