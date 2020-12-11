@@ -1,4 +1,4 @@
-const ValidateRoles = require('../../../context/roles/ValidateRoles');
+const ValidateRoles = require('../../../context/roles/ValidateRolesA');
 const sinon = require('sinon');
 
 describe('', () => {
