@@ -16,27 +16,22 @@ module.exports = function (options) {
     Context(options).then(({ $sitemap }) => {
       return $sitemap
         .filter()
-        .then(sitemap => {
+        .then(({ sitemap }) => {
+          console.log(sitemap);
           return join(
-            map(
-              sitemap,
-              page =>
-                `<url>
+            map(sitemap, page => {
+              return `<url>
                       <loc>${page.url}</loc>
-                      ${page.updatedAt ? `<lastmod>${page.updatedAt.toISOString()}</lastmod>` : `<lastmod>${page.createdAt.toISOString()}</lastmod>`}
+                      ${page.updatedAt ? `<lastmod>${new Date(page.updatedAt).toISOString()}</lastmod>` : `<lastmod>${new Date(page.createdAt).toISOString()}</lastmod>`}
                       ${page.frequency ? `<changefreq>${page.frequency}</changefreq>` : `<changefreq>yearly</changefreq>`}
                       ${page.priority ? `<priority>${page.priority}</priority>` : `<priority>0.5</priority>`}
                     </url>
-                  `
-            ),
+                  `;
+            }),
             '\n'
           );
         })
-        .then(sitemapData => {
-          const sitemap = `${sitemapStart}${sitemapData}${sitemapEnd}`;
-
-          return res.type('text/xml').send(sitemap);
-        })
+        .then(sitemapData => res.type('text/xml').send(`${sitemapStart}${sitemapData}${sitemapEnd}`))
         .catch(err => res.status(500).send(err));
     });
   });
