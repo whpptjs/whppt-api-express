@@ -11,7 +11,7 @@ const sitemapQuery = require('./sitemap');
 const { ValidateRoles, saveRole } = require('./roles');
 
 const $env = process.env;
-$env.DRAFT = 'true';
+// $env.DRAFT = 'true';
 
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
