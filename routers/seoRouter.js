@@ -17,7 +17,6 @@ module.exports = function (options) {
       return $sitemap
         .filter()
         .then(({ sitemap }) => {
-          console.log(sitemap);
           return join(
             map(sitemap, page => {
               return `<url>
