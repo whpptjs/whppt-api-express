@@ -1,6 +1,13 @@
 const { intersection, map } = require('lodash');
 
 module.exports = ({ $mongo: { $db } }, { user, sitemap }) => {
+  if (!user) {
+    return map(sitemap, page => ({
+      ...page,
+      publishableByYou: false,
+    }));
+  }
+
   return $db
     .collection('roles')
     .find({ _id: { $in: user.roles }, admin: true })
