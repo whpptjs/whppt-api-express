@@ -16,7 +16,7 @@ const pickFormat = function (format, accept, imageMeta) {
 
 module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => {
   // Format options
-  // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true' }
+  // { w: '666', h: '500', f: 'jpg', cx: '5', cy: '5', cw: '500', ch: '500', q: '70', o: 'true', s: '1.5' }
   // Something is wrong here?
   const fetch = function ({ format, id, accept = '' }) {
     if (format.o) return fetchOriginal({ id });
@@ -30,9 +30,11 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
         _extractedImage = _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) });
       }
 
+      const scale = parseFloat(format.s) || parseFloat(process.env.BASE_IMAGE_SCALE) || 1;
+
       const _resizedImage =
         format.w && format.h
-          ? _extractedImage.resize(parseInt(format.w), parseInt(format.h), {
+          ? _extractedImage.resize(Math.ceil(parseFloat(format.w) * scale), Math.ceil(parseFloat(format.h) * scale), {
               withoutEnlargement: true,
             })
           : _extractedImage;
