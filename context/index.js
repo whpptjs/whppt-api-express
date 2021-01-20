@@ -1,5 +1,4 @@
 const { forEach } = require('lodash');
-
 const $id = require('./id');
 const $logger = require('./logger');
 const Security = require('./security');
@@ -13,7 +12,6 @@ const sitemapQuery = require('./sitemap');
 const { ValidateRoles, saveRole } = require('./roles');
 
 const $env = process.env;
-// $env.DRAFT = 'true';
 
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
@@ -21,7 +19,7 @@ module.exports = (options = {}) => {
 
   return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
     const $pageTypes = options.pageTypes;
-    const $fullUrl = slug => `${process.env.BASE_URL}/${slug}`;
+    const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
 
     const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
 

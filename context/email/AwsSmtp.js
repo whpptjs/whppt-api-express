@@ -27,13 +27,16 @@ module.exports = ({ $logger, $env }) => {
   const send = function (email) {
     $logger.info('Sending Email: %o', email);
     const transporter = nodemailer.createTransport(transportOptions, defaults);
+
     return new Promise((resolve, reject) => {
       return transporter.sendMail(email, error => {
         if (error) {
           $logger.error('Email Failed: %o', email);
           return reject(error);
         }
+
         $logger.info('Email Sent: %o', email);
+
         return resolve({ status: 200, message: 'Email sent' });
       });
     });

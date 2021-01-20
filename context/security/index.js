@@ -1,6 +1,7 @@
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const Jwt = require('./jwt');
+const assert = require('assert');
 const saltRounds = 10;
 
 module.exports = ({ $id, $logger, config = {} }) => {
@@ -26,5 +27,29 @@ module.exports = ({ $id, $logger, config = {} }) => {
     createToken: providers[config.security.provider].createToken,
     encrypt,
     compare,
+    generateAccessToken,
   };
 };
+
+async function generateAccessToken(userId, expiryInMinutes = 1440) {
+  let crypto;
+
+  try {
+    const appKey = process.env.APP_KEY;
+
+    assert(appKey, 'No APP_KEY env variable was provided.');
+
+    crypto = require('crypto');
+
+    const token = crypto.createHmac('sha256', appKey).update(userId).digest('hex');
+    const tokenExpiry = new Date(new Date().getTime() + expiryInMinutes * 60000);
+
+    return {
+      token,
+      tokenExpiry,
+      valid: true,
+    };
+  } catch (err) {
+    return Promise.reject('Crypto support is disabled.');
+  }
+}

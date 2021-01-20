@@ -4,7 +4,7 @@ module.exports = {
   authorise() {
     return Promise.resolve();
   },
-  exec({ $mongo: { $db, $save }, $id }, { newUser }) {
+  exec({ $mongo: { $db, $save }, $id, $security }, { newUser }) {
     const { username, email } = newUser;
 
     assert(username || email, 'Missing Field: Please provide a username or email');
@@ -23,7 +23,7 @@ module.exports = {
         email,
       };
 
-      return generateAccessToken(user._id).then(({ token, tokenExpiry }) => {
+      return $security.generateAccessToken(user._id).then(({ token, tokenExpiry }) => {
         user.passwordResetToken = { token, tokenExpiry };
 
         return $save('users', user).then(() => {
@@ -33,29 +33,6 @@ module.exports = {
     });
   },
 };
-
-async function generateAccessToken(userId) {
-  let crypto;
-
-  try {
-    assert(process.env.APP_KEY, 'No APP_KEY env variable was provided.');
-
-    crypto = require('crypto');
-
-    const expiryInMinutes = 1440;
-
-    const token = crypto.createHmac('sha256', process.env.APP_KEY).update(userId).digest('hex');
-    const tokenExpiry = new Date(new Date().getTime() + expiryInMinutes * 60000);
-
-    return {
-      token,
-      tokenExpiry,
-      valid: true,
-    };
-  } catch (err) {
-    return Promise.reject('Crypto support is disabled.');
-  }
-}
 
 async function findExistingUsers($db, username, email) {
   const searchParams = [];

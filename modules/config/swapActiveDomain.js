@@ -1,10 +1,12 @@
+const { includes } = require('lodash');
+
 module.exports = {
   exec({ $mongo: { $db } }, { domain }) {
     return $db
       .collection('domains')
       .findOne({ hostnames: 'localhost' })
       .then(oldDomain => {
-        domain.hostnames.push('localhost');
+        if (!includes(domain.hostnames, 'localhost')) domain.hostnames.push('localhost');
         domain.hostString = domain.hostnames.join(',');
 
         const promises = [$db.collection('domains').updateOne({ _id: domain._id }, { $set: domain })];
