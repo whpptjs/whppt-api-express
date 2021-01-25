@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - release/2.0
+      - main
   pull_request:
     branches:
       - release/2.0
+      - main
 
 jobs:
   ci:
