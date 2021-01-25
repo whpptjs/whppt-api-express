@@ -13,6 +13,8 @@ module.exports = options => {
   options.disablePublishing = options.disablePublishing || false;
 
   return Context(options).then(context => {
+    context.whpptOptions = options;
+
     const { $security, $logger } = context;
     // const objectRestMethods = ObjectRestMethods(context);
 
