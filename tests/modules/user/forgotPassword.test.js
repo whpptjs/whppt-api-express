@@ -1,4 +1,4 @@
-const cmd = require('./forgotPassword');
+const cmd = require('../../../modules/user/forgotPassword');
 
 test('Should send forgot password email with saved user tokens', () => {
   const email = 'testEmail';
@@ -35,3 +35,4 @@ test('Should send forgot password email with saved user tokens', () => {
 });
 
 // test('errors if user with email doesnt exist');
+// test('whpptOptions uses a default template') as above line 13 removed
