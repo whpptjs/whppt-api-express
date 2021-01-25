@@ -1,7 +1,7 @@
 const assert = require('assert');
 
 module.exports = {
-  exec({ whpptOptions, $env, $security, $email, $mongo: { $db, $save } }, { email }) {
+  exec({ whpptOptions = {}, $env, $security, $email, $mongo: { $db, $save } }, { email }) {
     const { emailTemplates = {} } = whpptOptions;
     const { forgotPassword = defaultForgotPassword } = emailTemplates;
 
