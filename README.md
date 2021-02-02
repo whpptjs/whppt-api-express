@@ -6,7 +6,7 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Documentation Coming Soon, This Module is somewhat incomplete currently, use at your own risk.
+> Full Documentation Coming Soon.
 
 [📖 **Release Notes**](./CHANGELOG.md)
 
@@ -46,6 +46,8 @@ The following env vars are used for the AwsSmtp provider:
 ## License
 
 [MIT License](./LICENSE)
+
+![Powered By Vercel](./assets/powered-by-vercel.svg)
 
 <!-- Badges -->
 
