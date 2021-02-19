@@ -1,10 +1,15 @@
 const { take, drop } = require('lodash');
 
 module.exports = {
-  exec({ $mongo: { $db } }, { page, size, domainId }) {
+  exec({ $mongo: { $db } }, { page, size, domainId, search }) {
+    console.log(search);
+    const findParams = { domainId };
+
+    if (search) findParams.$or = [{ to: { $regex: search, $options: 'i' } }, { from: { $regex: search, $options: 'i' } }];
+
     return $db
       .collection('redirects')
-      .find({ domainId })
+      .find(findParams)
       .toArray()
       .then(redirects => {
         if (!page && !size) return { redirects, total: redirects.length };

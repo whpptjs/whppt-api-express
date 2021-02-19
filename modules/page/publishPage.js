@@ -12,11 +12,11 @@ module.exports = {
     page._id = page._id || $id();
     page.published = true;
 
-    return $save(collection, page).then(() => {
-      return $publish(collection, page).then(() => {
-        if (!publishCallBack) return page;
+    return $save(collection, page).then(savedPage => {
+      return $publish(collection, savedPage).then(publishedPage => {
+        if (!publishCallBack) return publishedPage;
 
-        return publishCallBack(page).then(() => page);
+        return publishCallBack(page).then(() => publishedPage);
       });
     });
   },

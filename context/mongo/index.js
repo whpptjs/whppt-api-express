@@ -16,6 +16,7 @@ module.exports = ({ $logger }) => {
 
       const $startTransaction = function (callback) {
         const session = client.startSession();
+
         return session.withTransaction(() => callback(session));
       };
 
@@ -23,6 +24,7 @@ module.exports = ({ $logger }) => {
         const cursor = $db.collection(collection);
 
         if (removed) return cursor.find().toArray();
+
         return cursor.find({ removed: { $ne: true } }).toArray();
       };
 
@@ -33,13 +35,18 @@ module.exports = ({ $logger }) => {
           .toArray()
           .then(results => {
             if (!results.length) throw new Error(`Could not find document for Id "${id}" in collection "${collection}"`);
+
             return results[0];
           });
       };
 
       const $save = function (collection, doc, { session } = {}) {
         doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
-        return $db.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+
+        return $db
+          .collection(collection)
+          .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+          .then(() => doc);
       };
 
       const $remove = function (collection, id, { session } = {}) {
@@ -67,11 +74,15 @@ module.exports = ({ $logger }) => {
           published: true,
           createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
         };
+
         return $db
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
           .then(() => {
-            return $dbPub.collection(collection).updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true });
+            return $dbPub
+              .collection(collection)
+              .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+              .then(() => doc);
           });
       };
 
@@ -86,7 +97,7 @@ module.exports = ({ $logger }) => {
 
       return {
         $db,
-        $dbPub, // should be private
+        $dbPub,
         $list,
         $fetch,
         $save,
