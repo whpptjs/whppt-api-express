@@ -10,10 +10,6 @@ module.exports = {
 
     page._id = page._id || $id();
 
-    return $save(collection, page).then(savedPage => {
-      console.log(savedPage);
-
-      return savedPage;
-    });
+    return $save(collection, page);
   },
 };
