@@ -9,8 +9,6 @@ function setRedirects({ $mongo: { $db } }) {
     if (from.startsWith('/api')) return next();
     if (from.startsWith('/_loading')) return next();
 
-    console.log('🚀 ~ file: redirectsRouter.js ~ line 18 ~ req.hostname', req.hostname);
-
     return $db
       .collection('domains')
       .findOne({ hostnames: req.hostname })
