@@ -1,4 +1,4 @@
-const { forEach } = require('lodash');
+const { forEach, map } = require('lodash');
 const $id = require('./id');
 const $logger = require('./logger');
 const Security = require('./security');
@@ -17,7 +17,10 @@ module.exports = (options = {}) => {
   options.modules = options.modules || {};
   options.services = options.services || {};
 
-  return Promise.all([Mongo({ $logger })]).then(([$mongo]) => {
+  const pageTypeCollections = options.pageTypes ? map(options.pageTypes, pageType => (pageType.collection && pageType.collection.name) || pageType.key) : [];
+  const collections = ['dependencies', ...pageTypeCollections];
+
+  return Promise.all([Mongo({ $logger }, collections)]).then(([$mongo]) => {
     const $pageTypes = options.pageTypes;
     const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
 

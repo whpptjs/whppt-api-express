@@ -20,12 +20,11 @@ module.exports = context => {
     return $image
       .fetch({ id: req.params.imageId, format: req.query, accept })
       .then(response => {
-        if (!response) return res.status(500).send('Image not found');
+        if (!response) return res.status(404).send('Image not found');
+
         res.type(response.ContentType).send(response.Body);
       })
-      .catch(err => {
-        res.status(500).send(err);
-      });
+      .catch(err => res.status(404).send(err));
   });
 
   router.post(`${imagePath}/upload`, upload, (req, res) => {
