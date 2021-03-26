@@ -21,7 +21,8 @@
     "cli",
     "context",
     "routers",
-    "modules"
+    "modules",
+    "utils"
   ],
   "bin": {
     "gen-root-user": "cli/generateRootUser.js"
@@ -69,16 +70,5 @@
     "slugify": "^1.4.0",
     "uniqid": "^5.2.0",
     "uri-js": "^4.2.2"
-  },
-  "ava": {
-    "babel": {
-      "testOptions": {
-        "babelrc": false,
-        "configFile": false,
-        "presets": [
-          "@babel/preset-env"
-        ]
-      }
-    }
   }
 }

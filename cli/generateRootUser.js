@@ -87,3 +87,5 @@ function generateRootUser(answers = {}) {
 }
 
 generateRootUser();
+
+module.exports = generateRootUser;
