@@ -1,14 +1,23 @@
+const assert = require('assert');
+
 module.exports = {
   exec({ $id, $mongo: { $save } }, { redirect }) {
-    redirect._id = redirect._id || $id();
-    return $save('redirects', redirect).then(() => {
-      return redirect;
-    });
-    // return $db
-    //   .collection('redirects')
-    //   .updateOne({ _id: redirect._id }, { $set: redirect }, { upsert: true })
-    //   .then(() => {
-    //     return redirect;
-    //   });
+    assert(redirect, 'Please provide a valid redirect.');
+    assert(redirect.to, 'Redirect must contain a valid "to" property.');
+    assert(redirect.from, 'Redirect must contain a valid "from" property.');
+    assert(redirect.from !== redirect.to, 'The "to" property cannot be the same as the "from" property.');
+    assert(redirect.domainId, 'Redirect must contain a valid "domainId" property.');
+
+    const { _id, name, to, from, domainId } = redirect;
+
+    const _redirect = {
+      _id: _id || $id(),
+      name,
+      to,
+      from,
+      domainId,
+    };
+
+    return $save('redirects', _redirect);
   },
 };

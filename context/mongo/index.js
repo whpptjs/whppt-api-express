@@ -4,7 +4,7 @@ const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
-module.exports = ({ $logger }) => {
+module.exports = ({ $logger }, collections) => {
   return MongoClient.connect(mongoUrl, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -95,18 +95,20 @@ module.exports = ({ $logger }) => {
           });
       };
 
-      return {
-        $db,
-        $dbPub,
-        $list,
-        $fetch,
-        $save,
-        $publish,
-        $unpublish,
-        $remove,
-        $delete,
-        $startTransaction,
-      };
+      return createCollections($db, collections).then(() => {
+        return {
+          $db,
+          $dbPub,
+          $list,
+          $fetch,
+          $save,
+          $publish,
+          $unpublish,
+          $remove,
+          $delete,
+          $startTransaction,
+        };
+      });
     })
     .catch(err => {
       if ($logger) {
@@ -116,3 +118,14 @@ module.exports = ({ $logger }) => {
       process.exit(1);
     });
 };
+
+function createCollections($db, collections) {
+  return $db
+    .listCollections()
+    .toArray()
+    .then(collectionsList => {
+      const missingCollections = collections.filter(col => !collectionsList.find(cl => cl.name === col));
+
+      return Promise.all(missingCollections.map(mc => $db.createCollection(mc)));
+    });
+}

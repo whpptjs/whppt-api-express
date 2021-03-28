@@ -1,7 +1,7 @@
 const ValidateRoles = require('../../../context/roles/ValidateRoles');
 const sinon = require('sinon');
 
-describe('', () => {
+describe('validate roles:', () => {
   test.skip('can validate AND roles', () => {
     const user = {
       roles: ['role1', 'role2'],
@@ -29,7 +29,7 @@ describe('', () => {
 
   // test that invalid roles will get rejected with error message and 401
 
-  test('is amdin roles should be included in the required roles', () => {
+  test('is admin roles should be included in the required roles', () => {
     const user = {
       roles: ['role1', 'admin'],
     };
