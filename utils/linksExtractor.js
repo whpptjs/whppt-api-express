@@ -9,7 +9,7 @@ module.exports = function linksExtractor(pageType, page) {
     forEach(page[contentSection], componentData => {
       const componentType = find(pageType.components, c => c.componentType === componentData.componentType);
 
-      const componentLinks = compact(componentType.extractLinks ? componentType.extractLinks(componentData) : []);
+      const componentLinks = compact(componentType && componentType.extractLinks ? componentType.extractLinks(componentData) : []);
       const _componentLinks = map(componentLinks, cl => ({ parentId: page._id, href: cl, type: 'link' }));
 
       links = [...links, ..._componentLinks];
