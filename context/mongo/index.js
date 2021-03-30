@@ -126,6 +126,8 @@ function createCollections($db, collections) {
     .then(collectionsList => {
       const missingCollections = collections.filter(col => !collectionsList.find(cl => cl.name === col));
 
+      if (!collectionsList.find(cl => cl.name === 'site')) missingCollections.push('site');
+
       return Promise.all(missingCollections.map(mc => $db.createCollection(mc)));
     });
 }

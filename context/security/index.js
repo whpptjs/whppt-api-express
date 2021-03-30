@@ -50,6 +50,7 @@ async function generateAccessToken(userId, expiryInMinutes = 1440) {
       valid: true,
     };
   } catch (err) {
+    // TODO: handle assert from above as well as crypto not supported errors here.
     return Promise.reject('Crypto support is disabled.');
   }
 }

@@ -2,6 +2,7 @@ const assert = require('assert');
 
 module.exports = {
   authorise() {
+    // TODO: this needs to be fixed urgently
     return Promise.resolve();
   },
   exec({ $mongo: { $db, $save }, $id, $security }, { newUser }) {
