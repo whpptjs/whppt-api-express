@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { map } = require('lodash');
+const { map, compact } = require('lodash');
 
 module.exports = {
   exec({ whpptOptions, $mongo: { $startTransaction, $db, $save } }, { footer }) {
@@ -9,8 +9,8 @@ module.exports = {
 
     const { extractFooterImages, extractFooterLinks } = whpptOptions;
 
-    const imageDependencies = extractFooterImages ? map(extractFooterImages(footer), i => ({ parentId: footer._id, imageId: i, type: 'image' })) : [];
-    const linkDependencies = extractFooterLinks ? map(extractFooterLinks(footer), l => ({ parentId: footer._id, href: l, type: 'link' })) : [];
+    const imageDependencies = extractFooterImages ? map(compact(extractFooterImages(footer)), i => ({ parentId: footer._id, imageId: i, type: 'image' })) : [];
+    const linkDependencies = extractFooterLinks ? map(compact(extractFooterLinks(footer)), l => ({ parentId: footer._id, href: l, type: 'link' })) : [];
 
     const dependencies = [...imageDependencies, ...linkDependencies];
 
