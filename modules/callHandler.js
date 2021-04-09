@@ -19,7 +19,7 @@ module.exports = (context, messageHandler, params) => {
       });
     })
     .catch(err => {
-      console.log('✨ ~ file: callHandler.js ~ line 22 ~ err', err);
+      if (context.$logger) context.$logger.error(err.message);
       return Promise.reject({ status: err.status || 401, error: err.message });
     });
 };
