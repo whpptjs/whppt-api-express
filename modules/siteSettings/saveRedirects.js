@@ -1,6 +1,7 @@
 module.exports = {
   exec({ $id, $mongo: { $db } }, { redirects }) {
     const ops = [];
+
     redirects.forEach(redirect => {
       ops.push({
         updateOne: {
@@ -10,6 +11,7 @@ module.exports = {
         },
       });
     });
+
     return $db
       .collection('redirects')
       .bulkWrite(ops, { ordered: false })
