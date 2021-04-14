@@ -15,6 +15,7 @@ module.exports = {
 
     return Promise.all(pageQueries).then(collectionPages => {
       const saveQueries = [];
+
       collectionPages.forEach(pages => {
         pages.forEach(page => {
           const pageType = pageTypes.find(pt => (pt.key || pt.name) === page.pageType);
@@ -24,7 +25,10 @@ module.exports = {
         });
       });
 
-      return Promise.all(saveQueries).then(() => `${saveQueries.length} page(s) reindex`);
+      return Promise.all(saveQueries).then(() => `${saveQueries.length} page(s) reindexed`);
     });
   },
 };
+
+// startsWith query
+// { "type": "link", "href": { $regex : "https://draft.live.uc.svelteteam.com", $options: "i" } }

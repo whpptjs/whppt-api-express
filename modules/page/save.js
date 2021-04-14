@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { find, compact } = require('lodash');
+const { uniqBy, find, compact } = require('lodash');
 const linksExtractor = require('../../utils/linksExtractor');
 const imagesExtractor = require('../../utils/imagesExtractor');
 
@@ -25,7 +25,7 @@ module.exports = {
         .collection('dependencies')
         .deleteMany({ parentId: page._id }, { session })
         .then(() => {
-          const dependencies = compact([...usedImages, ...usedLinks]);
+          const dependencies = uniqBy([...usedImages, ...usedLinks], image => image._id);
 
           if (dependencies && dependencies.length) {
             return $db
