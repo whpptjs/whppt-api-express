@@ -4,7 +4,7 @@ const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
-module.exports = ({ $logger }, collections) => {
+module.exports = ({ $logger }, collections = []) => {
   return MongoClient.connect(mongoUrl, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
