@@ -52,7 +52,10 @@ module.exports = context => {
       .collection('files')
       .findOne({ _id: fileId })
       .then(file => {
+        if (!file) return res.status(404).send('File not found');
         res.redirect(`/file/${fileId}/${file.name}`);
+      }).catch(err => {
+        res.status(500).send(err);
       });
   });
 
@@ -62,7 +65,7 @@ module.exports = context => {
     return $file
       .fetchOriginal({ id })
       .then(fileBuffer => {
-        if (!fileBuffer) return res.status(500).send('File not found');
+        if (!fileBuffer) return res.status(404).send('File not found');
 
         return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
       })
@@ -78,8 +81,12 @@ module.exports = context => {
       .collection('files')
       .findOne({ _id: id })
       .then(file => {
+        if (!file) return res.status(404).send('File not found');
         res.redirect(`/file/${id}/${file.name}`);
-      });
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });;
   });
 
   return router;
