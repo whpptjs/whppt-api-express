@@ -54,7 +54,8 @@ module.exports = context => {
       .then(file => {
         if (!file) return res.status(404).send('File not found');
         res.redirect(`/file/${fileId}/${file.name}`);
-      }).catch(err => {
+      })
+      .catch(err => {
         res.status(500).send(err);
       });
   });
@@ -86,7 +87,7 @@ module.exports = context => {
       })
       .catch(err => {
         res.status(500).send(err);
-      });;
+      });
   });
 
   return router;
