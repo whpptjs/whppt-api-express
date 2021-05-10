@@ -19,7 +19,9 @@ module.exports = ({ $logger, $env }) => {
       pass: $env.SMTP_AUTH_PASS,
     },
   };
-
+  if ($env.SMTP_TLS_CIPHERS) {
+    transportOptions.tls = { ciphers: $env.SMTP_TLS_CIPHERS };
+  }
   const defaults = {
     from: `${$env.EMAIL_FROM_NAME} <${$env.EMAIL_FROM_ADDRESS}>`,
   };
