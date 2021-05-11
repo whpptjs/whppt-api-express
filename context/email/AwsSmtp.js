@@ -19,13 +19,12 @@ module.exports = ({ $logger, $env }) => {
       pass: $env.SMTP_AUTH_PASS,
     },
   };
-  
   if ($env.SMTP_TLS_CIPHERS && $env.SMTP_TLS_MIN_VERSION) {
-    transportOptions.tls = {minVersion:$env.SMTP_TLS_MIN_VERSION, ciphers: $env.SMTP_TLS_CIPHERS };
-  }else if ($env.SMTP_TLS_CIPHERS) {
+    transportOptions.tls = { minVersion: $env.SMTP_TLS_MIN_VERSION, ciphers: $env.SMTP_TLS_CIPHERS };
+  } else if ($env.SMTP_TLS_CIPHERS) {
     transportOptions.tls = { ciphers: $env.SMTP_TLS_MIN_VERSION };
   }
-  
+
   const defaults = {
     from: `${$env.EMAIL_FROM_NAME} <${$env.EMAIL_FROM_ADDRESS}>`,
   };
