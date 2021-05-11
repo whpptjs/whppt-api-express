@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const { random, internet, date } = require('faker');
+const { internet, date, datatype } = require('faker');
 const listUsers = require('../../../modules/user/list');
 
 test('can list all users', () => {
@@ -7,7 +7,7 @@ test('can list all users', () => {
 
   for (let i = 0; i < 5; i++) {
     const user = {
-      _id: random.uuid(),
+      _id: datatype.uuid(),
       username: internet.userName(),
       email: internet.email(),
       createdAt: date.past(),

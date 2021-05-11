@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const toLower = require('lodash/toLower');
+const _ = require('lodash');
 
 function setRedirects({ $mongo: { $db } }) {
   return function (req, res, next) {
     const _url = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`);
-    const from = toLower(_url.pathname);
+    const from = _.chain(_url.pathname).toLower().trimEnd('/').value();
 
     if (from.startsWith('/api')) return next();
     if (from.startsWith('/_loading')) return next();
@@ -13,7 +13,7 @@ function setRedirects({ $mongo: { $db } }) {
       .collection('domains')
       .findOne({ hostnames: req.hostname })
       .then(domain => {
-        const query = { from };
+        const query = { from: _trim(from, '/') };
 
         if (domain && domain._id) {
           query.domainId = domain._id;

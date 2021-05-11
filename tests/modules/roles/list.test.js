@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const { random } = require('faker');
+const { random, datatype } = require('faker');
 const listRoles = require('../../../modules/roles/list');
 
 test('can list roles for user', () => {
@@ -7,7 +7,7 @@ test('can list roles for user', () => {
 
   for (let i = 0; i < 5; i++) {
     const role = {
-      _id: random.uuid(),
+      _id: datatype.uuid(),
       name: random.word(),
     };
 
