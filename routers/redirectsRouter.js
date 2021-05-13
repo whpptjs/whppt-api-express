@@ -13,7 +13,7 @@ function setRedirects({ $mongo: { $db } }) {
       .collection('domains')
       .findOne({ hostnames: req.hostname })
       .then(domain => {
-        const query = { from: _.trim(from, '/') };
+        const query = { from: from.trimRight('/') };
 
         if (domain && domain._id) {
           query.domainId = domain._id;
