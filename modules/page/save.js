@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { uniqBy, find, compact } = require('lodash');
+const { uniqBy, find } = require('lodash');
 const linksExtractor = require('../../utils/linksExtractor');
 const imagesExtractor = require('../../utils/imagesExtractor');
 

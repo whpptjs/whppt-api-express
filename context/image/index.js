@@ -100,7 +100,7 @@ module.exports = ({ $mongo: { $db, $dbPub }, $aws, $id, disablePublishing }) => 
   const remove = function (id) {
     return $aws.removeImageFromS3(id).then(() =>
       $db.collection('images').deleteOne({
-        id,
+        _id: id,
       })
     );
   };

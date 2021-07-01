@@ -69,7 +69,7 @@ module.exports = awsSDK => {
 
   const removeImage = function (id) {
     return new Promise((resolve, reject) => {
-      s3.deleteObjects({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, (err, data) => {
+      s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, (err, data) => {
         if (err) return reject(err);
         resolve({ data });
       });

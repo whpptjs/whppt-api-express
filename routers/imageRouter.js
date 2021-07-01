@@ -39,5 +39,16 @@ module.exports = context => {
       });
   });
 
+  router.post(`${imagePath}/remove`, (req, res) => {
+    const id = req.body.id;
+
+    $image
+      .remove(id)
+      .then(data => res.json(data))
+      .catch(err => {
+        res.status(err.http_code || 500).send(err);
+      });
+  });
+
   return router;
 };
