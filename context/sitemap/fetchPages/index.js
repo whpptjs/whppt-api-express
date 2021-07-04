@@ -17,7 +17,8 @@ module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug,
     map(collections, collection => {
       return $db
         .collection(collection)
-        .find(filters, {
+        .find(filters)
+        .project({
           slug: true,
           updatedAt: true,
           createdAt: true,
