@@ -34,7 +34,7 @@ module.exports = {
               .then(() => $save(collection, page, { session }))
               .then(savedPage => (_page = savedPage));
           } else {
-            return $save(collection, page, { session });
+            return $save(collection, page, { session }).then(savedPage => (_page = savedPage));
           }
         });
     }).then(() => _page);
