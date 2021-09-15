@@ -31,12 +31,11 @@ module.exports = {
             return $db
               .collection('dependencies')
               .insertMany(dependencies, { session })
-              .then(() => $save(collection, page, { session }))
-              .then(savedPage => (_page = savedPage));
+              .then(() => $save(collection, page, { session }));
           } else {
             return $save(collection, page, { session });
           }
         });
-    }).then(() => _page);
+    });
   },
 };
