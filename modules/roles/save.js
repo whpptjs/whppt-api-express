@@ -6,7 +6,7 @@ module.exports = {
 
     return Promise.reject('Not authorised.');
   },
-  exec({ $id, $roles }, { role, user }) {
+  exec({ $roles }, { role, user }) {
     assert(role, 'A Role must be provided.');
 
     return $roles.save({ role, user }).then(_role => _role);

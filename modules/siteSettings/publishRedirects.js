@@ -1,5 +1,5 @@
 module.exports = {
-  exec({ $id, $mongo: { $dbPub, $db, $startTransaction } }, { redirects }) {
+  exec({ $id, $mongo: { $dbPub, $startTransaction } }, { redirects }) {
     function publish(session) {
       const ops = [];
       redirects.forEach(redirect => {

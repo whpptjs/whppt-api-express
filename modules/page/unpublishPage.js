@@ -1,4 +1,5 @@
 const assert = require('assert');
+
 const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
 
 module.exports = {

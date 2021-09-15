@@ -1,15 +1,15 @@
 const { forEach, map } = require('lodash');
-const $id = require('./id');
-const $logger = require('./logger');
-const Security = require('./security');
-const Mongo = require('./mongo');
-const loadModules = require('./modules/loadModules');
-const Image = require('./image');
-const File = require('./file');
 const $aws = require('./aws');
 const Email = require('./email');
-const sitemapQuery = require('./sitemap');
+const File = require('./file');
+const $id = require('./id');
+const Image = require('./image');
+const $logger = require('./logger');
+const loadModules = require('./modules/loadModules');
+const Mongo = require('./mongo');
 const { ValidateRoles, saveRole } = require('./roles');
+const Security = require('./security');
+const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
 

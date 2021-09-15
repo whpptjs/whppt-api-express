@@ -2,7 +2,7 @@ const assert = require('assert');
 const { map, uniq } = require('lodash');
 
 module.exports = {
-  authorise({ $roles, $mongo: { $save } }, { user }) {
+  authorise({ $roles }, { user }) {
     return $roles.validate(user, ['root'], true);
   },
   exec({ $mongo: { $save } }, { roles = [], selectedUser }) {

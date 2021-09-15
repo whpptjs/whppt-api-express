@@ -96,8 +96,7 @@ test('callModule_withoutAuthorise', () => {
   const params = {};
 
   return callModule(context, 'test', 'get', params).then(response => {
-    const arg_context = test.get.exec.getCall(0).args[0];
-    const arg_params = test.get.exec.getCall(0).args[1];
+    const [arg_context, arg_params] = test.get.exec.getCall(0).args;
 
     expect(response).toBe('testing');
     expect(arg_context).toBe(context);
@@ -116,10 +115,8 @@ test('callModule_withAuthorise', () => {
   const params = {};
 
   return callModule(context, 'test', 'get', params).then(response => {
-    const arg_exec_context = test.get.exec.getCall(0).args[0];
-    const arg_exec_params = test.get.exec.getCall(0).args[1];
-    const arg_auth_context = test.get.authorise.getCall(0).args[0];
-    const arg_auth_params = test.get.authorise.getCall(0).args[1];
+    const [arg_exec_context, arg_exec_params] = test.get.exec.getCall(0).args;
+    const [arg_auth_context, arg_auth_params] = test.get.authorise.getCall(0).args;
 
     expect(response).toBe('testing');
     expect(arg_exec_context).toBe(context);

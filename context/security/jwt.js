@@ -1,6 +1,6 @@
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
-const jwt = require('jsonwebtoken');
 
 const extractFromCookies = function (req) {
   if (req && req.cookies) return req.cookies.authToken;
@@ -23,7 +23,7 @@ module.exports = ({ $id, config }) => ({
   },
   authenticate(req, res, next) {
     return new Promise((_, reject) => {
-      passport.authenticate('jwt', function (err, user, info) {
+      passport.authenticate('jwt', function (err, user) {
         if (err) return reject(err);
 
         if (!user) {

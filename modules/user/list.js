@@ -4,7 +4,7 @@ module.exports = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, ['root'], true);
   },
-  exec({ $mongo: { $db } }, args) {
+  exec({ $mongo: { $db } }) {
     return $db
       .collection('users')
       .find({ _id: { $ne: 'guest' } }) // remove guest, not a real user

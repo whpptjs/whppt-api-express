@@ -1,5 +1,5 @@
-const sitemapQuery = require('./fetchPages');
 const applySecurityRoles = require('./applySecurityRoles');
+const sitemapQuery = require('./fetchPages');
 
 module.exports = context => {
   return function (args = {}) {
@@ -10,7 +10,7 @@ module.exports = context => {
         });
       }
 
-      return { sitemap: sitemap, total };
+      return { sitemap, total };
     });
   };
 };

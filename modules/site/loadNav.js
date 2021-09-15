@@ -1,5 +1,5 @@
 const { get } = require('lodash');
-const assert = require('assert');
+
 const config = require(process.cwd() + '/whppt.config.js');
 
 module.exports = {

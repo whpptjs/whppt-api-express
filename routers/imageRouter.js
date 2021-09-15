@@ -15,7 +15,7 @@ module.exports = context => {
   const { $image } = context;
 
   router.get(`${imagePath}/:imageId`, cache({ ttl: sixMonths }), (req, res) => {
-    const accept = req.headers['accept'];
+    const { accept } = req.headers;
 
     return $image
       .fetch({ id: req.params.imageId, format: req.query, accept })
@@ -28,7 +28,7 @@ module.exports = context => {
   });
 
   router.post(`${imagePath}/upload`, upload, (req, res) => {
-    const file = req.file;
+    const { file } = req;
     if (!file) return { message: 'Image file not found' };
 
     $image
@@ -40,7 +40,7 @@ module.exports = context => {
   });
 
   router.post(`${imagePath}/remove`, (req, res) => {
-    const id = req.body.id;
+    const { id } = req.body;
 
     $image
       .remove(id)

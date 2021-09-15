@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+// eslint-disable-next-line node/no-unpublished-require
 require('dotenv').config();
 
-const prompts = require('prompts');
 const chalk = require('chalk');
+const prompts = require('prompts');
 const Mongo = require('../context/mongo');
 const $security = require('../context/security')({});
 
@@ -37,6 +38,7 @@ function generateRootUser(answers = {}) {
   return Mongo({}).then($mongo => {
     if (!$mongo) {
       console.error(chalk.red('Unable to connect to the database'));
+      // eslint-disable-next-line no-process-exit
       process.exit(0);
     }
 
@@ -49,13 +51,14 @@ function generateRootUser(answers = {}) {
         .toArray()
         .then(rootUserExists => {
           if (rootUserExists && rootUserExists.length > 0) {
-            const user = rootUserExists[0];
+            const [user] = rootUserExists;
 
             let error;
             if (user.username === username) error = 'Error: Username already in use';
             if (user.email === email) error = 'Error: Email already in use';
 
             console.error(chalk.red(error || 'Error: Root user already exists.'));
+            // eslint-disable-next-line no-process-exit
             process.exit(0);
           }
 
@@ -77,7 +80,9 @@ function generateRootUser(answers = {}) {
             };
 
             return $mongo.$save('users', rootUser).then(() => {
+              // eslint-disable-next-line no-console
               console.log(chalk.greenBright('✨  Successfully created user ✨ '));
+              // eslint-disable-next-line no-process-exit
               process.exit(0);
             });
           });

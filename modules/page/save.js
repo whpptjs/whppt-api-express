@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { uniqBy, find } = require('lodash');
-const linksExtractor = require('../../utils/linksExtractor');
 const imagesExtractor = require('../../utils/imagesExtractor');
+const linksExtractor = require('../../utils/linksExtractor');
 
 module.exports = {
   authorise({ $roles }, { page, user }) {
@@ -17,8 +17,6 @@ module.exports = {
 
     const usedImages = imagesExtractor(pageType, page);
     const usedLinks = linksExtractor(pageType, page);
-
-    let _page = page;
 
     return $startTransaction(session => {
       return $db

@@ -1,4 +1,4 @@
-const MongoClient = require('mongodb').MongoClient;
+const { MongoClient } = require('mongodb');
 
 const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
@@ -115,6 +115,7 @@ module.exports = ({ $logger }, collections = []) => {
         $logger.error('Mongo Connection Failed ....');
         $logger.error(err);
       }
+      // eslint-disable-next-line no-process-exit
       process.exit(1);
     });
 };

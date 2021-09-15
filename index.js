@@ -1,9 +1,9 @@
 const router = require('express-promise-json-router')();
-const Image = require('./routers/imageRouter');
-const File = require('./routers/fileRouter');
-const Redirects = require('./routers/redirectsRouter');
 const Context = require('./context');
 const callModule = require('./modules/callModule');
+const File = require('./routers/fileRouter');
+const Image = require('./routers/imageRouter');
+const Redirects = require('./routers/redirectsRouter');
 const seoRouter = require('./routers/seoRouter');
 
 module.exports = options => {

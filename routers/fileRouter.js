@@ -1,18 +1,17 @@
 const router = require('express').Router();
-
 const cache = require('express-cache-headers');
+const multer = require('multer');
+
 const oneDay = 60 * 60 * 24;
 const sixMonths = oneDay * 30 * 6;
-
-const multer = require('multer');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
 module.exports = ({ $file, $mongo: { $db } }) => {
   router.post('/file/uploadFile', upload, (req, res) => {
-    const file = req.file;
-    const description = req.body.description;
+    const { file } = req;
+    const { description } = req.body;
     if (!file) return { message: 'File not found' };
 
     return $file
@@ -78,7 +77,3 @@ module.exports = ({ $file, $mongo: { $db } }) => {
 
   return router;
 };
-
-function removeTrailingSlash(string) {
-  return string.replace(/\/$/, '');
-}

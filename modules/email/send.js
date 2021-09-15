@@ -1,4 +1,4 @@
-const EmailSyntax = require('email-syntax').EmailSyntax;
+const { EmailSyntax } = require('email-syntax');
 
 module.exports = {
   exec({ $mongo: { $fetch, $save }, $email, $id }, { to, subject, data, content, storeAt }) {

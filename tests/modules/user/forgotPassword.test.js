@@ -13,15 +13,15 @@ test('Should send forgot password email with saved user tokens', () => {
     whpptOptions: { emailTemplates: { forgotPassword: jest.fn(() => Promise.resolve('htmlString')) } },
     $env: { BASE_URL: 'http://test.com' },
     $security: { generateAccessToken: () => Promise.resolve({ token: 'testToken', tokenExpiry: 'testExpiry' }) },
-    $email: { send: jest.fn(mail => Promise.resolve({})) },
+    $email: { send: jest.fn(() => Promise.resolve({})) },
     $mongo: { $db, $save },
   };
 
   return cmd.exec(context, { email }).then(response => {
-    const emailToSend = context.$email.send.mock.calls[0][0];
-    const [expectedCollection, expectedUserToSave] = context.$mongo.$save.mock.calls[0];
-    const passwordResetToken = expectedUserToSave.passwordResetToken;
-    const forgotPasswordArgs = context.whpptOptions.emailTemplates.forgotPassword.mock.calls[0][0];
+    const [[emailToSend]] = context.$email.send.mock.calls;
+    const [[expectedCollection, expectedUserToSave]] = context.$mongo.$save.mock.calls;
+    const { passwordResetToken } = expectedUserToSave;
+    const [[forgotPasswordArgs]] = context.whpptOptions.emailTemplates.forgotPassword.mock.calls;
 
     expect(response.message).toBe('Success');
     expect(emailToSend.html).toBe('htmlString');

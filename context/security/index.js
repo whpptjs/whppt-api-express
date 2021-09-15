@@ -1,7 +1,8 @@
-const passport = require('passport');
-const bcrypt = require('bcryptjs');
-const Jwt = require('./jwt');
 const assert = require('assert');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const Jwt = require('./jwt');
+
 const saltRounds = 10;
 
 module.exports = ({ $id, $logger, config = {} }) => {
