@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js,.vue .",
-    "test": "jest"
+    "test": "jest",
+    "publish-rc": "yarn publish --access public --tag rc"
   },
   "repository": {
     "type": "git",
