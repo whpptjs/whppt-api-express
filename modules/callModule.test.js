@@ -137,9 +137,11 @@ test('callModule_includeReqToAuthorise', () => {
   const request = { testing: true };
 
   return callModule(context, 'test', 'get', {}, request).then(response => {
-    const [, , req_param] = test.get.authorise.getCall(0).args;
+    const [, , exec_req_param] = test.get.exec.getCall(0).args;
+    const [, , auth_req_param] = test.get.authorise.getCall(0).args;
 
     expect(response).toBe('testing');
-    expect(req_param).toBe(request);
+    expect(auth_req_param).toBe(request);
+    expect(exec_req_param).toBe(request);
   });
 });
