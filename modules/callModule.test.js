@@ -125,3 +125,21 @@ test('callModule_withAuthorise', () => {
     expect(arg_auth_params).toBe(params);
   });
 });
+
+test('callModule_includeReqToAuthorise', () => {
+  const test = { get: { authorise: sinon.fake.resolves(), exec: sinon.fake.resolves('testing') } };
+
+  const context = {
+    $logger: { error: sinon.fake() },
+    $modules: Promise.resolve({ test }),
+  };
+
+  const request = { testing: true };
+
+  return callModule(context, 'test', 'get', {}, request).then(response => {
+    const [, , req_param] = test.get.authorise.getCall(0).args;
+
+    expect(response).toBe('testing');
+    expect(req_param).toBe(request);
+  });
+});

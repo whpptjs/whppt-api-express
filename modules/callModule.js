@@ -1,4 +1,4 @@
-module.exports = (context, mod, handlerName, params) => {
+module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
 
   return $modules.then(modules => {
@@ -25,7 +25,7 @@ module.exports = (context, mod, handlerName, params) => {
     }
 
     return Promise.resolve()
-      .then(() => callHandler.authorise(context, params))
+      .then(() => callHandler.authorise(context, params, req))
       .catch(err => Promise.reject({ status: 403, error: new AuthError(`Not Authorised to call Module: ${mod}/${handlerName}`, err) }))
       .then(() => callHandler.exec(context, params))
       .catch(err => {
