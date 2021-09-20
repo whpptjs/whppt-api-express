@@ -42,7 +42,7 @@ async function generateAccessToken(userId, expiryInMinutes = 1440) {
 
     crypto = require('crypto');
 
-    const token = crypto.createHmac('sha256', appKey).update(userId).digest('hex');
+    const token = crypto.createHmac('sha256', appKey).update(userId.toString()).digest('hex');
     const tokenExpiry = new Date(new Date().getTime() + expiryInMinutes * 60000);
 
     return {
