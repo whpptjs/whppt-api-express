@@ -10,7 +10,7 @@ module.exports = {
 
     return $db
       .collection('users')
-      .findOne({ $or: [{ username }, { email }] })
+      .findOne({ $or: [{ username: new RegExp(`^${username}$`, 'iu') }, { email: new RegExp(`^${email}$`, 'iu') }] })
       .then(matchingUser => {
         assert(matchingUser, `User with username/email ${username || email} not found`);
         assert(matchingUser.passwordResetToken, 'User has not requested to reset their password');

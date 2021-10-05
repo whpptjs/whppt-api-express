@@ -7,7 +7,7 @@ module.exports = {
 
     return $db
       .collection('users')
-      .findOne({ email })
+      .findOne({ email: new RegExp(`^${email}$`, 'iu') })
       .then(user => {
         assert(user, `user with email ${email} not found.`);
 

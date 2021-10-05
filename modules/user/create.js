@@ -17,8 +17,9 @@ module.exports = {
     return findExistingUsers($db, lowerUsername, lowerEmail).then(existingUser => {
       let error = '';
 
-      if (existingUser && existingUser.username && lowerUsername === existingUser.username) error = 'Username already taken, please try another username';
-      if (existingUser && existingUser.email && existingUser.email !== '' && lowerEmail === existingUser.email) error = 'Email address already taken, please try another email';
+      if (existingUser && existingUser.username && lowerUsername === toLower(existingUser.username)) error = 'Username already taken, please try another username';
+      if (existingUser && existingUser.email && existingUser.email !== '' && lowerEmail === toLower(existingUser.email))
+        error = 'Email address already taken, please try another email';
 
       assert(!existingUser, error);
 
@@ -42,8 +43,8 @@ module.exports = {
 async function findExistingUsers($db, username, email) {
   const searchParams = [];
 
-  if (username) searchParams.push({ username });
-  if (email) searchParams.push({ email });
+  if (username) searchParams.push({ username: new RegExp(`^${username}$`, 'iu') });
+  if (email) searchParams.push({ email: new RegExp(`^${email}$`, 'iu') });
 
   return $db.collection('users').findOne({ $or: searchParams });
 }

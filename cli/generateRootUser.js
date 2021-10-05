@@ -47,7 +47,7 @@ function generateRootUser(answers = {}) {
 
       return $mongo.$db
         .collection('users')
-        .find({ $or: [{ _id: 'root' }, { username }, { email }] })
+        .find({ $or: [{ _id: 'root' }, { username: new RegExp(`^${username}$`, 'iu') }, { email: new RegExp(`^${email}$`, 'iu') }] })
         .toArray()
         .then(rootUserExists => {
           if (rootUserExists && rootUserExists.length > 0) {
