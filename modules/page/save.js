@@ -29,11 +29,18 @@ module.exports = {
             return $db
               .collection('dependencies')
               .insertMany(dependencies, { session })
-              .then(() => $save(collection, page, { session }));
+              .then(() => $save(collection, page, { session }))
+              .then(savedPage => {
+                page.updatedAt = savedPage.updatedAt;
+              });
           } else {
-            return $save(collection, page, { session });
+            return $save(collection, page, { session }).then(savedPage => {
+              page.updatedAt = savedPage.updatedAt;
+            });
           }
         });
+    }).then(() => {
+      return page;
     });
   },
 };
