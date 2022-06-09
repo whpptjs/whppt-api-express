@@ -16,8 +16,9 @@ module.exports = function (options) {
       return $sitemap
         .filter()
         .then(({ sitemap }) => {
+          const indexablePages = sitemap.filter(p => !p.hideFromSitemap);
           return join(
-            map(sitemap, page => {
+            map(indexablePages, page => {
               return `<url>
                       <loc>${page.url}</loc>
                       ${page.updatedAt ? `<lastmod>${new Date(page.updatedAt).toISOString()}</lastmod>` : `<lastmod>${new Date(page.createdAt).toISOString()}</lastmod>`}

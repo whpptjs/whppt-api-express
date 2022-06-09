@@ -28,6 +28,7 @@ module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug,
           template: true,
           frequency: true,
           priority: true,
+          hideFromSitemap: true,
         })
         .toArray()
         .then(pages => {

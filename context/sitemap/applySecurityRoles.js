@@ -2,10 +2,12 @@ const { intersection, map } = require('lodash');
 
 module.exports = ({ $mongo: { $db } }, { user, sitemap }) => {
   if (!user) {
-    return map(sitemap, page => ({
-      ...page,
-      publishableByYou: false,
-    }));
+    return Promise.resolve(
+      map(sitemap, page => ({
+        ...page,
+        publishableByYou: false,
+      }))
+    );
   }
 
   return $db
