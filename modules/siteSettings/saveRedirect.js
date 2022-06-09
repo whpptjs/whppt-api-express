@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { toLower } = require('lodash');
 
 module.exports = {
   exec({ $id, $mongo: { $save } }, { redirect }) {
@@ -14,7 +15,7 @@ module.exports = {
       _id: _id || $id(),
       name,
       to,
-      from,
+      from: toLower(from),
       domainId,
     };
 
