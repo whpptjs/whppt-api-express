@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { toLower } = require('lodash');
 
 module.exports = {
   exec({ $mongo: { $db } }, { redirect }) {
@@ -12,7 +13,7 @@ module.exports = {
 
     return $db
       .collection('redirects')
-      .findOne({ to, from, domainId })
+      .findOne({ to, from: toLower(from), domainId })
       .then(result => {
         return !!result;
       })
