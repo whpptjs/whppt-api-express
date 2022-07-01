@@ -13,15 +13,23 @@ const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
 
+const genericPageType = {
+  name: 'page',
+  label: 'Generic',
+  collection: { name: 'pages' },
+};
+
+const voidCallback = () => {};
+
 module.exports = (options = {}) => {
   options.modules = options.modules || {};
   options.services = options.services || {};
 
-  const pageTypeCollections = options.pageTypes ? map(options.pageTypes, pageType => (pageType.collection && pageType.collection.name) || pageType.key) : [];
+  const $pageTypes = options.pageTypes && options.pageTypes.length ? options.pageTypes : [genericPageType];
+  const pageTypeCollections = map($pageTypes, pageType => (pageType.collection && pageType.collection.name) || pageType.key);
   const collections = ['dependencies', ...pageTypeCollections];
 
   return Promise.all([Mongo({ $logger }, collections)]).then(([$mongo]) => {
-    const $pageTypes = options.pageTypes;
     const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
 
     const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
@@ -44,6 +52,10 @@ module.exports = (options = {}) => {
         save: saveRole({ $id, $mongo }),
       },
       $env,
+      $publishing: {
+        onPublish: options.onPublish || voidCallback,
+        onUnPublish: options.onUnPublish || voidCallback,
+      },
     };
 
     _context.$email = Email(_context);

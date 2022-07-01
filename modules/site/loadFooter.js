@@ -1,7 +1,3 @@
-const { get } = require('lodash');
-
-const config = require(process.cwd() + '/whppt.config.js');
-
 module.exports = {
   exec({ $mongo: { $db } }, { domainId }) {
     if (!domainId || domainId === 'undefined') return Promise.reject({ status: 500, message: 'Error: no domain found' });
@@ -12,8 +8,7 @@ module.exports = {
       .findOne(query)
       .then(footer => {
         if (!footer) {
-          const defaultFooter = get(config, 'defaults.footer');
-          return { ...defaultFooter, _id: `footer_${domainId}`, domainId };
+          return { _id: `footer_${domainId}`, domainId };
         }
         return footer;
       });

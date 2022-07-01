@@ -1,9 +1,7 @@
 const assert = require('assert');
 
-const { unPublishCallBack } = require(`${process.cwd()}/whppt.config.js`);
-
 module.exports = {
-  exec({ $mongo: { $unpublish, $db } }, { _id, collection }) {
+  exec({ $mongo: { $unpublish, $db }, $publishing }, { _id, collection }) {
     assert(_id, 'A Page Id must be provided.');
     assert(collection, 'Please provide a collection');
 
@@ -12,8 +10,8 @@ module.exports = {
       .updateOne({ _id }, { $set: { published: false } })
       .then(() => {
         return $unpublish(collection, _id).then(() => {
-          if (!unPublishCallBack) return;
-          return unPublishCallBack(_id);
+          if (!$publishing.onUnPublish) return;
+          return $publishing.onUnPublish(_id);
         });
       });
   },
