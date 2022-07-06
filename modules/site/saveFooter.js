@@ -4,8 +4,9 @@ const { map, compact } = require('lodash');
 module.exports = {
   exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save } }, { footer }) {
     assert(footer, 'Please provide a footer object.');
+    assert(footer.domainId, 'Footer requires a domain id (domainId)');
 
-    footer._id = footer._id || 'footer';
+    footer._id = footer._id || `footer_${footer.domainId}`;
 
     const { extractFooterImages, extractFooterLinks } = whpptOptions;
 

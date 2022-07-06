@@ -16,7 +16,12 @@ module.exports = options => {
 
     const { $security, $logger } = context;
 
-    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, ({ user, params: { mod, query }, query: queryArgs, ...req }) => {
+    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, req => {
+      const {
+        user,
+        params: { mod, query },
+        query: queryArgs,
+      } = req;
       return callModule(context, mod, query, { ...queryArgs, user }, req).catch(({ status, error }) => {
         $logger.error('Error in route: %s %s %O %O', mod, query, queryArgs, error);
 
@@ -24,7 +29,12 @@ module.exports = options => {
       });
     });
 
-    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, ({ user, params: { mod, command }, body: cmdArgs, ...req }) => {
+    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, req => {
+      const {
+        user,
+        params: { mod, command },
+        body: cmdArgs,
+      } = req;
       return callModule(context, mod, command, { ...cmdArgs, user }, req).catch(({ status, error }) => {
         $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
 
