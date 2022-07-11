@@ -1,16 +1,19 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const JwtStrategy = require('passport-jwt').Strategy;
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
 const extractFromCookies = function (req) {
   if (req && req.cookies) return req.cookies.authToken;
   return null;
 };
+const extractFromBearer = function () {
+  return ExtractJwt.fromAuthHeaderAsBearerToken();
+};
 
 module.exports = ({ $id, config }) => ({
   init() {
     const opts = {
-      jwtFromRequest: extractFromCookies,
+      jwtFromRequest: process.env.TOKEN_SRC === 'Bearer' ? extractFromBearer() : extractFromCookies,
       secretOrKey: config.jwt && config.jwt.secret,
       issuer: (config.jwt && config.jwt.issuer) || 'whppt',
       audience: (config.jwt && config.jwt.audience) || '',
