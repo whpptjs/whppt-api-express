@@ -15,9 +15,33 @@ module.exports = ({ $logger }, collections = []) => {
       const $dbPub = client.db(pubDb);
 
       const $startTransaction = function (callback) {
+        const transactionOptions = {
+          readPreference: 'primary',
+          readConcern: { level: 'local' },
+          writeConcern: { w: 'majority' },
+        };
+
         const session = client.startSession();
 
-        return session.withTransaction(() => callback(session));
+        return session
+          .withTransaction(
+            () =>
+              callback(session).catch(error => {
+                $logger.error('An error occured when calling the database', error);
+              }),
+            transactionOptions
+          )
+          .then(transactionResults => {
+            if (transactionResults) return Promise.resolve();
+            $logger.error('An error caused the transaction to fail');
+            return Promise.reject('An error caused the transaction to fail');
+          })
+          .catch(err => {
+            $logger.error('An unkown error caused the transaction to fail', err);
+            session.abortTransaction();
+            return Promise.reject(err);
+          })
+          .finally(() => session.endSession());
       };
 
       const $list = function (collection, removed) {
