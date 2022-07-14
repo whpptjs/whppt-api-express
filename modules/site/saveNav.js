@@ -2,7 +2,7 @@ const assert = require('assert');
 const { map, compact } = require('lodash');
 
 module.exports = {
-  exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save } }, { nav }) {
+  async exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save, $record } }, { nav, user }) {
     assert(nav, 'Please provide a Nav Object.');
 
     nav._id = nav._id || 'nav';
@@ -18,22 +18,13 @@ module.exports = {
 
     let _nav = nav;
 
-    return $startTransaction(session => {
-      return $db
-        .collection(DEP_COLLECTION)
-        .deleteMany({ parentId: nav._id }, { session })
-        .then(() => {
-          if (dependencies.length) {
-            return $db
-              .collection(DEP_COLLECTION)
-              .insertMany(dependencies, { session })
-              .then(() => {
-                return $save('site', nav, { session }).then(savedNav => (_nav = savedNav));
-              });
-          }
-
-          return $save('site', nav, { session });
-        });
+    return $startTransaction(async session => {
+      await $db.collection(DEP_COLLECTION).deleteMany({ parentId: nav._id }, { session });
+      if (dependencies.length) {
+        await $db.collection(DEP_COLLECTION).insertMany(dependencies, { session });
+      }
+      _nav = await $save('site', nav, { session });
+      await $record('site', 'save', { data: nav, user }, { session });
     }).then(() => _nav);
   },
 };

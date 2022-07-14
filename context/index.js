@@ -27,9 +27,11 @@ module.exports = (options = {}) => {
 
   const $pageTypes = options.pageTypes && options.pageTypes.length ? options.pageTypes : [genericPageType];
   const pageTypeCollections = map($pageTypes, pageType => (pageType.collection && pageType.collection.name) || pageType.key);
-  const collections = ['dependencies', ...pageTypeCollections];
+  const pageTypeHistoryCollections = map(pageTypeCollections, pageTypeName => pageTypeName + 'History');
 
-  return Promise.all([Mongo({ $logger }, collections)]).then(([$mongo]) => {
+  const collections = ['dependencies', ...pageTypeCollections, ...pageTypeHistoryCollections];
+
+  return Promise.all([Mongo({ $logger, $id }, collections)]).then(([$mongo]) => {
     const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
 
     const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
