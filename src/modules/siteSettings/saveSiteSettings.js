@@ -4,7 +4,7 @@ module.exports = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, [], true);
   },
-  exec({ $mongo: { $startTransaction, $db, $save } }, { siteSettings }) {
+  exec({ $mongo: { $startTransaction, $db, $save, $record } }, { siteSettings, user }) {
     const dependencies = [];
 
     const ogImageId = get(siteSettings, 'og.image.imageId');
@@ -13,22 +13,17 @@ module.exports = {
     if (ogImageId) dependencies.push({ imageId: ogImageId, parentId: siteSettings._id, type: 'image' });
     if (twitterImageId) dependencies.push({ imageId: twitterImageId, parentId: siteSettings._id, type: 'image' });
 
-    return $startTransaction(session => {
+    let savedSiteSettings;
+
+    return $startTransaction(async session => {
       const DEP_COLLECTION = 'dependencies';
 
-      return $db
-        .collection(DEP_COLLECTION)
-        .deleteMany({ parentId: siteSettings._id })
-        .then(() => {
-          if (dependencies.length) {
-            return $db
-              .collection(DEP_COLLECTION)
-              .insertMany(dependencies)
-              .then(() => $save('site', siteSettings, { session }));
-          } else {
-            return $save('site', siteSettings, { session });
-          }
-        });
-    });
+      await $db.collection(DEP_COLLECTION).deleteMany({ parentId: siteSettings._id });
+      if (dependencies.length) {
+        await $db.collection(DEP_COLLECTION).insertMany(dependencies);
+      }
+      savedSiteSettings = await $save('site', siteSettings, { session });
+      await $record('site', 'save', { data: siteSettings, user }, { session });
+    }).then(() => savedSiteSettings);
   },
 };
