@@ -74,15 +74,6 @@ module.exports = ({ $logger, $id }, collections = []) => {
           .then(() => doc);
       };
 
-      const $createCollection = function (collection, { session } = {}) {
-        return $db
-          .listCollections()
-          .toArray()
-          .then(async collections => {
-            if (!collections.find(col => col.name === collection)) await $db.createCollection(collection, { session });
-          });
-      };
-
       const $record = function (collection, action, doc, { session } = {}) {
         const historyCollection = collection + 'History';
         const record = {
@@ -155,7 +146,6 @@ module.exports = ({ $logger, $id }, collections = []) => {
           $remove,
           $delete,
           $startTransaction,
-          $createCollection,
         };
       });
     })
