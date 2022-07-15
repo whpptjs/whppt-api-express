@@ -1,3 +1,4 @@
+const { pick } = require('lodash');
 const { MongoClient } = require('mongodb');
 
 const mongoUrl = process.env.MONGO_URL;
@@ -23,17 +24,16 @@ module.exports = ({ $logger, $id }, collections = []) => {
 
         const session = client.startSession();
 
-        // Don't expect withTransaction returns results of the callback https://jira.mongodb.org/browse/NODE-2014
+        let result;
+
         return session
-          .withTransaction(
-            () =>
-              callback(session).catch(error => {
-                $logger.error('An error occured when calling the database', error);
-              }),
-            transactionOptions
-          )
+          .withTransaction(async () => {
+            result = await callback(session).catch(error => {
+              $logger.error('An error occured when calling the database', error);
+            });
+          }, transactionOptions)
           .then(transactionResults => {
-            if (transactionResults) return Promise.resolve();
+            if (transactionResults) return Promise.resolve(result);
             $logger.error('An error caused the transaction to fail');
             return Promise.reject('An error caused the transaction to fail');
           })
@@ -76,10 +76,12 @@ module.exports = ({ $logger, $id }, collections = []) => {
 
       const $record = function (collection, action, doc, { session } = {}) {
         const historyCollection = collection + 'History';
+        const { data, user } = doc;
         const record = {
-          ...doc,
           _id: $id(),
+          data,
           action,
+          user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
           date: new Date(),
         };
         return $db.collection(historyCollection).insertOne(record, { session });

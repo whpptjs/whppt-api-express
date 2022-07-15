@@ -16,6 +16,7 @@ module.exports = {
       const publishedPage = await $publish(collection, savedPage, { session });
       await $record(collection, 'publish', { data: publishedPage, user }, { session });
       if ($publishing.onPublish) await $publishing.onPublish(page);
+      return publishedPage;
     });
   },
 };
