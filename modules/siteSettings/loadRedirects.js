@@ -4,7 +4,7 @@ module.exports = {
   exec({ $mongo: { $db } }, { page, size, domainId, search }) {
     const findParams = { domainId };
 
-    if (search) findParams.$or = [{ to: { $regex: search, $options: 'i' } }, { from: { $regex: search, $options: 'i' } }];
+    if (search) findParams.$or = [{ name: { $regex: search, $options: 'i' } }, { to: { $regex: search, $options: 'i' } }, { from: { $regex: search, $options: 'i' } }];
 
     return $db
       .collection('redirects')

@@ -17,7 +17,6 @@ module.exports = {
   exec({ $mongo: { $db } }, { slug, collection, domainId }) {
     assert(collection, 'Please provide a collection.');
     assert(domainId, 'Please provide a domainId');
-
     return $db
       .collection(collection)
       .findOne({ slug, domainId })

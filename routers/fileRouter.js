@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const cache = require('express-cache-headers');
 const multer = require('multer');
+const fetch = require('node-fetch');
 
 const oneDay = 60 * 60 * 24;
 const sixMonths = oneDay * 30 * 6;
@@ -45,23 +46,24 @@ module.exports = ({ $file, $mongo: { $db } }) => {
       .collection('files')
       .findOne({ _id: fileId })
       .then(file => {
-        res.redirect(`/file/${fileId}/${file.name}`);
+        res.redirect(`/file/${fileId}/${file.name}?utm_medium=website&utm_campaign=website&utm_content=${file.name}`);
       });
   });
 
   router.get('/file/:id/:name', cache({ ttl: sixMonths }), (req, res) => {
-    const { id } = req.params;
+    const { id, utm_medium, utm_campaign, utm_content } = req.params;
+    return trackEvent(utm_medium, utm_campaign, utm_content).then(() => {
+      return $file
+        .fetchOriginal({ id })
+        .then(fileBuffer => {
+          if (!fileBuffer) return res.status(500).send('File not found');
 
-    return $file
-      .fetchOriginal({ id })
-      .then(fileBuffer => {
-        if (!fileBuffer) return res.status(500).send('File not found');
-
-        return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
-      })
-      .catch(err => {
-        res.status(500).send(err);
-      });
+          return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
+        })
+        .catch(err => {
+          res.status(500).send(err);
+        });
+    });
   });
 
   router.get('/file/:id', (req, res) => {
@@ -71,9 +73,26 @@ module.exports = ({ $file, $mongo: { $db } }) => {
       .collection('files')
       .findOne({ _id: id })
       .then(file => {
-        res.redirect(`/file/${id}/${file.name}`);
+        res.redirect(`/file/${id}/${file.name}?utm_medium=website&utm_campaign=website&utm_content=${file.name}`);
       });
   });
 
   return router;
+};
+
+const trackEvent = (medium, campaign, fileName) => {
+  const trackingId = process.env.GA_TRACKING_ID;
+  if (!trackingId || !trackingId.length) return Promise.resolve();
+  if (!medium || !campaign || !fileName) return Promise.resolve();
+  const data = {
+    v: '1',
+    tid: trackingId,
+    cm: medium,
+    cc: fileName,
+    cn: campaign,
+  };
+
+  return fetch('http://www.google-analytics.com/debug/collect', {
+    params: data,
+  });
 };
