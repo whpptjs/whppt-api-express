@@ -25,10 +25,10 @@ module.exports = {
       if (dependencies && dependencies.length) {
         await $db.collection('dependencies').insertMany(dependencies, { session });
       }
-      await $save(collection, page, { session }).then(savedPage => {
-        page.updatedAt = savedPage.updatedAt;
-      });
+      const savedPage = await $save(collection, page, { session });
+      page.updatedAt = savedPage.updatedAt;
       await $record(collection, 'save', { data: page, user }, { session });
-    }).then(() => page);
+      return page;
+    });
   },
 };
