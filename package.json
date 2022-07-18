@@ -34,9 +34,9 @@
     "url": "https://github.com/svelte-studios/whppt-api-express/issues"
   },
   "files": [
-    "dist",
-    "types",
-    "cli"
+    "/dist",
+    "/types",
+    "/cli"
   ],
   "bin": {
     "gen-root-user": "cli/generateRootUser.js"
