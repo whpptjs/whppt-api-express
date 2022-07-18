@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const applyToPage = require('../../../modules/roles/applyToPage');
+const applyToPage = require('../../../src/modules/roles/applyToPage');
 
 test('roles can be applied to page with correct levels', () => {
   const page = {

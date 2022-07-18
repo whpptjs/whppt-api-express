@@ -1,4 +1,4 @@
-const cmd = require('../../../modules/user/forgotPassword');
+const cmd = require('../../../src/modules/user/forgotPassword');
 
 test('Should send forgot password email with saved user tokens', () => {
   const email = 'testEmail';

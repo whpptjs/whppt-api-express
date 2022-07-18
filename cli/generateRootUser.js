@@ -4,8 +4,8 @@ require('dotenv').config();
 
 const chalk = require('chalk');
 const prompts = require('prompts');
-const Mongo = require('../context/mongo');
-const $security = require('../context/security')({});
+const Mongo = require('../dist/context/mongo');
+const $security = require('../dist/context/security')({});
 
 function generateRootUser(answers = {}) {
   const questions = [

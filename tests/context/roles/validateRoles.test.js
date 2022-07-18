@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const ValidateRoles = require('../../../context/roles/ValidateRoles');
+const ValidateRoles = require('../../../src/context/roles/ValidateRoles');
 
 describe('validate roles:', () => {
   test.skip('can validate AND roles', () => {

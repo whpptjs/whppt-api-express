@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const saveRole = require('../../../modules/roles/save');
+const saveRole = require('../../../src/modules/roles/save');
 
 test('new role can be saved', () => {
   const roleId = 'najosfd78';

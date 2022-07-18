@@ -1,6 +1,6 @@
 const { random, datatype } = require('faker');
 const sinon = require('sinon');
-const listRoles = require('../../../modules/roles/list');
+const listRoles = require('../../../src/modules/roles/list');
 
 test('can list roles for user', () => {
   const roles = [];

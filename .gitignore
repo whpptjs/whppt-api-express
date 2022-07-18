@@ -7,3 +7,5 @@ data
 package-lock.json
 
 .idea
+/types
+/dist

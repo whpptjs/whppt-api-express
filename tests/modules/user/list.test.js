@@ -1,6 +1,6 @@
 const { internet, date, datatype } = require('faker');
 const sinon = require('sinon');
-const listUsers = require('../../../modules/user/list');
+const listUsers = require('../../../src/modules/user/list');
 
 test('can list all users', () => {
   const users = [];

@@ -1,5 +1,5 @@
 const sinon = require('sinon');
-const applyToUser = require('../../../modules/roles/applyToUser');
+const applyToUser = require('../../../src/modules/roles/applyToUser');
 
 test('role can be applied to user', () => {
   const role = {
