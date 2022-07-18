@@ -86,6 +86,7 @@
     "require-glob": "^3.2.0",
     "sharp": "^0.25.1",
     "slugify": "^1.4.0",
+    "standard-version": "^9.5.0",
     "uniqid": "^5.2.0",
     "uri-js": "^4.2.2"
   }
