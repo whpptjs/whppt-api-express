@@ -52,3 +52,5 @@ module.exports = options => {
     });
   });
 };
+
+module.exports.Context = Context;
