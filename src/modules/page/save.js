@@ -7,7 +7,7 @@ module.exports = {
   authorise({ $roles }, { page, user }) {
     return $roles.validate(user, [page.editorRoles]);
   },
-  exec({ whpptOptions, $id, $mongo: { $startTransaction, $db, $save } }, { page, collection }) {
+  exec({ whpptOptions, $id, $mongo: { $startTransaction, $db, $save, $record } }, { page, collection, user }) {
     assert(page, 'Please provide a page.');
     assert(collection, 'Please provide a collection.');
 
@@ -18,28 +18,16 @@ module.exports = {
     const usedImages = imagesExtractor(pageType, page);
     const usedLinks = linksExtractor(pageType, page);
 
-    return $startTransaction(session => {
-      return $db
-        .collection('dependencies')
-        .deleteMany({ parentId: page._id }, { session })
-        .then(() => {
-          const dependencies = uniqBy([...usedImages, ...usedLinks], image => image._id);
+    return $startTransaction(async session => {
+      await $db.collection('dependencies').deleteMany({ parentId: page._id }, { session });
+      const dependencies = uniqBy([...usedImages, ...usedLinks], image => image._id);
 
-          if (dependencies && dependencies.length) {
-            return $db
-              .collection('dependencies')
-              .insertMany(dependencies, { session })
-              .then(() => $save(collection, page, { session }))
-              .then(savedPage => {
-                page.updatedAt = savedPage.updatedAt;
-              });
-          } else {
-            return $save(collection, page, { session }).then(savedPage => {
-              page.updatedAt = savedPage.updatedAt;
-            });
-          }
-        });
-    }).then(() => {
+      if (dependencies && dependencies.length) {
+        await $db.collection('dependencies').insertMany(dependencies, { session });
+      }
+      const savedPage = await $save(collection, page, { session });
+      page.updatedAt = savedPage.updatedAt;
+      await $record(collection, 'save', { data: page, user }, { session });
       return page;
     });
   },

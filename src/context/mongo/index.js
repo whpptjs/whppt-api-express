@@ -1,10 +1,11 @@
+const { pick } = require('lodash');
 const { MongoClient } = require('mongodb');
 
 const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
-module.exports = ({ $logger }, collections = []) => {
+module.exports = ({ $logger, $id }, collections = []) => {
   return MongoClient.connect(mongoUrl, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -23,16 +24,16 @@ module.exports = ({ $logger }, collections = []) => {
 
         const session = client.startSession();
 
+        let result;
+
         return session
-          .withTransaction(
-            () =>
-              callback(session).catch(error => {
-                $logger.error('An error occured when calling the database', error);
-              }),
-            transactionOptions
-          )
+          .withTransaction(async () => {
+            result = await callback(session).catch(error => {
+              $logger.error('An error occured when calling the database', error);
+            });
+          }, transactionOptions)
           .then(transactionResults => {
-            if (transactionResults) return Promise.resolve();
+            if (transactionResults) return Promise.resolve(result);
             $logger.error('An error caused the transaction to fail');
             return Promise.reject('An error caused the transaction to fail');
           })
@@ -71,6 +72,19 @@ module.exports = ({ $logger }, collections = []) => {
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
           .then(() => doc);
+      };
+
+      const $record = function (collection, action, doc, { session } = {}) {
+        const historyCollection = collection + 'History';
+        const { data, user } = doc;
+        const record = {
+          _id: $id(),
+          data,
+          action,
+          user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
+          date: new Date(),
+        };
+        return $db.collection(historyCollection).insertOne(record, { session });
       };
 
       const $remove = function (collection, id, { session } = {}) {
@@ -119,13 +133,16 @@ module.exports = ({ $logger }, collections = []) => {
           });
       };
 
-      return createCollections($db, collections).then(() => {
+      const devEnv = process.env.DRAFT === 'true' && !!process.env.MONGO_DB_PUB;
+
+      return Promise.all([createCollections($db, collections), devEnv ? createCollections($dbPub, collections) : Promise.resolve()]).then(() => {
         return {
           $db,
           $dbPub,
           $list,
           $fetch,
           $save,
+          $record,
           $publish,
           $unpublish,
           $remove,
@@ -144,15 +161,16 @@ module.exports = ({ $logger }, collections = []) => {
     });
 };
 
-function createCollections($db, collections) {
-  return $db
+function createCollections(db, collections) {
+  return db
     .listCollections()
     .toArray()
     .then(collectionsList => {
       const missingCollections = collections.filter(col => !collectionsList.find(cl => cl.name === col));
 
       if (!collectionsList.find(cl => cl.name === 'site')) missingCollections.push('site');
+      if (!collectionsList.find(cl => cl.name === 'siteHistory')) missingCollections.push('siteHistory');
 
-      return Promise.all(missingCollections.map(mc => $db.createCollection(mc)));
+      return Promise.all(missingCollections.map(mc => db.createCollection(mc)));
     });
 }

@@ -2,7 +2,7 @@ const assert = require('assert');
 const { map, compact } = require('lodash');
 
 module.exports = {
-  exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save } }, { footer }) {
+  async exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save, $record } }, { footer, user }) {
     assert(footer, 'Please provide a footer object.');
     assert(footer.domainId, 'Footer requires a domain id (domainId)');
 
@@ -19,22 +19,13 @@ module.exports = {
 
     let _footer = footer;
 
-    return $startTransaction(session => {
-      return $db
-        .collection(DEP_COLLECTION)
-        .deleteMany({ parentId: footer._id }, { session })
-        .then(() => {
-          if (dependencies.length) {
-            return $db
-              .collection(DEP_COLLECTION)
-              .insertMany(dependencies, { session })
-              .then(() => {
-                return $save('site', footer, { session }).then(savedFooter => (_footer = savedFooter));
-              });
-          }
-
-          return $save('site', footer, { session });
-        });
+    return $startTransaction(async session => {
+      await $db.collection(DEP_COLLECTION).deleteMany({ parentId: footer._id }, { session });
+      if (dependencies.length) {
+        await $db.collection(DEP_COLLECTION).insertMany(dependencies, { session });
+      }
+      _footer = await $save('site', footer, { session });
+      await $record('site', 'save', { data: footer, user }, { session });
     }).then(() => _footer);
   },
 };
