@@ -1,4 +1,6 @@
-const { forEach, map } = require('lodash');
+import { MongoService } from './mongo';
+import { forEach, map } from 'lodash';
+
 const $aws = require('./aws');
 const Email = require('./email');
 const File = require('./file');
@@ -13,15 +15,49 @@ const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
 
+const voidCallback = () => {};
+
+export type ContextType = {
+  $id: any;
+  $logger?: any;
+  $image?: any;
+  $file?: any;
+  $security?: any;
+  $mongo: MongoService;
+  $modules?: any;
+  $pageTypes?: any;
+  $fullUrl?: any;
+  $sitemap?: any;
+  $roles: { validate: (user: any, roles: any[]) => Promise<void> };
+  $env?: any;
+  $publishing?: any;
+  $email?: any;
+  [key: string]: any;
+};
+
+export type PageType = {
+  key?: string;
+  name: string;
+  label: string;
+  collection?: { name: string };
+};
+
+export type ContextArgs = {
+  modules?: any;
+  services?: any;
+  pageTypes?: PageType[];
+  disablePublishing: boolean;
+  onPublish?: (page: any) => void;
+  onUnPublish?: (page: any) => void;
+};
+
 const genericPageType = {
   name: 'page',
   label: 'Generic',
   collection: { name: 'pages' },
-};
+} as PageType;
 
-const voidCallback = () => {};
-
-module.exports = (options = {}) => {
+export default (options: ContextArgs = { disablePublishing: false }) => {
   options.modules = options.modules || {};
   options.services = options.services || {};
 
@@ -32,9 +68,9 @@ module.exports = (options = {}) => {
   const collections = ['dependencies', ...pageTypeCollections, ...pageTypeHistoryCollections];
 
   return Promise.all([Mongo({ $logger, $id }, collections)]).then(([$mongo]) => {
-    const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
+    const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
 
-    const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
+    const $modules = loadModules().then((modules: any) => ({ ...modules, ...options.modules }));
 
     const _context = {
       $id,
@@ -58,7 +94,7 @@ module.exports = (options = {}) => {
         onPublish: options.onPublish || voidCallback,
         onUnPublish: options.onUnPublish || voidCallback,
       },
-    };
+    } as ContextType;
 
     _context.$email = Email(_context);
 

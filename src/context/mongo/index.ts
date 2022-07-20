@@ -11,6 +11,9 @@ export type IdService = () => string;
 
 export type WhpptMongoArgs = { $logger: LoggerService; $id: IdService };
 
+export type MongoServiceSave = <T>(collection: string, doc: T, options?: { session?: ClientSession }) => Promise<T>;
+export type MongoService = { $db: Db; $save: MongoServiceSave };
+
 module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
   if (!mongoUrl) {
     $logger.error('Mongo connection failed, missing URL ....');
@@ -25,6 +28,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
   return MongoClient.connect(mongoUrl, options)
     .then(client => {
       if ($logger) $logger.info('Connected to mongo on:', mongoUrl);
+      if ($logger) $logger.info('-----------------------');
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
@@ -79,7 +83,12 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
       };
 
       const $save = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
-        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
+        doc = {
+          _id: $id(),
+          ...doc,
+          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+          updatedAt: new Date(),
+        };
 
         return $db
           .collection(collection)

@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-unpublished-require
 const debug = require('debug');
 
 module.exports = {
