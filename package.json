@@ -60,7 +60,6 @@
     "eslint-config-env": "^23.0.2",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsdoc": "^39.3.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.1",
     "faker": "^5.5.3",

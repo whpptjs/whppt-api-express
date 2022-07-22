@@ -7,7 +7,7 @@ module.exports = {
   rules: {
     // 'import/no-unresolved': ['error', { commonjs: true }],
     strict: 'off',
-    'jsdoc/require-jsdoc': 'off',
+    // 'jsdoc/require-jsdoc': 'off',
   },
   overrides: [
     {
