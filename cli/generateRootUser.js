@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// eslint-disable-next-line node/no-unpublished-require
 require('dotenv').config();
 
 const chalk = require('chalk');
