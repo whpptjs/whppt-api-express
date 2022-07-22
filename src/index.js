@@ -1,5 +1,5 @@
 const router = require('express-promise-json-router')();
-const Context = require('./context');
+const Context = require('./context').default;
 const callModule = require('./modules/callModule');
 const File = require('./routers/fileRouter');
 const Image = require('./routers/imageRouter');

@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import faker from 'faker';
 
-import { GalleryItem } from '../../../../src/modules/gallery';
+import { GalleryItem } from '../../../../src/context/gallery/GalleryItem';
 import save from '../../../../src/modules/gallery/save';
 import { TestContext } from '../../../Context';
 
@@ -11,6 +11,7 @@ test('new item can be saved', () => {
   const itemId = datatype.uuid();
   const item = {
     domainId: 'domainId',
+    type: 'image',
     defaultAltText: lorem.sentence(),
     createdAt: date.past(),
     updatedAt: date.past(),

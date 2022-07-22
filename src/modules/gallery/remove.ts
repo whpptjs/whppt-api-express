@@ -7,13 +7,13 @@ const load: HttpModule<{ itemId?: string }, void> = {
     const requiredRoles = [] as string[];
     return $roles.validate(user, [requiredRoles]);
   },
-  exec({ $mongo: { $db } }, { itemId }) {
+  exec({ $mongo: { $delete, $startTransaction }, $aws }, { itemId }) {
     assert(itemId, 'itemId is required');
-
-    return $db
-      .collection('gallery')
-      .deleteOne({ _id: itemId })
-      .then(() => {});
+    return $startTransaction(async session => {
+      return $delete('gallery', itemId, { session })
+        .then(() => $aws.removeDocFromS3(itemId))
+        .then(() => {});
+    });
   },
 };
 

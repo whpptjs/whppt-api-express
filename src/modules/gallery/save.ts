@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
-import { GalleryItem } from './GalleryItem';
+import { GalleryItem } from '../../context/gallery/GalleryItem';
 
 const save: HttpModule<{ item?: GalleryItem }> = {
   authorise({ $roles }, { user }) {

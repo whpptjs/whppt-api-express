@@ -1,5 +1,6 @@
-import { MongoService } from './mongo';
 import { forEach, map } from 'lodash';
+import { ContextArgs, ContextType, PageType } from './Context';
+import Gallery from './gallery';
 
 const $aws = require('./aws');
 const Email = require('./email');
@@ -16,40 +17,6 @@ const sitemapQuery = require('./sitemap');
 const $env = process.env;
 
 const voidCallback = () => {};
-
-export type ContextType = {
-  $id: any;
-  $logger?: any;
-  $image?: any;
-  $file?: any;
-  $security?: any;
-  $mongo: MongoService;
-  $modules?: any;
-  $pageTypes?: any;
-  $fullUrl?: any;
-  $sitemap?: any;
-  $roles: { validate: (user: any, roles: any[]) => Promise<void> };
-  $env?: any;
-  $publishing?: any;
-  $email?: any;
-  [key: string]: any;
-};
-
-export type PageType = {
-  key?: string;
-  name: string;
-  label: string;
-  collection?: { name: string };
-};
-
-export type ContextArgs = {
-  modules?: any;
-  services?: any;
-  pageTypes?: PageType[];
-  disablePublishing: boolean;
-  onPublish?: (page: any) => void;
-  onUnPublish?: (page: any) => void;
-};
 
 const genericPageType = {
   name: 'page',
@@ -97,6 +64,7 @@ export default (options: ContextArgs = { disablePublishing: false }) => {
     } as ContextType;
 
     _context.$email = Email(_context);
+    _context.$gallery = Gallery(_context);
 
     forEach(options.services, (serviceValue, serviceName) => {
       _context[`$${serviceName}`] = serviceValue(_context);

@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import faker from 'faker';
 
-import { GalleryItem } from '../../../../src/modules/gallery';
+import { GalleryItem } from '../../../../src/context/gallery/GalleryItem';
 import load from '../../../../src/modules/gallery/load';
 import { TestContext } from '../../../Context';
 
@@ -11,6 +11,7 @@ test('item can be loaded', () => {
   const itemId = datatype.uuid();
   const item = {
     domainId: 'domainId',
+    type: 'image',
     defaultAltText: lorem.sentence(),
     createdAt: date.past(),
     updatedAt: date.past(),

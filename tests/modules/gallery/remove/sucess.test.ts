@@ -6,7 +6,7 @@ import { TestContext } from '../../../Context';
 
 const { datatype } = faker;
 
-test('item can be removed', () => {
+test.skip('item can be removed', () => {
   const itemId = datatype.uuid();
 
   const collection = {

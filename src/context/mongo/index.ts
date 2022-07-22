@@ -12,7 +12,14 @@ export type IdService = () => string;
 export type WhpptMongoArgs = { $logger: LoggerService; $id: IdService };
 
 export type MongoServiceSave = <T>(collection: string, doc: T, options?: { session?: ClientSession }) => Promise<T>;
-export type MongoService = { $db: Db; $save: MongoServiceSave };
+export type MongoServiceDelete = (collection: string, id: string, options?: { session?: ClientSession }) => Promise<any>;
+export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<void>) => Promise<any>;
+export type MongoService = {
+  $db: Db;
+  $save: MongoServiceSave;
+  $delete: MongoServiceDelete;
+  $startTransaction: MongoServiceStartTransaction;
+};
 
 module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
   if (!mongoUrl) {
@@ -28,7 +35,6 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
   return MongoClient.connect(mongoUrl, options)
     .then(client => {
       if ($logger) $logger.info('Connected to mongo on:', mongoUrl);
-      if ($logger) $logger.info('-----------------------');
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 

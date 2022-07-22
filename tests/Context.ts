@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { ContextType } from '../src/context';
+import { ContextType } from '../src/context/Context';
 
 const uniqid = require('uniqid');
 
