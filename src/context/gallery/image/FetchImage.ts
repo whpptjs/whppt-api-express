@@ -49,32 +49,30 @@ const pickFormat = function (format: FetchImageFormat, accept: string, imageMeta
   return format.f || imageMeta.type.split('/')[1] || format.t ? 'png' : 'jpg';
 };
 
-export const FetchImage: FetchImageConstructor =
-  ({ $aws, $mongo: { $db } }, fetchOriginal) =>
-  ({ format, itemId, accept = '' }) => {
-    if (format.o) return fetchOriginal({ itemId });
+export const FetchImage: FetchImageConstructor = ({ $aws, $mongo: { $db } }, fetchOriginal) => ({ format, itemId, accept = '' }) => {
+  if (format.o) return fetchOriginal({ itemId });
 
-    return Promise.all([$db.collection('gallery').findOne({ _id: itemId }), $aws.fetchFromS3(itemId)]).then(([imageMeta, { fileBuffer }]) => {
-      const _sharpImage = Sharp(fileBuffer);
-      let _extractedImage = _sharpImage;
-      if (format.cx && format.cy && format.cw && format.ch) {
-        _extractedImage = _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) });
-      }
-      const scale = parseFloat(format.s) || baseImageScale;
-      const _resizedImage =
-        format.w && format.h
-          ? _extractedImage.resize(Math.ceil(parseFloat(format.w) * scale), Math.ceil(parseFloat(format.h) * scale), {
-              withoutEnlargement: true,
-            })
-          : _extractedImage;
-      const imageType = pickFormat(format, accept, imageMeta);
-      const quality = parseInt(format.q) || 70;
-      const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
-      return optimisedImage.toBuffer().then(processedImageBuffer => {
-        return {
-          Body: processedImageBuffer,
-          ContentType: contentType,
-        };
-      });
+  return Promise.all([$db.collection('gallery').findOne({ _id: itemId }), $aws.fetchFromS3(itemId)]).then(([imageMeta, { fileBuffer }]) => {
+    const _sharpImage = Sharp(fileBuffer);
+    let _extractedImage = _sharpImage;
+    if (format.cx && format.cy && format.cw && format.ch) {
+      _extractedImage = _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) });
+    }
+    const scale = parseFloat(format.s) || baseImageScale;
+    const _resizedImage =
+      format.w && format.h
+        ? _extractedImage.resize(Math.ceil(parseFloat(format.w) * scale), Math.ceil(parseFloat(format.h) * scale), {
+            withoutEnlargement: true,
+          })
+        : _extractedImage;
+    const imageType = pickFormat(format, accept, imageMeta);
+    const quality = parseInt(format.q) || 70;
+    const { img: optimisedImage, contentType } = optimise[imageType](_resizedImage, quality);
+    return optimisedImage.toBuffer().then(processedImageBuffer => {
+      return {
+        Body: processedImageBuffer,
+        ContentType: contentType,
+      };
     });
-  };
+  });
+};
