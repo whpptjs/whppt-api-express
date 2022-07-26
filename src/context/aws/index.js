@@ -12,6 +12,9 @@ awsSDK.config.update({
 });
 
 const {
+  upload: uploadToS3,
+  remove: removeFromS3,
+  fetch: fetchFromS3,
   uploadImage: uploadImageToS3,
   fetchImage: fetchImageFromS3,
   uploadDoc: uploadDocToS3,
@@ -21,4 +24,16 @@ const {
 } = S3(awsSDK);
 const { sendEmail, getDomainIdentities } = SES(awsSDK);
 
-module.exports = { uploadImageToS3, fetchImageFromS3, uploadDocToS3, fetchDocFromS3, removeImageFromS3, sendEmail, getDomainIdentities, removeDocFromS3 };
+module.exports = {
+  uploadToS3,
+  removeFromS3,
+  fetchFromS3,
+  uploadImageToS3,
+  fetchImageFromS3,
+  uploadDocToS3,
+  fetchDocFromS3,
+  removeImageFromS3,
+  sendEmail,
+  getDomainIdentities,
+  removeDocFromS3,
+};

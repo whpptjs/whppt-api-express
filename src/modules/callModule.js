@@ -9,7 +9,8 @@ module.exports = (context, mod, handlerName, params, req) => {
         error: new Error(`Could not find Module. ${mod}`),
       });
 
-    const callHandler = module[handlerName];
+    const callHandler = (module[handlerName] && module[handlerName].default) || module[handlerName];
+
     if (!callHandler)
       return Promise.reject({
         status: 404,

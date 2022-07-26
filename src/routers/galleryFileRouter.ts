@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { parseImageFormat } from 'src/context/gallery/image';
+import { parseImageFormat } from '../context/gallery/image';
 import { ContextType } from '../context/Context';
 import { GalleryItem } from '../context/gallery/GalleryItem';
 
@@ -19,7 +19,9 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
   if (!$gallery) throw new Error('Gallery is required');
 
   router.post('/gallery/upload', upload, (req: any, res: any) => {
-    const { file, domainId, type } = req;
+    const { file } = req;
+    const { domainId, type } = req.body;
+
     if (!file) return { message: 'File not found' };
 
     return $gallery
@@ -32,13 +34,14 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
       });
   });
 
-  router.get(`gallery/image/:imageId`, cache({ ttl: sixMonths }), (req, res) => {
+  router.get(`/gallery/image/:imageId`, cache({ ttl: sixMonths }), (req, res) => {
     const { accept } = req.headers;
     const format = parseImageFormat(req.query);
 
     return $gallery
       .fetchImage({ itemId: req.params.imageId, format, accept })
       .then((response: any) => {
+        console.log('response.body', response.body);
         if (!response) return res.status(404).send('Image not found');
 
         res.type(response.ContentType).send(response.Body);

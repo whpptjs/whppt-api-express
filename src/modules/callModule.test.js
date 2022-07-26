@@ -145,3 +145,26 @@ test('callModule_includeReqToAuthorise', () => {
     expect(exec_req_param).toBe(request);
   });
 });
+
+test('callModule_fromDefaultExport', () => {
+  const test = {
+    get: {
+      default: { exec: sinon.fake.resolves('testing') },
+    },
+  };
+
+  const context = {
+    $logger: { error: sinon.fake() },
+    $modules: Promise.resolve({ test }),
+  };
+
+  const params = {};
+
+  return callModule(context, 'test', 'get', params).then(response => {
+    const [arg_exec_context, arg_exec_params] = test.get.default.exec.getCall(0).args;
+
+    expect(response).toBe('testing');
+    expect(arg_exec_context).toBe(context);
+    expect(arg_exec_params).toBe(params);
+  });
+});

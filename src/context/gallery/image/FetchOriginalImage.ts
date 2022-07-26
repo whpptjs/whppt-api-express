@@ -5,16 +5,18 @@ export type FetchOriginalImageArgs = { itemId: string };
 export type FetchOriginalImage = ({ itemId }: FetchOriginalImageArgs) => Promise<any>;
 export type FetchOriginalImageConstructor = ({ $aws, $mongo: { $db } }: ContextType) => FetchOriginalImage;
 
-export const FetchOriginalImage: FetchOriginalImageConstructor = ({ $aws, $mongo: { $db } }) => ({ itemId }) => {
-  return $db
-    .collection('gallery')
-    .findOne<GalleryItem>({ _id: itemId })
-    .then(storedItem => {
-      return $aws.fetchDocFromS3(itemId).then(({ imageBuffer }: { imageBuffer: any }) => {
-        const response = imageBuffer;
-        response.Body = imageBuffer;
-        response.ContentType = storedItem?.fileInfo?.type;
-        return response;
+export const FetchOriginalImage: FetchOriginalImageConstructor =
+  ({ $aws, $mongo: { $db } }) =>
+  ({ itemId }) => {
+    return $db
+      .collection('gallery')
+      .findOne<GalleryItem>({ _id: itemId })
+      .then(storedItem => {
+        return $aws.fetchFromS3(itemId).then(({ fileBuffer }: { fileBuffer: any }) => {
+          const response = fileBuffer;
+          response.Body = fileBuffer;
+          response.ContentType = storedItem?.fileInfo?.type;
+          return response;
+        });
       });
-    });
-};
+  };
