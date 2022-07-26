@@ -4,7 +4,6 @@ module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
 
   const upload = function (fileBuffer, id) {
-    console.log('Uploading', `gallery/${id}`);
     const uploadImagePromise = new Promise((resolve, reject) => {
       s3.putObject(
         {

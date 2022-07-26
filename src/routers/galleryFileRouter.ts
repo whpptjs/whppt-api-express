@@ -41,7 +41,6 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
     return $gallery
       .fetchImage({ itemId: req.params.imageId, format, accept })
       .then((response: any) => {
-        console.log('response.body', response.body);
         if (!response) return res.status(404).send('Image not found');
 
         res.type(response.ContentType).send(response.Body);
