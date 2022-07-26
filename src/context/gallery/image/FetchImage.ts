@@ -52,8 +52,8 @@ const pickFormat = function (format: FetchImageFormat, accept: string, imageMeta
 export const FetchImage: FetchImageConstructor = ({ $aws, $mongo: { $db } }, fetchOriginal) => ({ format, itemId, accept = '' }) => {
   if (format.o) return fetchOriginal({ itemId });
 
-  return Promise.all([$db.collection('images').findOne({ _id: itemId }), $aws.fetchImageFromS3(itemId)]).then(([imageMeta, { imageBuffer }]) => {
-    const _sharpImage = Sharp(imageBuffer);
+  return Promise.all([$db.collection('gallery').findOne({ _id: itemId }), $aws.fetchFromS3(itemId)]).then(([imageMeta, { fileBuffer }]) => {
+    const _sharpImage = Sharp(fileBuffer);
     let _extractedImage = _sharpImage;
     if (format.cx && format.cy && format.cw && format.ch) {
       _extractedImage = _sharpImage.extract({ left: parseInt(format.cx), top: parseInt(format.cy), width: parseInt(format.cw), height: parseInt(format.ch) });

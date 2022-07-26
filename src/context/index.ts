@@ -64,7 +64,7 @@ export default (options: ContextArgs = { disablePublishing: false }) => {
     } as ContextType;
 
     _context.$email = Email(_context);
-    _context.$gallery = Gallery(_context);
+    _context.$gallery = Gallery({ ..._context, $aws });
 
     forEach(options.services, (serviceValue, serviceName) => {
       _context[`$${serviceName}`] = serviceValue(_context);
