@@ -1,5 +1,8 @@
 module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
+  // const createEvent = () => context.CreateEvent(req.user);
+
+  // const _context = context;
 
   return $modules.then(modules => {
     const module = modules[mod];

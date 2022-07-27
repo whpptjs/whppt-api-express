@@ -1,6 +1,7 @@
 const { forEach, map } = require('lodash');
 const $aws = require('./aws');
 const Email = require('./email');
+// const events = require('./events');
 const File = require('./file');
 const $id = require('./id');
 const Image = require('./image');
@@ -12,6 +13,7 @@ const Security = require('./security');
 const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
+// const { EventSession, CreateEvent, Session } = events;
 
 const genericPageType = {
   name: 'page',
@@ -61,6 +63,8 @@ module.exports = (options = {}) => {
     };
 
     _context.$email = Email(_context);
+    // _context.EventSession = () => EventSession(_context);
+    // _context.CreateEvent = CreateEvent;
 
     forEach(options.services, (serviceValue, serviceName) => {
       _context[`$${serviceName}`] = serviceValue(_context);
