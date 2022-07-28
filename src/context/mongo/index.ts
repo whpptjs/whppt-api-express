@@ -1,30 +1,53 @@
+import { ClientSession, Db, MongoClient, MongoClientOptions, ObjectId, ReadPreference, TransactionOptions } from 'mongodb';
 const { pick } = require('lodash');
-const { MongoClient } = require('mongodb');
 
 const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
-module.exports = ({ $logger, $id }, collections = []) => {
-  return MongoClient.connect(mongoUrl, {
+export type LoggerFunc = (msg: string, arg?: string) => void;
+export type LoggerService = { error: LoggerFunc; info: LoggerFunc };
+export type IdService = () => string;
+
+export type WhpptMongoArgs = { $logger: LoggerService; $id: IdService };
+
+export type MongoServiceSave = <T>(collection: string, doc: T, options?: { session?: ClientSession }) => Promise<T>;
+export type MongoServiceDelete = (collection: string, id: string, options?: { session?: ClientSession }) => Promise<any>;
+export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<void>) => Promise<any>;
+export type MongoService = {
+  $db: Db;
+  $save: MongoServiceSave;
+  $delete: MongoServiceDelete;
+  $startTransaction: MongoServiceStartTransaction;
+};
+
+module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
+  if (!mongoUrl) {
+    $logger.error('Mongo connection failed, missing URL ....');
+    process.exit(1);
+  }
+
+  const options = {
     useUnifiedTopology: true,
     useNewUrlParser: true,
-  })
+  } as MongoClientOptions;
+
+  return MongoClient.connect(mongoUrl, options)
     .then(client => {
       if ($logger) $logger.info('Connected to mongo on:', mongoUrl);
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
-      const $startTransaction = function (callback) {
+      const $startTransaction = function (callback: (session: ClientSession) => Promise<void>) {
         const transactionOptions = {
-          readPreference: 'primary',
+          readPreference: ReadPreference.primary,
           readConcern: { level: 'local' },
           writeConcern: { w: 'majority' },
-        };
+        } as TransactionOptions;
 
         const session = client.startSession();
 
-        let result;
+        let result: any;
 
         return session
           .withTransaction(async () => {
@@ -45,7 +68,7 @@ module.exports = ({ $logger, $id }, collections = []) => {
           .finally(() => session.endSession());
       };
 
-      const $list = function (collection, removed) {
+      const $list = function (collection: string, removed: boolean) {
         const cursor = $db.collection(collection);
 
         if (removed) return cursor.find().toArray();
@@ -53,7 +76,7 @@ module.exports = ({ $logger, $id }, collections = []) => {
         return cursor.find({ removed: { $ne: true } }).toArray();
       };
 
-      const $fetch = function (collection, id) {
+      const $fetch = function (collection: string, id: string) {
         return $db
           .collection(collection)
           .find({ _id: id })
@@ -65,8 +88,13 @@ module.exports = ({ $logger, $id }, collections = []) => {
           });
       };
 
-      const $save = function (collection, doc, { session } = {}) {
-        doc = { ...doc, createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(), updatedAt: new Date() };
+      const $save = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
+        doc = {
+          _id: $id(),
+          ...doc,
+          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+          updatedAt: new Date(),
+        };
 
         return $db
           .collection(collection)
@@ -74,11 +102,11 @@ module.exports = ({ $logger, $id }, collections = []) => {
           .then(() => doc);
       };
 
-      const $record = function (collection, action, doc, { session } = {}) {
+      const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {
         const historyCollection = collection + 'History';
         const { data, user } = doc;
         const record = {
-          _id: $id(),
+          _id: new ObjectId($id()),
           data,
           action,
           user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
@@ -87,7 +115,7 @@ module.exports = ({ $logger, $id }, collections = []) => {
         return $db.collection(historyCollection).insertOne(record, { session });
       };
 
-      const $remove = function (collection, id, { session } = {}) {
+      const $remove = function (collection: string, id: string, { session }: { session?: ClientSession } = {}) {
         return $db.collection(collection).updateOne(
           { _id: id },
           {
@@ -100,11 +128,11 @@ module.exports = ({ $logger, $id }, collections = []) => {
         );
       };
 
-      const $delete = function (collection, id, { session } = {}) {
+      const $delete = function (collection: string, id: string, { session }: { session?: ClientSession } = {}) {
         return $db.collection(collection).deleteOne({ _id: id }, { session });
       };
 
-      const $publish = function (collection, doc, { session } = {}) {
+      const $publish = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
         doc = {
           ...doc,
           lastPublished: new Date(),
@@ -124,7 +152,7 @@ module.exports = ({ $logger, $id }, collections = []) => {
           });
       };
 
-      const $unpublish = function (collection, _id, { session } = {}) {
+      const $unpublish = function (collection: string, _id: string, { session }: { session?: ClientSession } = {}) {
         return $db
           .collection(collection)
           .updateOne({ _id }, { $set: { published: false } }, { session })
@@ -161,7 +189,7 @@ module.exports = ({ $logger, $id }, collections = []) => {
     });
 };
 
-function createCollections(db, collections) {
+function createCollections(db: Db, collections: string[]) {
   return db
     .listCollections()
     .toArray()

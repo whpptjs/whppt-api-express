@@ -1,10 +1,11 @@
 const router = require('express-promise-json-router')();
-const Context = require('./context');
+const Context = require('./context').default;
 const callModule = require('./modules/callModule');
 const File = require('./routers/fileRouter');
 const Image = require('./routers/imageRouter');
 const Redirects = require('./routers/redirectsRouter');
 const seoRouter = require('./routers/seoRouter');
+const Gallery = require('./routers/galleryFileRouter');
 
 module.exports = options => {
   options = options || {};
@@ -42,8 +43,9 @@ module.exports = options => {
       });
     });
 
-    return Promise.all([Image(context), File(context), Redirects(context)]).then(([imageRouter, fileRouter, redirectsRouter]) => {
+    return Promise.all([Image(context), File(context), Redirects(context), Gallery(context)]).then(([imageRouter, fileRouter, redirectsRouter, galleryFileRouter]) => {
       router.use(redirectsRouter);
+      router.use(galleryFileRouter);
       router.use(imageRouter);
       router.use(fileRouter);
       router.use(seoRouter(options));

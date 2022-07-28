@@ -1,7 +1,10 @@
-const { forEach, map } = require('lodash');
+import { forEach, map } from 'lodash';
+import { ContextArgs, ContextType, PageType } from './Context';
+import Gallery from './gallery';
+import { EventSession, CreateEvent, Session } from './events';
+
 const $aws = require('./aws');
 const Email = require('./email');
-// const events = require('./events');
 const File = require('./file');
 const $id = require('./id');
 const Image = require('./image');
@@ -13,17 +16,16 @@ const Security = require('./security');
 const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
-// const { EventSession, CreateEvent, Session } = events;
+
+const voidCallback = () => {};
 
 const genericPageType = {
   name: 'page',
   label: 'Generic',
   collection: { name: 'pages' },
-};
+} as PageType;
 
-const voidCallback = () => {};
-
-module.exports = (options = {}) => {
+export default (options: ContextArgs = { disablePublishing: false }) => {
   options.modules = options.modules || {};
   options.services = options.services || {};
 
@@ -34,9 +36,9 @@ module.exports = (options = {}) => {
   const collections = ['dependencies', ...pageTypeCollections, ...pageTypeHistoryCollections];
 
   return Promise.all([Mongo({ $logger, $id }, collections)]).then(([$mongo]) => {
-    const $fullUrl = slug => `${$env.BASE_URL}/${slug}`;
+    const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
 
-    const $modules = loadModules().then(modules => ({ ...modules, ...options.modules }));
+    const $modules = loadModules().then((modules: any) => ({ ...modules, ...options.modules }));
 
     const _context = {
       $id,
@@ -60,11 +62,12 @@ module.exports = (options = {}) => {
         onPublish: options.onPublish || voidCallback,
         onUnPublish: options.onUnPublish || voidCallback,
       },
-    };
+    } as ContextType;
 
     _context.$email = Email(_context);
-    // _context.EventSession = () => EventSession(_context);
-    // _context.CreateEvent = CreateEvent;
+    _context.$gallery = Gallery({ ..._context, $aws });
+    _context.EventSession = () => EventSession(_context);
+    _context.CreateEvent = CreateEvent;
 
     forEach(options.services, (serviceValue, serviceName) => {
       _context[`$${serviceName}`] = serviceValue(_context);
