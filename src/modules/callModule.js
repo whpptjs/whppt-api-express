@@ -1,5 +1,7 @@
 module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
+  const createEvent = () => context.CreateEvent(req.user);
+  const _context = { ...context, createEvent };
 
   return $modules.then(modules => {
     const module = modules[mod];
@@ -9,7 +11,8 @@ module.exports = (context, mod, handlerName, params, req) => {
         error: new Error(`Could not find Module. ${mod}`),
       });
 
-    const callHandler = module[handlerName];
+    const callHandler = (module[handlerName] && module[handlerName].default) || module[handlerName];
+
     if (!callHandler)
       return Promise.reject({
         status: 404,
@@ -18,16 +21,16 @@ module.exports = (context, mod, handlerName, params, req) => {
 
     if (!callHandler.authorise) {
       return Promise.resolve()
-        .then(() => callHandler.exec(context, params, req))
+        .then(() => callHandler.exec(_context, params, req))
         .catch(err => {
           return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
         });
     }
 
     return Promise.resolve()
-      .then(() => callHandler.authorise(context, params, req))
+      .then(() => callHandler.authorise(_context, params, req))
       .catch(err => Promise.reject({ status: 403, error: new AuthError(`Not Authorised to call Module: ${mod}/${handlerName}`, err) }))
-      .then(() => callHandler.exec(context, params, req))
+      .then(() => callHandler.exec(_context, params, req))
       .catch(err => {
         return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
       });

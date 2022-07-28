@@ -10,9 +10,9 @@ export const FetchOriginalImage: FetchOriginalImageConstructor = ({ $aws, $mongo
     .collection('gallery')
     .findOne<GalleryItem>({ _id: itemId })
     .then(storedItem => {
-      return $aws.fetchDocFromS3(itemId).then(({ imageBuffer }: { imageBuffer: any }) => {
-        const response = imageBuffer;
-        response.Body = imageBuffer;
+      return $aws.fetchFromS3(itemId).then(({ fileBuffer }: { fileBuffer: any }) => {
+        const response = fileBuffer;
+        response.Body = fileBuffer;
         response.ContentType = storedItem?.fileInfo?.type;
         return response;
       });

@@ -40,8 +40,13 @@ const gallery: Service<Gallery> = context => {
         };
 
         return $startTransaction(session => {
+<<<<<<< HEAD
           return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadDocToS3(buffer, newGalleryItem._id));
         }).then(() => newGalleryItem);
+=======
+          return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadToS3(buffer, newGalleryItem._id));
+        });
+>>>>>>> bbc23fc8e3805e7e70629435149d806c5c48f380
       });
     },
     fetchOriginalImage,

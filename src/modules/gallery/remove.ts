@@ -11,7 +11,7 @@ const load: HttpModule<{ itemId?: string }, void> = {
     assert(itemId, 'itemId is required');
     return $startTransaction(async session => {
       return $delete('gallery', itemId, { session })
-        .then(() => $aws.removeDocFromS3(itemId))
+        .then(() => $aws.removeFromS3(itemId))
         .then(() => {});
     });
   },
