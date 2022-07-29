@@ -18,4 +18,11 @@ export type GalleryItem = DataDocument &
     tags: string[];
     suggestedTags: string[];
     fileInfo?: GalleryFileInfo;
+    // crops: [
+    //   {
+    //     label: string;
+    //     aspectRatio: { label: string; ratio: { w: number; h: number } };
+    //     orientation: 'landscape' | 'portrait';
+    //   }
+    // ];
   };
