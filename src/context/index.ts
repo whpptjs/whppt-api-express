@@ -1,7 +1,7 @@
 import { forEach, map } from 'lodash';
 import { ContextArgs, ContextType, PageType } from './Context';
 import Gallery from './gallery';
-import { EventSession, CreateEvent, Session } from './events';
+import { EventSession, CreateEvent } from './events';
 
 const $aws = require('./aws');
 const Email = require('./email');
