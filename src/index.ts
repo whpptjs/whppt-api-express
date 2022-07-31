@@ -1,5 +1,5 @@
+import Context from './context';
 const router = require('express-promise-json-router')();
-const Context = require('./context').default;
 const callModule = require('./modules/callModule');
 const File = require('./routers/fileRouter');
 const Image = require('./routers/imageRouter');
@@ -7,7 +7,9 @@ const Redirects = require('./routers/redirectsRouter');
 const seoRouter = require('./routers/seoRouter');
 const Gallery = require('./routers/galleryFileRouter');
 
-module.exports = options => {
+export * from './modules/HttpModule';
+
+module.exports = (options: any) => {
   options = options || {};
   options.apiPrefix = options.apiPrefix || 'api';
   options.disablePublishing = options.disablePublishing || false;
@@ -17,27 +19,28 @@ module.exports = options => {
 
     const { $security, $logger } = context;
 
-    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, req => {
+    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, (req: any) => {
       const {
         user,
         params: { mod, query },
         query: queryArgs,
       } = req;
-      return callModule(context, mod, query, { ...queryArgs, user }, req).catch(({ status, error }) => {
+      return callModule(context, mod, query, { ...queryArgs, user }, req).catch(({ status, error }: { status: any; error: any }) => {
         $logger.error('Error in route: %s %s %O %O', mod, query, queryArgs, error);
 
         return { status, error };
       });
     });
 
-    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, req => {
+    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, (req: any) => {
       const {
         user,
         params: { mod, command },
         body: cmdArgs,
       } = req;
-      return callModule(context, mod, command, { ...cmdArgs, user }, req).catch(({ status, error }) => {
+      return callModule(context, mod, command, { ...cmdArgs, user }, req).catch(({ status, error }: { status: any; error: any }) => {
         $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
+        console.log('🚀 ~ file: index.js ~ line 44 ~ returnContext ~ status', status);
 
         return { status, error };
       });

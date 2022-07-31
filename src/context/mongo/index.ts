@@ -13,9 +13,10 @@ export type WhpptMongoArgs = { $logger: LoggerService; $id: IdService };
 
 export type MongoServiceSave = <T>(collection: string, doc: T, options?: { session?: ClientSession }) => Promise<T>;
 export type MongoServiceDelete = (collection: string, id: string, options?: { session?: ClientSession }) => Promise<any>;
-export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<void>) => Promise<any>;
+export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<any>) => Promise<any>;
 export type MongoService = {
   $db: Db;
+  $dbPub: Db;
   $save: MongoServiceSave;
   $delete: MongoServiceDelete;
   $startTransaction: MongoServiceStartTransaction;
@@ -38,7 +39,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
       const $db = client.db(db);
       const $dbPub = client.db(pubDb);
 
-      const $startTransaction = function (callback: (session: ClientSession) => Promise<void>) {
+      const $startTransaction = function (callback: (session: ClientSession) => Promise<any>) {
         const transactionOptions = {
           readPreference: ReadPreference.primary,
           readConcern: { level: 'local' },
@@ -50,20 +51,16 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
         let result: any;
 
         return session
-          .withTransaction(async () => {
-            result = await callback(session).catch(error => {
+          .withTransaction(() => {
+            return callback(session).catch(error => {
               $logger.error('An error occured when calling the database', error);
+              return Promise.reject({ error, status: 500 });
             });
           }, transactionOptions)
           .then(transactionResults => {
             if (transactionResults) return Promise.resolve(result);
             $logger.error('An error caused the transaction to fail');
             return Promise.reject('An error caused the transaction to fail');
-          })
-          .catch(err => {
-            $logger.error('An unkown error caused the transaction to fail', err);
-            session.abortTransaction();
-            return Promise.reject(err);
           })
           .finally(() => session.endSession());
       };

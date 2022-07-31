@@ -85,47 +85,6 @@ test('callModule_withAuthorise_handleError404fromMongo', () => {
   });
 });
 
-test('callModule_withoutAuthorise', () => {
-  const test = { get: { exec: sinon.fake.resolves('testing') } };
-
-  const context = {
-    $logger: { error: sinon.fake() },
-    $modules: Promise.resolve({ test }),
-  };
-
-  const params = {};
-
-  return callModule(context, 'test', 'get', params).then(response => {
-    const [arg_context, arg_params] = test.get.exec.getCall(0).args;
-
-    expect(response).toBe('testing');
-    expect(arg_context).toBe(context);
-    expect(arg_params).toBe(params);
-  });
-});
-
-test('callModule_withAuthorise', () => {
-  const test = { get: { authorise: sinon.fake.resolves(), exec: sinon.fake.resolves('testing') } };
-
-  const context = {
-    $logger: { error: sinon.fake() },
-    $modules: Promise.resolve({ test }),
-  };
-
-  const params = {};
-
-  return callModule(context, 'test', 'get', params).then(response => {
-    const [arg_exec_context, arg_exec_params] = test.get.exec.getCall(0).args;
-    const [arg_auth_context, arg_auth_params] = test.get.authorise.getCall(0).args;
-
-    expect(response).toBe('testing');
-    expect(arg_exec_context).toBe(context);
-    expect(arg_exec_params).toBe(params);
-    expect(arg_auth_context).toBe(context);
-    expect(arg_auth_params).toBe(params);
-  });
-});
-
 test('callModule_includeReqToAuthorise', () => {
   const test = { get: { authorise: sinon.fake.resolves(), exec: sinon.fake.resolves('testing') } };
 
@@ -155,6 +114,7 @@ test('callModule_fromDefaultExport', () => {
 
   const context = {
     $logger: { error: sinon.fake() },
+    CreateEvent: () => sinon.fake(),
     $modules: Promise.resolve({ test }),
   };
 
@@ -164,7 +124,7 @@ test('callModule_fromDefaultExport', () => {
     const [arg_exec_context, arg_exec_params] = test.get.default.exec.getCall(0).args;
 
     expect(response).toBe('testing');
-    expect(arg_exec_context).toBe(context);
+    expect(JSON.stringify(arg_exec_context)).toBe(JSON.stringify({ ...context, createEvent: () => sinon.fake() }));
     expect(arg_exec_params).toBe(params);
   });
 });

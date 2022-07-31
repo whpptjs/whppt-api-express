@@ -1,6 +1,7 @@
 import { forEach, map } from 'lodash';
 import { ContextArgs, ContextType, PageType } from './Context';
 import Gallery from './gallery';
+import { EventSession, CreateEvent } from './events';
 
 const $aws = require('./aws');
 const Email = require('./email');
@@ -65,6 +66,8 @@ export default (options: ContextArgs = { disablePublishing: false }) => {
 
     _context.$email = Email(_context);
     _context.$gallery = Gallery({ ..._context, $aws });
+    _context.EventSession = () => EventSession(_context);
+    _context.CreateEvent = CreateEvent;
 
     forEach(options.services, (serviceValue, serviceName) => {
       _context[`$${serviceName}`] = serviceValue(_context);

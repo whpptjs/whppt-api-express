@@ -1,5 +1,7 @@
 module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
+  const createEvent = () => context.CreateEvent(req.user);
+  const _context = { ...context, createEvent };
 
   return $modules.then(modules => {
     const module = modules[mod];
@@ -19,16 +21,16 @@ module.exports = (context, mod, handlerName, params, req) => {
 
     if (!callHandler.authorise) {
       return Promise.resolve()
-        .then(() => callHandler.exec(context, params, req))
+        .then(() => callHandler.exec(_context, params, req))
         .catch(err => {
           return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
         });
     }
 
     return Promise.resolve()
-      .then(() => callHandler.authorise(context, params, req))
+      .then(() => callHandler.authorise(_context, params, req))
       .catch(err => Promise.reject({ status: 403, error: new AuthError(`Not Authorised to call Module: ${mod}/${handlerName}`, err) }))
-      .then(() => callHandler.exec(context, params, req))
+      .then(() => callHandler.exec(_context, params, req))
       .catch(err => {
         return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
       });

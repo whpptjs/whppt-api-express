@@ -26,8 +26,8 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
 
     return $gallery
       .upload({ file, domainId, type })
-      .then(() => {
-        return res.sendStatus(200);
+      .then(galleryItem => {
+        return res.json(galleryItem);
       })
       .catch(err => {
         res.status(err.http_code || 500).send(err);

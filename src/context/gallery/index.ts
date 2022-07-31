@@ -4,7 +4,7 @@ import { FetchImage, FetchOriginalImage } from './image';
 import { GalleryItem, GalleryItemType } from './GalleryItem';
 
 export type Gallery = {
-  upload: ({ file, domainId, type }: { file: any; domainId: string; type: GalleryItemType }) => Promise<void>;
+  upload: ({ file, domainId, type }: { file: any; domainId: string; type: GalleryItemType }) => Promise<GalleryItem>;
   fetchOriginalImage: FetchOriginalImage;
   fetchImage: FetchImage;
 };
@@ -42,8 +42,8 @@ const gallery: Service<Gallery> = context => {
         };
 
         return $startTransaction(session => {
-          return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadToS3(buffer, newGalleryItem._id));
-        });
+          return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadDocToS3(buffer, newGalleryItem._id));
+        }).then(() => newGalleryItem);
       });
     },
     fetchOriginalImage,
