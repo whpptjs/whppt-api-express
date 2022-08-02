@@ -33,7 +33,7 @@ export default (options: ContextArgs = { disablePublishing: false }) => {
   const pageTypeCollections = map($pageTypes, pageType => (pageType.collection && pageType.collection.name) || pageType.key);
   const pageTypeHistoryCollections = map(pageTypeCollections, pageTypeName => pageTypeName + 'History');
 
-  const collections = ['dependencies', ...pageTypeCollections, ...pageTypeHistoryCollections];
+  const collections = ['dependencies', 'gallery', ...pageTypeCollections, ...pageTypeHistoryCollections];
 
   return Promise.all([Mongo({ $logger, $id }, collections)]).then(([$mongo]) => {
     const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;

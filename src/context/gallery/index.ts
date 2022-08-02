@@ -40,7 +40,7 @@ const gallery: Service<Gallery> = context => {
         };
 
         return $startTransaction(session => {
-          return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadDocToS3(buffer, newGalleryItem._id));
+          return $save('gallery', newGalleryItem, { session }).then(() => $aws.uploadToS3(buffer, newGalleryItem._id));
         }).then(() => newGalleryItem);
       });
     },
