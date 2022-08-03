@@ -11,7 +11,7 @@ jest.mock('../../context/sitemap');
 jest.mock('../../context/roles');
 
 const sinon = require('sinon');
-const Context = require('../../src/context');
+const { Context } = require('../../src/context');
 const loadModules = require('../../src/context/modules/loadModules');
 const Mongo = require('../../src/context/mongo');
 
