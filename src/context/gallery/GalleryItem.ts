@@ -16,13 +16,7 @@ export type GalleryItem = DataDocument &
     defaultAltText?: string;
     defaultCaption?: string;
     tags: string[];
-    suggestedTags: string[];
+    suggestedTags?: string[];
     fileInfo?: GalleryFileInfo;
-    // crops: [
-    //   {
-    //     label: string;
-    //     aspectRatio: { label: string; ratio: { w: number; h: number } };
-    //     orientation: 'landscape' | 'portrait';
-    //   }
-    // ];
+    date: Date;
   };

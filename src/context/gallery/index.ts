@@ -37,6 +37,7 @@ const gallery: Service<Gallery> = context => {
           suggestedTags: [],
           createdAt: new Date(),
           updatedAt: new Date(),
+          date: new Date(),
         };
 
         return $startTransaction(session => {
