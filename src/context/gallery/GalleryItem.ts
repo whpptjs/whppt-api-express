@@ -15,7 +15,6 @@ export type GalleryItem = DataDocument &
     type: GalleryItemType;
     defaultAltText?: string;
     defaultCaption?: string;
-    name: string;
     tags: string[];
     suggestedTags?: string[];
     fileInfo?: GalleryFileInfo;

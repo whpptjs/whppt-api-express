@@ -38,7 +38,6 @@ const gallery: Service<Gallery> = context => {
           createdAt: new Date(),
           updatedAt: new Date(),
           date: new Date(),
-          name: originalname,
         };
 
         return $startTransaction(session => {
