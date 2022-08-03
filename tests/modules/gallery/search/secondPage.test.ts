@@ -13,7 +13,7 @@ test('load second page for type', () => {
   const $mongo = { $db: { collection: sinon.fake.returns(collection) } };
   const context = TestContext({ $mongo });
 
-  const args = { domainId: datatype.uuid(), type: 'image', page: 2 };
+  const args = { domainId: datatype.uuid(), type: 'image', page: '2' };
 
   return search.exec(context, args as SearchParams).then(() => {
     expect($mongo.$db.collection.firstCall.firstArg).toBe('gallery');

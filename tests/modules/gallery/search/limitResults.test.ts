@@ -13,7 +13,7 @@ test('limit results', () => {
   const $mongo = { $db: { collection: sinon.fake.returns(collection) } };
   const context = TestContext({ $mongo });
 
-  const args = { domainId: datatype.uuid(), type: 'image', page: 3, size: 50 };
+  const args = { domainId: datatype.uuid(), type: 'image', page: '3', size: '50' };
 
   return search.exec(context, args as SearchParams).then(() => {
     expect($mongo.$db.collection.firstCall.firstArg).toBe('gallery');
