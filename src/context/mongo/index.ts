@@ -1,4 +1,4 @@
-import { ClientSession, Document, Db, MongoClient, MongoClientOptions, ReadPreference, TransactionOptions } from 'mongodb';
+import { ClientSession, Db, MongoClient, MongoClientOptions, ReadPreference, TransactionOptions } from 'mongodb';
 import { DomainEvent } from '../events/CreateEvent';
 import assert from 'assert';
 const { pick } = require('lodash');
@@ -94,7 +94,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
           });
       };
 
-      const $save = function (collection: string, doc: Document, { session }: { session?: ClientSession } = {}) {
+      const $save = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
         doc = {
           _id: $id(),
           ...doc,
