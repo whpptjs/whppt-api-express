@@ -127,7 +127,18 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
         return $startTransaction(_session => save(_session)).then(() => doc);
       };
 
-      const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {};
+      const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {
+        const historyCollection = collection + 'History';
+        const { data, user } = doc;
+        const record = {
+          _id: new ObjectId($id()),
+          data,
+          action,
+          user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
+          date: new Date(),
+        };
+        return $db.collection(historyCollection).insertOne(record, { session });
+      };
 
       const $remove = function (collection: string, id: string, { session }: { session?: ClientSession } = {}) {
         return $db.collection(collection).updateOne(
