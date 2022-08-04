@@ -29,6 +29,6 @@ module.exports = {
       page.updatedAt = savedPage.updatedAt;
       await $record(collection, 'save', { data: page, user }, { session });
       return page;
-    });
+    }).then(() => page);
   },
 };

@@ -1,5 +1,6 @@
-import { ClientSession, Db, MongoClient, MongoClientOptions, ObjectId, ReadPreference, TransactionOptions } from 'mongodb';
+import { ClientSession, Document, Db, MongoClient, MongoClientOptions, ReadPreference, TransactionOptions } from 'mongodb';
 import { DomainEvent } from '../events/CreateEvent';
+import assert from 'assert';
 const { pick } = require('lodash');
 
 const mongoUrl = process.env.MONGO_URL;
@@ -17,7 +18,7 @@ export type MongoServiceSaveToPubWithEvents = <T extends { _id: string; createdA
   collection: string,
   doc: T,
   events: DomainEvent[],
-  options?: { session?: ClientSession }
+  options: { session: ClientSession }
 ) => Promise<T>;
 export type MongoServiceDelete = (collection: string, id: string, options?: { session?: ClientSession }) => Promise<any>;
 export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<any>) => Promise<any>;
@@ -93,7 +94,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
           });
       };
 
-      const $save = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
+      const $save = function (collection: string, doc: Document, { session }: { session?: ClientSession } = {}) {
         doc = {
           _id: $id(),
           ...doc,
@@ -107,7 +108,8 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
           .then(() => doc);
       };
 
-      const $saveToPubWithEvents: MongoServiceSaveToPubWithEvents = function (collection, doc, events, { session } = {}) {
+      const $saveToPubWithEvents: MongoServiceSaveToPubWithEvents = function (collection, doc, events, { session }) {
+        assert(session, 'Session is required');
         doc = {
           ...doc,
           _id: doc._id || $id(),
@@ -116,27 +118,24 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
         };
 
         const eventCollection = collection + 'Events';
-        const save = (_session: ClientSession) =>
-          $dbPub
-            .collection(collection)
-            .updateOne({ _id: doc._id }, { $set: doc }, { session: _session, upsert: true })
-            .then(() => $dbPub.collection(eventCollection).insertMany(events, { session: _session }));
 
-        if (session) return save(session).then(() => doc);
-
-        return $startTransaction(_session => save(_session)).then(() => doc);
+        return $dbPub
+          .collection(collection)
+          .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+          .then(() => $dbPub.collection(eventCollection).insertMany(events, { session }))
+          .then(() => doc);
       };
 
       const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {
         const historyCollection = collection + 'History';
         const { data, user } = doc;
         const record = {
-          _id: new ObjectId($id()),
+          _id: $id(),
           data,
           action,
           user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
           date: new Date(),
-        };
+        } as any;
         return $db.collection(historyCollection).insertOne(record, { session });
       };
 
