@@ -1,7 +1,5 @@
 module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
-  const createEvent = () => context.CreateEvent(req.user);
-  const _context = { ...context, createEvent };
 
   return $modules.then(modules => {
     const module = modules[mod];
@@ -18,6 +16,9 @@ module.exports = (context, mod, handlerName, params, req) => {
         status: 404,
         error: new Error(`Could not find Action. ${mod}/${handlerName}`),
       });
+
+    const createEvent = context.CreateEvent(req.user);
+    const _context = { ...context, createEvent };
 
     if (!callHandler.authorise) {
       return Promise.resolve()

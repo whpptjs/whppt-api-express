@@ -1,3 +1,4 @@
+import { EventSessionFactory } from './events/Session';
 import { Gallery } from './gallery';
 import { MongoService } from './mongo';
 
@@ -17,6 +18,7 @@ export type ContextType = {
   $publishing?: any;
   $email?: any;
   $gallery?: Gallery;
+  EventSession: EventSessionFactory;
   [key: string]: any;
 };
 

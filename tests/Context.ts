@@ -23,4 +23,11 @@ export const TestContext: TestContextConstructor = args => ({
   $env: args.$env,
   $publishing: args.$publishing,
   $email: args.$email,
+  EventSession: () => ({
+    callAction: () => ({}),
+    getEvents: () => [],
+  }),
+  CreateEvent: () => {
+    () => {};
+  },
 });
