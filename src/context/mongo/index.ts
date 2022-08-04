@@ -1,4 +1,5 @@
 import { ClientSession, Db, MongoClient, MongoClientOptions, ObjectId, ReadPreference, TransactionOptions } from 'mongodb';
+import { DomainEvent } from '../events/CreateEvent';
 const { pick } = require('lodash');
 
 const mongoUrl = process.env.MONGO_URL;
@@ -12,12 +13,19 @@ export type IdService = () => string;
 export type WhpptMongoArgs = { $logger: LoggerService; $id: IdService };
 
 export type MongoServiceSave = <T>(collection: string, doc: T, options?: { session?: ClientSession }) => Promise<T>;
+export type MongoServiceSaveToPubWithEvents = <T extends { _id: string; createdAt: Date; updatedAt: Date }>(
+  collection: string,
+  doc: T,
+  events: DomainEvent[],
+  options?: { session?: ClientSession }
+) => Promise<T>;
 export type MongoServiceDelete = (collection: string, id: string, options?: { session?: ClientSession }) => Promise<any>;
 export type MongoServiceStartTransaction = (callback: (session: ClientSession) => Promise<any>) => Promise<any>;
 export type MongoService = {
   $db: Db;
   $dbPub: Db;
   $save: MongoServiceSave;
+  $saveToPubWithEvents: MongoServiceSaveToPubWithEvents;
   $delete: MongoServiceDelete;
   $startTransaction: MongoServiceStartTransaction;
 };
@@ -99,18 +107,27 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
           .then(() => doc);
       };
 
-      const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {
-        const historyCollection = collection + 'History';
-        const { data, user } = doc;
-        const record = {
-          _id: new ObjectId($id()),
-          data,
-          action,
-          user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
-          date: new Date(),
+      const $saveToPubWithEvents: MongoServiceSaveToPubWithEvents = function (collection, doc, events, { session } = {}) {
+        doc = {
+          ...doc,
+          _id: doc._id || $id(),
+          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+          updatedAt: new Date(),
         };
-        return $db.collection(historyCollection).insertOne(record, { session });
+
+        const eventCollection = collection + 'Events';
+        const save = (_session: ClientSession) =>
+          $dbPub
+            .collection(collection)
+            .updateOne({ _id: doc._id }, { $set: doc }, { session: _session, upsert: true })
+            .then(() => $dbPub.collection(eventCollection).insertMany(events, { session: _session }));
+
+        if (session) return save(session).then(() => doc);
+
+        return $startTransaction(_session => save(_session)).then(() => doc);
       };
+
+      const $record = function (collection: string, action: string, doc: any, { session }: { session?: ClientSession } = {}) {};
 
       const $remove = function (collection: string, id: string, { session }: { session?: ClientSession } = {}) {
         return $db.collection(collection).updateOne(
@@ -132,9 +149,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
       const $publish = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
         doc = {
           ...doc,
-          lastPublished: new Date(),
           updatedAt: new Date(),
-          published: true,
           createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
         };
 
@@ -167,6 +182,7 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
           $list,
           $fetch,
           $save,
+          $saveToPubWithEvents,
           $record,
           $publish,
           $unpublish,

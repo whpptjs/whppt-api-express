@@ -63,11 +63,11 @@ const Context = (options: ContextArgs = { disablePublishing: false }) => {
         onPublish: options.onPublish || voidCallback,
         onUnPublish: options.onUnPublish || voidCallback,
       },
+      EventSession: EventSession({} as ContextType),
     } as ContextType;
 
     _context.$email = Email(_context);
     _context.$gallery = Gallery({ ..._context, $aws });
-    _context.EventSession = () => EventSession(_context);
     _context.CreateEvent = CreateEvent;
 
     forEach(options.services, (serviceValue, serviceName) => {
