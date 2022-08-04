@@ -38,4 +38,5 @@ export type ContextArgs = {
   disablePublishing: boolean;
   onPublish?: (page: any) => void;
   onUnPublish?: (page: any) => void;
+  collections?: string[];
 };

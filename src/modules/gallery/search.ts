@@ -5,8 +5,8 @@ import { GalleryItem, GalleryItemType } from '../../context/gallery/GalleryItem'
 export type SearchParams = {
   domainId: string;
   type: GalleryItemType;
-  page?: number;
-  size?: number;
+  page?: string;
+  size?: string;
   queryTags?: string[];
   filterTag?: string;
 };
@@ -20,8 +20,8 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
   exec({ $mongo: { $db } }, { domainId, page, size, type, filterTag, queryTags }) {
     assert(domainId, 'Please provide a domainId');
 
-    page = page || 1;
-    size = size || 30;
+    const pageNum = (page && parseInt(page)) || 1;
+    const sizeNum = (size && parseInt(size)) || 30;
     queryTags = queryTags || [];
 
     const query = {
@@ -39,8 +39,8 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
     return $db
       .collection('gallery')
       .find<GalleryItem>(query, { projection: { originalFilename: 1 } })
-      .skip(size * (page - 1))
-      .limit(size)
+      .skip(sizeNum * (pageNum - 1))
+      .limit(sizeNum)
       .toArray()
       .then(items => ({ items }));
   },
