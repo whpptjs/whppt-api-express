@@ -40,7 +40,6 @@ module.exports = (options: any) => {
       } = req;
       return callModule(context, mod, command, { ...cmdArgs, user }, req).catch(({ status, error }: { status: any; error: any }) => {
         $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
-        console.log('🚀 ~ file: index.js ~ line 44 ~ returnContext ~ status', status);
 
         return { status, error };
       });
