@@ -1,4 +1,4 @@
-import { ClientSession, Db, MongoClient, MongoClientOptions, ObjectId, ReadPreference, TransactionOptions } from 'mongodb';
+import { ClientSession, Db, MongoClient, MongoClientOptions, ReadPreference, TransactionOptions } from 'mongodb';
 import { DomainEvent } from '../events/CreateEvent';
 const { pick } = require('lodash');
 
@@ -131,12 +131,12 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
         const historyCollection = collection + 'History';
         const { data, user } = doc;
         const record = {
-          _id: new ObjectId($id()),
+          _id: $id(),
           data,
           action,
           user: pick(user, ['_id', 'username', 'email', 'firstName', 'lastName', 'roles']),
           date: new Date(),
-        };
+        } as any;
         return $db.collection(historyCollection).insertOne(record, { session });
       };
 
