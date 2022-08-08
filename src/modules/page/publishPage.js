@@ -17,7 +17,6 @@ module.exports = {
     return $startTransaction(async session => {
       const savedPage = await $save(collection, page, { session });
       publishedPage = await $publish(collection, savedPage, { session });
-      console.log('🚀 ~ file linked: publishPage.js ~ line 19 ~ exec ~ publishedPage', publishedPage);
       await $record(collection, 'publish', { data: publishedPage, user }, { session });
       if ($publishing.onPublish) await $publishing.onPublish(page);
       // });
