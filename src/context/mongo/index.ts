@@ -157,12 +157,6 @@ module.exports = ({ $logger, $id }: WhpptMongoArgs, collections = []) => {
       };
 
       const $publish = function (collection: string, doc: any, { session }: { session?: ClientSession } = {}) {
-        doc = {
-          ...doc,
-          updatedAt: new Date(),
-          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
-        };
-
         return $db
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })

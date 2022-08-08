@@ -10,13 +10,17 @@ module.exports = {
 
     page._id = page._id || $id();
     page.published = true;
+    page.lastPublished = new Date();
+
+    let publishedPage = page;
 
     return $startTransaction(async session => {
       const savedPage = await $save(collection, page, { session });
-      const publishedPage = await $publish(collection, savedPage, { session });
+      publishedPage = await $publish(collection, savedPage, { session });
+      console.log('🚀 ~ file linked: publishPage.js ~ line 19 ~ exec ~ publishedPage', publishedPage);
       await $record(collection, 'publish', { data: publishedPage, user }, { session });
       if ($publishing.onPublish) await $publishing.onPublish(page);
-      return publishedPage;
-    });
+      // });
+    }).then(() => publishedPage);
   },
 };
