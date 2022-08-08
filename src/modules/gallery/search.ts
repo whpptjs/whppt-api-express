@@ -38,7 +38,7 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
 
     return $db
       .collection('gallery')
-      .find<GalleryItem>(query, { projection: { originalFilename: 1 } })
+      .find<GalleryItem>(query, { projection: { fileInfo: 1 } })
       .skip(sizeNum * (pageNum - 1))
       .limit(sizeNum)
       .toArray()

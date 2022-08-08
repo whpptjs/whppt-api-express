@@ -19,4 +19,5 @@ export type GalleryItem = DataDocument &
     suggestedTags?: string[];
     fileInfo?: GalleryFileInfo;
     date: Date;
+    uploadedOn?: Date;
   };

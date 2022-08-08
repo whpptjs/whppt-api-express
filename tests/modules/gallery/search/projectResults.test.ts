@@ -18,7 +18,7 @@ test('project only the needed fields', () => {
   return search.exec(context, args as SearchParams).then(response => {
     expect($mongo.$db.collection.firstCall.firstArg).toBe('gallery');
     expect(collection.find.firstCall.firstArg).toStrictEqual({ domainId: args.domainId, type: 'image' });
-    expect(collection.find.firstCall.args[1]).toStrictEqual({ projection: { originalFilename: 1 } });
+    expect(collection.find.firstCall.args[1]).toStrictEqual({ projection: { fileInfo: 1 } });
     expect(skip.firstCall.firstArg).toBe(0);
     expect(limit.firstCall.firstArg).toBe(30);
     expect(response.items.length).toEqual(1);
