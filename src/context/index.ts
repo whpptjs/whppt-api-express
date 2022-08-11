@@ -11,7 +11,7 @@ const Image = require('./image');
 const $logger = require('./logger');
 const loadModules = require('./modules/loadModules');
 const Mongo = require('./mongo');
-const { ValidateRoles, saveRole } = require('./roles');
+const { ValidateRoles, saveRole, isGuest } = require('./roles');
 const Security = require('./security');
 const sitemapQuery = require('./sitemap');
 
@@ -57,6 +57,7 @@ const Context = (options: ContextArgs = { disablePublishing: false }) => {
       $roles: {
         validate: ValidateRoles({ $mongo, $env }),
         save: saveRole({ $id, $mongo }),
+        isGuest: isGuest({ $mongo }),
       },
       $env,
       $publishing: {
