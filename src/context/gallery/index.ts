@@ -1,11 +1,12 @@
 import fileType from 'file-type';
 import { Service } from '../Context';
-import { FetchImage, FetchOriginalImage } from './image';
+import { FetchImage } from './image';
+import { FetchOriginal } from './FetchOriginal';
 import { GalleryItem, GalleryItemType } from './GalleryItem';
 
 export type Gallery = {
   upload: ({ file, domainId, type }: { file: any; domainId: string; type: GalleryItemType }) => Promise<GalleryItem>;
-  fetchOriginalImage: FetchOriginalImage;
+  fetchOriginal: FetchOriginal;
   fetchImage: FetchImage;
 };
 
@@ -16,8 +17,8 @@ const gallery: Service<Gallery> = context => {
     $mongo: { $startTransaction, $save },
   } = context;
 
-  const fetchOriginalImage = FetchOriginalImage(context);
-  const fetchImage = FetchImage(context, fetchOriginalImage);
+  const fetchOriginal = FetchOriginal(context);
+  const fetchImage = FetchImage(context, fetchOriginal);
 
   return {
     upload: ({ file, domainId, type }) => {
@@ -45,7 +46,7 @@ const gallery: Service<Gallery> = context => {
         }).then(() => newGalleryItem);
       });
     },
-    fetchOriginalImage,
+    fetchOriginal,
     fetchImage,
   };
 };

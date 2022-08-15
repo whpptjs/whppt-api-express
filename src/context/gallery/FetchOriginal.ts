@@ -1,11 +1,11 @@
-import { ContextType } from '../../Context';
-import { GalleryItem } from '../GalleryItem';
+import { ContextType } from '../Context';
+import { GalleryItem } from './GalleryItem';
 
-export type FetchOriginalImageArgs = { itemId: string };
-export type FetchOriginalImage = ({ itemId }: FetchOriginalImageArgs) => Promise<any>;
-export type FetchOriginalImageConstructor = ({ $aws, $mongo: { $db } }: ContextType) => FetchOriginalImage;
+export type FetchOriginalArgs = { itemId: string };
+export type FetchOriginal = ({ itemId }: FetchOriginalArgs) => Promise<any>;
+export type FetchOriginalConstructor = ({ $aws, $mongo: { $db } }: ContextType) => FetchOriginal;
 
-export const FetchOriginalImage: FetchOriginalImageConstructor =
+export const FetchOriginal: FetchOriginalConstructor =
   ({ $aws, $mongo: { $db } }) =>
   ({ itemId }) => {
     return $db

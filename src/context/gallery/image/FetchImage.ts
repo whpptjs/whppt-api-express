@@ -1,6 +1,6 @@
 import Sharp from 'sharp';
 import { ContextType } from '../../Context';
-import { FetchOriginalImage } from './FetchOriginalImage';
+import { FetchOriginal } from '../FetchOriginal';
 
 export type FetchImageFormat = {
   w: string; // width to resize to eg. '666'
@@ -28,7 +28,7 @@ export type FetchImageArgs = {
 };
 
 export type FetchImage = (args: FetchImageArgs) => Promise<void>;
-export type FetchImageConstructor = (context: ContextType, fetchOriginal: FetchOriginalImage) => FetchImage;
+export type FetchImageConstructor = (context: ContextType, fetchOriginal: FetchOriginal) => FetchImage;
 
 const baseImageScale = parseFloat(process.env.BASE_IMAGE_SCALE || '1') || 1;
 

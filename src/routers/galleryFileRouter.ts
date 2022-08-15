@@ -48,11 +48,22 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
       .catch((err: any) => res.status(404).send(err));
   });
 
+  router.get(`/gallery/svg/:svgId`, cache({ ttl: sixMonths }), (req, res) => {
+    return $gallery
+      .fetchOriginal({ itemId: req.params.svgId })
+      .then((response: any) => {
+        if (!response) return res.status(404).send('Image not found');
+
+        res.type(response.ContentType).send(response.Body);
+      })
+      .catch((err: any) => res.status(404).send(err));
+  });
+
   router.get('/gallery/file/:id/:name', cache({ ttl: sixMonths }), (req: any, res) => {
     const { id, utm_medium, utm_campaign, utm_content } = req.params;
     return trackEvent(utm_medium, utm_campaign, utm_content).then(() => {
       return $gallery
-        .fetchOriginalImage({ itemId: id })
+        .fetchOriginal({ itemId: id })
         .then((fileBuffer: any) => {
           if (!fileBuffer) return res.status(500).send('File not found');
 
