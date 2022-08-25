@@ -9,7 +9,8 @@ const Gallery = require('./routers/galleryFileRouter');
 
 export * from './modules/HttpModule';
 
-module.exports = (options: any) => {
+export type WhpptApiConstructor = (options: any) => Promise<any>;
+const Whppt: WhpptApiConstructor = (options: any) => {
   options = options || {};
   options.apiPrefix = options.apiPrefix || 'api';
   options.disablePublishing = options.disablePublishing || false;
@@ -57,4 +58,5 @@ module.exports = (options: any) => {
   });
 };
 
-module.exports.Context = Context;
+// module.exports.Context = Context;
+export { Whppt, Context };
