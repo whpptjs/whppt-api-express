@@ -15,6 +15,7 @@ const {
   upload: uploadToS3,
   remove: removeFromS3,
   fetch: fetchFromS3,
+  fetchContent: fetchContentFromS3,
   uploadImage: uploadImageToS3,
   fetchImage: fetchImageFromS3,
   uploadDoc: uploadDocToS3,
@@ -36,4 +37,5 @@ module.exports = {
   sendEmail,
   getDomainIdentities,
   removeDocFromS3,
+  fetchContentFromS3,
 };

@@ -3,12 +3,13 @@ const S3_BUCKET_NAME = process.env.S3_BUCKET;
 module.exports = awsSDK => {
   const s3 = new awsSDK.S3();
 
-  const upload = function (fileBuffer, id) {
+  const upload = function (fileBuffer, id, type) {
     const uploadImagePromise = new Promise((resolve, reject) => {
+      const path = type ? `${type}/${id}` : id;
       s3.putObject(
         {
           Bucket: S3_BUCKET_NAME,
-          Key: `gallery/${id}`,
+          Key: `${path}`,
           Body: fileBuffer,
           ACL: 'public-read',
           ContentEncoding: 'base64',
@@ -36,10 +37,21 @@ module.exports = awsSDK => {
 
   const fetch = function (id) {
     return new Promise((resolve, reject) => {
+      console.log('🚀 1', id);
       s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `gallery/${id}` }, (err, fileData) => {
         if (err) return reject(err);
         if (!fileData || !fileData.Body) return reject(new Error('No file body'));
         resolve({ fileBuffer: fileData.Body });
+      });
+    });
+  };
+
+  const fetchContent = function (id, type) {
+    return new Promise((resolve, reject) => {
+      s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `${type}/${id}` }, (err, data) => {
+        if (err) return reject(err);
+        if (!data || !data.Body) return reject(new Error('No data body'));
+        resolve({ fileBuffer: data.Body });
       });
     });
   };
@@ -126,5 +138,5 @@ module.exports = awsSDK => {
     });
   };
 
-  return { upload, remove, fetch, uploadImage, fetchImage, uploadDoc, fetchDoc, removeImage, removeDoc };
+  return { fetch, fetchContent, fetchDoc, fetchImage, remove, removeDoc, removeImage, upload, uploadDoc, uploadImage };
 };

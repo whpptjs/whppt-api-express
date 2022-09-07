@@ -5,7 +5,7 @@ import { GalleryItem } from '../context/gallery/GalleryItem';
 
 const cache = require('express-cache-headers');
 const multer = require('multer');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
 const router = Router();
 
@@ -50,9 +50,20 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
 
   router.get(`/gallery/svg/:svgId`, cache({ ttl: sixMonths }), (req, res) => {
     return $gallery
-      .fetchOriginal({ itemId: req.params.svgId })
+      .fetchOriginal({ itemId: req.params.svgId, type: 'svg' })
       .then((response: any) => {
-        if (!response) return res.status(404).send('Image not found');
+        if (!response) return res.status(404).send('SVG not found');
+
+        res.type(response.ContentType).send(response.Body);
+      })
+      .catch((err: any) => res.status(404).send(err));
+  });
+
+  router.get(`/gallery/video/:videoId`, cache({ ttl: sixMonths }), (req, res) => {
+    return $gallery
+      .fetchOriginal({ itemId: req.params.videoId, type: 'video' })
+      .then((response: any) => {
+        if (!response) return res.status(404).send('Video not found');
 
         res.type(response.ContentType).send(response.Body);
       })
@@ -60,19 +71,15 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
   });
 
   router.get('/gallery/file/:id/:name', cache({ ttl: sixMonths }), (req: any, res) => {
-    const { id, utm_medium, utm_campaign, utm_content } = req.params;
-    return trackEvent(utm_medium, utm_campaign, utm_content).then(() => {
-      return $gallery
-        .fetchOriginal({ itemId: id })
-        .then((fileBuffer: any) => {
-          if (!fileBuffer) return res.status(500).send('File not found');
-
-          return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
-        })
-        .catch((err: any) => {
-          res.status(500).send(err);
-        });
-    });
+    return $gallery
+      .fetchOriginal({ itemId: req.params.id, type: 'doc' })
+      .then((fileBuffer: any) => {
+        if (!fileBuffer) return res.status(500).send('File not found');
+        return res.type(fileBuffer.ContentType).send(fileBuffer.Body);
+      })
+      .catch((err: any) => {
+        res.status(500).send(err);
+      });
   });
 
   router.get('/gallery/file/:id', (req, res) => {
@@ -89,19 +96,19 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
   return router;
 };
 
-const trackEvent = (medium: string, campaign: string, fileName: string) => {
-  const trackingId = process.env.GA_TRACKING_ID;
-  if (!trackingId || !trackingId.length) return Promise.resolve();
-  if (!medium || !campaign || !fileName) return Promise.resolve();
-  const data = {
-    v: '1',
-    tid: trackingId,
-    cm: medium,
-    cc: fileName,
-    cn: campaign,
-  };
+// const trackEvent = (medium: string, campaign: string, fileName: string) => {
+//   const trackingId = process.env.GA_TRACKING_ID;
+//   if (!trackingId || !trackingId.length) return Promise.resolve();
+//   if (!medium || !campaign || !fileName) return Promise.resolve();
+//   const data = {
+//     v: '1',
+//     tid: trackingId,
+//     cm: medium,
+//     cc: fileName,
+//     cn: campaign,
+//   };
 
-  return fetch('http://www.google-analytics.com/debug/collect', {
-    params: data,
-  });
-};
+//   return fetch('http://www.google-analytics.com/debug/collect', {
+//     params: data,
+//   });
+// };
