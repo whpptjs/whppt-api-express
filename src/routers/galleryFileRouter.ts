@@ -5,7 +5,6 @@ import { GalleryItem } from '../context/gallery/GalleryItem';
 
 const cache = require('express-cache-headers');
 const multer = require('multer');
-// const fetch = require('node-fetch');
 
 const router = Router();
 
@@ -95,20 +94,3 @@ module.exports = ({ $gallery, $mongo: { $db } }: ContextType) => {
 
   return router;
 };
-
-// const trackEvent = (medium: string, campaign: string, fileName: string) => {
-//   const trackingId = process.env.GA_TRACKING_ID;
-//   if (!trackingId || !trackingId.length) return Promise.resolve();
-//   if (!medium || !campaign || !fileName) return Promise.resolve();
-//   const data = {
-//     v: '1',
-//     tid: trackingId,
-//     cm: medium,
-//     cc: fileName,
-//     cn: campaign,
-//   };
-
-//   return fetch('http://www.google-analytics.com/debug/collect', {
-//     params: data,
-//   });
-// };
