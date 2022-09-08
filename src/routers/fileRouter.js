@@ -46,7 +46,7 @@ module.exports = ({ $file, $mongo: { $db } }) => {
       .collection('files')
       .findOne({ _id: fileId })
       .then(file => {
-        res.redirect(`/file/${fileId}/${file.name}?utm_medium=website&utm_campaign=website&utm_content=${file.name}`);
+        res.redirect(`/file/${fileId}/${file.name}`);
       });
   });
 
@@ -73,7 +73,7 @@ module.exports = ({ $file, $mongo: { $db } }) => {
       .collection('files')
       .findOne({ _id: id })
       .then(file => {
-        res.redirect(`/file/${id}/${file.name}?utm_medium=website&utm_campaign=website&utm_content=${file.name}`);
+        res.redirect(`/file/${id}/${file.name}`);
       });
   });
 
