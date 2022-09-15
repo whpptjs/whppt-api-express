@@ -32,17 +32,20 @@ export const JwtProvider: SecurityProviderConstructor = ({ $id, config }) => ({
     });
   },
   authenticate(req, res, next) {
-    return new Promise((_, reject) => {
-      passport.authenticate('jwt', function (err, user) {
-        if (err) return reject(err);
+    // return new Promise((_, reject) => {
+    passport.authenticate('jwt', function (err, user) {
+      if (err) {
+        res.status(401).send('Could not authenticate').send();
+        return;
+      }
 
-        req.user = !user
-          ? WhpptUser({ _id: 'guest', username: 'Guest' })
-          : (req.user = WhpptUser(user));
+      req.user = !user
+        ? WhpptUser({ _id: 'guest', username: 'Guest' })
+        : (req.user = WhpptUser(user));
 
-        next();
-      })(req, res);
-    });
+      next();
+    })(req, res);
+    // });
   },
   createToken(user) {
     return jwt.sign(

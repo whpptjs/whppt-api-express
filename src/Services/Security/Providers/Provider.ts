@@ -13,7 +13,7 @@ export type SecurityProviderOptions = {
 };
 export type SecurityProvider = {
   init: () => Strategy;
-  authenticate: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  authenticate: (req: Request, res: Response, next: NextFunction) => void;
   createToken: (user: WhpptUser) => string;
 };
 export type SecurityProviderConstructor = (

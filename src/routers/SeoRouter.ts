@@ -1,12 +1,5 @@
 import { Router } from 'express';
-import {
-  GalleryService,
-  IdService,
-  LoggerService,
-  MongoService,
-  SecurityService,
-} from '../Services';
-import { Context } from '../context';
+import { ContextType } from '../context/Context';
 import { WhpptConfig } from '../Config';
 const { join, map } = require('lodash');
 
@@ -21,32 +14,20 @@ const sitemapStart = `<?xml version="1.0" encoding="UTF-8"?>
 const sitemapEnd = `</urlset>`;
 
 export type SeoRouterConstructor = (
-  $id: IdService,
-  $logger: LoggerService,
-  $security: SecurityService,
-  $mongo: Promise<MongoService>,
-  $gallery: GalleryService,
+  context: Promise<ContextType>,
   config: WhpptConfig
 ) => Router;
 
-export const SeoRouter: SeoRouterConstructor = function (
-  $id,
-  $logger,
-  $security,
-  $mongo,
-  $gallery, // TODO: This dependency should not be required.
-  config
-) {
+export const SeoRouter: SeoRouterConstructor = function (context) {
   router.get(`/sitemap.xml`, (_, res) => {
-    Context($id, $logger, $security, $mongo, $gallery, { ...config }).then(
-      ({ $sitemap }) => {
-        return $sitemap
-          .filter()
-          .then(({ sitemap }: any) => {
-            const indexablePages = sitemap.filter((p: any) => !p.hideFromSitemap);
-            return join(
-              map(indexablePages, (page: any) => {
-                return `<url>
+    return context.then(({ $sitemap }) => {
+      return $sitemap
+        .filter()
+        .then(({ sitemap }: any) => {
+          const indexablePages = sitemap.filter((p: any) => !p.hideFromSitemap);
+          return join(
+            map(indexablePages, (page: any) => {
+              return `<url>
                       <loc>${page.url}</loc>
                       ${
                         page.updatedAt
@@ -65,16 +46,15 @@ export const SeoRouter: SeoRouterConstructor = function (
                       }
                     </url>
                   `;
-              }),
-              '\n'
-            );
-          })
-          .then((sitemapData: any) =>
-            res.type('text/xml').send(`${sitemapStart}${sitemapData}${sitemapEnd}`)
-          )
-          .catch((err: any) => res.status(500).send(err));
-      }
-    );
+            }),
+            '\n'
+          );
+        })
+        .then((sitemapData: any) =>
+          res.type('text/xml').send(`${sitemapStart}${sitemapData}${sitemapEnd}`)
+        )
+        .catch((err: any) => res.status(500).send(err));
+    });
   });
 
   router.get('/robots.txt', function (_, res) {

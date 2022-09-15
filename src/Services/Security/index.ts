@@ -22,7 +22,7 @@ export type SecurityServiceArgs = {
 export type SecurityService = {
   encrypt: (password: string) => Promise<string>;
   compare: (password: string, hash: string) => Promise<boolean>;
-  authenticate: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+  authenticate: (req: Request, res: Response, next: NextFunction) => void;
   createToken: (user: WhpptUser) => string;
   generateAccessToken: (
     userId: string,

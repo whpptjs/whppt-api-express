@@ -37,88 +37,91 @@ const Context = (
     disablePublishing: false,
   }
 ) => {
-  options.modules = options.modules || {};
-  options.services = options.services || {};
-  options.collections = options.collections || [];
-  options.disablePublishing = options.disablePublishing || false;
+  return Promise.resolve().then(() => {
+    options.modules = options.modules || {};
+    options.services = options.services || {};
+    options.collections = options.collections || [];
+    options.disablePublishing = options.disablePublishing || false;
 
-  const $pageTypes =
-    options.pageTypes && options.pageTypes.length ? options.pageTypes : [genericPageType];
-  const pageTypeCollections = compact(
-    map(
-      $pageTypes,
-      pageType => (pageType.collection && pageType.collection.name) || pageType.key
-    )
-  );
-  const pageTypeHistoryCollections = map(
-    pageTypeCollections,
-    pageTypeName => pageTypeName + 'History'
-  );
-
-  const collections = [
-    'dependencies',
-    'gallery',
-    ...options.collections,
-    ...pageTypeCollections,
-    ...pageTypeHistoryCollections,
-  ];
-
-  return mongoPromise.then($mongo => {
-    return $mongo.ensureCollections(collections).then(() => {
-      const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
-
-      const $modules = loadModules().then((modules: any) => ({
-        ...modules,
-        ...options.modules,
-      }));
-
-      const _context = {
-        $id,
-        $logger,
-        // $image: Image({
-        //   $logger,
-        //   $mongo,
-        //   $aws,
-        //   $id,
-        //   disablePublishing: options.disablePublishing,
-        // }),
-        // $file: File({
-        //   $logger,
-        //   $mongo,
-        //   $aws,
-        //   $id,
-        //   disablePublishing: options.disablePublishing,
-        // }),
-        $security,
-        $mongo,
-        $modules,
+    const $pageTypes =
+      options.pageTypes && options.pageTypes.length
+        ? options.pageTypes
+        : [genericPageType];
+    const pageTypeCollections = compact(
+      map(
         $pageTypes,
-        $fullUrl,
-        $sitemap: {
-          filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
-        },
-        $roles: {
-          validate: ValidateRoles({ $mongo, $env }),
-          save: saveRole({ $id, $mongo }),
-          isGuest: isGuest({ $mongo }),
-        },
-        $env,
-        $publishing: {
-          onPublish: options.onPublish || voidCallback,
-          onUnPublish: options.onUnPublish || voidCallback,
-        },
-        EventSession: EventSession({} as ContextType),
-      } as ContextType;
+        pageType => (pageType.collection && pageType.collection.name) || pageType.key
+      )
+    );
+    const pageTypeHistoryCollections = map(
+      pageTypeCollections,
+      pageTypeName => pageTypeName + 'History'
+    );
 
-      _context.$email = Email(_context);
-      _context.$gallery = $gallery;
-      _context.CreateEvent = CreateEvent;
+    const collections = [
+      'dependencies',
+      'gallery',
+      ...options.collections,
+      ...pageTypeCollections,
+      ...pageTypeHistoryCollections,
+    ];
 
-      forEach(options.services, (serviceValue, serviceName) => {
-        _context[`$${serviceName}`] = serviceValue(_context);
+    return mongoPromise.then($mongo => {
+      return $mongo.ensureCollections(collections).then(() => {
+        const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
+
+        const $modules = loadModules().then((modules: any) => ({
+          ...modules,
+          ...options.modules,
+        }));
+
+        const _context = {
+          $id,
+          $logger,
+          // $image: Image({
+          //   $logger,
+          //   $mongo,
+          //   $aws,
+          //   $id,
+          //   disablePublishing: options.disablePublishing,
+          // }),
+          // $file: File({
+          //   $logger,
+          //   $mongo,
+          //   $aws,
+          //   $id,
+          //   disablePublishing: options.disablePublishing,
+          // }),
+          $security,
+          $mongo,
+          $modules,
+          $pageTypes,
+          $fullUrl,
+          $sitemap: {
+            filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
+          },
+          $roles: {
+            validate: ValidateRoles({ $mongo, $env }),
+            save: saveRole({ $id, $mongo }),
+            isGuest: isGuest({ $mongo }),
+          },
+          $env,
+          $publishing: {
+            onPublish: options.onPublish || voidCallback,
+            onUnPublish: options.onUnPublish || voidCallback,
+          },
+          EventSession: EventSession({} as ContextType),
+        } as ContextType;
+
+        _context.$email = Email(_context);
+        _context.$gallery = $gallery;
+        _context.CreateEvent = CreateEvent;
+
+        forEach(options.services, (serviceValue, serviceName) => {
+          _context[`$${serviceName}`] = serviceValue(_context);
+        });
+        return _context;
       });
-
-      return _context;
     });
   });
 };
