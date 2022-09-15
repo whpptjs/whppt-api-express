@@ -7,7 +7,10 @@ module.exports = {
   authorise({ $roles }, { page, user }) {
     return $roles.validate(user, [page.editorRoles]);
   },
-  exec({ whpptOptions, $id, $mongo: { $startTransaction, $db, $save, $record } }, { page, collection, user }) {
+  exec(
+    { whpptOptions, $id, $mongo: { $startTransaction, $db, $save, $record } },
+    { page, collection, user }
+  ) {
     assert(page, 'Please provide a page.');
     assert(collection, 'Please provide a collection.');
 
@@ -19,7 +22,9 @@ module.exports = {
     const usedLinks = linksExtractor(pageType, page);
 
     return $startTransaction(async session => {
-      await $db.collection('dependencies').deleteMany({ parentId: page._id }, { session });
+      await $db
+        .collection('dependencies')
+        .deleteMany({ parentId: page._id }, { session });
       const dependencies = uniqBy([...usedImages, ...usedLinks], image => image._id);
 
       if (dependencies && dependencies.length) {

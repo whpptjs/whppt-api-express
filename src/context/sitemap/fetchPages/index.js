@@ -1,8 +1,17 @@
 const { orderBy, flatten, map, take, drop, filter } = require('lodash');
 
-module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug, freq, pageType, priority, lastModTo, lastModFrom, domainId }) => {
-  const filteredCollections = filter($pageTypes, pt => !pt.collection || !pt.collection.excludeFromSitemap);
-  const collections = map(filteredCollections, pt => (pt.collection && pt.collection.name) || pt.name);
+module.exports = (
+  { $mongo: { $db }, $pageTypes, $fullUrl },
+  { page, size, slug, freq, pageType, priority, lastModTo, lastModFrom, domainId }
+) => {
+  const filteredCollections = filter(
+    $pageTypes,
+    pt => !pt.collection || !pt.collection.excludeFromSitemap
+  );
+  const collections = map(
+    filteredCollections,
+    pt => (pt.collection && pt.collection.name) || pt.name
+  );
 
   const filters = {};
 
@@ -41,6 +50,12 @@ module.exports = ({ $mongo: { $db }, $pageTypes, $fullUrl }, { page, size, slug,
 
     if (!page && !size) return { sitemap: fullSitemap, total: fullSitemap.length };
 
-    return { sitemap: take(drop(orderBy(fullSitemap, ['slug'], ['asc']), size * (page - 1)), size), total: fullSitemap.length };
+    return {
+      sitemap: take(
+        drop(orderBy(fullSitemap, ['slug'], ['asc']), size * (page - 1)),
+        size
+      ),
+      total: fullSitemap.length,
+    };
   });
 };

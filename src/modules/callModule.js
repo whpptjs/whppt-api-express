@@ -1,5 +1,6 @@
 module.exports = (context, mod, handlerName, params, req) => {
   const { $modules } = context;
+  console.log('🚀 ~ file: callModule.js ~ line 3 ~ modules', modules);
 
   return $modules.then(modules => {
     const module = modules[mod];
@@ -9,7 +10,8 @@ module.exports = (context, mod, handlerName, params, req) => {
         error: new Error(`Could not find Module. ${mod}`),
       });
 
-    const callHandler = (module[handlerName] && module[handlerName].default) || module[handlerName];
+    const callHandler =
+      (module[handlerName] && module[handlerName].default) || module[handlerName];
 
     if (!callHandler)
       return Promise.reject({
@@ -24,16 +26,38 @@ module.exports = (context, mod, handlerName, params, req) => {
       return Promise.resolve()
         .then(() => callHandler.exec(_context, params, req))
         .catch(err => {
-          return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
+          return Promise.reject({
+            status: (err && err.status) || 500,
+            error: new ModuleExecError(
+              err && err.status,
+              `Error executing Module: ${mod}/${handlerName}`,
+              err
+            ),
+          });
         });
     }
 
     return Promise.resolve()
       .then(() => callHandler.authorise(_context, params, req))
-      .catch(err => Promise.reject({ status: 403, error: new AuthError(`Not Authorised to call Module: ${mod}/${handlerName}`, err) }))
+      .catch(err =>
+        Promise.reject({
+          status: 403,
+          error: new AuthError(
+            `Not Authorised to call Module: ${mod}/${handlerName}`,
+            err
+          ),
+        })
+      )
       .then(() => callHandler.exec(_context, params, req))
       .catch(err => {
-        return Promise.reject({ status: (err && err.status) || 500, error: new ModuleExecError(err && err.status, `Error executing Module: ${mod}/${handlerName}`, err) });
+        return Promise.reject({
+          status: (err && err.status) || 500,
+          error: new ModuleExecError(
+            err && err.status,
+            `Error executing Module: ${mod}/${handlerName}`,
+            err
+          ),
+        });
       });
   });
 };

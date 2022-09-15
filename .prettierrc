@@ -4,7 +4,7 @@
   "trailingComma": "es5",
   "tabWidth": 2,
   "semi": true,
-  "printWidth": 180,
+  "printWidth": 90,
   "bracketSpacing": true,
   "bracketSameLine": true
 }

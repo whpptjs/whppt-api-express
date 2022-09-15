@@ -17,8 +17,18 @@ module.exports = {
     return findExistingUsers($db, lowerUsername, lowerEmail).then(existingUser => {
       let error = '';
 
-      if (existingUser && existingUser.username && lowerUsername === toLower(existingUser.username)) error = 'Username already taken, please try another username';
-      if (existingUser && existingUser.email && existingUser.email !== '' && lowerEmail === toLower(existingUser.email))
+      if (
+        existingUser &&
+        existingUser.username &&
+        lowerUsername === toLower(existingUser.username)
+      )
+        error = 'Username already taken, please try another username';
+      if (
+        existingUser &&
+        existingUser.email &&
+        existingUser.email !== '' &&
+        lowerEmail === toLower(existingUser.email)
+      )
         error = 'Email address already taken, please try another email';
 
       assert(!existingUser, error);

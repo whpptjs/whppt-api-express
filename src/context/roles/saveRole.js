@@ -25,5 +25,6 @@ async function checkForExistingRole($db, role) {
     .find({ _id: { $ne: role._id }, name: role.name })
     .toArray();
 
-  if (existingRoles.length) throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
+  if (existingRoles.length)
+    throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
 }

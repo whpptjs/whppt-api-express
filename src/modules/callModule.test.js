@@ -92,7 +92,9 @@ test('callModule_withAuthorise_handleError404fromMongo', () => {
 });
 
 test('callModule_includeReqToAuthorise', () => {
-  const test = { get: { authorise: sinon.fake.resolves(), exec: sinon.fake.resolves('testing') } };
+  const test = {
+    get: { authorise: sinon.fake.resolves(), exec: sinon.fake.resolves('testing') },
+  };
 
   const context = {
     $logger: { error: sinon.fake() },
@@ -132,7 +134,9 @@ test('callModule_fromDefaultExport', () => {
     const [arg_exec_context, arg_exec_params] = test.get.default.exec.getCall(0).args;
 
     expect(response).toBe('testing');
-    expect(JSON.stringify(arg_exec_context)).toBe(JSON.stringify({ ...context, createEvent: () => sinon.fake() }));
+    expect(JSON.stringify(arg_exec_context)).toBe(
+      JSON.stringify({ ...context, createEvent: () => sinon.fake() })
+    );
     expect(arg_exec_params).toBe(params);
   });
 });

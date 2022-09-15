@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
-import { GalleryItem, GalleryItemType } from '../../context/gallery/GalleryItem';
+import { GalleryItem, GalleryItemType } from '../../Services/Gallery/GalleryItem';
 
 export type SearchParams = {
   domainId: string;

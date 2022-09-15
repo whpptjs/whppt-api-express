@@ -19,7 +19,11 @@ module.exports = ({ $mongo: { $db } }, { user, sitemap }) => {
         const { publisherRoles = [] } = page;
 
         const matchingPublisherRoles = intersection(publisherRoles, user.roles);
-        const publishableByYou = Boolean((matchingPublisherRoles.length === publisherRoles.length && publisherRoles.length > 0) || userAdminRoles.length > 0);
+        const publishableByYou = Boolean(
+          (matchingPublisherRoles.length === publisherRoles.length &&
+            publisherRoles.length > 0) ||
+            userAdminRoles.length > 0
+        );
 
         return { ...page, publishableByYou };
       });

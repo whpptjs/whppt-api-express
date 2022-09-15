@@ -2,15 +2,32 @@ const assert = require('assert');
 const { map, compact } = require('lodash');
 
 module.exports = {
-  async exec({ $id, whpptOptions, $mongo: { $startTransaction, $db, $save, $record } }, { nav, user }) {
+  async exec(
+    { $id, whpptOptions, $mongo: { $startTransaction, $db, $save, $record } },
+    { nav, user }
+  ) {
     assert(nav, 'Please provide a Nav Object.');
 
     nav._id = nav._id || 'nav';
 
     const { extractNavImages, extractNavLinks } = whpptOptions;
 
-    const imageDependencies = extractNavImages ? map(compact(extractNavImages(nav)), i => ({ _id: $id(), parentId: nav._id, imageId: i, type: 'image' })) : [];
-    const linkDependencies = extractNavLinks ? map(compact(extractNavLinks(nav)), l => ({ _id: $id(), parentId: nav._id, href: l, type: 'link' })) : [];
+    const imageDependencies = extractNavImages
+      ? map(compact(extractNavImages(nav)), i => ({
+          _id: $id(),
+          parentId: nav._id,
+          imageId: i,
+          type: 'image',
+        }))
+      : [];
+    const linkDependencies = extractNavLinks
+      ? map(compact(extractNavLinks(nav)), l => ({
+          _id: $id(),
+          parentId: nav._id,
+          href: l,
+          type: 'link',
+        }))
+      : [];
 
     const dependencies = [...imageDependencies, ...linkDependencies];
 

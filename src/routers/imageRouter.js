@@ -9,7 +9,9 @@ const sixMonths = oneDay * 30 * 6;
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
-const imagePath = process.env.BASE_IMAGE_URL ? parse(process.env.BASE_IMAGE_URL).path : '/img';
+const imagePath = process.env.BASE_IMAGE_URL
+  ? parse(process.env.BASE_IMAGE_URL).path
+  : '/img';
 
 module.exports = context => {
   const { $image } = context;

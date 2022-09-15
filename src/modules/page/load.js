@@ -9,7 +9,8 @@ module.exports = {
         if (!page) return { status: 404, message: 'Page not found' };
 
         const requiredRoles = [];
-        if (page.viewerRoles && page.viewerRoles.length) requiredRoles.push(...page.viewerRoles);
+        if (page.viewerRoles && page.viewerRoles.length)
+          requiredRoles.push(...page.viewerRoles);
 
         return $roles.validate(user, [requiredRoles]);
       });

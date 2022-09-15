@@ -1,6 +1,11 @@
 const fileType = require('file-type');
 
-module.exports = ({ $mongo: { $db, $dbPub, $delete, $unpublish }, $aws, $id, disablePublishing }) => {
+module.exports = ({
+  $mongo: { $db, $dbPub, $delete, $unpublish },
+  $aws,
+  $id,
+  disablePublishing,
+}) => {
   const upload = function (file, description) {
     const { buffer, mimetype: type, originalname: name } = file;
     const id = $id();

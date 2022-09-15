@@ -10,18 +10,30 @@ module.exports = {
       .collection('users')
       .findOne(
         {
-          $or: [{ username: new RegExp(`^${username}$`, 'iu') }, { email: new RegExp(`^${username}$`, 'iu') }],
+          $or: [
+            { username: new RegExp(`^${username}$`, 'iu') },
+            { email: new RegExp(`^${username}$`, 'iu') },
+          ],
         },
-        { username: true, firstname: true, lastname: true, email: true, roles: true, password: true }
+        {
+          username: true,
+          firstname: true,
+          lastname: true,
+          email: true,
+          roles: true,
+          password: true,
+        }
       )
       .then(user => {
-        if (!user) return Promise.reject(new Error('Something went wrong. Could not log you in.'));
+        if (!user)
+          return Promise.reject(new Error('Something went wrong. Could not log you in.'));
 
         return $security.encrypt(password).then(encrypted => {
           $logger.dev('Checking password for user %s, %s', username, encrypted);
 
           return $security.compare(password, user.password).then(passwordMatches => {
-            if (passwordMatches) return { token: $security.createToken(omit(user, ['password'])) };
+            if (passwordMatches)
+              return { token: $security.createToken(omit(user, ['password'])) };
 
             return Promise.reject(new Error('Something went wrong. Could not log in.'));
           });
