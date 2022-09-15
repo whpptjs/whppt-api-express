@@ -2,8 +2,10 @@ import { compact, forEach, map } from 'lodash';
 import { ContextArgs, ContextType, PageType } from './Context';
 import { EventSession, CreateEvent } from './events';
 import {
+  FileService,
   GalleryService,
   IdService,
+  ImageService,
   LoggerService,
   MongoService,
   SecurityService,
@@ -33,6 +35,8 @@ const Context = (
   $security: SecurityService,
   mongoPromise: Promise<MongoService>,
   $gallery: GalleryService,
+  $image: ImageService,
+  $file: FileService,
   options: ContextArgs = {
     disablePublishing: false,
   }
@@ -78,20 +82,8 @@ const Context = (
         const _context = {
           $id,
           $logger,
-          // $image: Image({
-          //   $logger,
-          //   $mongo,
-          //   $aws,
-          //   $id,
-          //   disablePublishing: options.disablePublishing,
-          // }),
-          // $file: File({
-          //   $logger,
-          //   $mongo,
-          //   $aws,
-          //   $id,
-          //   disablePublishing: options.disablePublishing,
-          // }),
+          $image,
+          $file,
           $security,
           $mongo,
           $modules,

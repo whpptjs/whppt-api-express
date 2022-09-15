@@ -1,4 +1,5 @@
-const router = require('express').Router();
+import { Router } from 'express';
+import { ImageService } from '../Services';
 const cache = require('express-cache-headers');
 const multer = require('multer');
 const { parse } = require('uri-js');
@@ -13,14 +14,16 @@ const imagePath = process.env.BASE_IMAGE_URL
   ? parse(process.env.BASE_IMAGE_URL).path
   : '/img';
 
-module.exports = context => {
-  const { $image } = context;
+export type ImageRouterConstructor = ($image: ImageService) => Router;
+
+export const ImageRouter: ImageRouterConstructor = $image => {
+  const router = Router();
 
   router.get(`${imagePath}/:imageId`, cache({ ttl: sixMonths }), (req, res) => {
     const { accept } = req.headers;
 
     return $image
-      .fetch({ id: req.params.imageId, format: req.query, accept })
+      .fetch({ id: req.params.imageId, format: req.query, accept: accept || '' })
       .then(response => {
         if (!response) return res.status(404).send('Image not found');
 
@@ -30,7 +33,7 @@ module.exports = context => {
   });
 
   router.post(`${imagePath}/upload`, upload, (req, res) => {
-    const { file } = req;
+    const { file } = req as any;
     if (!file) return { message: 'Image file not found' };
 
     $image

@@ -55,10 +55,16 @@ export type MongoService = {
   $saveToPubWithEvents: MongoServiceSaveToPubWithEvents;
   $delete: MongoServiceDelete;
   $startTransaction: MongoServiceStartTransaction;
+  $unpublish: (
+    collection: string,
+    _id: string,
+    options?: { session?: ClientSession }
+  ) => Promise<void>;
   ensureCollections: (collections: string[]) => Promise<void>;
 };
+export type MongoServiceConstructor = (args: WhpptMongoArgs) => Promise<MongoService>;
 
-export const Mongo = ({ $logger, $id }: WhpptMongoArgs) => {
+export const Mongo: MongoServiceConstructor = ({ $logger, $id }: WhpptMongoArgs) => {
   if (!mongoUrl) {
     $logger.error('Mongo connection failed, missing URL ....');
     process.exit(1);
@@ -213,7 +219,10 @@ export const Mongo = ({ $logger, $id }: WhpptMongoArgs) => {
         id: string,
         { session }: { session?: ClientSession } = {}
       ) {
-        return $db.collection(collection).deleteOne({ _id: id }, { session });
+        return $db
+          .collection(collection)
+          .deleteOne({ _id: id }, { session })
+          .then(() => {});
       };
 
       const $publish = function (
@@ -241,7 +250,10 @@ export const Mongo = ({ $logger, $id }: WhpptMongoArgs) => {
           .collection(collection)
           .updateOne({ _id }, { $set: { published: false } }, { session })
           .then(() => {
-            return $dbPub.collection(collection).deleteOne({ _id }, { session });
+            return $dbPub
+              .collection(collection)
+              .deleteOne({ _id }, { session })
+              .then(() => {});
           });
       };
 

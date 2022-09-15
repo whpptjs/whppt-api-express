@@ -1,15 +1,14 @@
 import { IdService, LoggerService, SecurityService } from '../Services';
 import { EventSessionFactory } from './events/Session';
-import { GalleryService } from '../Services';
-import { MongoService } from '../Services';
+import { GalleryService, MongoService, ImageService, FileService } from '../Services';
 
 export type ContextType = {
   $id: IdService;
   $logger: LoggerService;
   $security: SecurityService;
   $mongo: MongoService;
-  // $image?: any;
-  // $file?: any;
+  $image?: ImageService;
+  $file?: FileService;
   $modules?: any;
   $pageTypes?: any;
   $fullUrl?: any;

@@ -6,3 +6,5 @@ export * from './Security';
 export * from './Aws';
 export * from './Storage';
 export * from './Gallery';
+export * from './File';
+export * from './Image';
