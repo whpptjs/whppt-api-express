@@ -28,5 +28,19 @@ export const ModulesRouter: ModulesRouter = ({ $logger, context, config }) => {
     });
   });
 
+  router.post(`/${config.apiPrefix}/:mod/:command`, (req: any) => {
+    return context.then(ctx => {
+      const { user, params, body: cmdArgs } = req;
+      const { mod, command } = params;
+      return callModule(ctx, mod, command, { ...cmdArgs, user }, req).catch(
+        ({ status, error }: { status: any; error: any }) => {
+          $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
+
+          return { status, error };
+        }
+      );
+    });
+  });
+
   return router;
 };

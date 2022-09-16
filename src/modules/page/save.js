@@ -8,15 +8,15 @@ module.exports = {
     return $roles.validate(user, [page.editorRoles]);
   },
   exec(
-    { whpptOptions, $id, $mongo: { $startTransaction, $db, $save, $record } },
+    { $pageTypes, $id, $mongo: { $startTransaction, $db, $save, $record } },
     { page, collection, user }
   ) {
     assert(page, 'Please provide a page.');
     assert(collection, 'Please provide a collection.');
 
-    page._id = page._id || $id();
+    page._id = page._id || $id.newId();
 
-    const pageType = find(whpptOptions.pageTypes, pt => pt.name === page.pageType);
+    const pageType = find($pageTypes, pt => pt.name === page.pageType);
 
     const usedImages = imagesExtractor(pageType, page);
     const usedLinks = linksExtractor(pageType, page);

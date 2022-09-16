@@ -11,7 +11,7 @@ module.exports = {
     assert(page, 'Please provide a page.');
     assert(collection, 'Please provide a collection');
 
-    page._id = page._id || $id();
+    page._id = page._id || $id.newId();
     page.published = true;
     page.lastPublished = new Date();
 

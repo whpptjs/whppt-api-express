@@ -14,7 +14,7 @@ module.exports = {
 
     const imageDependencies = extractNavImages
       ? map(compact(extractNavImages(nav)), i => ({
-          _id: $id(),
+          _id: $id.newId(),
           parentId: nav._id,
           imageId: i,
           type: 'image',
@@ -22,7 +22,7 @@ module.exports = {
       : [];
     const linkDependencies = extractNavLinks
       ? map(compact(extractNavLinks(nav)), l => ({
-          _id: $id(),
+          _id: $id.newId(),
           parentId: nav._id,
           href: l,
           type: 'link',

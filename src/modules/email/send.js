@@ -22,7 +22,7 @@ module.exports = {
         const from = `${local}@${domain}`;
 
         return $email.send({ from, to, subject, html: content }).then(() => {
-          const _id = $id();
+          const _id = $id.newId();
 
           return $save(storeAt, {
             _id,

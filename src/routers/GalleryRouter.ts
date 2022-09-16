@@ -51,7 +51,10 @@ export const GalleryRouter: GalleryRouterConstructor = ($gallery, $mongo) => {
 
         res.type(response.ContentType).send(response.Body);
       })
-      .catch((err: any) => res.status(404).send(err));
+      .catch((err: any) => {
+        console.log('🚀 ~ file: GalleryRouter.ts ~ line 55 ~ router.get ~ err', err);
+        res.status(404).send(err);
+      });
   });
 
   router.get(`/gallery/svg/:svgId`, cache({ ttl: sixMonths }), (req, res) => {

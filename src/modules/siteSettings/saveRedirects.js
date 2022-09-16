@@ -5,7 +5,7 @@ module.exports = {
     redirects.forEach(redirect => {
       ops.push({
         updateOne: {
-          filter: { _id: redirect._id || $id() },
+          filter: { _id: redirect._id || $id.newId() },
           update: { $set: redirect },
           upsert: true,
         },

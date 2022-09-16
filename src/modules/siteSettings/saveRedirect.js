@@ -15,7 +15,7 @@ module.exports = {
     const { _id, name, to, from, domainId } = redirect;
 
     const _redirect = {
-      _id: _id || $id(),
+      _id: _id || $id.newId(),
       name,
       to,
       from: toLower(from),

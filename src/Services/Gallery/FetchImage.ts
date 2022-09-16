@@ -101,6 +101,7 @@ export const FetchImage: FetchImageConstructor =
           quality
         );
         return optimisedImage.toBuffer().then(processedImageBuffer => {
+          console.log('🚀 ~ -------');
           return {
             Body: processedImageBuffer,
             ContentType: contentType,

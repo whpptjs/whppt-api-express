@@ -34,7 +34,7 @@ module.exports = {
       assert(!existingUser, error);
 
       const user = {
-        _id: $id(),
+        _id: $id.newId(),
         username: lowerUsername,
         email: lowerEmail,
       };

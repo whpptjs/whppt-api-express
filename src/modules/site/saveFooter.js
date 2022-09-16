@@ -15,7 +15,7 @@ module.exports = {
 
     const imageDependencies = extractFooterImages
       ? map(compact(extractFooterImages(footer)), i => ({
-          _id: $id(),
+          _id: $id.newId(),
           parentId: footer._id,
           imageId: i,
           type: 'image',
@@ -23,7 +23,7 @@ module.exports = {
       : [];
     const linkDependencies = extractFooterLinks
       ? map(compact(extractFooterLinks(footer)), l => ({
-          _id: $id(),
+          _id: $id.newId(),
           parentId: footer._id,
           href: l,
           type: 'link',
