@@ -65,6 +65,7 @@ const Context = (
     const collections = [
       'dependencies',
       'gallery',
+      'users',
       ...options.collections,
       ...pageTypeCollections,
       ...pageTypeHistoryCollections,
