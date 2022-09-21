@@ -66,12 +66,12 @@ const pickFormat = function (format: FetchImageFormat, accept: string, imageMeta
 export const FetchImage: FetchImageConstructor =
   ($mongo, $storage, fetchOriginal) =>
   ({ format, itemId, accept = '' }) => {
-    if (format.o) return fetchOriginal({ itemId });
+    if (format.o) return fetchOriginal({ itemId, type: 'image' });
 
     return $mongo.then(({ $db }) => {
       return Promise.all([
         $db.collection('gallery').findOne({ _id: itemId }),
-        $storage.fetch(itemId),
+        $storage.fetch(itemId, 'image'),
       ]).then(([imageMeta, { fileBuffer }]) => {
         const _sharpImage = Sharp(fileBuffer);
         let _extractedImage = _sharpImage;

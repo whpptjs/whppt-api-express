@@ -57,7 +57,7 @@ export const GalleryRouter: GalleryRouterConstructor = ($gallery, $mongo) => {
 
   router.get(`/gallery/svg/:svgId`, cache({ ttl: sixMonths }), (req, res) => {
     return $gallery
-      .fetchOriginal({ itemId: req.params.svgId })
+      .fetchOriginal({ itemId: req.params.svgId, type: 'svg' })
       .then((response: any) => {
         if (!response) return res.status(404).send('Image not found');
 
@@ -66,10 +66,21 @@ export const GalleryRouter: GalleryRouterConstructor = ($gallery, $mongo) => {
       .catch((err: any) => res.status(404).send(err));
   });
 
-  router.get('/gallery/file/:id/:name', cache({ ttl: sixMonths }), (req: any, res) => {
+  router.get(`/gallery/video/:videoId`, cache({ ttl: sixMonths }), (req, res) => {
+    return $gallery
+      .fetchOriginal({ itemId: req.params.videoId, type: 'video' })
+      .then((response: any) => {
+        if (!response) return res.status(404).send('Video not found');
+
+        res.type(response.ContentType).send(response.Body);
+      })
+      .catch((err: any) => res.status(404).send(err));
+  });
+
+  router.get('/gallery/doc/:id/:name', cache({ ttl: sixMonths }), (req: any, res) => {
     const { id } = req.params;
     return $gallery
-      .fetchOriginal({ itemId: id })
+      .fetchOriginal({ itemId: id, type: 'doc' })
       .then((fileBuffer: any) => {
         if (!fileBuffer) return res.status(500).send('File not found');
 
