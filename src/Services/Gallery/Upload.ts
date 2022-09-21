@@ -1,10 +1,10 @@
 import fileType from 'file-type';
 import { MongoService } from '../Mongo';
-import { GalleryItem, GalleryItemType } from './GalleryItem';
+import { GalleryItem } from './GalleryItem';
 import { IdService } from '../Id/index';
 import { StorageService } from '../Storage';
 
-export type UploadGaleryItemArgs = { file: any; domainId: string; type: GalleryItemType };
+export type UploadGaleryItemArgs = { file: any; domainId: string; type: string };
 export type UploadGalleryItem = (args: UploadGaleryItemArgs) => Promise<GalleryItem>;
 export type UploadGalleryItemContstructor = (
   $id: IdService,
@@ -36,7 +36,7 @@ export const Upload: UploadGalleryItemContstructor = ($id, $mongo, $storage) => 
       return $mongo.then(({ $startTransaction, $save }) => {
         return $startTransaction(session => {
           return $save('gallery', newGalleryItem, { session }).then(() =>
-            $storage.upload(buffer, newGalleryItem._id)
+            $storage.upload(buffer, newGalleryItem._id, type)
           );
         }).then(() => newGalleryItem);
       });

@@ -2,7 +2,6 @@ import { DataDocument } from '../../modules/DataDocument';
 import { DomainDocument } from '../../modules/DomainDocument';
 import { FileExtension, MimeType } from 'file-type';
 
-export type GalleryItemType = 'image' | 'video' | 'file' | 'lotty' | 'svg';
 export type GalleryFileInfo = {
   originalname: string;
   ext?: FileExtension;
@@ -12,7 +11,7 @@ export type GalleryFileInfo = {
 
 export type GalleryItem = DataDocument &
   DomainDocument & {
-    type: GalleryItemType;
+    type: string;
     defaultAltText?: string;
     defaultCaption?: string;
     tags: string[];

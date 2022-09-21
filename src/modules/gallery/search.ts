@@ -1,10 +1,10 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
-import { GalleryItem, GalleryItemType } from '../../Services/Gallery/GalleryItem';
+import { GalleryItem } from '../../Services/Gallery/GalleryItem';
 
 export type SearchParams = {
   domainId: string;
-  type: GalleryItemType;
+  type: string;
   page?: string;
   size?: string;
   queryTags?: string[];

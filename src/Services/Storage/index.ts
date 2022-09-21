@@ -1,7 +1,7 @@
 export type StorageService = {
-  upload: (fileBuffer: Buffer, id: string) => Promise<void>;
+  upload: (fileBuffer: Buffer, id: string, type: string) => Promise<void>;
   remove: (id: string) => Promise<void>;
-  fetch: (id: string) => Promise<{ fileBuffer: Buffer }>;
+  fetch: (id: string, type: string) => Promise<{ fileBuffer: Buffer }>;
   uploadImage: (fileBuffer: Buffer, id: string) => Promise<void>;
   uploadDoc: (fileBuffer: Buffer, id: string, meta: any) => Promise<void>;
   fetchImage: (id: string) => Promise<{ imageBuffer: Buffer }>;

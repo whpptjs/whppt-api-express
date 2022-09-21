@@ -9,13 +9,14 @@ export const S3: S3Constructor = () => {
   const s3 = new aws.S3();
 
   return {
-    upload(fileBuffer: Buffer, id: string) {
+    upload(fileBuffer: Buffer, id: string, type: string) {
       if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
+      const path = type ? `${type}/${id}` : id;
       return new Promise((resolve, reject) => {
         s3.putObject(
           {
             Bucket: S3_BUCKET_NAME,
-            Key: `gallery/${id}`,
+            Key: path,
             Body: fileBuffer,
             ACL: 'public-read',
             ContentEncoding: 'base64',
@@ -38,12 +39,11 @@ export const S3: S3Constructor = () => {
       });
     },
 
-    fetch(id: string) {
-      console.log('🚀 ~ file: S3.ts ~ line 42 ~ fetch ~ id', id);
+    fetch(id: string, type: string) {
       if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
       return new Promise((resolve, reject) => {
         s3.getObject(
-          { Bucket: S3_BUCKET_NAME, Key: `gallery/${id}` },
+          { Bucket: S3_BUCKET_NAME, Key: `${type}/${id}` },
           (err, fileData) => {
             if (err) return reject(err);
             if (!fileData || !fileData.Body) return reject(new Error('No file body'));
