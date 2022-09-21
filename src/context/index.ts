@@ -11,10 +11,7 @@ import {
   SecurityService,
 } from '../Services';
 
-// const $aws = require('./aws');
 const Email = require('./email');
-// const File = require('./file');
-// const Image = require('./image');
 const loadModules = require('./modules/loadModules');
 const { ValidateRoles, saveRole, isGuest } = require('./roles');
 const sitemapQuery = require('./sitemap');

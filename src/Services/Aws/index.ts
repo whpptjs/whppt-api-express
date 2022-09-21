@@ -13,17 +13,3 @@ aws.config.update({
 
 export const $s3 = S3();
 export const $ses = SES();
-
-// module.exports = {
-//   uploadToS3,
-//   removeFromS3,
-//   fetchFromS3,
-//   uploadImageToS3,
-//   fetchImageFromS3,
-//   uploadDocToS3,
-//   fetchDocFromS3,
-//   removeImageFromS3,
-//   sendEmail,
-//   getDomainIdentities,
-//   removeDocFromS3,
-// };

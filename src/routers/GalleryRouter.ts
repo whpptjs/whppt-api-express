@@ -5,7 +5,6 @@ import { MongoService, GalleryService } from '../Services';
 
 const cache = require('express-cache-headers');
 const multer = require('multer');
-// const fetch = require('node-fetch');
 
 const router = Router();
 
@@ -52,7 +51,6 @@ export const GalleryRouter: GalleryRouterConstructor = ($gallery, $mongo) => {
         res.type(response.ContentType).send(response.Body);
       })
       .catch((err: any) => {
-        console.log('🚀 ~ file: GalleryRouter.ts ~ line 55 ~ router.get ~ err', err);
         res.status(404).send(err);
       });
   });

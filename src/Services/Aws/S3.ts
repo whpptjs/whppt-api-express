@@ -47,7 +47,6 @@ export const S3: S3Constructor = () => {
           (err, fileData) => {
             if (err) return reject(err);
             if (!fileData || !fileData.Body) return reject(new Error('No file body'));
-            // resolve({ fileBuffer: Buffer.from(fileData.Body.toString()) });
             resolve({ fileBuffer: fileData.Body as any });
           }
         );
@@ -100,7 +99,6 @@ export const S3: S3Constructor = () => {
           (err, imageData) => {
             if (err) return reject(err);
             if (!imageData || !imageData.Body) return reject(new Error('No image body'));
-            // resolve({ imageBuffer: Buffer.from(imageData.Body.toString()) });
             resolve({ imageBuffer: imageData.Body as any });
           }
         );
@@ -113,7 +111,6 @@ export const S3: S3Constructor = () => {
         s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, docData) => {
           if (err) return reject(err);
           if (!docData || !docData.Body) return reject(new Error('No document body'));
-          // resolve({ imageBuffer: Buffer.from(docData.Body.toString()) });
           resolve({ imageBuffer: docData.Body as any });
         });
       });
