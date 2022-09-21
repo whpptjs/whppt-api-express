@@ -4,11 +4,14 @@ module.exports = {
   authorise({ $roles }, { page, user }) {
     return $roles.validate(user, [page.publisherRoles]);
   },
-  exec({ $id, $mongo: { $publish, $save, $startTransaction, $record }, $publishing }, { page, collection, user }) {
+  exec(
+    { $id, $mongo: { $publish, $save, $startTransaction, $record }, $publishing },
+    { page, collection, user }
+  ) {
     assert(page, 'Please provide a page.');
     assert(collection, 'Please provide a collection');
 
-    page._id = page._id || $id();
+    page._id = page._id || $id.newId();
     page.published = true;
     page.lastPublished = new Date();
 

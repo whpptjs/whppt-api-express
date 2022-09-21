@@ -7,7 +7,10 @@ module.exports = {
       .find()
       .toArray()
       .then(domains => {
-        const domain = domainId && domainId !== 'undefined' ? find(domains, d => d._id === domainId) : find(domains, d => find(d.hostnames, h => h === hostname));
+        const domain =
+          domainId && domainId !== 'undefined'
+            ? find(domains, d => d._id === domainId)
+            : find(domains, d => find(d.hostnames, h => h === hostname));
         return { domains, domain };
       })
       .catch(err => {

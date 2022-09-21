@@ -10,23 +10,39 @@ module.exports = {
 
     return $db
       .collection('users')
-      .findOne({ $or: [{ username: new RegExp(`^${username}$`, 'iu') }, { email: new RegExp(`^${email}$`, 'iu') }] })
+      .findOne({
+        $or: [
+          { username: new RegExp(`^${username}$`, 'iu') },
+          { email: new RegExp(`^${email}$`, 'iu') },
+        ],
+      })
       .then(matchingUser => {
         assert(matchingUser, `User with username/email ${username || email} not found`);
-        assert(matchingUser.passwordResetToken, 'User has not requested to reset their password');
+        assert(
+          matchingUser.passwordResetToken,
+          'User has not requested to reset their password'
+        );
 
-        const tokenToCompare = crypto.createHmac('sha256', process.env.APP_KEY).update(matchingUser._id).digest('hex');
-        const tokenMatches = matchingUser.passwordResetToken.token === token && crypto.timingSafeEqual(Buffer.from(tokenToCompare), Buffer.from(token));
+        const tokenToCompare = crypto
+          .createHmac('sha256', process.env.APP_KEY)
+          .update(matchingUser._id)
+          .digest('hex');
+        const tokenMatches =
+          matchingUser.passwordResetToken.token === token &&
+          crypto.timingSafeEqual(Buffer.from(tokenToCompare), Buffer.from(token));
         const tokenExpired = matchingUser.passwordResetToken.tokenExpiry < Date.now();
 
         if (!tokenMatches) throw new Error('Failed to validate the provided token.');
-        if (tokenExpired) throw new Error('Token has expired, please try again with a valid token.');
+        if (tokenExpired)
+          throw new Error('Token has expired, please try again with a valid token.');
 
         return $security.encrypt(password).then(hashedPassword => {
           matchingUser.password = hashedPassword;
           matchingUser.passwordResetToken = undefined;
 
-          return $save('users', matchingUser).then(() => omit(matchingUser, ['password']));
+          return $save('users', matchingUser).then(() =>
+            omit(matchingUser, ['password'])
+          );
         });
       });
   },

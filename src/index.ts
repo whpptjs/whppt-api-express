@@ -1,62 +1,54 @@
+import { Router } from 'express';
+
+import { WhpptConfig } from './Config';
 import Context from './context';
-const router = require('express-promise-json-router')();
-const callModule = require('./modules/callModule');
-const File = require('./routers/fileRouter');
-const Image = require('./routers/imageRouter');
-const Redirects = require('./routers/redirectsRouter');
-const seoRouter = require('./routers/seoRouter');
-const Gallery = require('./routers/galleryFileRouter');
+import {
+  ModulesRouter,
+  RedirectsRouter,
+  GalleryRouter,
+  SeoRouter,
+  FileRouter,
+  ImageRouter,
+} from './routers';
+import {
+  $s3,
+  File,
+  Image,
+  Gallery,
+  IdService,
+  Logger,
+  Mongo,
+  Security,
+} from './Services';
 
-export * from './modules/HttpModule';
+export * from './Config';
 
-export type WhpptApiConstructor = (options: any) => Promise<any>;
-const Whppt: WhpptApiConstructor = (options: any) => {
-  options = options || {};
-  options.apiPrefix = options.apiPrefix || 'api';
-  options.disablePublishing = options.disablePublishing || false;
+export const Whppt = (config: WhpptConfig) => {
+  config.apiPrefix = config.apiPrefix || 'api';
 
-  return Context(options).then(context => {
-    context.whpptOptions = options;
+  const $id = IdService();
+  const $logger = Logger();
+  const $security = Security({ $id, $logger, config });
+  const $mongo = Mongo({ $id, $logger, config });
+  const $storage = $s3;
+  const $gallery = Gallery($id, $mongo, $storage);
+  const $file = File($id, $mongo, $storage, config);
+  const $image = Image($id, $mongo, $storage, config);
 
-    const { $security, $logger } = context;
-
-    router.get(`/${options.apiPrefix}/:mod/:query`, $security.authenticate, (req: any) => {
-      const {
-        user,
-        params: { mod, query },
-        query: queryArgs,
-      } = req;
-      return callModule(context, mod, query, { ...queryArgs, user }, req).catch(({ status, error }: { status: any; error: any }) => {
-        $logger.error('Error in route: %s %s %O %O', mod, query, queryArgs, error);
-
-        return { status, error };
-      });
-    });
-
-    router.post(`/${options.apiPrefix}/:mod/:command`, $security.authenticate, (req: any) => {
-      const {
-        user,
-        params: { mod, command },
-        body: cmdArgs,
-      } = req;
-      return callModule(context, mod, command, { ...cmdArgs, user }, req).catch(({ status, error }: { status: any; error: any }) => {
-        $logger.error('Error in route: %s %s %O %O', mod, command, cmdArgs, error);
-
-        return { status, error };
-      });
-    });
-
-    return Promise.all([Image(context), File(context), Redirects(context), Gallery(context)]).then(([imageRouter, fileRouter, redirectsRouter, galleryFileRouter]) => {
-      router.use(redirectsRouter);
-      router.use(galleryFileRouter);
-      router.use(imageRouter);
-      router.use(fileRouter);
-      router.use(seoRouter(options));
-
-      return router;
-    });
+  const context = Context($id, $logger, $security, $mongo, $gallery, $image, $file, {
+    ...config,
   });
-};
+  const router = Router();
 
-// module.exports.Context = Context;
-export { Whppt, Context };
+  router.use($security.authenticate);
+  // Wait for mongo to connect before using routes that need mongo.
+  router.use((_, __, next) => $mongo.then(() => next()));
+  router.use(ModulesRouter({ $logger, context, config }));
+  router.use(RedirectsRouter($mongo));
+  router.use(FileRouter($file, $mongo));
+  router.use(ImageRouter($image));
+  router.use(GalleryRouter($gallery, $mongo));
+  router.use(SeoRouter(context, config));
+
+  return router;
+};

@@ -6,7 +6,10 @@ module.exports = context => {
 
   const providers = { AwsSmtp, Fake }; // AwsApi comming soon
   const configuredProvider = providers[$env.EMAIL_PROVIDER];
-  if (!configuredProvider) $logger.warning('Missing email provider - you wont be able to send emails. Options include: AwsSmtp, AwsApi');
+  if (!configuredProvider)
+    $logger.warning(
+      'Missing email provider - you wont be able to send emails. Options include: AwsSmtp, AwsApi'
+    );
   else $logger.info('Loaded emails provider: %s', $env.EMAIL_PROVIDER);
 
   return configuredProvider ? configuredProvider(context) : Fake(context);

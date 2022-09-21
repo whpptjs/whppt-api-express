@@ -32,7 +32,9 @@ function generateRootUser(answers = {}) {
     },
   ];
 
-  console.info(chalk.blue('🚀 Please enter the details of the Root user you want to create! 🚀 '));
+  console.info(
+    chalk.blue('🚀 Please enter the details of the Root user you want to create! 🚀 ')
+  );
 
   return Mongo({}).then($mongo => {
     if (!$mongo) {
@@ -46,7 +48,13 @@ function generateRootUser(answers = {}) {
 
       return $mongo.$db
         .collection('users')
-        .find({ $or: [{ _id: 'root' }, { username: new RegExp(`^${username}$`, 'iu') }, { email: new RegExp(`^${email}$`, 'iu') }] })
+        .find({
+          $or: [
+            { _id: 'root' },
+            { username: new RegExp(`^${username}$`, 'iu') },
+            { email: new RegExp(`^${email}$`, 'iu') },
+          ],
+        })
         .toArray()
         .then(rootUserExists => {
           if (rootUserExists && rootUserExists.length > 0) {

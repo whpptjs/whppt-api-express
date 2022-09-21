@@ -1,14 +1,14 @@
+import { IdService, LoggerService, SecurityService } from '../Services';
 import { EventSessionFactory } from './events/Session';
-import { Gallery } from './gallery';
-import { MongoService } from './mongo';
+import { GalleryService, MongoService, ImageService, FileService } from '../Services';
 
 export type ContextType = {
-  $id: any;
-  $logger?: any;
-  $image?: any;
-  $file?: any;
-  $security?: any;
+  $id: IdService;
+  $logger: LoggerService;
+  $security: SecurityService;
   $mongo: MongoService;
+  $image?: ImageService;
+  $file?: FileService;
   $modules?: any;
   $pageTypes?: any;
   $fullUrl?: any;
@@ -17,7 +17,7 @@ export type ContextType = {
   $env?: any;
   $publishing?: any;
   $email?: any;
-  $gallery?: Gallery;
+  $gallery?: GalleryService;
   EventSession: EventSessionFactory;
   [key: string]: any;
 };
@@ -35,7 +35,7 @@ export type ContextArgs = {
   modules?: any;
   services?: any;
   pageTypes?: PageType[];
-  disablePublishing: boolean;
+  disablePublishing?: boolean;
   onPublish?: (page: any) => void;
   onUnPublish?: (page: any) => void;
   collections?: string[];

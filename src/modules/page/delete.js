@@ -1,7 +1,10 @@
 const assert = require('assert');
 
 module.exports = {
-  exec({ $mongo: { $startTransaction, $delete, $db, $record } }, { _id, collection, user }) {
+  exec(
+    { $mongo: { $startTransaction, $delete, $db, $record } },
+    { _id, collection, user }
+  ) {
     assert(_id, 'A Page Id must be provided.');
     assert(collection, 'Please provide a collection.');
 

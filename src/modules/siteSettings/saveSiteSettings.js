@@ -10,8 +10,18 @@ module.exports = {
     const ogImageId = get(siteSettings, 'og.image.imageId');
     const twitterImageId = get(siteSettings, 'twitter.image.imageId');
 
-    if (ogImageId) dependencies.push({ imageId: ogImageId, parentId: siteSettings._id, type: 'image' });
-    if (twitterImageId) dependencies.push({ imageId: twitterImageId, parentId: siteSettings._id, type: 'image' });
+    if (ogImageId)
+      dependencies.push({
+        imageId: ogImageId,
+        parentId: siteSettings._id,
+        type: 'image',
+      });
+    if (twitterImageId)
+      dependencies.push({
+        imageId: twitterImageId,
+        parentId: siteSettings._id,
+        type: 'image',
+      });
 
     let savedSiteSettings;
 

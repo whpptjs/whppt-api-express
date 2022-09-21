@@ -5,7 +5,7 @@ module.exports = ({ $id, $mongo: { $db } }) => {
   return function ({ role, user }) {
     assert(role, 'A role is required');
 
-    if (!role._id) role._id = $id();
+    if (!role._id) role._id = $id.newId();
     role.createdAt = role.createdAt ? new Date(role.createdAt) : new Date();
     role.updatedAt = new Date();
     role.createdBy = { ...pick(user, ['_id', 'username', 'email']) };
@@ -25,5 +25,6 @@ async function checkForExistingRole($db, role) {
     .find({ _id: { $ne: role._id }, name: role.name })
     .toArray();
 
-  if (existingRoles.length) throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
+  if (existingRoles.length)
+    throw new Error(`Role ${role.name} already exists, please provide a unique name.`);
 }

@@ -4,7 +4,12 @@ module.exports = {
   exec({ $mongo: { $db } }, { page, size, domainId, search }) {
     const findParams = { domainId };
 
-    if (search) findParams.$or = [{ name: { $regex: search, $options: 'i' } }, { to: { $regex: search, $options: 'i' } }, { from: { $regex: search, $options: 'i' } }];
+    if (search)
+      findParams.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { to: { $regex: search, $options: 'i' } },
+        { from: { $regex: search, $options: 'i' } },
+      ];
 
     return $db
       .collection('redirects')
@@ -13,7 +18,10 @@ module.exports = {
       .then(redirects => {
         if (!page && !size) return { redirects, total: redirects.length };
 
-        return { redirects: take(drop(redirects, size * (page - 1)), size), total: redirects.length };
+        return {
+          redirects: take(drop(redirects, size * (page - 1)), size),
+          total: redirects.length,
+        };
       });
   },
 };
