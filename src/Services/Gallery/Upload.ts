@@ -1,3 +1,4 @@
+import assert from 'assert';
 import fileType from 'file-type';
 import { MongoService } from '../Mongo';
 import { GalleryItem } from './GalleryItem';
@@ -14,6 +15,10 @@ export type UploadGalleryItemContstructor = (
 
 export const Upload: UploadGalleryItemContstructor = ($id, $mongo, $storage) => {
   return ({ file, domainId, type }) => {
+    assert(file, 'File to upload is required');
+    assert(domainId, 'Domain Id is required');
+    assert(type, 'File type is required');
+
     const { buffer, mimetype, originalname } = file;
     return fileType.fromBuffer(buffer).then(fileType => {
       const newGalleryItem: GalleryItem = {
