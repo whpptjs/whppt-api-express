@@ -8,3 +8,5 @@ export * from './Storage';
 export * from './Gallery';
 export * from './File';
 export * from './Image';
+export * from './Config';
+export * from './Database';

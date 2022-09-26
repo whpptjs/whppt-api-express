@@ -4,6 +4,7 @@ import { loadModules } from './loadModules';
 import { buildCollections } from './buildCollections';
 import { LoggerService } from '../Logger';
 import { ConfigMiddleware } from './middleware';
+import { ContextService } from '../../context/Context';
 
 export * from './PageType';
 
@@ -16,7 +17,7 @@ export type WhpptConfig = {
   security: WhpptSecurityConfig;
   modules: { [key: string]: WhpptModule };
   collections: string[];
-  // services: any[];
+  services: { [name: string]: ContextService<any> };
   pageTypes?: PageType[];
   disablePublishing?: boolean;
   /**
@@ -29,8 +30,7 @@ export type RuntimeConfig = {
   collections: string[];
   pageTypes: PageType[];
   modules: { [key: string]: WhpptModule };
-  // TODO: Add in the services extension back in
-  // services: any;
+  services: { [name: string]: ContextService<any> };
   disablePublishing: boolean;
 };
 
@@ -40,7 +40,7 @@ export type ConfigServiceFactory = (
 ) => ConfigService;
 
 export type ConfigService = {
-  config: RuntimeConfig;
+  runtime: RuntimeConfig;
   middleware: ConfigMiddleware;
 };
 
@@ -50,10 +50,10 @@ export const ConfigService: ConfigServiceFactory = (logger, config) => {
   const _config: RuntimeConfig = {
     modules: {},
     pageTypes: config.pageTypes || [genericPageType],
-    // services: config.services || {},
+    services: config.services || {},
     collections: buildCollections(config),
     disablePublishing: config.disablePublishing || false,
   };
   loadModulesPromise.then(modules => (_config.modules = modules));
-  return { config: _config, middleware };
+  return { runtime: _config, middleware };
 };

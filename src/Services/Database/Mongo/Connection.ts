@@ -3,7 +3,8 @@ import assert from 'assert';
 import { DatabaseHostingConfig } from '../../Hosting';
 import { DatabaseConnection } from '..';
 import { WhpptMongoDatabase } from './Database';
-import { LoggerService } from 'src/Services/Logger';
+import { LoggerService } from '../../Logger';
+import { IdService } from '../../Id';
 
 export type MongoDatabaseConnection = DatabaseConnection & {
   _connection: MongoClient;
@@ -12,11 +13,13 @@ export type MongoDatabaseConnection = DatabaseConnection & {
 
 export type MongoDatabaseConnectionFactory = (
   logger: LoggerService,
+  id: IdService,
   config: DatabaseHostingConfig
 ) => Promise<MongoDatabaseConnection>;
 
 export const MongoDatabaseConnection: MongoDatabaseConnectionFactory = (
   logger,
+  id,
   config
 ) => {
   return Promise.resolve().then(() => {
@@ -32,7 +35,7 @@ export const MongoDatabaseConnection: MongoDatabaseConnectionFactory = (
         const db = mongoClient.db(config.db);
         const pubDb = config.pubDb ? mongoClient.db(config.pubDb) : undefined;
 
-        const database = WhpptMongoDatabase(mongoClient, db, pubDb);
+        const database = WhpptMongoDatabase(logger, id, mongoClient, db, pubDb);
         const connection: MongoDatabaseConnection = {
           _connection: mongoClient,
           getDatabase: () => database,
