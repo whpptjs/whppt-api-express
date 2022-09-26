@@ -1,6 +1,7 @@
 import { IdService, LoggerService, SecurityService } from '../Services';
 import { EventSessionFactory } from './events/Session';
 import { GalleryService, MongoService, ImageService, FileService } from '../Services';
+import { PageType } from '../Services/Config';
 
 export type ContextType = {
   $id: IdService;
@@ -23,13 +24,6 @@ export type ContextType = {
 };
 
 export type Service<T> = (context: ContextType) => T;
-
-export type PageType = {
-  key?: string;
-  name: string;
-  label: string;
-  collection?: { name: string };
-};
 
 export type ContextArgs = {
   modules?: any;

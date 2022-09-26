@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import crypto from 'crypto';
 
-import type { WhpptConfig } from '../../Config';
+import type { WhpptConfig } from '../Config';
 import type { IdService } from '../Id';
 import type { LoggerService } from '../Logger';
 

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Strategy } from 'passport';
 
 import { WhpptUser } from '../User';
-import type { WhpptSecurityConfig } from '../../../Config';
+import type { WhpptSecurityConfig } from '../../Config';
 import type { IdService } from '../../Id';
 import type { LoggerService } from '../../Logger';
 

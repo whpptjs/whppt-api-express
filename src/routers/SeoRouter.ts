@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ContextType } from '../context/Context';
-import { WhpptConfig } from '../Config';
+import { WhpptConfig } from '../Services/Config';
 const { join, map } = require('lodash');
 
 const router = Router();

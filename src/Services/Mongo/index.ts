@@ -10,7 +10,7 @@ import { DomainEvent } from '../Events/CreateEvent';
 import assert from 'assert';
 import { LoggerService } from '../Logger';
 import { IdService } from '../Id';
-import { WhpptConfig } from '../../Config';
+import { WhpptConfig } from '../Config';
 const { pick } = require('lodash');
 
 const mongoUrl = process.env.MONGO_URL;

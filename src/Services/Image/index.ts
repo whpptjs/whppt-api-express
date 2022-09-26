@@ -1,5 +1,5 @@
 import Sharp from 'sharp';
-import { WhpptConfig } from '../../Config';
+import { WhpptConfig } from '../Config';
 import { IdService } from '../Id';
 import { MongoService } from '../Mongo';
 import { StorageService } from '../Storage';

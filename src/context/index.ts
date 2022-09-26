@@ -1,5 +1,5 @@
 import { compact, forEach, map } from 'lodash';
-import { ContextArgs, ContextType, PageType } from './Context';
+import { ContextArgs, ContextType } from './Context';
 import { EventSession, CreateEvent } from './events';
 import {
   FileService,
@@ -10,6 +10,7 @@ import {
   MongoService,
   SecurityService,
 } from '../Services';
+import { PageType } from 'src/Services/Config';
 
 const Email = require('./email');
 const loadModules = require('./modules/loadModules');

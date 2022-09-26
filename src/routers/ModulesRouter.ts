@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 import PromiseJsonRouter from 'express-promise-json-router';
 import { ContextType } from '../context/Context';
-import { WhpptConfig } from '../Config';
+import { WhpptConfig } from '../Services/Config';
 import callModule from '../modules/callModule';
 import { LoggerService } from '../Services';
 
