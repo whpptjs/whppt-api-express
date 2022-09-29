@@ -11,6 +11,7 @@ module.exports = {
 
     nav._id = nav._id || `nav_${nav.domainId}`;
 
+    // TODO: Include the extract links and images. Asana task logged
     // const { extractNavImages, extractNavLinks } = whpptOptions;
 
     // const imageDependencies = extractNavImages

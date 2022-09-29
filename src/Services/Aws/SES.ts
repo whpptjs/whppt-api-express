@@ -1,3 +1,4 @@
+// TODO: Check if we need this. Commented for a later check. Had to export something to make it a valid module
 export const foo = 'bar';
 // import aws from 'aws-sdk';
 
