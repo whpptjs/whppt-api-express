@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { WhpptModule } from 'src/modules/HttpModule';
 import { LoggerService } from '../Logger';
 
 export type ConfigMiddleware = {
@@ -8,9 +7,7 @@ export type ConfigMiddleware = {
 
 export type ConfigMiddlewareFactory = (
   logger: LoggerService,
-  loadModulePromise: Promise<{
-    [key: string]: WhpptModule;
-  }>
+  loadModulePromise: Promise<void>
 ) => ConfigMiddleware;
 
 export const ConfigMiddleware: ConfigMiddlewareFactory = (logger, loadModulePromise) => ({

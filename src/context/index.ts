@@ -1,5 +1,5 @@
 import { forEach } from 'lodash';
-import { ContextOptions, ContextType, UseService } from './Context';
+import { ContextType } from './Context';
 import { EventSession, CreateEvent } from './events';
 import {
   FileService,
@@ -9,9 +9,11 @@ import {
   LoggerService,
   ConfigService,
   SecurityService,
-  DatabaseConnection,
+  WhpptDatabase,
+  HostingConfig,
+  StorageService,
 } from '../Services';
-import { MongoDatabaseConnection } from '../Services/Database/Mongo/Connection';
+import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
 const Email = require('./email');
 const { ValidateRoles, saveRole, isGuest } = require('./roles');
@@ -19,25 +21,22 @@ const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
 
-const voidCallback = () => {};
-
 const Context = (
   $id: IdService,
   $logger: LoggerService,
   $security: SecurityService,
-  databasePromise: Promise<DatabaseConnection>,
-  config: ConfigService,
+  $database: Promise<WhpptDatabase>,
+  $config: ConfigService,
+  $hosting: Promise<HostingConfig>,
+  $storage: StorageService,
   $gallery: GalleryService,
   $image: ImageService,
   $file: FileService,
-  options: ContextOptions = {
-    disablePublishing: false,
-  }
+  apiKey: string
 ) => {
   return Promise.resolve().then(() => {
-    return databasePromise.then(dbConnection => {
-      // TODO: Support other databases. Currently only Mongo is supported and we use it directly here.
-      const database = (dbConnection as MongoDatabaseConnection).getMongoDatabase();
+    // TODO: Support other databases. Currently only Mongo is supported and we use it directly here.
+    return $database.then(database => {
       const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
 
       const _context = {
@@ -46,14 +45,18 @@ const Context = (
         $image,
         $file,
         $security,
-        $mongo: database,
-        $modules: config.runtime.modules,
-        $pageTypes: config.runtime.pageTypes,
+        $mongo: database as WhpptMongoDatabase,
+        $database,
+        $hosting,
+        $aws: $storage,
+        $storage,
+        $modules: $config.runtime.modules,
+        $pageTypes: $config.runtime.pageTypes,
         $fullUrl,
         $sitemap: {
           filter: sitemapQuery({
             $mongo: database,
-            $pageTypes: config.runtime.pageTypes,
+            $pageTypes: $config.runtime.pageTypes,
             $fullUrl,
           }),
         },
@@ -64,19 +67,20 @@ const Context = (
         },
         $env,
         $publishing: {
-          onPublish: options.onPublish || voidCallback,
-          onUnPublish: options.onUnPublish || voidCallback,
+          onPublish: $config.runtime.onPublish,
+          onUnPublish: $config.runtime.onUnPublish,
         },
         EventSession: EventSession({} as ContextType),
         useService: <T>(name: string) =>
           _context[name] ? (_context[name] as T) : undefined,
+        apiKey,
       } as ContextType;
 
       _context.$email = Email(_context);
       _context.$gallery = $gallery;
       _context.CreateEvent = CreateEvent;
 
-      forEach(config.runtime.services, (serviceConstructor, serviceName) => {
+      forEach($config.runtime.services, (serviceConstructor, serviceName) => {
         _context[`$${serviceName}`] = serviceConstructor(_context);
       });
       return _context;

@@ -2,19 +2,18 @@ import { Request, Response, NextFunction } from 'express';
 import { Strategy } from 'passport';
 
 import { WhpptUser } from '../User';
-import type { WhpptSecurityConfig } from '../../Config';
-import type { IdService } from '../../Id';
-import type { LoggerService } from '../../Logger';
+import { IdService, LoggerService, HostingService, WhpptSecurityConfig } from '../..';
 
 export type SecurityProviderOptions = {
   $id: IdService;
   $logger: LoggerService;
+  $hosting: HostingService;
   config: WhpptSecurityConfig;
 };
 export type SecurityProvider = {
   init: () => Strategy;
   authenticate: (req: Request, res: Response, next: NextFunction) => void;
-  createToken: (user: WhpptUser) => string;
+  createToken: (apiKey: string, user: WhpptUser) => Promise<string>;
 };
 export type SecurityProviderConstructor = (
   options: SecurityProviderOptions

@@ -10,16 +10,18 @@ export * from './PageType';
 
 export type WhpptSecurityConfig = {
   provider: string;
-  jwt?: { secret: string; issuer: string; audience: string };
+  jwt?: { issuer: string };
 };
 
 export type WhpptConfig = {
   security: WhpptSecurityConfig;
-  modules: { [key: string]: WhpptModule };
-  collections: string[];
-  services: { [name: string]: ContextService<any> };
+  modules?: { [key: string]: WhpptModule };
+  collections?: string[];
+  services?: { [name: string]: ContextService<any> };
   pageTypes?: PageType[];
   disablePublishing?: boolean;
+  onPublish?: (page: any) => void;
+  onUnPublish?: (page: any) => void;
   /**
    * @deprecated this options should not be used. The various routers will use their own prefixes.
    */
@@ -31,7 +33,8 @@ export type RuntimeConfig = {
   pageTypes: PageType[];
   modules: { [key: string]: WhpptModule };
   services: { [name: string]: ContextService<any> };
-  disablePublishing: boolean;
+  onPublish: (page: any) => void;
+  onUnPublish: (page: any) => void;
 };
 
 export type ConfigServiceFactory = (
@@ -44,16 +47,20 @@ export type ConfigService = {
   middleware: ConfigMiddleware;
 };
 
+const voidCallback = () => {};
+
 export const ConfigService: ConfigServiceFactory = (logger, config) => {
-  const loadModulesPromise = loadModules(config.modules || {});
-  const middleware = ConfigMiddleware(logger, loadModulesPromise);
   const _config: RuntimeConfig = {
     modules: {},
     pageTypes: config.pageTypes || [genericPageType],
     services: config.services || {},
     collections: buildCollections(config),
-    disablePublishing: config.disablePublishing || false,
+    onPublish: (!config.disablePublishing && config.onPublish) || voidCallback,
+    onUnPublish: (!config.disablePublishing && config.onUnPublish) || voidCallback,
   };
-  loadModulesPromise.then(modules => (_config.modules = modules));
+  const loadModulesPromise = loadModules(config.modules || {}).then(modules => {
+    _config.modules = modules;
+  });
+  const middleware = ConfigMiddleware(logger, loadModulesPromise);
   return { runtime: _config, middleware };
 };

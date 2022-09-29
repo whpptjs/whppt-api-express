@@ -13,9 +13,40 @@ export type DatabaseHostingConfig = {
   pubDb: string; // pub-live-test
 };
 
+type PersistedDatabaseHostingConfig = {
+  type: 'mongo'; // 'MongoDB"
+  instanceId: string;
+  db: string; // draft-live-test
+  pubDb: string; // pub-live-test
+};
+
+export type SecurityHostingConfig = {
+  appKey: string;
+  audience: string;
+};
+
+export type StorageHostingConfig = {
+  provider: string;
+  aws?: {
+    region: string;
+    bucket: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+};
+
 export type HostingConfig = {
   apiKey: string;
   database: DatabaseHostingConfig;
+  security: SecurityHostingConfig;
+  storage: StorageHostingConfig;
+};
+
+type PersistedHostingConfig = {
+  apiKey: string;
+  database: PersistedDatabaseHostingConfig;
+  security: SecurityHostingConfig;
+  storage: StorageHostingConfig;
 };
 
 export type HostingService = {
@@ -31,14 +62,22 @@ export const HostingService = (
   return {
     getConfig(apiKey: string): Promise<HostingConfig> {
       return database.then(connection => {
-        const { db } = connection.getMongoDatabase();
-        return db
-          .collection<HostingConfig>('hosting')
+        const { db: adminDb } = connection.getMongoDatabase();
+        return adminDb
+          .collection<PersistedHostingConfig>('hosting')
           .findOne({ apiKey })
           .then(config => {
             if (!config)
               throw new Error(`Database config not found for api key: ${apiKey}`);
-            return config;
+            // TODO: Support database types. Currently only support mongo instances
+            return adminDb
+              .collection<HostedMongoInstance>('mongoInstances')
+              .findOne({ _id: config.database.instanceId })
+              .then(instance => {
+                if (!instance)
+                  throw new Error(`Database instance not found for api key: ${apiKey}`);
+                return { ...config, database: { ...config.database, instance } };
+              });
           });
       });
     },

@@ -1,6 +1,5 @@
-import { Router } from 'express';
-import { ContextType } from '../context/Context';
-import { WhpptConfig } from '../Services/Config';
+import { Response, Router } from 'express';
+import { WhpptRequest } from '../';
 const { join, map } = require('lodash');
 
 const router = Router();
@@ -13,17 +12,13 @@ const sitemapStart = `<?xml version="1.0" encoding="UTF-8"?>
 
 const sitemapEnd = `</urlset>`;
 
-export type SeoRouterConstructor = (
-  context: Promise<ContextType>,
-  config: WhpptConfig
-) => Router;
+export type SeoRouterConstructor = () => Router;
 
-export const SeoRouter: SeoRouterConstructor = function (context) {
-  router.get(`/sitemap.xml`, (_, res) => {
-    return context.then(({ $sitemap }) => {
-      return $sitemap
-        .filter()
-        .then(({ sitemap }: any) => {
+export const SeoRouter: SeoRouterConstructor = function () {
+  router.get(`/sitemap.xml`, (req: any, res: Response) => {
+    return (req as WhpptRequest).moduleContext
+      .then(({ $sitemap }) => {
+        return $sitemap.filter().then(({ sitemap }: any) => {
           const indexablePages = sitemap.filter((p: any) => !p.hideFromSitemap);
           return join(
             map(indexablePages, (page: any) => {
@@ -49,15 +44,15 @@ export const SeoRouter: SeoRouterConstructor = function (context) {
             }),
             '\n'
           );
-        })
-        .then((sitemapData: any) =>
-          res.type('text/xml').send(`${sitemapStart}${sitemapData}${sitemapEnd}`)
-        )
-        .catch((err: any) => res.status(500).send(err));
-    });
+        });
+      })
+      .then((sitemapData: any) =>
+        res.type('text/xml').send(`${sitemapStart}${sitemapData}${sitemapEnd}`)
+      )
+      .catch((err: any) => res.status(500).send(err));
   });
 
-  router.get('/robots.txt', function (_, res) {
+  router.get('/robots.txt', function (_: any, res: Response) {
     res.type('text/plain');
 
     if (draft || process.env.DISABLE_ROBOTS === 'true')

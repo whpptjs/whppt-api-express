@@ -1,8 +1,10 @@
+import assert from 'assert';
 import fileType from 'file-type';
 import { WhpptConfig } from '../Config';
+import { WhpptDatabase } from '../Database';
 import { IdService } from '../Id';
-import { MongoService } from '../Mongo';
 import { StorageService } from '../Storage';
+import { WhpptMongoDatabase } from '../Database/Mongo/Database';
 
 export type FileService = {
   upload: (file: any, description: any) => Promise<void>;
@@ -11,7 +13,7 @@ export type FileService = {
 };
 export type FileServiceConstructor = (
   $id: IdService,
-  $mongo: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
   $storage: StorageService,
   config: WhpptConfig
 ) => FileService;
@@ -19,11 +21,14 @@ export type FileServiceConstructor = (
 /**
  * @deprecated use gallery
  */
-export const File: FileServiceConstructor = ($id, $mongo, $storage, config) => {
+export const File: FileServiceConstructor = ($id, $database, $storage, config) => {
   const upload = function (file: any, description: any) {
-    return $mongo.then(({ $db, $dbPub }) => {
+    return $database.then(database => {
+      const { $db, $dbPub } = database as WhpptMongoDatabase;
       const { buffer, mimetype: type, originalname: name } = file;
       const id = $id.newId();
+
+      assert($dbPub, 'Publishing database is not configured');
 
       return fileType.fromBuffer(buffer).then(fType => {
         return $storage.uploadDoc(buffer, id, {}).then(() => {
@@ -57,7 +62,7 @@ export const File: FileServiceConstructor = ($id, $mongo, $storage, config) => {
   };
 
   const remove = function (fileId: string) {
-    return $mongo.then(({ $delete, $unpublish }) => {
+    return $database.then(({ $delete, $unpublish }) => {
       return $unpublish('files', fileId).then(() => {
         return $delete('files', fileId).then(() => {
           return $storage.removeDoc(fileId);
@@ -67,18 +72,15 @@ export const File: FileServiceConstructor = ($id, $mongo, $storage, config) => {
   };
 
   const fetchOriginal = function ({ id }: { id: string }) {
-    return $mongo.then(({ $db }) => {
-      return $db
-        .collection('files')
-        .findOne({ _id: id })
-        .then((storedImage: any) => {
-          return $storage.fetchDoc(id).then(({ imageBuffer }: { imageBuffer: any }) => {
-            const response = imageBuffer;
-            response.Body = imageBuffer;
-            response.ContentType = storedImage.type;
-            return response;
-          });
+    return $database.then(({ document }) => {
+      return document.fetch('files', id).then((storedImage: any) => {
+        return $storage.fetchDoc(id).then((docBuffer: any) => {
+          const response = docBuffer;
+          response.Body = docBuffer;
+          response.ContentType = storedImage.type;
+          return response;
         });
+      });
     });
   };
 

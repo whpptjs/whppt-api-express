@@ -1,139 +1,142 @@
-import aws from 'aws-sdk';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
+import { HostingConfig, StorageHostingConfig } from '../Hosting';
 import { StorageService } from '../Storage';
 
-const S3_BUCKET_NAME = process.env.S3_BUCKET;
+export type S3Constructor = ($hosting: Promise<HostingConfig>) => StorageService;
 
-export type S3Constructor = () => StorageService;
+export const S3: S3Constructor = $hosting => {
+  const clients: { [key: string]: S3Client } = {};
 
-export const S3: S3Constructor = () => {
-  const s3 = new aws.S3();
+  const getClient = (apiKey: string, config: StorageHostingConfig) => {
+    const client = clients[apiKey];
+    if (client) return client;
 
-  return {
-    upload(fileBuffer: Buffer, id: string, type: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      const path = type ? `${type}/${id}` : id;
-      return new Promise((resolve, reject) => {
-        s3.putObject(
-          {
-            Bucket: S3_BUCKET_NAME,
+    const region = config.aws?.region;
+    const accessKeyId = config.aws?.accessKeyId;
+    const secretAccessKey = config.aws?.secretAccessKey;
+    if (!region) throw new Error('AWS Region is required');
+    if (!accessKeyId) throw new Error('AWS access key id is required');
+    if (!secretAccessKey) throw new Error('AWS secret access key is required');
+
+    const newClient = new S3Client({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+    });
+    clients[apiKey] = newClient;
+    return newClient;
+  };
+
+  const upload = (path: string, fileBuffer: Buffer, meta: any = {}) => {
+    return $hosting.then(({ storage, apiKey }) => {
+      const bucketName = storage.aws?.bucket;
+      if (!bucketName) return Promise.reject('S3 bucket name is required.');
+      const s3Client = getClient(apiKey, storage);
+
+      return s3Client
+        .send(
+          new PutObjectCommand({
+            Bucket: bucketName,
             Key: path,
             Body: fileBuffer,
             ACL: 'public-read',
             ContentEncoding: 'base64',
-          },
-          err => {
-            if (err) reject(err);
-            resolve();
-          }
-        );
-      });
+            Metadata: meta,
+          })
+        )
+        .then(() => {});
+    });
+  };
+
+  const remove = (path: string) => {
+    return $hosting.then(({ storage, apiKey }) => {
+      const bucketName = storage.aws?.bucket;
+      if (!bucketName) return Promise.reject('S3 bucket name is required.');
+      const s3Client = getClient(apiKey, storage);
+
+      return s3Client
+        .send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: path,
+          })
+        )
+        .then(() => {});
+    });
+  };
+
+  type StreamToBuffer = (stream: any) => Promise<Buffer>;
+  const streamToBuffer: StreamToBuffer = (stream: any) =>
+    new Promise((resolve, reject) => {
+      const chunks: any = [];
+      stream.on('data', (chunk: any) => chunks.push(chunk));
+      stream.on('error', reject);
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+
+  const fetch = (path: string) => {
+    return $hosting.then(({ storage, apiKey }) => {
+      const bucketName = storage.aws?.bucket;
+      if (!bucketName) return Promise.reject('S3 bucket name is required.');
+      const s3Client = getClient(apiKey, storage);
+
+      return s3Client
+        .send(
+          new GetObjectCommand({
+            Bucket: bucketName,
+            Key: path,
+          })
+        )
+        .then(fileData => {
+          if (!fileData || !fileData.Body) throw new Error('No file body');
+          return streamToBuffer(fileData.Body);
+        });
+    });
+  };
+
+  return {
+    upload(fileBuffer: Buffer, id: string, type: string, meta: any) {
+      const path = type ? `${type}/${id}` : id;
+      return upload(path, fileBuffer, meta);
     },
 
-    remove(id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `gallery/${id}` }, err => {
-          if (err) return reject(err);
-          resolve();
-        });
-      });
+    remove(id: string, type: string) {
+      return remove(`${type}/${id}`);
     },
 
     fetch(id: string, type: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.getObject(
-          { Bucket: S3_BUCKET_NAME, Key: `${type}/${id}` },
-          (err, fileData) => {
-            if (err) return reject(err);
-            if (!fileData || !fileData.Body) return reject(new Error('No file body'));
-            resolve({ fileBuffer: fileData.Body as any });
-          }
-        );
-      });
+      return fetch(`${type}/${id}`);
     },
 
-    uploadImage(fileBuffer: Buffer, id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.putObject(
-          {
-            Bucket: S3_BUCKET_NAME,
-            Key: `images/${id}`,
-            Body: fileBuffer,
-            ACL: 'public-read',
-            ContentEncoding: 'base64',
-          },
-          err => {
-            if (err) reject(err);
-            resolve();
-          }
-        );
-      });
+    uploadImage(fileBuffer: Buffer, id: string, meta: any) {
+      return upload(`images/${id}`, fileBuffer, meta);
     },
 
     uploadDoc(fileBuffer: Buffer, id: string, meta: any) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.putObject(
-          {
-            Bucket: S3_BUCKET_NAME,
-            Key: `docs/${id}`,
-            Body: fileBuffer,
-            Metadata: meta,
-            ContentEncoding: 'base64',
-          },
-          err => {
-            if (err) reject(err);
-            resolve();
-          }
-        );
-      });
+      return upload(`docs/${id}`, fileBuffer, meta);
     },
 
     fetchImage(id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.getObject(
-          { Bucket: S3_BUCKET_NAME, Key: `images/${id}` },
-          (err, imageData) => {
-            if (err) return reject(err);
-            if (!imageData || !imageData.Body) return reject(new Error('No image body'));
-            resolve({ imageBuffer: imageData.Body as any });
-          }
-        );
-      });
+      return fetch(`images/${id}`);
     },
 
     fetchDoc(id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.getObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, (err, docData) => {
-          if (err) return reject(err);
-          if (!docData || !docData.Body) return reject(new Error('No document body'));
-          resolve({ imageBuffer: docData.Body as any });
-        });
-      });
+      return fetch(`docs/${id}`);
     },
 
     removeImage(id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `images/${id}` }, err => {
-          if (err) return reject(err);
-          resolve();
-        });
-      });
+      return remove(`images/${id}`);
     },
 
     removeDoc(id: string) {
-      if (!S3_BUCKET_NAME) return Promise.reject('S3 bucket name is required.');
-      return new Promise((resolve, reject) => {
-        s3.deleteObject({ Bucket: S3_BUCKET_NAME, Key: `docs/${id}` }, err => {
-          if (err) return reject(err);
-          resolve();
-        });
-      });
+      return remove(`docs/${id}`);
     },
   };
 };

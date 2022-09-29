@@ -1,7 +1,8 @@
 import Sharp from 'sharp';
-import { MongoService } from '../Mongo';
+import { WhpptDatabase } from '../Database';
 import { StorageService } from '../Storage';
 import { FetchOriginal } from './FetchOriginal';
+import { GalleryItem } from './GalleryItem';
 
 export type FetchImageFormat = {
   w: string; // width to resize to eg. '666'
@@ -30,7 +31,7 @@ export type FetchImageArgs = {
 
 export type FetchImage = (args: FetchImageArgs) => Promise<void>;
 export type FetchImageConstructor = (
-  $mongo: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
   $storage: StorageService,
   fetchOriginal: FetchOriginal
 ) => FetchImage;
@@ -64,15 +65,15 @@ const pickFormat = function (format: FetchImageFormat, accept: string, imageMeta
 };
 
 export const FetchImage: FetchImageConstructor =
-  ($mongo, $storage, fetchOriginal) =>
+  ($database, $storage, fetchOriginal) =>
   ({ format, itemId, accept = '' }) => {
     if (format.o) return fetchOriginal({ itemId, type: 'image' });
 
-    return $mongo.then(({ $db }) => {
+    return $database.then(({ document }) => {
       return Promise.all([
-        $db.collection('gallery').findOne({ _id: itemId }),
+        document.fetch<GalleryItem>('gallery', itemId),
         $storage.fetch(itemId, 'image'),
-      ]).then(([imageMeta, { fileBuffer }]) => {
+      ]).then(([imageMeta, fileBuffer]) => {
         const _sharpImage = Sharp(fileBuffer);
         let _extractedImage = _sharpImage;
         if (format.cx && format.cy && format.cw && format.ch) {
@@ -101,7 +102,6 @@ export const FetchImage: FetchImageConstructor =
           quality
         );
         return optimisedImage.toBuffer().then(processedImageBuffer => {
-          console.log('🚀 ~ -------');
           return {
             Body: processedImageBuffer,
             ContentType: contentType,

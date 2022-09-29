@@ -2,7 +2,7 @@ const assert = require('assert');
 const { omit } = require('lodash');
 
 module.exports = {
-  exec({ $mongo: { $db }, $security, $logger }, { username, password }) {
+  exec({ $mongo: { $db }, $security, $logger, apiKey }, { username, password }) {
     assert(username, 'A username or email address is required.');
     assert(password, 'A password is required.');
 
@@ -33,7 +33,9 @@ module.exports = {
 
           return $security.compare(password, user.password).then(passwordMatches => {
             if (passwordMatches)
-              return { token: $security.createToken(omit(user, ['password'])) };
+              return $security
+                .createToken(apiKey, omit(user, ['password']))
+                .then(token => ({ token }));
 
             return Promise.reject(new Error('Something went wrong. Could not log in.'));
           });

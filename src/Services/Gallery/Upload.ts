@@ -1,19 +1,19 @@
 import assert from 'assert';
 import fileType from 'file-type';
-import { MongoService } from '../Mongo';
 import { GalleryItem } from './GalleryItem';
 import { IdService } from '../Id/index';
 import { StorageService } from '../Storage';
+import { WhpptDatabase } from '../Database';
 
 export type UploadGaleryItemArgs = { file: any; domainId: string; type: string };
 export type UploadGalleryItem = (args: UploadGaleryItemArgs) => Promise<GalleryItem>;
 export type UploadGalleryItemContstructor = (
   $id: IdService,
-  $mongo: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
   $storage: StorageService
 ) => UploadGalleryItem;
 
-export const Upload: UploadGalleryItemContstructor = ($id, $mongo, $storage) => {
+export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) => {
   return ({ file, domainId, type }) => {
     return Promise.resolve().then(() => {
       assert(file, 'File to upload is required');
@@ -39,11 +39,11 @@ export const Upload: UploadGalleryItemContstructor = ($id, $mongo, $storage) => 
           date: new Date(),
         };
 
-        return $mongo.then(({ $startTransaction, $save }) => {
-          return $startTransaction(session => {
-            return $save('gallery', newGalleryItem, { session }).then(() =>
-              $storage.upload(buffer, newGalleryItem._id, type)
-            );
+        return $database.then(({ startTransaction, document }) => {
+          return startTransaction(session => {
+            return document
+              .save('gallery', newGalleryItem, { session })
+              .then(() => $storage.upload(buffer, newGalleryItem._id, type, {}));
           }).then(() => newGalleryItem);
         });
       });

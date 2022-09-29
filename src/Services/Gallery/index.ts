@@ -2,8 +2,8 @@ import { FetchImage } from './FetchImage';
 import { FetchOriginal } from './FetchOriginal';
 import { UploadGalleryItem, Upload } from './Upload';
 import { IdService } from '../Id';
-import { MongoService } from '../Mongo';
 import { StorageService } from '../Storage';
+import { WhpptDatabase } from '../Database';
 
 export type GalleryService = {
   upload: UploadGalleryItem;
@@ -12,15 +12,15 @@ export type GalleryService = {
 };
 export type GalleryConstructor = (
   $id: IdService,
-  $mongo: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
   $storage: StorageService
 ) => GalleryService;
 
-export const Gallery: GalleryConstructor = ($id, $mongo, $storage) => {
-  const fetchOriginal = FetchOriginal($mongo, $storage);
+export const Gallery: GalleryConstructor = ($id, $database, $storage) => {
+  const fetchOriginal = FetchOriginal($database, $storage);
   return {
-    upload: Upload($id, $mongo, $storage),
+    upload: Upload($id, $database, $storage),
     fetchOriginal,
-    fetchImage: FetchImage($mongo, $storage, fetchOriginal),
+    fetchImage: FetchImage($database, $storage, fetchOriginal),
   };
 };
