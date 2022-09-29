@@ -167,7 +167,7 @@ export const DatabaseService: DatabaseServiceFactory = (
               .ensureCollections(config.runtime.collections)
               .then(() => {
                 // TODO: hook up disconnection events so that we can remove the connection
-                connections[apiKey] = connection;
+                connections[connectionKey] = connection;
                 return connection;
               });
           });

@@ -26,9 +26,9 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
           req.adminDb = connection.getDatabase();
           next();
         })
-        .catch(() => {
+        .catch(err => {
           const msg = 'Could not connect to the admin DB. The service as shut down.';
-          logger.error(msg);
+          logger.error(`${msg} : ${err}`);
           res.status(500).send(msg);
           process.exit(1);
         });
@@ -39,9 +39,11 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
           req.apiDb = connection.getDatabase();
           next();
         })
-        .catch(() =>
-          res.status(500).send('The database connection could not be established')
-        );
+        .catch(err => {
+          const msg = 'The database connection could not be established';
+          logger.error(`${msg} : ${err}`);
+          res.status(500).send(msg);
+        });
     },
   };
 };

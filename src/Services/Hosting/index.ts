@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { MongoDatabaseConnection } from '../Database/Mongo/Connection';
 import { HostingMiddleware } from './middleware';
 
@@ -61,6 +62,47 @@ export const HostingService = (
   const middleware = HostingMiddleware();
   return {
     getConfig(apiKey: string): Promise<HostingConfig> {
+      if (apiKey === 'legacy') {
+        return Promise.resolve().then(() => {
+          assert(process.env.MONGO_URL, 'MONGO_URL env variable is required');
+          assert(process.env.MONGO_DB, 'MONGO_DB env variable is required');
+          assert(process.env.MONGO_DB_PUB, 'MONGO_DB_PUB env variable is required');
+          assert(process.env.APP_KEY, 'APP_KEY env variable is required');
+          assert(process.env.JWT_AUDIENCE, 'JWT_AUDIENCE env variable is required');
+          assert(process.env.S3_BUCKET, 'S3_BUCKET env variable is required');
+          assert(
+            process.env.S3_ACCESS_KEY_ID,
+            'S3_ACCESS_KEY_ID env variable is required'
+          );
+          assert(
+            process.env.S3_SECRET_ACCESS_KEY,
+            'S3_SECRET_ACCESS_KEY env variable is required'
+          );
+          return {
+            apiKey: 'legacy',
+            database: {
+              type: 'mongo',
+              instance: {
+                _id: 'legacy',
+                url: process.env.MONGO_URL,
+              },
+              db: process.env.MONGO_DB,
+              pubDb: process.env.MONGO_DB_PUB,
+            },
+            security: { appKey: process.env.APP_KEY, audience: process.env.JWT_AUDIENCE },
+            storage: {
+              provider: 'aws',
+              aws: {
+                region: 'ap-southeast-2',
+                bucket: process.env.S3_BUCKET,
+                accessKeyId: process.env.S3_ACCESS_KEY_ID,
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+              },
+            },
+          };
+        });
+      }
+
       return database.then(connection => {
         const { db: adminDb } = connection.getMongoDatabase();
         return adminDb

@@ -9,6 +9,11 @@ export type HostingMiddlewareFactory = () => HostingMiddleware;
 export const HostingMiddleware: HostingMiddlewareFactory = () => ({
   checkForApiKey(req: any, res: Response, next: NextFunction) {
     const { apiKey } = req.query;
+    if (process.env.LEGACY_API_KEY && process.env.LEGACY_API_KEY === 'true') {
+      req.apiKey = 'legacy';
+      return next();
+    }
+
     if (!apiKey)
       return res
         .status(500)
