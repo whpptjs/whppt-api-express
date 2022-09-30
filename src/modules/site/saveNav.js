@@ -7,29 +7,32 @@ module.exports = {
     { nav, user }
   ) {
     assert(nav, 'Please provide a Nav Object.');
+    assert(nav.domainId, 'domainId is required');
 
-    nav._id = nav._id || 'nav';
+    nav._id = nav._id || `nav_${nav.domainId}`;
 
-    const { extractNavImages, extractNavLinks } = whpptOptions;
+    // TODO: Include the extract links and images. Asana task logged
+    // const { extractNavImages, extractNavLinks } = whpptOptions;
 
-    const imageDependencies = extractNavImages
-      ? map(compact(extractNavImages(nav)), i => ({
-          _id: $id.newId(),
-          parentId: nav._id,
-          imageId: i,
-          type: 'image',
-        }))
-      : [];
-    const linkDependencies = extractNavLinks
-      ? map(compact(extractNavLinks(nav)), l => ({
-          _id: $id.newId(),
-          parentId: nav._id,
-          href: l,
-          type: 'link',
-        }))
-      : [];
+    // const imageDependencies = extractNavImages
+    //   ? map(compact(extractNavImages(nav)), i => ({
+    //       _id: $id.newId(),
+    //       parentId: nav._id,
+    //       imageId: i,
+    //       type: 'image',
+    //     }))
+    //   : [];
+    // const linkDependencies = extractNavLinks
+    //   ? map(compact(extractNavLinks(nav)), l => ({
+    //       _id: $id.newId(),
+    //       parentId: nav._id,
+    //       href: l,
+    //       type: 'link',
+    //     }))
+    //   : [];
 
-    const dependencies = [...imageDependencies, ...linkDependencies];
+    // const dependencies = [...imageDependencies, ...linkDependencies];
+    const dependencies = [];
 
     const DEP_COLLECTION = 'dependencies';
 

@@ -1,8 +1,10 @@
+import assert from 'assert';
 import Sharp from 'sharp';
-import { WhpptConfig } from '../../Config';
+import { WhpptConfig } from '../Config';
+import { WhpptDatabase } from '../Database';
 import { IdService } from '../Id';
-import { MongoService } from '../Mongo';
 import { StorageService } from '../Storage';
+import { WhpptMongoDatabase } from '../Database/Mongo/Database';
 
 const optimise: { [key: string]: any } = {
   jpg: (image: any, quality: any) => ({
@@ -39,7 +41,7 @@ export type ImageService = {
 };
 export type ImageServiceConstructor = (
   $id: IdService,
-  $mongo: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
   $storage: StorageService,
   config: WhpptConfig
 ) => ImageService;
@@ -47,7 +49,7 @@ export type ImageServiceConstructor = (
 /**
  * @deprecated use gallery
  */
-export const Image: ImageServiceConstructor = ($id, $mongo, $storage, config) => {
+export const Image: ImageServiceConstructor = ($id, $database, $storage, config) => {
   const disablePublishing = config.disablePublishing || false;
 
   const fetch = function ({
@@ -61,75 +63,74 @@ export const Image: ImageServiceConstructor = ($id, $mongo, $storage, config) =>
   }) {
     if (format.o) return fetchOriginal({ id });
 
-    return $mongo.then(({ $db }) => {
-      return Promise.all([
-        $db.collection('images').findOne({ _id: id }),
-        $storage.fetchImage(id),
-      ]).then(([imageMeta, { imageBuffer }]) => {
-        const _sharpImage = Sharp(imageBuffer);
+    return $database.then(({ document }) => {
+      return Promise.all([document.fetch('images', id), $storage.fetchImage(id)]).then(
+        ([imageMeta, imageBuffer]) => {
+          const _sharpImage = Sharp(imageBuffer);
 
-        let _extractedImage = _sharpImage;
+          let _extractedImage = _sharpImage;
 
-        if (format.cx && format.cy && format.cw && format.ch) {
-          _extractedImage = _sharpImage.extract({
-            left: parseInt(format.cx),
-            top: parseInt(format.cy),
-            width: parseInt(format.cw),
-            height: parseInt(format.ch),
+          if (format.cx && format.cy && format.cw && format.ch) {
+            _extractedImage = _sharpImage.extract({
+              left: parseInt(format.cx),
+              top: parseInt(format.cy),
+              width: parseInt(format.cw),
+              height: parseInt(format.ch),
+            });
+          }
+
+          const scale =
+            parseFloat(format.s) || parseFloat(process.env.BASE_IMAGE_SCALE || '1') || 1;
+
+          const _resizedImage =
+            format.w && format.h
+              ? _extractedImage.resize(
+                  Math.ceil(parseFloat(format.w) * scale),
+                  Math.ceil(parseFloat(format.h) * scale),
+                  {
+                    withoutEnlargement: true,
+                  }
+                )
+              : _extractedImage;
+
+          const imageType = pickFormat(format, accept, imageMeta) as string;
+          const quality = parseInt(format.q) || 70;
+          const optimiser = optimise[imageType];
+          const { img: optimisedImage, contentType } = optimiser(_resizedImage, quality);
+
+          return optimisedImage.toBuffer().then((processedImageBuffer: any) => {
+            return {
+              Body: processedImageBuffer,
+              ContentType: contentType,
+            };
           });
         }
+      );
+    });
+  };
 
-        const scale =
-          parseFloat(format.s) || parseFloat(process.env.BASE_IMAGE_SCALE || '1') || 1;
-
-        const _resizedImage =
-          format.w && format.h
-            ? _extractedImage.resize(
-                Math.ceil(parseFloat(format.w) * scale),
-                Math.ceil(parseFloat(format.h) * scale),
-                {
-                  withoutEnlargement: true,
-                }
-              )
-            : _extractedImage;
-
-        const imageType = pickFormat(format, accept, imageMeta) as string;
-        const quality = parseInt(format.q) || 70;
-        const optimiser = optimise[imageType];
-        const { img: optimisedImage, contentType } = optimiser(_resizedImage, quality);
-
-        return optimisedImage.toBuffer().then((processedImageBuffer: any) => {
-          return {
-            Body: processedImageBuffer,
-            ContentType: contentType,
-          };
+  const fetchOriginal = function ({ id }: { id: any }) {
+    return $database.then(({ document }) => {
+      return document.fetch('images', id).then((storedImage: any) => {
+        return $storage.fetchImage(id).then(imageBuffer => {
+          const response = imageBuffer as any;
+          response.Body = imageBuffer;
+          response.ContentType = storedImage.type;
+          return response;
         });
       });
     });
   };
 
-  const fetchOriginal = function ({ id }: { id: any }) {
-    return $mongo.then(({ $db }) => {
-      return $db
-        .collection('images')
-        .findOne({ _id: id })
-        .then((storedImage: any) => {
-          return $storage.fetchImage(id).then(({ imageBuffer }) => {
-            const response = imageBuffer as any;
-            response.Body = imageBuffer;
-            response.ContentType = storedImage.type;
-            return response;
-          });
-        });
-    });
-  };
-
   const upload = function (file: any) {
-    return $mongo.then(({ $db, $dbPub }) => {
+    return $database.then(database => {
+      const { $db, $dbPub } = database as WhpptMongoDatabase;
       const { buffer, mimetype: type, originalname: name } = file;
       const id = $id.newId();
 
-      return $storage.uploadImage(buffer, id).then(() => {
+      assert($dbPub, 'Publishing database is not configured');
+
+      return $storage.uploadImage(buffer, id, {}).then(() => {
         const image = {
           _id: id as any,
           version: 'v2',
@@ -161,15 +162,8 @@ export const Image: ImageServiceConstructor = ($id, $mongo, $storage, config) =>
   };
 
   const remove = function (id: any) {
-    return $mongo.then(({ $db }) => {
-      return $storage.removeImage(id).then(() =>
-        $db
-          .collection('images')
-          .deleteOne({
-            _id: id,
-          })
-          .then(() => {})
-      );
+    return $database.then(({ document }) => {
+      return $storage.removeImage(id).then(() => document.delete('images', id));
     });
   };
 

@@ -1,10 +1,11 @@
 import { Router, NextFunction, Request, Response } from 'express';
 import { chain, trimEnd } from 'lodash';
-import { MongoService } from '../Services';
+import { WhpptRequest } from '..';
+import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
-export type RedirectsRouterConstructor = ($mongo: Promise<MongoService>) => Router;
+export type RedirectsRouterConstructor = () => Router;
 
-export const RedirectsRouter: RedirectsRouterConstructor = $mongo => {
+export const RedirectsRouter: RedirectsRouterConstructor = () => {
   const router = Router();
 
   router.use((req: Request, res: Response, next: NextFunction) => {
@@ -14,30 +15,34 @@ export const RedirectsRouter: RedirectsRouterConstructor = $mongo => {
     if (from.startsWith('/api')) return next();
     if (from.startsWith('/_loading')) return next();
 
-    return $mongo.then(({ $db }) => {
-      return $db
-        .collection('domains')
-        .findOne({ hostnames: req.hostname })
-        .then(domain => {
-          const query =
-            domain && domain._id
-              ? { from: trimEnd(from, '/'), domainId: domain._id }
-              : {
-                  from: trimEnd(from, '/'),
-                  $or: [{ domainId: { $exists: false } }, { domainId: { $eq: '' } }],
-                };
+    return (req as WhpptRequest).moduleContext.then(({ $database }) => {
+      return $database.then(database => {
+        const { $db } = database as WhpptMongoDatabase;
+        // TODO: find a way to do queries like this on different databases. ie. Mongo, Firebase
+        return $db
+          .collection('domains')
+          .findOne({ hostnames: req.hostname })
+          .then(domain => {
+            const query =
+              domain && domain._id
+                ? { from: trimEnd(from, '/'), domainId: domain._id }
+                : {
+                    from: trimEnd(from, '/'),
+                    $or: [{ domainId: { $exists: false } }, { domainId: { $eq: '' } }],
+                  };
 
-          return $db
-            .collection('redirects')
-            .findOne(query)
-            .then(redirect => {
-              if (redirect) {
-                return res.redirect(301, redirect.to);
-              }
+            return $db
+              .collection('redirects')
+              .findOne(query)
+              .then(redirect => {
+                if (redirect) {
+                  return res.redirect(301, redirect.to);
+                }
 
-              next();
-            });
-        });
+                next();
+              });
+          });
+      });
     });
   });
 

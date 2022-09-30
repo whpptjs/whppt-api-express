@@ -1,4 +1,11 @@
-import { IdService, LoggerService, SecurityService } from '../Services';
+import {
+  HostingConfig,
+  IdService,
+  LoggerService,
+  SecurityService,
+  StorageService,
+  WhpptDatabase,
+} from '../Services';
 import { EventSessionFactory } from './events/Session';
 import { GalleryService, MongoService, ImageService, FileService } from '../Services';
 
@@ -6,7 +13,17 @@ export type ContextType = {
   $id: IdService;
   $logger: LoggerService;
   $security: SecurityService;
+  /**
+   * @deprecated use $database
+   */
   $mongo: MongoService;
+  $database: Promise<WhpptDatabase>;
+  $hosting: Promise<HostingConfig>;
+  /**
+   * @deprecated use $database
+   */
+  $aws: StorageService;
+  $storage: StorageService;
   $image?: ImageService;
   $file?: FileService;
   $modules?: any;
@@ -19,24 +36,16 @@ export type ContextType = {
   $email?: any;
   $gallery?: GalleryService;
   EventSession: EventSessionFactory;
+  useService: UseService;
+  apiKey: string;
   [key: string]: any;
 };
 
-export type Service<T> = (context: ContextType) => T;
+export type ContextService<T> = (context: ContextType) => T;
+export type UseService = <T>(serviceName: string) => T | undefined;
 
-export type PageType = {
-  key?: string;
-  name: string;
-  label: string;
-  collection?: { name: string };
-};
-
-export type ContextArgs = {
-  modules?: any;
-  services?: any;
-  pageTypes?: PageType[];
+export type ContextOptions = {
   disablePublishing?: boolean;
   onPublish?: (page: any) => void;
   onUnPublish?: (page: any) => void;
-  collections?: string[];
 };

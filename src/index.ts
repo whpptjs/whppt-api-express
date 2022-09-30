@@ -1,7 +1,7 @@
-import { Router } from 'express';
+import { NextFunction, Router, Request } from 'express';
 
-import { WhpptConfig } from './Config';
-import Context from './context';
+import { WhpptConfig } from './Services/Config';
+import ModuleContext from './context';
 import {
   ModulesRouter,
   RedirectsRouter,
@@ -10,45 +10,74 @@ import {
   FileRouter,
   ImageRouter,
 } from './routers';
-import {
-  $s3,
-  File,
-  Image,
-  Gallery,
-  IdService,
-  Logger,
-  Mongo,
-  Security,
-} from './Services';
+import { S3, File, Image, Gallery, IdService, Logger, Security } from './Services';
+import { DatabaseService } from './Services/Database';
+import { MongoDatabaseConnection } from './Services/Database/Mongo/Connection';
+import { DatabaseHostingConfig, HostingService } from './Services/Hosting';
+import { ConfigService } from './Services/Config';
+import { ContextType } from './context/Context';
 
-export * from './Config';
+export * from './Services/Config';
+
+const adminDbConfig: DatabaseHostingConfig = {
+  type: 'mongo',
+  instance: { _id: 'whppt-shared', url: process.env.MONGO_URL || '' },
+  db: process.env.MONGO_ADMIN_DB || 'WhpptAdmin',
+  pubDb: '',
+};
+
+export type WhpptRequest = Request & {
+  moduleContext: Promise<ContextType>;
+};
 
 export const Whppt = (config: WhpptConfig) => {
   config.apiPrefix = config.apiPrefix || 'api';
+  const router = Router();
 
   const $id = IdService();
   const $logger = Logger();
-  const $security = Security({ $id, $logger, config });
-  const $mongo = Mongo({ $id, $logger, config });
-  const $storage = $s3;
-  const $gallery = Gallery($id, $mongo, $storage);
-  const $file = File($id, $mongo, $storage, config);
-  const $image = Image($id, $mongo, $storage, config);
+  const $config = ConfigService($logger, config);
+  const adminDb = MongoDatabaseConnection($logger, $id, adminDbConfig);
+  const $hosting = HostingService(adminDb);
+  const $database = DatabaseService($logger, $id, $hosting, $config, adminDb);
+  const $security = Security({ $id, $logger, config: config.security, $hosting });
 
-  const context = Context($id, $logger, $security, $mongo, $gallery, $image, $file, {
-    ...config,
-  });
-  const router = Router();
-
+  router.use($hosting.middleware.checkForApiKey);
+  router.use($config.middleware.waitForConfig);
+  router.use($database.middleware.waitForAdminDbConnection);
+  router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
-  // Wait for mongo to connect before using routes that need mongo.
-  router.use((_, __, next) => $mongo.then(() => next()));
-  router.use(ModulesRouter({ $logger, context, config }));
-  router.use(RedirectsRouter($mongo));
-  router.use(FileRouter($file, $mongo));
-  router.use(ImageRouter($image));
-  router.use(GalleryRouter($gallery, $mongo));
-  router.use(SeoRouter(context, config));
+
+  router.use((req: any, _: any, next: NextFunction) => {
+    // TODO: Work towards a generic db and not specifically mongo here.
+    const dbConnection = $database.getConnection(req.apiKey);
+    const databasePromise = dbConnection.then(con => con.getDatabase());
+    const hostingConfig = $hosting.getConfig(req.apiKey);
+    // TODO: Work towards a generic storage api. S3 used here
+    const $storage = S3(hostingConfig);
+
+    req.moduleContext = ModuleContext(
+      $id,
+      $logger,
+      $security,
+      databasePromise,
+      $config,
+      hostingConfig,
+      $storage,
+      Gallery($id, databasePromise, $storage),
+      Image($id, databasePromise, $storage, config),
+      File($id, databasePromise, $storage, config),
+      req.apiKey
+    );
+    next();
+  });
+
+  router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
+  router.use(RedirectsRouter());
+  router.use(FileRouter());
+  router.use(ImageRouter());
+  router.use(GalleryRouter($logger));
+  router.use(SeoRouter());
 
   return router;
 };

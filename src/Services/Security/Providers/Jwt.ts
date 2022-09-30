@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import { Strategy as JwtStrategy, ExtractJwt, SecretOrKeyProvider } from 'passport-jwt';
 
 import type { Request } from 'express';
 
@@ -17,13 +17,27 @@ const extractFromBearer = function () {
 
 const expectBearerToken = process.env.TOKEN_SRC === 'Bearer';
 
-export const JwtProvider: SecurityProviderConstructor = ({ $id, config }) => ({
+export const JwtProvider: SecurityProviderConstructor = ({ $id, $hosting, config }) => ({
   init() {
+    const fetchSecret: SecretOrKeyProvider = (req: any, rawJwtToken, done) => {
+      $hosting
+        .getConfig(req.apiKey)
+        .then(securityConfig => {
+          const opts: jwt.VerifyOptions = {
+            issuer: config.jwt?.issuer || 'whppt',
+            audience: securityConfig.security.audience || '',
+            maxAge: '7d',
+          };
+          jwt.verify(rawJwtToken, securityConfig.security.appKey, opts, (err: any) => {
+            done(err, securityConfig.security.appKey);
+          });
+        })
+        .catch(done);
+    };
+
     const opts = {
       jwtFromRequest: expectBearerToken ? extractFromBearer() : extractFromCookies,
-      secretOrKey: config.jwt?.secret,
-      issuer: config.jwt?.issuer || 'whppt',
-      audience: config.jwt?.audience || '',
+      secretOrKeyProvider: fetchSecret,
     };
 
     return new JwtStrategy(opts, function (jwtPayload, done) {
@@ -47,16 +61,18 @@ export const JwtProvider: SecurityProviderConstructor = ({ $id, config }) => ({
     })(req, res);
     // });
   },
-  createToken(user) {
-    return jwt.sign(
-      {
-        iss: config.jwt?.issuer,
-        aud: config.jwt?.audience,
-        sub: user,
-        jti: $id.newId(),
-        alg: 'HS256',
-      },
-      config.jwt?.secret || ''
-    );
+  createToken(apiKey, user) {
+    return $hosting.getConfig(apiKey).then(({ security }) => {
+      return jwt.sign(
+        {
+          iss: config.jwt?.issuer,
+          aud: security.audience || '',
+          sub: user,
+          jti: $id.newId(),
+          alg: 'HS256',
+        },
+        security.appKey
+      );
+    });
   },
 });

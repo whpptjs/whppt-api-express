@@ -10,25 +10,34 @@ import { DomainEvent } from '../Events/CreateEvent';
 import assert from 'assert';
 import { LoggerService } from '../Logger';
 import { IdService } from '../Id';
-import { WhpptConfig } from '../../Config';
+import { WhpptConfig } from '../Config';
 const { pick } = require('lodash');
 
 const mongoUrl = process.env.MONGO_URL;
 const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type WhpptMongoArgs = {
   $logger: LoggerService;
   $id: IdService;
   config: WhpptConfig;
 };
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoServiceSave = <T>(
   collection: string,
   doc: T,
   options?: { session?: ClientSession }
 ) => Promise<T>;
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoServiceSaveToPubWithEvents = <
   T extends { _id: string; createdAt: Date; updatedAt: Date }
 >(
@@ -38,16 +47,25 @@ export type MongoServiceSaveToPubWithEvents = <
   options: { session: ClientSession }
 ) => Promise<T>;
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoServiceDelete = (
   collection: string,
   id: string,
   options?: { session?: ClientSession }
 ) => Promise<any>;
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoServiceStartTransaction = (
   callback: (session: ClientSession) => Promise<any>
 ) => Promise<any>;
 
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoService = {
   $db: Db;
   $dbPub: Db;
@@ -62,8 +80,14 @@ export type MongoService = {
   ) => Promise<void>;
   ensureCollections: (collections: string[]) => Promise<void>;
 };
+/**
+ * @deprecated use document.saveToPubWithEvents
+ */
 export type MongoServiceConstructor = (args: WhpptMongoArgs) => Promise<MongoService>;
 
+/**
+ * @deprecated use new database classes
+ */
 export const Mongo: MongoServiceConstructor = ({ $logger, $id }: WhpptMongoArgs) => {
   if (!mongoUrl) {
     $logger.error('Mongo connection failed, missing URL ....');

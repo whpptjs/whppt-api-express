@@ -1,5 +1,5 @@
-import { compact, forEach, map } from 'lodash';
-import { ContextArgs, ContextType, PageType } from './Context';
+import { forEach } from 'lodash';
+import { ContextType } from './Context';
 import { EventSession, CreateEvent } from './events';
 import {
   FileService,
@@ -7,111 +7,83 @@ import {
   IdService,
   ImageService,
   LoggerService,
-  MongoService,
+  ConfigService,
   SecurityService,
+  WhpptDatabase,
+  HostingConfig,
+  StorageService,
 } from '../Services';
+import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
 const Email = require('./email');
-const loadModules = require('./modules/loadModules');
 const { ValidateRoles, saveRole, isGuest } = require('./roles');
 const sitemapQuery = require('./sitemap');
 
 const $env = process.env;
 
-const voidCallback = () => {};
-
-const genericPageType = {
-  name: 'page',
-  label: 'Generic',
-  collection: { name: 'pages' },
-} as PageType;
-
 const Context = (
   $id: IdService,
   $logger: LoggerService,
   $security: SecurityService,
-  mongoPromise: Promise<MongoService>,
+  $database: Promise<WhpptDatabase>,
+  $config: ConfigService,
+  $hosting: Promise<HostingConfig>,
+  $storage: StorageService,
   $gallery: GalleryService,
   $image: ImageService,
   $file: FileService,
-  options: ContextArgs = {
-    disablePublishing: false,
-  }
+  apiKey: string
 ) => {
   return Promise.resolve().then(() => {
-    options.modules = options.modules || {};
-    options.services = options.services || {};
-    options.collections = options.collections || [];
-    options.disablePublishing = options.disablePublishing || false;
+    // TODO: Support other databases. Currently only Mongo is supported and we use it directly here.
+    return $database.then(database => {
+      const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
 
-    const $pageTypes =
-      options.pageTypes && options.pageTypes.length
-        ? options.pageTypes
-        : [genericPageType];
-    const pageTypeCollections = compact(
-      map(
-        $pageTypes,
-        pageType => (pageType.collection && pageType.collection.name) || pageType.key
-      )
-    );
-    const pageTypeHistoryCollections = map(
-      pageTypeCollections,
-      pageTypeName => pageTypeName + 'History'
-    );
+      const _context = {
+        $id,
+        $logger,
+        $image,
+        $file,
+        $security,
+        $mongo: database as WhpptMongoDatabase,
+        $database,
+        $hosting,
+        $aws: $storage,
+        $storage,
+        $modules: $config.runtime.modules,
+        $pageTypes: $config.runtime.pageTypes,
+        $fullUrl,
+        $sitemap: {
+          filter: sitemapQuery({
+            $mongo: database,
+            $pageTypes: $config.runtime.pageTypes,
+            $fullUrl,
+          }),
+        },
+        $roles: {
+          validate: ValidateRoles({ $mongo: database, $env }),
+          save: saveRole({ $id, $mongo: database }),
+          isGuest: isGuest({ $mongo: database }),
+        },
+        $env,
+        $publishing: {
+          onPublish: $config.runtime.onPublish,
+          onUnPublish: $config.runtime.onUnPublish,
+        },
+        EventSession: EventSession({} as ContextType),
+        useService: <T>(name: string) =>
+          _context[name] ? (_context[name] as T) : undefined,
+        apiKey,
+      } as ContextType;
 
-    const collections = [
-      'dependencies',
-      'gallery',
-      'users',
-      ...options.collections,
-      ...pageTypeCollections,
-      ...pageTypeHistoryCollections,
-    ];
+      _context.$email = Email(_context);
+      _context.$gallery = $gallery;
+      _context.CreateEvent = CreateEvent;
 
-    return mongoPromise.then($mongo => {
-      return $mongo.ensureCollections(collections).then(() => {
-        const $fullUrl = (slug: string) => `${$env.BASE_URL}/${slug}`;
-
-        const $modules = loadModules().then((modules: any) => ({
-          ...modules,
-          ...options.modules,
-        }));
-
-        const _context = {
-          $id,
-          $logger,
-          $image,
-          $file,
-          $security,
-          $mongo,
-          $modules,
-          $pageTypes,
-          $fullUrl,
-          $sitemap: {
-            filter: sitemapQuery({ $mongo, $pageTypes, $fullUrl }),
-          },
-          $roles: {
-            validate: ValidateRoles({ $mongo, $env }),
-            save: saveRole({ $id, $mongo }),
-            isGuest: isGuest({ $mongo }),
-          },
-          $env,
-          $publishing: {
-            onPublish: options.onPublish || voidCallback,
-            onUnPublish: options.onUnPublish || voidCallback,
-          },
-          EventSession: EventSession({} as ContextType),
-        } as ContextType;
-
-        _context.$email = Email(_context);
-        _context.$gallery = $gallery;
-        _context.CreateEvent = CreateEvent;
-
-        forEach(options.services, (serviceValue, serviceName) => {
-          _context[`$${serviceName}`] = serviceValue(_context);
-        });
-        return _context;
+      forEach($config.runtime.services, (serviceConstructor, serviceName) => {
+        _context[`$${serviceName}`] = serviceConstructor(_context);
       });
+      return _context;
     });
   });
 };
