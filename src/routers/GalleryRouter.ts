@@ -70,7 +70,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
         .then(({ $gallery }) => {
           if (!$gallery) throw new Error('Gallery is required');
           return $gallery
-            .fetchOriginal({ itemId: req.params.svgId, type: 'svgs' })
+            .fetchOriginal({ itemId: req.params.svgId, type: 'svg' })
             .then((response: any) => {
               if (!response) return res.status(404).send('Image not found');
 

@@ -11,27 +11,28 @@ module.exports = {
 
     footer._id = footer._id || `footer_${footer.domainId}`;
 
-    const { extractFooterImages, extractFooterLinks } = whpptOptions;
+    // TODO: Add extract images and link back in. Asana task logged
+    // const { extractFooterImages, extractFooterLinks } = whpptOptions;
 
-    const imageDependencies = extractFooterImages
-      ? map(compact(extractFooterImages(footer)), i => ({
-          _id: $id.newId(),
-          parentId: footer._id,
-          imageId: i,
-          type: 'image',
-        }))
-      : [];
-    const linkDependencies = extractFooterLinks
-      ? map(compact(extractFooterLinks(footer)), l => ({
-          _id: $id.newId(),
-          parentId: footer._id,
-          href: l,
-          type: 'link',
-        }))
-      : [];
+    // const imageDependencies = extractFooterImages
+    //   ? map(compact(extractFooterImages(footer)), i => ({
+    //       _id: $id.newId(),
+    //       parentId: footer._id,
+    //       imageId: i,
+    //       type: 'image',
+    //     }))
+    //   : [];
+    // const linkDependencies = extractFooterLinks
+    //   ? map(compact(extractFooterLinks(footer)), l => ({
+    //       _id: $id.newId(),
+    //       parentId: footer._id,
+    //       href: l,
+    //       type: 'link',
+    //     }))
+    //   : [];
 
-    const dependencies = [...imageDependencies, ...linkDependencies];
-
+    // const dependencies = [...imageDependencies, ...linkDependencies];
+    const dependencies = [];
     const DEP_COLLECTION = 'dependencies';
 
     let _footer = footer;
