@@ -37,7 +37,19 @@ export const Whppt = (config: WhpptConfig) => {
   const $id = IdService();
   const $logger = Logger();
   const $config = ConfigService($logger, config);
+
+  $logger.info(
+    'Configuring hosting db access to %o. Waiting for connection ...',
+    adminDbConfig
+  );
   const adminDb = MongoDatabaseConnection($logger, $id, adminDbConfig);
+  adminDb
+    .then(() => $logger.info('Admin db connected.'))
+    .catch(() => {
+      $logger.error('Admin db could not connect. Exiting process');
+      process.exit(1);
+    });
+
   const $hosting = HostingService(adminDb);
   const $database = DatabaseService($logger, $id, $hosting, $config, adminDb);
   const $security = Security({ $id, $logger, config: config.security, $hosting });
