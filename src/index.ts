@@ -54,14 +54,13 @@ export const Whppt = (config: WhpptConfig) => {
   const $database = DatabaseService($logger, $id, $hosting, $config, adminDb);
   const $security = Security({ $id, $logger, config: config.security, $hosting });
 
-  router.use($hosting.middleware.checkForApiKey);
-  router.use($config.middleware.waitForConfig);
-  router.use($database.middleware.waitForAdminDbConnection);
-
   router.get('/health', (_: any, res: Response) => {
     res.send('OK');
   });
 
+  router.use($hosting.middleware.checkForApiKey);
+  router.use($config.middleware.waitForConfig);
+  router.use($database.middleware.waitForAdminDbConnection);
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
 
