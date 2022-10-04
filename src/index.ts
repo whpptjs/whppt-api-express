@@ -57,6 +57,11 @@ export const Whppt = (config: WhpptConfig) => {
   router.use($hosting.middleware.checkForApiKey);
   router.use($config.middleware.waitForConfig);
   router.use($database.middleware.waitForAdminDbConnection);
+
+  router.get('/health', (_: any, res: Response) => {
+    res.send('OK');
+  });
+
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
 
@@ -90,10 +95,6 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(ImageRouter());
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
-
-  router.get('/health', (req: any, res: Response) => {
-    res.send('OK');
-  });
 
   return router;
 };
