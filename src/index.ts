@@ -1,4 +1,4 @@
-import { NextFunction, Router, Request } from 'express';
+import { NextFunction, Router, Request, Response } from 'express';
 
 import { WhpptConfig } from './Services/Config';
 import ModuleContext from './context';
@@ -90,6 +90,10 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(ImageRouter());
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
+
+  router.get('/health', (req: any, res: Response) => {
+    res.send('OK');
+  });
 
   return router;
 };
