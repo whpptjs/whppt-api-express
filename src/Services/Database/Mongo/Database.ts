@@ -144,14 +144,14 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
       .then(() => doc);
   };
 
-  const recordHistory: RecordHistory = <T extends DatabaseDocument>(
+  const recordHistory: RecordHistory = <T extends { data: DatabaseDocument; user: any }>(
     collection: string,
     action: string,
-    doc: T,
+    value: T,
     { session }: { session?: ClientSession } = {}
   ) => {
     const historyCollection = collection + 'History';
-    const { data, user } = doc;
+    const { data, user } = value;
     const record = {
       _id: id.newId(),
       data,

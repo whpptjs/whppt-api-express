@@ -14,8 +14,8 @@ export type StartTransaction = (callback: (session: any) => Promise<any>) => Pro
 
 export type DatabaseDocument = {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   [field: string]: any;
 };
 
@@ -42,10 +42,10 @@ export type SaveDocumentToPubWithEvents = <T extends DatabaseDocument>(
   options: { session: any }
 ) => Promise<T>;
 
-export type RecordHistory = <T extends DatabaseDocument>(
+export type RecordHistory = <T extends { data: DatabaseDocument; user: any }>(
   collection: string,
   action: string,
-  doc: T,
+  value: T,
   options: { session?: any } // TODO: ensure a session is always given
 ) => Promise<void>;
 
