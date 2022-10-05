@@ -37,6 +37,7 @@ const save: HttpModule<{ page: any; collection: string; user: any; publish: bool
         }
 
         const savedPage = await document.save(collection, page, { session });
+        page.updatedAt = savedPage.updatedAt;
         await document.recordHistory(
           collection,
           'save',
@@ -48,7 +49,7 @@ const save: HttpModule<{ page: any; collection: string; user: any; publish: bool
 
         if (publish) await document.publish(collection, savedPage, { session });
         return savedPage;
-      });
+      }).then(() => page);
     });
   },
 };

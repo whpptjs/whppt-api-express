@@ -162,15 +162,17 @@ export const DatabaseService: DatabaseServiceFactory = (
 
       switch (dbConfig.type) {
         case 'mongo':
-          return MongoDatabaseConnection(logger, id, dbConfig).then(connection => {
-            return connection
-              .getDatabase(configPromise)
-              .then(database => database.ensureCollections(config.runtime.collections))
-              .then(() => {
-                // TODO: hook up disconnection events so that we can remove the connection
-                connections[connectionKey] = connection;
-                return connection;
-              });
+          return MongoDatabaseConnection(
+            logger,
+            id,
+            dbConfig,
+            config.runtime.collections
+          ).then(connection => {
+            return connection.getDatabase(configPromise).then(() => {
+              // TODO: hook up disconnection events so that we can remove the connection
+              connections[connectionKey] = connection;
+              return connection;
+            });
           });
         default:
           throw new Error('Database connection could not be created');

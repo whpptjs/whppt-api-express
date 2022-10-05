@@ -231,13 +231,11 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
       });
   };
 
-  const pubDbAvailable = process.env.DRAFT === 'true' && !!process.env.MONGO_DB_PUB;
-
+  //TODO: Performance: EnsureCollections. Do this for each configured db when the app starts or a new api key is created. For now its done on each request.
   const ensureCollections: EnsureCollections = (collections: string[]) => {
-    assert(pubDb, 'Publish database is not configured');
     return Promise.all([
       createCollections(db, collections),
-      pubDbAvailable ? createCollections(pubDb, collections) : Promise.resolve([]),
+      pubDb ? createCollections(pubDb, collections) : Promise.resolve(),
     ]).then(() => {});
   };
 

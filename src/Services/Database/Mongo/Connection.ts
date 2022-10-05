@@ -16,13 +16,15 @@ export type MongoDatabaseConnection = DatabaseConnection & {
 export type MongoDatabaseConnectionFactory = (
   logger: LoggerService,
   id: IdService,
-  config: DatabaseHostingConfig
+  config: DatabaseHostingConfig,
+  collections?: string[]
 ) => Promise<MongoDatabaseConnection>;
 
 export const MongoDatabaseConnection: MongoDatabaseConnectionFactory = (
   logger,
   id,
-  config
+  config,
+  collections
 ) => {
   return Promise.resolve().then(() => {
     assert(config.instance.url, 'Mongo url is required');
@@ -38,7 +40,11 @@ export const MongoDatabaseConnection: MongoDatabaseConnectionFactory = (
           return configPromise.then(config => {
             const db = mongoClient.db(config.db);
             const pubDb = config.pubDb ? mongoClient.db(config.pubDb) : undefined;
-            return WhpptMongoDatabase(logger, id, mongoClient, db, pubDb);
+            const database = WhpptMongoDatabase(logger, id, mongoClient, db, pubDb);
+            const ensureCollectionsPromise = collections
+              ? database.ensureCollections(collections)
+              : Promise.resolve();
+            return ensureCollectionsPromise.then(() => database);
           });
         };
 
