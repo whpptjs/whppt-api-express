@@ -14,8 +14,10 @@ export type StartTransaction = (callback: (session: any) => Promise<any>) => Pro
 
 export type DatabaseDocument = {
   _id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  lastPublished?: Date;
+  published?: boolean;
   [field: string]: any;
 };
 
@@ -42,10 +44,10 @@ export type SaveDocumentToPubWithEvents = <T extends DatabaseDocument>(
   options: { session: any }
 ) => Promise<T>;
 
-export type RecordHistory = <T extends DatabaseDocument>(
+export type RecordHistory = <T extends { data: DatabaseDocument; user: any }>(
   collection: string,
   action: string,
-  doc: T,
+  value: T,
   options: { session?: any } // TODO: ensure a session is always given
 ) => Promise<void>;
 
@@ -162,15 +164,17 @@ export const DatabaseService: DatabaseServiceFactory = (
 
       switch (dbConfig.type) {
         case 'mongo':
-          return MongoDatabaseConnection(logger, id, dbConfig).then(connection => {
-            return connection
-              .getDatabase(configPromise)
-              .then(database => database.ensureCollections(config.runtime.collections))
-              .then(() => {
-                // TODO: hook up disconnection events so that we can remove the connection
-                connections[connectionKey] = connection;
-                return connection;
-              });
+          return MongoDatabaseConnection(
+            logger,
+            id,
+            dbConfig,
+            config.runtime.collections
+          ).then(connection => {
+            return connection.getDatabase(configPromise).then(() => {
+              // TODO: hook up disconnection events so that we can remove the connection
+              connections[connectionKey] = connection;
+              return connection;
+            });
           });
         default:
           throw new Error('Database connection could not be created');
