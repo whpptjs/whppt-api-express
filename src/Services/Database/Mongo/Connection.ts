@@ -8,7 +8,9 @@ import { IdService } from '../../Id';
 
 export type MongoDatabaseConnection = DatabaseConnection & {
   _connection: MongoClient;
-  getMongoDatabase: () => WhpptMongoDatabase;
+  getMongoDatabase(
+    configPromise: Promise<DatabaseHostingConfig>
+  ): Promise<WhpptMongoDatabase>;
 };
 
 export type MongoDatabaseConnectionFactory = (
@@ -32,14 +34,18 @@ export const MongoDatabaseConnection: MongoDatabaseConnectionFactory = (
 
     return MongoClient.connect(config.instance.url, options)
       .then(mongoClient => {
-        const db = mongoClient.db(config.db);
-        const pubDb = config.pubDb ? mongoClient.db(config.pubDb) : undefined;
+        const getDatabase = (configPromise: Promise<DatabaseHostingConfig>) => {
+          return configPromise.then(config => {
+            const db = mongoClient.db(config.db);
+            const pubDb = config.pubDb ? mongoClient.db(config.pubDb) : undefined;
+            return WhpptMongoDatabase(logger, id, mongoClient, db, pubDb);
+          });
+        };
 
-        const database = WhpptMongoDatabase(logger, id, mongoClient, db, pubDb);
         const connection: MongoDatabaseConnection = {
           _connection: mongoClient,
-          getDatabase: () => database,
-          getMongoDatabase: () => database,
+          getDatabase,
+          getMongoDatabase: getDatabase,
         };
         return connection;
       })

@@ -1,5 +1,5 @@
 import { DomainEvent } from '../Events/CreateEvent';
-import { HostingService } from '../Hosting';
+import { DatabaseHostingConfig, HostingService } from '../Hosting';
 import { IdService } from '../Id';
 import { LoggerService } from '../Logger';
 import { DatabaseMiddleware } from './middleware';
@@ -7,7 +7,7 @@ import { MongoDatabaseConnection } from './Mongo/Connection';
 import { ConfigService } from '../Config';
 
 export type DatabaseConnection = {
-  getDatabase(): WhpptDatabase;
+  getDatabase(configPromise: Promise<DatabaseHostingConfig>): Promise<WhpptDatabase>;
 };
 
 export type StartTransaction = (callback: (session: any) => Promise<any>) => Promise<any>;
@@ -155,7 +155,8 @@ export const DatabaseService: DatabaseServiceFactory = (
   const connections: Record<string, DatabaseConnection> = {};
 
   const getConnection = (apiKey: string) => {
-    return hosting.getConfiguredDatabase(apiKey).then(dbConfig => {
+    const configPromise = hosting.getConfiguredDatabase(apiKey);
+    return configPromise.then(dbConfig => {
       const connectionKey = `${dbConfig.type}_${dbConfig.instance._id}`;
       if (connections[connectionKey]) return Promise.resolve(connections[connectionKey]);
 
@@ -163,8 +164,8 @@ export const DatabaseService: DatabaseServiceFactory = (
         case 'mongo':
           return MongoDatabaseConnection(logger, id, dbConfig).then(connection => {
             return connection
-              .getDatabase()
-              .ensureCollections(config.runtime.collections)
+              .getDatabase(configPromise)
+              .then(database => database.ensureCollections(config.runtime.collections))
               .then(() => {
                 // TODO: hook up disconnection events so that we can remove the connection
                 connections[connectionKey] = connection;

@@ -70,7 +70,7 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use(
     cors((req: any, callback) => {
-      return $hosting
+      $hosting
         .getConfig(req.apiKey)
         .then(hostingConfig => {
           const whitelist = [...corsWhitelist, ...hostingConfig.cors];
@@ -99,8 +99,9 @@ export const Whppt = (config: WhpptConfig) => {
   router.use((req: any, _: any, next: NextFunction) => {
     // TODO: Work towards a generic db and not specifically mongo here.
     const dbConnection = $database.getConnection(req.apiKey);
-    const databasePromise = dbConnection.then(con => con.getDatabase());
     const hostingConfig = $hosting.getConfig(req.apiKey);
+    const dbConfig = hostingConfig.then(c => c.database);
+    const databasePromise = dbConnection.then(con => con.getDatabase(dbConfig));
     // TODO: Work towards a generic storage api. S3 used here
     const $storage = S3(hostingConfig);
 
