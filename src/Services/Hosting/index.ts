@@ -49,6 +49,7 @@ type PersistedHostingConfig = {
   database: PersistedDatabaseHostingConfig;
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
+  cors: string[];
 };
 
 export type HostingService = {
@@ -100,6 +101,7 @@ export const HostingService = (
                 secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
               },
             },
+            cors: [],
           };
         });
       }
