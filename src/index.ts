@@ -1,4 +1,5 @@
 import { NextFunction, Router, Request, Response } from 'express';
+import cors from 'cors';
 
 import { WhpptConfig } from './Services/Config';
 import ModuleContext from './context';
@@ -61,6 +62,34 @@ export const Whppt = (config: WhpptConfig) => {
   router.use($hosting.middleware.checkForApiKey);
   router.use($config.middleware.waitForConfig);
   router.use($database.middleware.waitForAdminDbConnection);
+
+  const corsWhitelist = process.env.CORS_WHITELIST
+    ? JSON.parse(process.env.CORS_WHITELIST)
+    : [];
+  $logger.info('Loading CORS whitelist:', corsWhitelist);
+
+  router.use(
+    cors((req: any, callback) => {
+      return $hosting
+        .getConfig(req.apiKey)
+        .then(hostingConfig => {
+          const whitelist = [...corsWhitelist, ...hostingConfig.cors];
+          const corsOptions =
+            req.headers.origin && whitelist.indexOf(req.headers.origin) !== -1
+              ? { origin: true }
+              : { origin: false };
+          $logger.dev(
+            'CORS check complete: origin: %s, whitelist %s, options: %o',
+            req.headers.origin,
+            whitelist,
+            corsOptions
+          );
+          callback(null, corsOptions);
+        })
+        .catch(err => callback(err));
+    })
+  );
+
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
 

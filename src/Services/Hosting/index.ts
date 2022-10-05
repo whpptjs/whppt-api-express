@@ -41,6 +41,7 @@ export type HostingConfig = {
   database: DatabaseHostingConfig;
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
+  cors: string[];
 };
 
 type PersistedHostingConfig = {
