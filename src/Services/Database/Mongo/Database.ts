@@ -202,6 +202,8 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
     { session }: { session?: ClientSession } = {}
   ) => {
     assert(pubDb, 'Publish database is not configured');
+    doc.lastPublished = new Date();
+    doc.published = true;
     return db
       .collection(collection)
       .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })

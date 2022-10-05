@@ -24,6 +24,7 @@ const save: HttpModule<{ page: any; collection: string; user: any; publish: bool
     return $database.then(database => {
       const { startTransaction, db, document } = database as WhpptMongoDatabase;
       return startTransaction(async session => {
+        if (publish) await document.publish(collection, page, { session });
         await db
           .collection('dependencies')
           .deleteMany({ parentId: page._id }, { session });
@@ -47,7 +48,6 @@ const save: HttpModule<{ page: any; collection: string; user: any; publish: bool
           }
         );
 
-        if (publish) await document.publish(collection, savedPage, { session });
         return savedPage;
       }).then(() => page);
     });

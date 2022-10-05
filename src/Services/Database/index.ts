@@ -16,6 +16,8 @@ export type DatabaseDocument = {
   _id: string;
   createdAt?: Date;
   updatedAt?: Date;
+  lastPublished?: Date;
+  published?: boolean;
   [field: string]: any;
 };
 
