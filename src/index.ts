@@ -86,7 +86,10 @@ export const Whppt = (config: WhpptConfig) => {
           );
           callback(null, corsOptions);
         })
-        .catch(err => callback(err));
+        .catch(err => {
+          $logger.dev('CORS check error: ', err);
+          callback(err);
+        });
     })
   );
 
