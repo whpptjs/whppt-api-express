@@ -14,18 +14,12 @@ import {
 import { S3, File, Image, Gallery, IdService, Logger, Security } from './Services';
 import { DatabaseService } from './Services/Database';
 import { MongoDatabaseConnection } from './Services/Database/Mongo/Connection';
-import { DatabaseHostingConfig, HostingService } from './Services/Hosting';
+import { HostingService } from './Services/Hosting';
 import { ConfigService } from './Services/Config';
 import { ContextType } from './context/Context';
+import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 
 export * from './Services/Config';
-
-const adminDbConfig: DatabaseHostingConfig = {
-  type: 'mongo',
-  instance: { _id: 'whppt-shared', url: process.env.MONGO_URL || '' },
-  db: process.env.MONGO_ADMIN_DB || 'WhpptAdmin',
-  pubDb: '',
-};
 
 export type WhpptRequest = Request & {
   moduleContext: Promise<ContextType>;

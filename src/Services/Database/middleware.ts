@@ -20,12 +20,9 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
   adminDb
 ) => {
   return {
-    waitForAdminDbConnection(req, res, next) {
+    waitForAdminDbConnection(_, res, next) {
       adminDb
-        .then(connection => {
-          req.adminDb = connection.getDatabase();
-          next();
-        })
+        .then(() => next())
         .catch(err => {
           const msg = 'Could not connect to the admin DB. The service as shut down.';
           logger.error(`${msg} : ${err}`);
@@ -35,10 +32,7 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
     },
     waitForApiDbConnection(req, res, next) {
       getConnection(req.apiKey)
-        .then(connection => {
-          req.apiDb = connection.getDatabase();
-          next();
-        })
+        .then(() => next())
         .catch(err => {
           const msg = 'The database connection could not be established';
           logger.error(`${msg} : ${err}`);
