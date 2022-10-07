@@ -16,12 +16,13 @@ export const ModulesRouter: ModulesRouter = ($logger, apiPrefix) => {
       return callModule(ctx, mod, query, { ...queryArgs, user }, req).catch(err => {
         const { status, error } = err;
         $logger.error(
-          'Error in modules route [GET]: %s %s %O %O',
+          'Error in modules route [GET]: %s %s %O %s',
           mod,
           query,
           queryArgs,
           error || err
         );
+
         return { status: status || 500, error: error || err };
       });
     });

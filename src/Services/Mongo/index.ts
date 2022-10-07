@@ -6,8 +6,6 @@ import {
   ReadPreference,
   TransactionOptions,
 } from 'mongodb';
-import { DomainEvent } from '../Events/CreateEvent';
-import assert from 'assert';
 import { LoggerService } from '../Logger';
 import { IdService } from '../Id';
 import { WhpptConfig } from '../Config';
@@ -18,7 +16,7 @@ const db = process.env.MONGO_DB;
 const pubDb = process.env.MONGO_DB_PUB;
 
 /**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use new database classes
  */
 export type WhpptMongoArgs = {
   $logger: LoggerService;
@@ -27,7 +25,7 @@ export type WhpptMongoArgs = {
 };
 
 /**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use document.save
  */
 export type MongoServiceSave = <T>(
   collection: string,
@@ -36,19 +34,7 @@ export type MongoServiceSave = <T>(
 ) => Promise<T>;
 
 /**
- * @deprecated use document.saveToPubWithEvents
- */
-export type MongoServiceSaveToPubWithEvents = <
-  T extends { _id: string; createdAt: Date; updatedAt: Date }
->(
-  collection: string,
-  doc: T,
-  events: DomainEvent[],
-  options: { session: ClientSession }
-) => Promise<T>;
-
-/**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use document.delete
  */
 export type MongoServiceDelete = (
   collection: string,
@@ -57,20 +43,19 @@ export type MongoServiceDelete = (
 ) => Promise<any>;
 
 /**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use startTransaction
  */
 export type MongoServiceStartTransaction = (
   callback: (session: ClientSession) => Promise<any>
 ) => Promise<any>;
 
 /**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use database
  */
 export type MongoService = {
   $db: Db;
   $dbPub: Db;
   $save: MongoServiceSave;
-  $saveToPubWithEvents: MongoServiceSaveToPubWithEvents;
   $delete: MongoServiceDelete;
   $startTransaction: MongoServiceStartTransaction;
   $unpublish: (
@@ -81,7 +66,7 @@ export type MongoService = {
   ensureCollections: (collections: string[]) => Promise<void>;
 };
 /**
- * @deprecated use document.saveToPubWithEvents
+ * @deprecated use new database classes
  */
 export type MongoServiceConstructor = (args: WhpptMongoArgs) => Promise<MongoService>;
 
@@ -170,29 +155,6 @@ export const Mongo: MongoServiceConstructor = ({ $logger, $id }: WhpptMongoArgs)
         return $db
           .collection(collection)
           .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
-          .then(() => doc);
-      };
-
-      const $saveToPubWithEvents: MongoServiceSaveToPubWithEvents = function (
-        collection,
-        doc,
-        events,
-        { session }
-      ) {
-        assert(session, 'Session is required');
-        doc = {
-          ...doc,
-          _id: doc._id || $id.newId(),
-          createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
-          updatedAt: new Date(),
-        };
-
-        const eventCollection = collection + 'Events';
-
-        return $dbPub
-          .collection(collection)
-          .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
-          .then(() => $dbPub.collection(eventCollection).insertMany(events, { session }))
           .then(() => doc);
       };
 
@@ -289,7 +251,6 @@ export const Mongo: MongoServiceConstructor = ({ $logger, $id }: WhpptMongoArgs)
         $list,
         $fetch,
         $save,
-        $saveToPubWithEvents,
         $record,
         $publish,
         $unpublish,

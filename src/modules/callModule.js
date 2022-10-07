@@ -38,26 +38,27 @@ module.exports = (context, mod, handlerName, params, req) => {
 
     return Promise.resolve()
       .then(() => callHandler.authorise(_context, params, req))
-      .catch(err =>
-        Promise.reject({
+      .catch(err => {
+        return Promise.reject({
           status: 403,
           error: new AuthError(
             `Not Authorised to call Module: ${mod}/${handlerName}`,
             err
           ),
-        })
-      )
-      .then(() => callHandler.exec(_context, params, req))
-      .catch(err => {
-        return Promise.reject({
-          status: (err && err.status) || 500,
-          error: new ModuleExecError(
-            err && err.status,
-            `Error executing Module: ${mod}/${handlerName}`,
-            err
-          ),
         });
-      });
+      })
+      .then(() =>
+        callHandler.exec(_context, params, req).catch(err => {
+          return Promise.reject({
+            status: (err && err.status) || 500,
+            error: new ModuleExecError(
+              err && err.status,
+              `Error executing Module: ${mod}/${handlerName}`,
+              err
+            ),
+          });
+        })
+      );
   });
 };
 
