@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
+import { LoggerService } from 'src/Services';
 const cache = require('express-cache-headers');
 const multer = require('multer');
 const { parse } = require('uri-js');
@@ -15,9 +16,9 @@ const imagePath = process.env.BASE_IMAGE_URL
   ? parse(process.env.BASE_IMAGE_URL).path
   : '/img';
 
-export type ImageRouterConstructor = () => Router;
+export type ImageRouterConstructor = ($logger: LoggerService) => Router;
 
-export const ImageRouter: ImageRouterConstructor = () => {
+export const ImageRouter: ImageRouterConstructor = $logger => {
   const router = Router();
 
   router.get(`${imagePath}/:imageId`, cache({ ttl: sixMonths }), (req: any, res: any) => {
@@ -32,7 +33,10 @@ export const ImageRouter: ImageRouterConstructor = () => {
 
           res.type(response.ContentType).send(response.Body);
         })
-        .catch(err => res.status(404).send(err));
+        .catch(err => {
+          $logger.error(err);
+          res.status(404).send(err.message || err);
+        });
     });
   });
 
@@ -46,7 +50,8 @@ export const ImageRouter: ImageRouterConstructor = () => {
         return $image.upload(file).then(image => res.json(image));
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
@@ -59,7 +64,9 @@ export const ImageRouter: ImageRouterConstructor = () => {
         return $image.remove(id).then(data => res.json(data));
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 

@@ -117,8 +117,8 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
   router.use(RedirectsRouter());
-  router.use(FileRouter());
-  router.use(ImageRouter());
+  router.use(FileRouter($logger));
+  router.use(ImageRouter($logger));
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
 
