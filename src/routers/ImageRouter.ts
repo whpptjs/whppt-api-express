@@ -29,10 +29,6 @@ export const ImageRouter: ImageRouterConstructor = $logger => {
       return $image
         .fetch({ id: req.params.imageId, format: req.query, accept: accept || '' })
         .then(response => {
-          console.log(
-            '🚀 ~ file: ImageRouter.ts ~ line 31 ~ return ~ response',
-            response
-          );
           if (!response) return res.status(404).send('Image not found');
 
           res.type(response.ContentType).send(response.Body);
@@ -54,7 +50,8 @@ export const ImageRouter: ImageRouterConstructor = $logger => {
         return $image.upload(file).then(image => res.json(image));
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
@@ -67,7 +64,9 @@ export const ImageRouter: ImageRouterConstructor = $logger => {
         return $image.remove(id).then(data => res.json(data));
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 

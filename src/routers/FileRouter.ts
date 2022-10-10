@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { Router } from 'express';
+import { LoggerService } from 'src/Services';
 import { WhpptRequest } from '..';
 
 const cache = require('express-cache-headers');
@@ -11,9 +12,9 @@ const sixMonths = oneDay * 30 * 6;
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
-export type FileRouterConstructor = () => Router;
+export type FileRouterConstructor = ($logger: LoggerService) => Router;
 
-export const FileRouter: FileRouterConstructor = () => {
+export const FileRouter: FileRouterConstructor = $logger => {
   const router = Router();
 
   router.post('/file/uploadFile', upload, (req: any, res: any) => {
@@ -29,7 +30,9 @@ export const FileRouter: FileRouterConstructor = () => {
         });
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
@@ -44,7 +47,9 @@ export const FileRouter: FileRouterConstructor = () => {
         });
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
@@ -61,7 +66,9 @@ export const FileRouter: FileRouterConstructor = () => {
         });
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
@@ -78,7 +85,9 @@ export const FileRouter: FileRouterConstructor = () => {
         });
       })
       .catch(err => {
-        res.status(500).send(err);
+        $logger.error(err);
+
+        res.status(500).send(err.message || err);
       });
   });
 
@@ -94,7 +103,9 @@ export const FileRouter: FileRouterConstructor = () => {
         });
       })
       .catch(err => {
-        res.status(err.http_code || 500).send(err);
+        $logger.error(err);
+
+        res.status(err.http_code || 500).send(err.message || err);
       });
   });
 
