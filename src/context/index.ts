@@ -1,6 +1,8 @@
 import { forEach } from 'lodash';
 import { ContextType } from './Context';
 import { EventSession, CreateEvent } from './events';
+import { Identity } from './identity';
+
 import {
   FileService,
   GalleryService,
@@ -65,6 +67,7 @@ const Context = (
           save: saveRole({ $id, $mongo: database }),
           isGuest: isGuest({ $mongo: database }),
         },
+        $identity: Identity(database),
         $env,
         $publishing: {
           onPublish: $config.runtime.onPublish,

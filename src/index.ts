@@ -20,6 +20,7 @@ import { ContextType } from './context/Context';
 import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 
 export * from './Services/Config';
+export * from './modules/HttpModule';
 
 export type WhpptRequest = Request & {
   moduleContext: Promise<ContextType>;

@@ -13,13 +13,17 @@ import {
   DatabaseDocument,
   FetchDocument,
   SaveDocument,
-  SaveDocumentToPubWithEvents,
   RecordHistory,
   RemoveDocument,
   DeleteDocument,
   PublishDocument,
   UnpublishDocument,
   EnsureCollections,
+  QueryDocuments,
+  CountDocuments,
+  SaveDocumentWithEvents,
+  QueryDistinct,
+  QueryDocument,
 } from '..';
 import { IdService } from '../../Id/index';
 import { pick } from 'lodash';
@@ -102,6 +106,47 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
       });
   };
 
+  const queryDocument: QueryDocument = <T extends DatabaseDocument>(
+    collection: string,
+    query: {
+      filter: { [key: string]: any };
+    }
+  ) => {
+    return db.collection(collection).findOne<T>(query.filter);
+  };
+
+  const queryDocuments: QueryDocuments = <T extends DatabaseDocument>(
+    collection: string,
+    query: {
+      filter: { [key: string]: any };
+      projection?: { [key: string]: any };
+      limit?: number;
+      skip?: number;
+      sort?: { [key: string]: any };
+    },
+    options = {}
+  ) => {
+    let _query = db.collection(collection).find<T>(query.filter, options);
+    if (query.projection) _query = _query.project(query.projection);
+    if (query.sort) _query = _query.sort(query.sort);
+    if (query.limit) _query = _query.limit(query.limit);
+    if (query.skip) _query = _query.skip(query.skip);
+
+    return _query.toArray();
+  };
+  const queryDistinct: QueryDistinct = (
+    collection: string,
+    query: {
+      distinct: string;
+    }
+  ) => {
+    return db.collection(collection).distinct<string>(query.distinct);
+  };
+
+  const countDocuments: CountDocuments = (collection, query, options = {}) => {
+    return db.collection(collection).countDocuments(query.filter, options);
+  };
+
   const saveDocument: SaveDocument = <T extends DatabaseDocument>(
     collection: string,
     doc: T,
@@ -120,14 +165,12 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
       .then(() => doc);
   };
 
-  const saveToPubWithEvents: SaveDocumentToPubWithEvents = function (
+  const saveWithEvents: SaveDocumentWithEvents = (
     collection,
     doc,
     events,
     { session }
-  ) {
-    assert(session, 'Session is required');
-    assert(pubDb, 'Publish database is not configured');
+  ) => {
     doc = {
       ...doc,
       _id: doc._id || id.newId(),
@@ -137,10 +180,10 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
 
     const eventCollection = collection + 'Events';
 
-    return pubDb
+    return db
       .collection(collection)
       .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
-      .then(() => pubDb.collection(eventCollection).insertMany(events, { session }))
+      .then(() => db.collection(eventCollection).insertMany(events, { session }))
       .then(() => doc);
   };
 
@@ -251,10 +294,14 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
     $list: fetchAllDocuments,
     fetchAllDocuments,
     ensureCollections,
+    queryDocuments,
+    countDocuments,
+    queryDistinct,
     document: {
       fetch: fetchDocument,
+      query: queryDocument,
       save: saveDocument,
-      saveToPubWithEvents,
+      saveWithEvents: saveWithEvents,
       recordHistory,
       remove: removeDocument,
       delete: deleteDocument,
@@ -264,7 +311,6 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
     $startTransaction: startTransaction,
     $fetch: fetchDocument,
     $save: saveDocument,
-    $saveToPubWithEvents: saveToPubWithEvents,
     $record: recordHistory,
     $remove: removeDocument,
     $delete: deleteDocument,

@@ -25,16 +25,56 @@ export type FetchAllDocuments = <T extends DatabaseDocument>(
   collection: string,
   removed: boolean
 ) => Promise<T[]>;
+export type QueryDocuments = <T extends DatabaseDocument>(
+  collection: string,
+  query: {
+    filter: { [key: string]: any };
+    projection?: { [key: string]: any };
+    limit?: number;
+    skip?: number;
+    sort?: { [key: string]: any };
+  },
+  options?: { session?: any }
+) => Promise<T[]>;
+
+export type CountDocuments = (
+  collection: string,
+  query: {
+    filter: { [key: string]: any };
+  },
+  options?: { session?: any }
+) => Promise<number>;
 
 export type FetchDocument = <T extends DatabaseDocument>(
   collection: string,
   id: string
 ) => Promise<T>;
 
+export type QueryDocument = <T extends DatabaseDocument>(
+  collection: string,
+  query: {
+    filter: { [key: string]: any };
+  }
+) => Promise<T | null>;
+
 export type SaveDocument = <T extends DatabaseDocument>(
   collection: string,
   doc: T,
   options?: { session?: any }
+) => Promise<T>;
+
+export type QueryDistinct = (
+  collection: string,
+  query: {
+    distinct: string;
+  }
+) => Promise<string[]>;
+
+export type SaveDocumentWithEvents = <T extends DatabaseDocument>(
+  collection: string,
+  doc: T,
+  events: DomainEvent[],
+  options: { session: any }
 ) => Promise<T>;
 
 export type SaveDocumentToPubWithEvents = <T extends DatabaseDocument>(
@@ -80,10 +120,14 @@ export type EnsureCollections = (collections: string[]) => Promise<void>;
 export type WhpptDatabase = {
   startTransaction: StartTransaction;
   fetchAllDocuments: FetchAllDocuments;
+  queryDocuments: QueryDocuments;
+  countDocuments: CountDocuments;
+  queryDistinct: QueryDistinct;
   document: {
     fetch: FetchDocument;
+    query: QueryDocument;
     save: SaveDocument;
-    saveToPubWithEvents: SaveDocumentToPubWithEvents;
+    saveWithEvents: SaveDocumentWithEvents;
     recordHistory: RecordHistory;
     delete: DeleteDocument;
     remove: RemoveDocument;
@@ -106,10 +150,6 @@ export type WhpptDatabase = {
    * @deprecated use document.save
    */
   $save: SaveDocument;
-  /**
-   * @deprecated use document.saveToPubWithEvents
-   */
-  $saveToPubWithEvents: SaveDocumentToPubWithEvents;
   /**
    * @deprecated use document.recordHistory
    */
