@@ -84,6 +84,7 @@ export const S3: S3Constructor = $hosting => {
   const fetch = (path: string) => {
     return $hosting.then(({ storage, apiKey }) => {
       const bucketName = storage.aws?.bucket;
+
       if (!bucketName) return Promise.reject('S3 bucket name is required.');
       const s3Client = getClient(apiKey, storage);
 
