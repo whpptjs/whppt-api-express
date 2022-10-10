@@ -20,6 +20,7 @@ export const buildCollections: BuildCollections = config => {
     'dependencies',
     'gallery',
     'users',
+    'domains',
     ..._collections,
     ...pageTypeCollections,
     ...pageTypeHistoryCollections,
