@@ -21,6 +21,7 @@ import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 
 export * from './Services/Config';
 export * from './modules/HttpModule';
+export * from './replaceInList';
 
 export type WhpptRequest = Request & {
   moduleContext: Promise<ContextType>;
