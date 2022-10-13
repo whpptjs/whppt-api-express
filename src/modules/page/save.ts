@@ -6,52 +6,58 @@ import { HttpModule } from '../HttpModule';
 import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 
 // TODO: collection should not be passed from the client side
-const save: HttpModule<{ page: any; collection: string; user: any; publish: boolean }> = {
-  authorise({ $roles }, { page, user }) {
-    return $roles.validate(user, [page.editorRoles]);
-  },
-  exec({ $pageTypes, $id, $database }, { page, collection, user, publish }) {
-    assert(page, 'Please provide a page.');
-    assert(collection, 'Please provide a collection.');
+const save: HttpModule<{ page: any; collection?: string; user: any; publish: boolean }> =
+  {
+    authorise({ $roles }, { page, user }) {
+      return $roles.validate(user, [page.editorRoles]);
+    },
+    exec({ $pageTypes, $id, $database }, { page, collection, user, publish }) {
+      console.log('🚀 ~ file: save.ts ~ line 14 ~ exec ~ $pageTypes', $pageTypes);
+      assert(page, 'Please provide a page.');
+      assert(collection, 'Please provide a collection.');
 
-    page._id = page._id || $id.newId();
+      page._id = page._id || $id.newId();
 
-    const pageType = find($pageTypes, pt => pt.name === page.pageType);
+      const pageType = find($pageTypes, pt => pt.name === page.pageType);
 
-    const usedImages = imagesExtractor(pageType, page);
-    const usedLinks = linksExtractor(pageType, page);
+      const usedImages = imagesExtractor(pageType, page);
+      const usedLinks = linksExtractor(pageType, page);
 
-    return $database.then(database => {
-      const { startTransaction, db, document } = database as WhpptMongoDatabase;
-      return startTransaction(async session => {
-        if (publish) await document.publish(collection, page, { session });
-        await db
-          .collection('dependencies')
-          .deleteMany({ parentId: page._id }, { session });
-        const dependencies = uniqBy(
-          [...usedImages, ...usedLinks],
-          image => image._id
-        ) as any;
+      const _collection = pageType ? pageType.collection.name : collection;
 
-        if (dependencies && dependencies.length) {
-          await db.collection('dependencies').insertMany(dependencies, { session });
-        }
+      assert(_collection, 'Please provide a page type or collection.');
 
-        const savedPage = await document.save(collection, page, { session });
-        page.updatedAt = savedPage.updatedAt;
-        await document.recordHistory(
-          collection,
-          'save',
-          { data: page, user },
-          {
-            session,
+      return $database.then(database => {
+        const { startTransaction, db, document } = database as WhpptMongoDatabase;
+        return startTransaction(async session => {
+          if (publish) await document.publish(_collection, page, { session });
+          await db
+            .collection('dependencies')
+            .deleteMany({ parentId: page._id }, { session });
+          const dependencies = uniqBy(
+            [...usedImages, ...usedLinks],
+            image => image._id
+          ) as any;
+
+          if (dependencies && dependencies.length) {
+            await db.collection('dependencies').insertMany(dependencies, { session });
           }
-        );
 
-        return savedPage;
-      }).then(() => page);
-    });
-  },
-};
+          const savedPage = await document.save(_collection, page, { session });
+          page.updatedAt = savedPage.updatedAt;
+          await document.recordHistory(
+            collection,
+            'save',
+            { data: page, user },
+            {
+              session,
+            }
+          );
+
+          return savedPage;
+        }).then(() => page);
+      });
+    },
+  };
 
 export default save;
