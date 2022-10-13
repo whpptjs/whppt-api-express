@@ -41,9 +41,10 @@ export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) 
 
         return $database.then(({ startTransaction, document }) => {
           return startTransaction(session => {
-            return document
-              .save('gallery', newGalleryItem, { session })
-              .then(() => $storage.upload(buffer, newGalleryItem._id, type, {}));
+            return Promise.all([
+              document.save('gallery', newGalleryItem, { session }),
+              document.publish('gallery', newGalleryItem, { session }),
+            ]).then(() => $storage.upload(buffer, newGalleryItem._id, type, {}));
           }).then(() => newGalleryItem);
         });
       });

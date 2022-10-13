@@ -30,7 +30,7 @@ module.exports = (context, mod, handlerName, params, req) => {
             error: new ModuleExecError(
               err && err.status,
               `Error executing Module: ${mod}/${handlerName}`,
-              err
+              err.message || err.error || err
             ),
           });
         });
@@ -54,7 +54,7 @@ module.exports = (context, mod, handlerName, params, req) => {
             error: new ModuleExecError(
               err && err.status,
               `Error executing Module: ${mod}/${handlerName}`,
-              err
+              err.message || err.error || err
             ),
           });
         })
