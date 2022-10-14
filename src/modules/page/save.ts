@@ -14,7 +14,6 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
     exec({ $pageTypes, $id, $database }, { page, collection, user, publish }) {
       console.log('🚀 ~ file: save.ts ~ line 14 ~ exec ~ $pageTypes', $pageTypes);
       assert(page, 'Please provide a page.');
-      assert(collection, 'Please provide a collection.');
 
       page._id = page._id || $id.newId();
 
@@ -46,7 +45,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
           const savedPage = await document.save(_collection, page, { session });
           page.updatedAt = savedPage.updatedAt;
           await document.recordHistory(
-            collection,
+            _collection,
             'save',
             { data: page, user },
             {
