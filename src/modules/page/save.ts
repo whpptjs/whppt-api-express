@@ -23,6 +23,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
       const usedLinks = linksExtractor(pageType, page);
 
       const _collection = pageType ? pageType.collection.name : collection;
+      console.log("🚀 ~ file: save.ts ~ line 26 ~ exec ~ _collection", _collection)
 
       assert(_collection, 'Please provide a page type or collection.');
 
