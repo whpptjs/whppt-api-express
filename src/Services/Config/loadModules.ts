@@ -4,7 +4,6 @@ import { WhpptModule } from '../../modules/HttpModule';
 const modulePromise = loadGlobModules(
   [
     '../../modules/**/*.js',
-    '../../modules/**/*.ts',
     '!../../modules/callModule.js',
     '!../../modules/callModule.test.js',
   ],
