@@ -13,6 +13,8 @@ import prepareOrder from './prepareOrder';
 import shipOrder from './shipOrder';
 import findOrderForSession from './findOrderForSession';
 import loadCart from './loadCart';
+import removeOrderItem from './removeOrderItem';
+import addOrderItem from './addOrderItem';
 
 export const order = {
   createOrderWithProduct,
@@ -29,4 +31,6 @@ export const order = {
   shipOrder,
   findOrderForSession,
   loadCart,
+  removeOrderItem,
+  addOrderItem,
 };

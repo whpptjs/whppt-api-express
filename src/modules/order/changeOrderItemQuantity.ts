@@ -4,14 +4,15 @@ import assert from 'assert';
 import { Order } from './Models/Order';
 
 const changeOrderItemQuantity: HttpModule<
-  { productId: string; quantity: number; orderId?: string | undefined },
+  { orderItemId: string; quantity: number; orderId?: string | undefined },
   void
 > = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, []);
   },
-  exec({ $id, $database, createEvent }, { productId, quantity, orderId }) {
-    assert(productId, 'Product Id is required.');
+  exec({ $id, $database, createEvent }, { orderItemId, quantity, orderId }) {
+    assert(orderId, 'Order Id is required.');
+    assert(orderItemId, 'Order Item Id is required.');
     assert(quantity, 'Product quantity is required.');
     const quantityAsNumber = Number(quantity);
     assert(quantityAsNumber > 0, 'Product quantity must be higher than 0.');
@@ -29,21 +30,10 @@ const changeOrderItemQuantity: HttpModule<
 
             const events = [] as any[];
 
-            const productAlreadyOnOrder = order.items.find(
-              i => i.productId === productId
-            );
+            const productAlreadyOnOrder = order.items.find(i => i._id === orderItemId);
+            assert(productAlreadyOnOrder, 'Order Item not found on Order');
 
-            if (!productAlreadyOnOrder) {
-              const orderItem = {
-                _id: $id.newId(),
-                productId,
-                quantity: quantityAsNumber,
-              };
-              events.push(
-                createEvent('OrderItemAddedToOrder', { _id: order._id, orderItem })
-              );
-              Object.assign(order.items, [...order.items, orderItem]);
-            } else if (productAlreadyOnOrder.quantity < quantityAsNumber) {
+            if (productAlreadyOnOrder.quantity < quantityAsNumber) {
               events.push(
                 createEvent('OrderItemQuantityIncreased', {
                   _id: order._id,

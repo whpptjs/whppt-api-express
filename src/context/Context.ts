@@ -26,6 +26,8 @@ export type ContextType = {
   $storage: StorageService;
   $image?: ImageService;
   $file?: FileService;
+  $salesForce?: any;
+  $unleashed?: any;
   $modules?: any;
   $pageTypes?: any;
   $fullUrl?: any;

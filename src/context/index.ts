@@ -2,6 +2,8 @@ import { forEach } from 'lodash';
 import { ContextType } from './Context';
 import { EventSession, CreateEvent } from './events';
 import { Identity } from './identity';
+import SalesForce from './SalesForce';
+import Unleashed from './Unleashed';
 
 import {
   FileService,
@@ -50,6 +52,7 @@ const Context = (
         $mongo: database as WhpptMongoDatabase,
         $database,
         $hosting,
+        $salesForce: SalesForce(),
         $aws: $storage,
         $storage,
         $modules: $config.runtime.modules,
@@ -80,6 +83,7 @@ const Context = (
       } as ContextType;
 
       _context.$email = Email(_context);
+      _context.$unleashed = Unleashed(_context);
       _context.$gallery = $gallery;
       _context.CreateEvent = CreateEvent;
 
