@@ -12,7 +12,6 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
       return $roles.validate(user, [page.editorRoles]);
     },
     exec({ $pageTypes, $id, $database }, { page, collection, user, publish }) {
-      console.log('🚀 ~ file: save.ts ~ line 14 ~ exec ~ $pageTypes', $pageTypes);
       assert(page, 'Please provide a page.');
 
       page._id = page._id || $id.newId();
