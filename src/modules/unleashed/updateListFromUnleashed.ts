@@ -1,9 +1,8 @@
+import assert from 'assert';
 import { DatabaseDocument } from '../../Services';
 import { HttpModule } from '../HttpModule';
 
 import { UnleashedProduct } from './Models/UnleashedProduct';
-
-const { flatMap } = require('lodash');
 
 export type UnleashedConfig = DatabaseDocument & {};
 
@@ -11,45 +10,43 @@ const updateListFromUnleashed: HttpModule<{}, void> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $id, $unleashed, $logger, $database }) {
+  exec({ $unleashed, $logger, $database }) {
     $logger.info(`Getting products from unleashed`);
     return $database
       .then(({ document, startTransaction }) => {
         return $unleashed
           .$get('Products?pageSize=50', 'pageSize=50')
           .then((results: { Items: UnleashedProduct[]; Pagination: any }) => {
-            const getProductsPromises = [];
-
-            // For single use testing.
-            // getProductsPromises.push($unleashed.$get(`Products/Page/${1}?pageSize=50`, 'pageSize=50'));
-
-            // For Live use.
+            let promiseChain = Promise.resolve();
+            $logger.info(
+              'Starting Unleashed Queries, Total pages: %s',
+              results.Pagination.NumberOfPages
+            );
             for (let i = 0; i < results.Pagination.NumberOfPages; i++) {
-              getProductsPromises.push(
-                $unleashed.$get(`Products/Page/${i + 1}?pageSize=50`, 'pageSize=50')
-              );
-            }
+              promiseChain = promiseChain.then(() => {
+                $logger.info('Unleashed query page no: %s', i + 1);
+                return $unleashed
+                  .$get(`Products/Page/${i + 1}?pageSize=50`, 'pageSize=50')
+                  .then((_results: any) => {
+                    return startTransaction(async (session: any) => {
+                      $logger.info('Unleashed query page no: %s, Saving Data', i + 1);
+                      const _savePromises = _results.Items.map((item: any) => {
+                        assert(item.Guid, 'Unleashed item missing GUID.');
+                        const config = {
+                          ...item,
+                          _id: item.Guid,
+                        };
 
-            return Promise.all(getProductsPromises).then(allResults => {
-              const allProducts = flatMap(
-                allResults,
-                (item: { Items: UnleashedProduct[] }) => item.Items
-              );
-              $logger.info(`${allProducts.length} Products from unleashed`);
-              return startTransaction(async (session: any) => {
-                const _promises = allProducts.map((r: UnleashedProduct) => {
-                  const config: UnleashedConfig = {
-                    ...r,
-                    _id: r._id || r.Guid || $id.newId(),
-                  };
-                  return Promise.all([
-                    document.save('unleashed', config, { session }),
-                    document.publish('unleashed', config, { session }),
-                  ]);
-                });
-                return Promise.all(_promises);
+                        return Promise.all([
+                          document.save('unleashed', config, { session }),
+                          document.publish('unleashed', config, { session }),
+                        ]);
+                      });
+                      return Promise.all(_savePromises);
+                    });
+                  });
               });
-            });
+            }
           });
       })
       .then(() => {});

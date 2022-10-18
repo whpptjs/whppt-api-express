@@ -14,7 +14,7 @@ const changeImage: HttpModule<ChangeProductImageArgs, void> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $database, setEvent }, { domainId, productId, image, featureImageId }) {
+  exec({ $database, createEvent }, { domainId, productId, image, featureImageId }) {
     assert(domainId, 'Domain Id required.');
     assert(productId, 'Product Id required.');
 
@@ -26,12 +26,12 @@ const changeImage: HttpModule<ChangeProductImageArgs, void> = {
         assert(product.images, 'Could not find image to save on product');
 
         const events = [
-          setEvent('ProductImageDetailsChanged', { _id: productId, image }),
+          createEvent('ProductImageDetailsChanged', { _id: productId, image }),
         ];
 
         if (featureImageId && product.featureImageId !== featureImageId) {
           events.push(
-            setEvent('ProductFeatureImageChanged', { _id: productId, featureImageId })
+            createEvent('ProductFeatureImageChanged', { _id: productId, featureImageId })
           );
           Object.assign(product, { featureImageId });
         }

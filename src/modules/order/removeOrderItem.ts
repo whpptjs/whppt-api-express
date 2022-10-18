@@ -26,7 +26,7 @@ const removeOrderItem: HttpModule<{ orderItemId: string; orderId: string }, void
             );
 
             loadedOrder.items = loadedOrder.items.filter(i => {
-              return i._id === orderItemId;
+              return i._id !== orderItemId;
             });
             events.push(
               createEvent('OrderItemRemovedFromOrder', {
