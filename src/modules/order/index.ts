@@ -15,6 +15,7 @@ import findOrderForSession from './findOrderForSession';
 import loadCart from './loadCart';
 import removeOrderItem from './removeOrderItem';
 import addOrderItem from './addOrderItem';
+import changeOrderInfo from './changeOrderInfo';
 
 export const order = {
   createOrderWithProduct,
@@ -33,4 +34,5 @@ export const order = {
   loadCart,
   removeOrderItem,
   addOrderItem,
+  changeOrderInfo,
 };
