@@ -13,7 +13,7 @@ const updateListFromUnleashed: HttpModule<{}, void> = {
   exec({ $unleashed, $logger, $database }) {
     $logger.info(`Getting products from unleashed`);
     return $database
-      .then(({ document, startTransaction }) => {
+      .then(({ document }) => {
         return $unleashed
           .$get('Products?pageSize=50', 'pageSize=50')
           .then((results: { Items: UnleashedProduct[]; Pagination: any }) => {
@@ -28,22 +28,17 @@ const updateListFromUnleashed: HttpModule<{}, void> = {
                 return $unleashed
                   .$get(`Products/Page/${i + 1}?pageSize=50`, 'pageSize=50')
                   .then((_results: any) => {
-                    return startTransaction((session: any) => {
-                      $logger.info('Unleashed query page no: %s, Saving Data', i + 1);
-                      const _savePromises = _results.Items.map((item: any) => {
-                        assert(item.Guid, 'Unleashed item missing GUID.');
-                        const config = {
-                          ...item,
-                          _id: item.Guid,
-                        };
+                    $logger.info('Unleashed query page no: %s, Saving Data', i + 1);
+                    const _savePromises = _results.Items.map((item: any) => {
+                      assert(item.Guid, 'Unleashed item missing GUID.');
+                      const unleashedProduct = {
+                        ...item,
+                        _id: item.Guid,
+                      };
 
-                        return Promise.all([
-                          document.save('unleashed', config, { session }),
-                          document.publish('unleashed', config, { session }),
-                        ]);
-                      });
-                      return Promise.all(_savePromises);
+                      return document.save('unleashed', unleashedProduct);
                     });
+                    return Promise.all(_savePromises);
                   });
               });
             }
