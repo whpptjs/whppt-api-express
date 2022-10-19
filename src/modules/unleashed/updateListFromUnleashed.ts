@@ -28,7 +28,7 @@ const updateListFromUnleashed: HttpModule<{}, void> = {
                 return $unleashed
                   .$get(`Products/Page/${i + 1}?pageSize=50`, 'pageSize=50')
                   .then((_results: any) => {
-                    return startTransaction(async (session: any) => {
+                    return startTransaction((session: any) => {
                       $logger.info('Unleashed query page no: %s, Saving Data', i + 1);
                       const _savePromises = _results.Items.map((item: any) => {
                         assert(item.Guid, 'Unleashed item missing GUID.');
@@ -47,6 +47,7 @@ const updateListFromUnleashed: HttpModule<{}, void> = {
                   });
               });
             }
+            return promiseChain;
           });
       })
       .then(() => {});
