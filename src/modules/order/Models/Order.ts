@@ -3,15 +3,18 @@ import { Product } from '../../product/Models/Product';
 export type Order = {
   _id: string;
   domainId?: string;
+  contactRecord?: {
+    email: string;
+  };
   items: OrderItem[];
   billingAddress?: Address;
-  shippingAddress?: Address;
+  shipping?: Address;
   contactId?: string;
   discountIds?: string;
-  shipping?: AusPostShipping;
+  ausPostShipping?: AusPostShipping;
   orderStatus: 'pending' | 'pending';
-  payment?: Payment;
   createdAt?: Date;
+  payment?: Payment;
   updatedAt?: Date;
 };
 

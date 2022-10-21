@@ -34,12 +34,14 @@ export const ModulesRouter: ModulesRouter = ($logger, apiPrefix) => {
     return (req as WhpptRequest).moduleContext.then(ctx => {
       return callModule(ctx, mod, command, { ...cmdArgs, user }, req).catch(err => {
         const { status, error } = err;
+
+        const _error = error && error.message ? error && error.message : error || err;
         $logger.error(
           'Error in modules route [POST]: %s %s %O %O',
           mod,
           command,
           cmdArgs,
-          error || err
+          _error
         );
         return { status: status || 500, error: error || err };
       });

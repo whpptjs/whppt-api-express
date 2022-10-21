@@ -25,6 +25,7 @@ module.exports = (context, mod, handlerName, params, req) => {
       return Promise.resolve()
         .then(() => callHandler.exec(_context, params, req))
         .catch(err => {
+          console.log('🚀 ~ err.message', err.message);
           return Promise.reject({
             status: (err && err.status) || 500,
             error: new ModuleExecError(

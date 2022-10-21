@@ -16,6 +16,8 @@ import loadCart from './loadCart';
 import removeOrderItem from './removeOrderItem';
 import addOrderItem from './addOrderItem';
 import changeOrderInfo from './changeOrderInfo';
+import changeOrderShipping from './changeOrderShipping';
+import changeOrderBilling from './changeOrderBilling';
 
 export const order = {
   createOrderWithProduct,
@@ -35,4 +37,6 @@ export const order = {
   removeOrderItem,
   addOrderItem,
   changeOrderInfo,
+  changeOrderShipping,
+  changeOrderBilling,
 };
