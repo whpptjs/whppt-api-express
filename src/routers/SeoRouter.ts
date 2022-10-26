@@ -4,7 +4,7 @@ const { join, map } = require('lodash');
 
 const router = Router();
 
-// const draft = process.env.DRAFT === 'true';
+const draft = process.env.DRAFT === 'true';
 const baseUrl = process.env.BASE_URL;
 
 const sitemapStart = `<?xml version="1.0" encoding="UTF-8"?>
@@ -55,8 +55,8 @@ export const SeoRouter: SeoRouterConstructor = function () {
   });
 
   router.get('/robots.txt', (req: any, res: Response) => {
-    // if (draft || process.env.DISABLE_ROBOTS === 'true')
-    //   return res.type('text/plain').send('User-agent: *\nDisallow: /');
+    if (draft || process.env.DISABLE_ROBOTS === 'true')
+      return res.type('text/plain').send('User-agent: *\nDisallow: /');
 
     return (req as WhpptRequest).moduleContext
       .then(({ $sitemap }) => {
