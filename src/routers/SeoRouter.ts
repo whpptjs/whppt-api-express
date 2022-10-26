@@ -70,11 +70,10 @@ export const SeoRouter: SeoRouterConstructor = function () {
           const emptyLine = ``;
 
           const lines = [allAgents, disallowLogin, disallowHealth];
-          lines.push(emptyLine);
           hiddenPages.forEach(page => {
             page.slug.startsWith('/')
-              ? lines.push(page.slug)
-              : lines.push(`/${page.slug}`);
+              ? lines.push(`Disallow: ${page.slug}`)
+              : lines.push(`Disallow: /${page.slug}`);
           });
           lines.push(emptyLine);
           lines.push(sitemapPath);
