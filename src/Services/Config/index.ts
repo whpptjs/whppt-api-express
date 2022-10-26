@@ -22,6 +22,7 @@ export type WhpptConfig = {
   disablePublishing?: boolean;
   onPublish?: (page: any) => void;
   onUnPublish?: (page: any) => void;
+  routers?: { path: string; routerFactory: any }[];
   /**
    * @deprecated this options should not be used. The various routers will use their own prefixes.
    */

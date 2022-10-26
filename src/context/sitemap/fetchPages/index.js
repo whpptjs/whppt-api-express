@@ -39,6 +39,7 @@ module.exports = (
           frequency: true,
           priority: true,
           hideFromSitemap: true,
+          hideFromRobots: true,
         })
         .toArray()
         .then(pages => {
