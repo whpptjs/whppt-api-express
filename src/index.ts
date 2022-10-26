@@ -124,5 +124,11 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
 
+  if (config.routers && config.routers.length) {
+    config.routers.forEach(entry => {
+      router.use(entry.path, entry.routerFactory());
+    });
+  }
+
   return router;
 };
