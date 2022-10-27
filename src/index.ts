@@ -18,6 +18,7 @@ import { HostingService } from './Services/Hosting';
 import { ConfigService } from './Services/Config';
 import { ContextType } from './context/Context';
 import { adminDbConfig } from './Services/Hosting/adminDbConfig';
+import { StripeRouter } from './routers/Stripe/index';
 
 export * from './Services/Config';
 export * from './modules/HttpModule';
@@ -123,6 +124,7 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(ImageRouter($logger));
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
+  router.use(StripeRouter());
 
   return router;
 };
