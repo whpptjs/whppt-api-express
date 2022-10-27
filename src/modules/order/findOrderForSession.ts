@@ -51,6 +51,7 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
                     image: '$items.product.image',
                     vintage: '$items.product.vintage',
                     stockKeepingUnit: '$items.product.stockKeepingUnit',
+                    quantityAvailable: '$items.product.quantityAvailable',
                     price: '$items.product.price',
                   },
                 },
