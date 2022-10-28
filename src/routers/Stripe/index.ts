@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
-import { getStripCustomerIdFromContact, loadOrder } from './common';
+import { calculateTotal, getStripCustomerIdFromContact, loadOrder } from './common';
 
 const router = Router();
 
@@ -17,28 +17,56 @@ export type StripeToken = {
 export const StripeRouter: StripeRouterConstructor = function () {
   router.post('/stripe/createPaymentIntent', (req, res) => {
     return (req as WhpptRequest).moduleContext
-      .then(ctx => {
-        const { amount, cardType = 'card_present', orderId, saveCard } = req.body;
+      .then(context => {
+        const createEvent = context.CreateEvent(req.user);
+        const ctx = { ...context, createEvent };
+        const { cardType = 'card_present', orderId, saveCard } = req.body;
         assert(orderId, 'Order Id not provided');
         return loadOrder(ctx, orderId).then(order => {
-          //compare prices assert.
-          return getStripCustomerIdFromContact(ctx, stripe, order.contactId).then(
-            customer => {
-              return stripe.paymentIntents
-                .create({
-                  amount,
-                  currency: 'aud',
-                  payment_method_types: [cardType],
-                  capture_method: 'automatic',
-                  customer,
-                  setup_future_usage: saveCard ? 'off_session' : undefined,
-                })
-                .then((intent: { client_secret: string }) => {
-                  console.log('🚀 ~ file: index.ts ~ line 37 ~ .then ~ intent', intent);
-                  res.json({ client_secret: intent.client_secret });
-                });
-            }
-          );
+          return calculateTotal(ctx, orderId).then(amount => {
+            return getStripCustomerIdFromContact(ctx, stripe, order.contactId).then(
+              customer => {
+                return stripe.paymentIntents
+                  .create({
+                    amount,
+                    currency: 'aud',
+                    payment_method_types: [cardType],
+                    capture_method: 'automatic',
+                    customer,
+                    setup_future_usage: saveCard ? 'off_session' : undefined,
+                  })
+                  .then((intent: { client_secret: string; id: string }) => {
+                    return ctx.$database
+                      .then(database => {
+                        const { document, startTransaction } = database;
+                        return startTransaction(session => {
+                          Object.assign(order, {
+                            stripe: { intentId: intent.id, status: 'pending', amount },
+                          });
+
+                          const events = [
+                            ctx.createEvent('OrderCreatedPaymentIntent', {
+                              _id: order._id,
+                              stripe: { intentId: intent.id, status: 'pending', amount },
+                            }),
+                          ];
+
+                          return document.saveWithEvents('orders', order, events, {
+                            session,
+                          });
+                        });
+                      })
+                      .then(() => {
+                        res.json({
+                          client_secret: intent.client_secret,
+                          amount,
+                          customer,
+                        });
+                      });
+                  });
+              }
+            );
+          });
         });
       })
       .catch(err => {
@@ -50,34 +78,39 @@ export const StripeRouter: StripeRouterConstructor = function () {
 
     return stripe.paymentMethods
       .attach(paymentMethod, { customer: customerId })
+      .then(() => {
+        return res.status(200).send({});
+      })
       .catch((err: any) => {
         if (
           err.raw.message ===
           'The payment method you provided has already been attached to a customer.'
         )
-          return res.status(200).send('Ok');
-        console.log('🚀 ~ file: index.ts ~ line 53 ~ router.post ~ err', err);
+          return res.status(200).send({});
         res.status(err.status || 500).send(err.message || err);
       });
   });
 
+  router.get('/stripe/getSavedCards', (req, res) => {
+    const { contactId } = req.query;
+
+    return (req as WhpptRequest).moduleContext.then(context => {
+      assert(contactId, 'ContactId not provided');
+      return getStripCustomerIdFromContact(context, stripe, contactId as string).then(
+        customer => {
+          return stripe.customers
+            .listPaymentMethods(customer, { type: 'card' })
+            .then((cards: any) => {
+              console.log('🚀 ~ file: Stripe.ts ~ line 21 ~ ).then ~ token', cards);
+              res.json(cards);
+            });
+        }
+      );
+    });
+  });
+
   // Below are Not in use yet. Dont delete --- Ben
 
-  // router.get('/stripe/listCustomerAccount', (__, res) => {
-  //   // return stripe.paymentMethods
-  //   //   .retrieve('pm_1LwwFwLi5iu0zliSTe5heDfo')
-  //   //   .then((token: any) => {
-  //   //     console.log('🚀 ~ file: Stripe.ts ~ line 21 ~ ).then ~ token', token);
-  //   //     res.json(token);
-  //   //   });
-  //   // pm_1LwwFwLi5iu0zliSTe5heDfo
-  //   return stripe.customers
-  //     .listPaymentMethods('cus_Mg6R3qFPKnNRzL', { type: 'card' })
-  //     .then((token: any) => {
-  //       console.log('🚀 ~ file: Stripe.ts ~ line 21 ~ ).then ~ token', token);
-  //       res.json(token);
-  //     });
-  // });
   // router.get('/stripe/createToken', (__, res) => {
   //   return stripe.terminal.connectionTokens.create().then((token: StripeToken) => {
   //     res.json(token.secret);

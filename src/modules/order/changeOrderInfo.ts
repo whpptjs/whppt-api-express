@@ -24,6 +24,7 @@ const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
         findContactOrCreate.exec(context, { email: contactRecord.email, contactId }),
       ]).then(([loadedOrder, contact]) => {
         assert(loadedOrder, 'Order not found.');
+        assert(loadedOrder.orderStatus, 'Order already completed.');
 
         if (
           loadedOrder.contactRecord?.email === contactRecord.email &&

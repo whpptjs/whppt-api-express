@@ -8,14 +8,23 @@ export type Order = {
   };
   items: OrderItem[];
   billingAddress?: Address;
-  shipping?: Address;
+  shipping?: Shipping;
   contactId?: string;
   discountIds?: string;
+  paymentIntent?: string;
   ausPostShipping?: AusPostShipping;
-  orderStatus: 'pending' | 'pending';
+  orderStatus: 'pending' | 'completed';
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;
+};
+
+export type Shipping = {
+  address: Address;
+  shippingCost: number;
+  firstName: string;
+  lastName: string;
+  company: string;
 };
 
 export type OrderItem = {

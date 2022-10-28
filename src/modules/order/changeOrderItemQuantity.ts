@@ -22,6 +22,9 @@ const changeOrderItemQuantity: HttpModule<
         return document
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
+            assert(loadedOrder, 'Order not found.');
+            assert(loadedOrder.orderStatus, 'Order already completed.');
+
             const order = {
               ...loadedOrder,
               _id: (loadedOrder && loadedOrder._id) || $id.newId(),

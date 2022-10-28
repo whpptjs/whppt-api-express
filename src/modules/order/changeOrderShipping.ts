@@ -41,6 +41,7 @@ const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
           assert(loadedOrder, 'Order not found.');
+          assert(loadedOrder.orderStatus, 'Order already completed.');
 
           const event = createEvent('OrderShippingDetailsUpdated', {
             _id: loadedOrder._id,
