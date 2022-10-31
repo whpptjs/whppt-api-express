@@ -6,6 +6,7 @@ import { Order } from './Models/Order';
 export type ChangeOrderBillingArgs = {
   orderId: string;
   billing: {
+    sameAsShipping: boolean;
     contactDetails: {
       firstName?: string;
       lastName?: string;
@@ -44,7 +45,7 @@ const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, void> = {
           assert(loadedOrder.checkoutStatus === 'completed', 'Order already completed.');
 
           const event = createEvent('OrderBillingDetailsUpdated', {
-            _id: loadedOrder._id,
+            orderId: loadedOrder._id,
             billing,
           });
 
