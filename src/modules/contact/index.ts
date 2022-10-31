@@ -1,5 +1,1 @@
-import findContactOrCreate from './findContactOrCreate';
-
-export const product = {
-  findContactOrCreate,
-};
+export const contact = {};

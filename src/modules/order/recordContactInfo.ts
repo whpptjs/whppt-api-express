@@ -2,7 +2,6 @@ import assert from 'assert';
 import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Order } from './Models/Order';
-import findContactOrCreate from '../contact/findContactOrCreate';
 
 export type RecordOrderInfoArgs = {
   orderId: string;
@@ -19,12 +18,21 @@ const recordContactInfo: HttpModule<RecordOrderInfoArgs, Order> = {
     assert(contactRecord.email, 'email is required.');
 
     return $database.then(({ document, startTransaction }) => {
+      const contactQuery = contactId
+        ? { _id: contactId }
+        : ({ email: contactRecord.email } as { email?: string; _id?: string });
+
       return Promise.all([
         document.query<Order>('orders', { filter: { _id: orderId } }),
-        findContactOrCreate.exec(context, { email: contactRecord.email, contactId }),
-      ]).then(([loadedOrder, contact]) => {
+        document.query<Order>('contacts', { filter: contactQuery }),
+      ]).then(([loadedOrder, contactInMongo]) => {
         assert(loadedOrder, 'Order not found.');
         assert(loadedOrder.orderStatus, 'Order already completed.');
+
+        const contact = contactInMongo || {
+          _id: context.$id.newId(),
+          email: contactRecord.email,
+        };
 
         if (
           loadedOrder.contactRecord?.email === contactRecord.email &&
@@ -48,7 +56,16 @@ const recordContactInfo: HttpModule<RecordOrderInfoArgs, Order> = {
         });
 
         return startTransaction(session => {
-          return document.saveWithEvents('orders', loadedOrder, [event], { session });
+          return document
+            .saveWithEvents('orders', loadedOrder, [event], { session })
+            .then(() => {
+              if (contactInMongo) return;
+
+              const contactEvents = createEvent('CreatedContact', contact);
+              return document.saveWithEvents('contacts', contact, [contactEvents], {
+                session,
+              });
+            });
         }).then(() => loadedOrder);
       });
     });
