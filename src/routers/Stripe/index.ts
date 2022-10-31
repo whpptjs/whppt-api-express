@@ -94,19 +94,50 @@ export const StripeRouter: StripeRouterConstructor = function () {
   router.get('/stripe/getSavedCards', (req, res) => {
     const { contactId } = req.query;
 
-    return (req as WhpptRequest).moduleContext.then(context => {
-      assert(contactId, 'ContactId not provided');
-      return getStripCustomerIdFromContact(context, stripe, contactId as string).then(
-        customer => {
-          return stripe.customers
-            .listPaymentMethods(customer, { type: 'card' })
-            .then((cards: any) => {
-              console.log('🚀 ~ file: Stripe.ts ~ line 21 ~ ).then ~ token', cards);
-              res.json(cards);
+    return (req as WhpptRequest).moduleContext
+      .then(context => {
+        assert(contactId, 'ContactId not provided');
+        return getStripCustomerIdFromContact(context, stripe, contactId as string).then(
+          customer => {
+            return stripe.customers
+              .listPaymentMethods(customer, { type: 'card' })
+              .then((cards: any) => {
+                res.json({ customerId: customer, cards: cards.data });
+              });
+          }
+        );
+      })
+      .catch((err: any) => {
+        res.status(err.status || 500).send(err.message || err);
+      });
+  });
+  router.post('/stripe/createPaymentIntentWithSavedCard', (req, res) => {
+    const { customerId, cardId, orderId } = req.body;
+    assert(orderId, 'Order Id not provided');
+    return (req as WhpptRequest).moduleContext
+      .then(context => {
+        const createEvent = context.CreateEvent(req.user);
+        const ctx = { ...context, createEvent };
+        return calculateTotal(ctx, orderId).then(amount => {
+          return stripe.paymentIntents
+            .create({
+              amount,
+              currency: 'aud',
+              payment_method_types: ['card'],
+              capture_method: 'automatic',
+              customer: customerId,
+              payment_method: cardId,
+              setup_future_usage: 'off_session',
+              confirm: true,
+            })
+            .then((intent: any) => {
+              res.json({ paymentIntent: intent.id });
             });
-        }
-      );
-    });
+        });
+      })
+      .catch((err: any) => {
+        res.status(err.status || 500).send(err.message || err);
+      });
   });
 
   // Below are Not in use yet. Dont delete --- Ben
@@ -158,23 +189,6 @@ export const StripeRouter: StripeRouterConstructor = function () {
   //         });
   //       });
   //   });
-  // });
-  // router.post('/stripe/createPaymentIntentWithSavedCard', (req, res) => {
-  //   const { amount, cardType = 'card', customerId, cardId } = req.body;
-  //   return stripe.paymentIntents
-  //     .create({
-  //       amount,
-  //       currency: 'aud',
-  //       payment_method_types: [cardType],
-  //       capture_method: 'automatic',
-  //       customer: customerId,
-  //       payment_method: cardId,
-  //       setup_future_usage: 'off_session',
-  //       confirm: true,
-  //     })
-  //     .then(intent => {
-  //       res.json(intent);
-  //     });
   // });
 
   // router.post('/stripe/capturePaymentIntent', async (req, res) => {
