@@ -23,7 +23,7 @@ export type ChangeOrderBillingArgs = {
   };
 };
 
-const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, Order> = {
+const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, void> = {
   exec(context, { orderId, billing }) {
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
@@ -52,7 +52,7 @@ const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, Order> = {
 
           return startTransaction(session => {
             return document.saveWithEvents('orders', loadedOrder, [event], { session });
-          }).then(() => loadedOrder);
+          });
         });
     });
   },
