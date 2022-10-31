@@ -1,12 +1,14 @@
 import assert from 'assert';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
-import { calculateTotal, getStripCustomerIdFromContact, loadOrder } from './common';
+import { createPaymentIntent } from './createPaymentIntent';
+import { calculateTotal, getStripCustomerIdFromContact } from './Helpers';
 
 const router = Router();
 
 export type StripeRouterConstructor = () => Router;
 
+//TODO Need to get this from reading the config
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 export type StripeToken = {
@@ -20,53 +22,8 @@ export const StripeRouter: StripeRouterConstructor = function () {
       .then(context => {
         const createEvent = context.CreateEvent(req.user);
         const ctx = { ...context, createEvent };
-        const { cardType = 'card_present', orderId, saveCard } = req.body;
-        assert(orderId, 'Order Id not provided');
-        return loadOrder(ctx, orderId).then(order => {
-          return calculateTotal(ctx, orderId).then(amount => {
-            return getStripCustomerIdFromContact(ctx, stripe, order.contactId).then(
-              customer => {
-                return stripe.paymentIntents
-                  .create({
-                    amount,
-                    currency: 'aud',
-                    payment_method_types: [cardType],
-                    capture_method: 'automatic',
-                    customer,
-                    setup_future_usage: saveCard ? 'off_session' : undefined,
-                  })
-                  .then((intent: { client_secret: string; id: string }) => {
-                    return ctx.$database
-                      .then(database => {
-                        const { document, startTransaction } = database;
-                        return startTransaction(session => {
-                          Object.assign(order, {
-                            stripe: { intentId: intent.id, status: 'pending', amount },
-                          });
-
-                          const events = [
-                            ctx.createEvent('OrderCreatedPaymentIntent', {
-                              _id: order._id,
-                              stripe: { intentId: intent.id, status: 'pending', amount },
-                            }),
-                          ];
-
-                          return document.saveWithEvents('orders', order, events, {
-                            session,
-                          });
-                        });
-                      })
-                      .then(() => {
-                        res.json({
-                          client_secret: intent.client_secret,
-                          amount,
-                          customer,
-                        });
-                      });
-                  });
-              }
-            );
-          });
+        return createPaymentIntent(ctx, req.body).then(data => {
+          res.json(data);
         });
       })
       .catch(err => {

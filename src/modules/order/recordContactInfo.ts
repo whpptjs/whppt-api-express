@@ -4,7 +4,7 @@ import { HttpModule } from '../HttpModule';
 import { Order } from './Models/Order';
 import findContactOrCreate from '../contact/findContactOrCreate';
 
-export type ChangeOrderInfoArgs = {
+export type RecordOrderInfoArgs = {
   orderId: string;
   contactId?: string;
   contactRecord: {
@@ -12,7 +12,7 @@ export type ChangeOrderInfoArgs = {
   };
 };
 
-const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
+const recordContactInfo: HttpModule<RecordOrderInfoArgs, Order> = {
   exec(context, { orderId, contactRecord, contactId }) {
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
@@ -32,7 +32,7 @@ const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
         )
           return loadedOrder;
 
-        const event = createEvent('OrderInformationUpdated', {
+        const event = createEvent('OrderContactInformationUpdated', {
           _id: loadedOrder._id,
           contactRecord,
           contactId: contact._id,
@@ -55,4 +55,4 @@ const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
   },
 };
 
-export default continueToPayment;
+export default recordContactInfo;

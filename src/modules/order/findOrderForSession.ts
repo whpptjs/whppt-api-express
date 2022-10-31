@@ -9,7 +9,6 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
   },
   exec({ $database }, { orderId }) {
     const query = orderId ? { _id: orderId } : { orderStatus: { $ne: 'completed' } };
-    console.log('🚀 ~ file: findOrderForSession.ts ~ line 12 ~ exec ~ query', query);
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return db

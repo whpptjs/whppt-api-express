@@ -14,7 +14,9 @@ const completeOrder: HttpModule<{ orderId: string; paymentIntent: string }, void
 
           assign(loadedOrder, {
             ...loadedOrder,
-            paymentIntent,
+            payment: {
+              _id: paymentIntent,
+            },
             orderStatus: 'completed',
           });
 

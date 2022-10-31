@@ -7,12 +7,10 @@ export type Order = {
     email: string;
   };
   items: OrderItem[];
-  billingAddress?: Address;
+  billing?: Billing;
   shipping?: Shipping;
   contactId?: string;
   discountIds?: string;
-  paymentIntent?: string;
-  ausPostShipping?: AusPostShipping;
   orderStatus: 'pending' | 'completed';
   createdAt?: Date;
   payment?: Payment;
@@ -21,10 +19,21 @@ export type Order = {
 
 export type Shipping = {
   address: Address;
+  contactDetails: {
+    firstName: string;
+    lastName: string;
+    company: string;
+  };
   shippingCost: number;
-  firstName: string;
-  lastName: string;
-  company: string;
+  ausPost?: AusPostShipping;
+};
+export type Billing = {
+  address: Address;
+  contactDetails: {
+    firstName: string;
+    lastName: string;
+    company: string;
+  };
 };
 
 export type OrderItem = {

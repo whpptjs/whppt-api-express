@@ -6,9 +6,11 @@ import { Order } from './Models/Order';
 export type ChangeOrderBillingArgs = {
   orderId: string;
   billing: {
-    firstName?: string;
-    lastName?: string;
-    company?: string;
+    contactDetails: {
+      firstName?: string;
+      lastName?: string;
+      company?: string;
+    };
     address: {
       number: string;
       street: string;
@@ -21,7 +23,7 @@ export type ChangeOrderBillingArgs = {
   };
 };
 
-const continueToPayment: HttpModule<ChangeOrderBillingArgs, Order> = {
+const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, Order> = {
   exec(context, { orderId, billing }) {
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
@@ -46,10 +48,7 @@ const continueToPayment: HttpModule<ChangeOrderBillingArgs, Order> = {
             billing,
           });
 
-          assign(loadedOrder, {
-            ...loadedOrder,
-            billing,
-          });
+          assign(loadedOrder, { billing });
 
           return startTransaction(session => {
             return document.saveWithEvents('orders', loadedOrder, [event], { session });
@@ -59,4 +58,4 @@ const continueToPayment: HttpModule<ChangeOrderBillingArgs, Order> = {
   },
 };
 
-export default continueToPayment;
+export default changeOrderBilling;

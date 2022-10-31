@@ -3,12 +3,14 @@ import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Order } from './Models/Order';
 
-export type ChangeOrderInfoArgs = {
+export type ChangeOrderShippingArgs = {
   orderId: string;
   shipping: {
-    firstName?: string;
-    lastName?: string;
-    company?: string;
+    contactDetails?: {
+      firstName?: string;
+      lastName?: string;
+      company?: string;
+    };
     address: {
       number: string;
       street: string;
@@ -23,7 +25,7 @@ export type ChangeOrderInfoArgs = {
   };
 };
 
-const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
+const changeOrderShipping: HttpModule<ChangeOrderShippingArgs, Order> = {
   exec(context, { orderId, shipping }) {
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
@@ -61,4 +63,4 @@ const continueToPayment: HttpModule<ChangeOrderInfoArgs, Order> = {
   },
 };
 
-export default continueToPayment;
+export default changeOrderShipping;
