@@ -8,7 +8,8 @@ const list: HttpModule<
     limit: string;
     currentPage: string;
     search: string;
-    showInactiveItems: string;
+    statusFilter: string;
+    sellableFilter: string;
     family: string;
   },
   { products: Product[]; total: number }
@@ -18,31 +19,18 @@ const list: HttpModule<
   },
   exec(
     { $database },
-    { domainId, limit, currentPage, search, family, showInactiveItems }
+    { domainId, limit, currentPage, search, family, statusFilter, sellableFilter }
   ) {
     let query = {
       domainId,
     } as any;
 
-    if (showInactiveItems !== 'true') query.isActive = true;
+    if (statusFilter) query.isActive = statusFilter === 'active' ? true : false;
+    if (sellableFilter === 'pos') query.forSaleOnPos = true;
+    if (sellableFilter === 'website') query.forSaleOnWebsite = true;
     if (family) query.family = family;
-    console.log('🚀 ~ file: list.ts ~ line 29 ~ family', family);
+    if (search) query.name = { $regex: search, $options: 'i' };
 
-    if (search) {
-      query = {
-        $and: [
-          { domainId },
-          {
-            $or: [
-              { name: { $regex: search, $options: 'i' } },
-              { productCode: { $regex: search, $options: 'i' } },
-            ],
-          },
-        ],
-      };
-      if (!showInactiveItems) query.$and.push({ isActive: true });
-      if (!family) query.$and.push({ family });
-    }
     return $database.then(({ queryDocuments, countDocuments }) => {
       return Promise.all([
         queryDocuments<Product>('products', {

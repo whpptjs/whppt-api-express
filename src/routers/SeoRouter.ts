@@ -19,7 +19,9 @@ export const SeoRouter: SeoRouterConstructor = function () {
     return (req as WhpptRequest).moduleContext
       .then(({ $sitemap }) => {
         return $sitemap.filter().then(({ sitemap }: any) => {
-          const indexablePages = sitemap.filter((p: any) => !p.hideFromSitemap);
+          const indexablePages = sitemap.filter((p: any) => {
+            return !p.hideFromSitemap;
+          });
           return join(
             map(indexablePages, (page: any) => {
               return `<url>
@@ -52,17 +54,34 @@ export const SeoRouter: SeoRouterConstructor = function () {
       .catch((err: any) => res.status(500).send(err));
   });
 
-  router.get('/robots.txt', function (_: any, res: Response) {
-    res.type('text/plain');
-
+  router.get('/robots.txt', (req: any, res: Response) => {
     if (draft || process.env.DISABLE_ROBOTS === 'true')
-      return res.send('User-agent: *\nDisallow: /');
+      return res.type('text/plain').send('User-agent: *\nDisallow: /');
 
-    res.send(`User-agent: *
-                    Disallow: /login
-                    Disallow: /health
-                    Sitemap: ${baseUrl}/sitemap.xml
-   `);
+    return (req as WhpptRequest).moduleContext
+      .then(({ $sitemap }) => {
+        return $sitemap.filter().then(({ sitemap }: any) => {
+          const hiddenPages = sitemap.filter((p: any) => p.hideFromRobots) as any[];
+
+          const allAgents = 'User-agent: *';
+          const disallowLogin = 'Disallow: /login';
+          const disallowHealth = 'Disallow: /health';
+          const sitemapPath = `Sitemap: ${baseUrl}/sitemap.xml`;
+          const emptyLine = ``;
+
+          const lines = [allAgents, disallowLogin, disallowHealth];
+          hiddenPages.forEach(page => {
+            page.slug.startsWith('/')
+              ? lines.push(`Disallow: ${page.slug}`)
+              : lines.push(`Disallow: /${page.slug}`);
+          });
+          lines.push(emptyLine);
+          lines.push(sitemapPath);
+          return lines;
+        });
+      })
+      .then((lines: string[]) => res.type('text/plain').send(lines.join('\n')))
+      .catch((err: any) => res.status(500).send(err));
   });
 
   return router;

@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 
-module.exports = () => {
+export default () => {
   const baseURL = 'https://hentleyfarm--uat.my.salesforce.com/';
 
   const _client = axios.create({
@@ -28,22 +28,23 @@ module.exports = () => {
           return Promise.reject({ ...err, status: 500 });
         });
     },
-    $post: (path, args) =>
+    $post: (path: any, args: any) =>
       _client
         .post(path, args)
         .then(({ data }) => data)
         .catch(err => {
           return Promise.reject({ ...err, status: 500 });
         }),
-    $put: (path, args) =>
+    $put: (path: any, args: any) =>
       _client
         .put(path, args)
         .then(({ data }) => data)
         .catch(err => {
           return Promise.reject({ ...err, status: 500 });
         }),
-    $upsert: (token, id, args) => {
-      _client.defaults.headers.Authorization = `Bearer ${token}`;
+    $upsert: (token: any, id: any, args: any) => {
+      // TODO check this doesn't breack sales force integration. Downgraded axios to pre 1.0
+      (_client.defaults.headers as any).Authorization = `Bearer ${token}`;
 
       const _data = JSON.stringify(args);
       const path = `services/data/v53.0/sobjects/Product2/Product_External_ID__c/${id}`;
