@@ -27,7 +27,7 @@ const recordContactInfo: HttpModule<RecordOrderInfoArgs, Order> = {
         document.query<Order>('contacts', { filter: contactQuery }),
       ]).then(([loadedOrder, contactInMongo]) => {
         assert(loadedOrder, 'Order not found.');
-        assert(loadedOrder.checkoutStatus === 'completed', 'Order already completed.');
+        assert(loadedOrder.checkoutStatus !== 'completed', 'Order already completed.');
 
         const contact = contactInMongo || {
           _id: context.$id.newId(),

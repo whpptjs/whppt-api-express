@@ -18,7 +18,7 @@ const removeOrderItem: HttpModule<{ orderItemId: string; orderId: string }, void
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
             assert(
-              loadedOrder.checkoutStatus === 'completed',
+              loadedOrder.checkoutStatus !== 'completed',
               'Order already completed.'
             );
 

@@ -10,7 +10,7 @@ const completeOrder: HttpModule<{ orderId: string; paymentIntent: string }, void
       .then(({ document, startTransaction }) => {
         return document.fetch('orders', orderId).then(loadedOrder => {
           assert(loadedOrder, 'Order not found');
-          assert(loadedOrder.checkoutStatus === 'completed', 'Order already completed.');
+          assert(loadedOrder.checkoutStatus !== 'completed', 'Order already completed.');
 
           assign(loadedOrder, {
             ...loadedOrder,

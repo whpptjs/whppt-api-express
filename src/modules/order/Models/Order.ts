@@ -13,7 +13,7 @@ export type Order = {
   contactId?: string;
   discountIds?: string;
   checkoutStatus: 'pending' | 'completed';
-  dispatchedStatus: 'pending' | 'picked' | 'packed' | 'dispatched';
+  dispatchedStatus?: 'pending' | 'picked' | 'packed' | 'dispatched';
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;

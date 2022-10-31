@@ -16,7 +16,7 @@ import loadCart from './loadCart';
 import removeOrderItem from './removeOrderItem';
 import addOrderItem from './addOrderItem';
 import recordContactInfo from './recordContactInfo';
-import changeOrderShipping from './changeOrderShipping';
+import changeOrderShippingDetails from './changeOrderShippingDetails';
 import changeOrderBilling from './changeOrderBilling';
 
 export const order = {
@@ -37,6 +37,6 @@ export const order = {
   removeOrderItem,
   addOrderItem,
   recordContactInfo,
-  changeOrderShipping,
+  changeOrderShippingDetails,
   changeOrderBilling,
 };

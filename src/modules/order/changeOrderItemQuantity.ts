@@ -24,7 +24,7 @@ const changeOrderItemQuantity: HttpModule<
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
             assert(
-              loadedOrder.checkoutStatus === 'completed',
+              loadedOrder.checkoutStatus !== 'completed',
               'Order already completed.'
             );
 

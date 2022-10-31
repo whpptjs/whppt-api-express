@@ -20,12 +20,10 @@ export type ChangeOrderShippingArgs = {
       country: string;
       postCode: string;
     };
-    express: boolean;
-    shippingCost: number;
   };
 };
 
-const changeOrderShipping: HttpModule<ChangeOrderShippingArgs, Order> = {
+const changeOrderShippingDetails: HttpModule<ChangeOrderShippingArgs, Order> = {
   exec(context, { orderId, shipping }) {
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
@@ -43,7 +41,7 @@ const changeOrderShipping: HttpModule<ChangeOrderShippingArgs, Order> = {
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
           assert(loadedOrder, 'Order not found.');
-          assert(loadedOrder.checkoutStatus === 'completed', 'Order already completed.');
+          assert(loadedOrder.checkoutStatus !== 'completed', 'Order already completed.');
 
           const event = createEvent('OrderShippingDetailsUpdated', {
             _id: loadedOrder._id,
@@ -52,7 +50,11 @@ const changeOrderShipping: HttpModule<ChangeOrderShippingArgs, Order> = {
 
           assign(loadedOrder, {
             ...loadedOrder,
-            shipping,
+            shipping: {
+              ...loadedOrder.shipping,
+              contactDetails: shipping.contactDetails,
+              address: shipping.address,
+            },
           });
 
           return startTransaction(session => {
@@ -63,4 +65,4 @@ const changeOrderShipping: HttpModule<ChangeOrderShippingArgs, Order> = {
   },
 };
 
-export default changeOrderShipping;
+export default changeOrderShippingDetails;
