@@ -1,8 +1,9 @@
-import assert from 'assert';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
 import { createPaymentIntent } from './createPaymentIntent';
-import { calculateTotal, getStripCustomerIdFromContact } from './Helpers';
+import { getSavedCards } from './getSavedCards';
+import { createPaymentIntentWithSavedCard } from './createPaymentIntentWithSavedCard';
+import { saveCardOnContact } from './saveCardOnContact';
 
 const router = Router();
 
@@ -22,79 +23,33 @@ export const StripeRouter: StripeRouterConstructor = function () {
       .then(context => {
         const createEvent = context.CreateEvent(req.user);
         const ctx = { ...context, createEvent };
-        return createPaymentIntent(ctx, req.body).then(data => {
-          res.json(data);
-        });
+        return createPaymentIntent({ context: ctx, stripe }, req.body).then(data =>
+          res.json(data)
+        );
       })
-      .catch(err => {
-        res.status(err.status || 500).send(err.message || err);
-      });
+      .catch(err => res.status(err.status || 500).send(err.message || err));
   });
   router.post('/stripe/saveCardOnContact', async (req, res) => {
-    const { paymentMethod, customerId } = req.body;
-
-    return stripe.paymentMethods
-      .attach(paymentMethod, { customer: customerId })
-      .then(() => {
-        return res.status(200).send({});
-      })
-      .catch((err: any) => {
-        if (
-          err.raw.message ===
-          'The payment method you provided has already been attached to a customer.'
-        )
-          return res.status(200).send({});
-        res.status(err.status || 500).send(err.message || err);
-      });
+    return saveCardOnContact(stripe, req.body)
+      .then(() => res.status(200).send({}))
+      .catch((err: any) => res.status(err.status || 500).send(err.message || err));
   });
 
   router.get('/stripe/getSavedCards', (req, res) => {
-    const { contactId } = req.query;
-
+    const { contactId } = req.query as { contactId: string };
     return (req as WhpptRequest).moduleContext
-      .then(context => {
-        assert(contactId, 'ContactId not provided');
-        return getStripCustomerIdFromContact(context, stripe, contactId as string).then(
-          customer => {
-            return stripe.customers
-              .listPaymentMethods(customer, { type: 'card' })
-              .then((cards: any) => {
-                res.json({ customerId: customer, cards: cards.data });
-              });
-          }
-        );
-      })
-      .catch((err: any) => {
-        res.status(err.status || 500).send(err.message || err);
-      });
+      .then(context => getSavedCards({ context, stripe }, { contactId }))
+      .catch((err: any) => res.status(err.status || 500).send(err.message || err));
   });
+
   router.post('/stripe/createPaymentIntentWithSavedCard', (req, res) => {
-    const { customerId, cardId, orderId } = req.body;
-    assert(orderId, 'Order Id not provided');
-    return (req as WhpptRequest).moduleContext
-      .then(context => {
-        const createEvent = context.CreateEvent(req.user);
-        const ctx = { ...context, createEvent };
-        return calculateTotal(ctx, orderId).then(amount => {
-          return stripe.paymentIntents
-            .create({
-              amount,
-              currency: 'aud',
-              payment_method_types: ['card'],
-              capture_method: 'automatic',
-              customer: customerId,
-              payment_method: cardId,
-              setup_future_usage: 'off_session',
-              confirm: true,
-            })
-            .then((intent: any) => {
-              res.json({ paymentIntent: intent.id });
-            });
-        });
-      })
-      .catch((err: any) => {
-        res.status(err.status || 500).send(err.message || err);
-      });
+    return (req as WhpptRequest).moduleContext.then(context => {
+      const createEvent = context.CreateEvent(req.user);
+      const ctx = { ...context, createEvent };
+      return createPaymentIntentWithSavedCard({ context: ctx, stripe }, req.body)
+        .then(paymentIntent => res.json({ paymentIntent }))
+        .catch((err: any) => res.status(err.status || 500).send(err.message || err));
+    });
   });
 
   // Below are Not in use yet. Dont delete --- Ben

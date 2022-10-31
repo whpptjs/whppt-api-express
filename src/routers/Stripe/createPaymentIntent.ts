@@ -6,7 +6,6 @@ import { loadOrder, calculateTotal, getStripCustomerIdFromContact } from './Help
 export type StripeRouterConstructor = () => Router;
 
 //TODO Need to get this from reading the config
-const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 export type StripeToken = {
   object: string;
@@ -14,12 +13,12 @@ export type StripeToken = {
 };
 
 export type CreatePaymentIntentArgs = (
-  context: ContextType,
+  contextArgs: { context: ContextType; stripe: any },
   args: { cardType: string; orderId: string; saveCard: boolean }
 ) => Promise<{ client_secret: string; amount: number; customer: string }>;
 
 export const createPaymentIntent: CreatePaymentIntentArgs = (
-  context,
+  { context, stripe },
   { cardType = 'card_present', orderId, saveCard }
 ) => {
   assert(orderId, 'Order Id not provided');
