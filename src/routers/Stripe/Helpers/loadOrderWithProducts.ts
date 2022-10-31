@@ -65,7 +65,7 @@ export const loadOrderWithProducts: LoadOrderWithProductsArgs = (
             contactId: { $first: '$contactId' },
             discountIds: { $first: '$discountIds' },
             shipping: { $first: '$shipping' },
-            orderStatus: { $first: '$orderStatus' },
+            checkoutStatus: { $first: '$checkoutStatus' },
             payment: { $first: '$payment' },
           },
         },

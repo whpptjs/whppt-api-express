@@ -20,7 +20,7 @@ const createOrderWithProduct: HttpModule<
       const order = {
         _id: $id.newId(),
         items: [],
-        orderStatus: 'pending',
+        checkoutStatus: 'pending',
       } as Order;
 
       const events = [] as any[];

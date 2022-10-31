@@ -1,3 +1,4 @@
+import { Address } from 'src/modules/contact/Models/Contact';
 import { Product } from '../../product/Models/Product';
 
 export type Order = {
@@ -11,7 +12,8 @@ export type Order = {
   shipping?: Shipping;
   contactId?: string;
   discountIds?: string;
-  orderStatus: 'pending' | 'completed';
+  checkoutStatus: 'pending' | 'completed';
+  dispatchedStatus: 'pending' | 'picked' | 'packed' | 'dispatched';
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;
@@ -19,21 +21,20 @@ export type Order = {
 
 export type Shipping = {
   address: Address;
-  contactDetails: {
-    firstName: string;
-    lastName: string;
-    company: string;
-  };
+  contactDetails: ContactDetails;
   shippingCost: number;
   ausPost?: AusPostShipping;
+  status: 'preparing' | 'inTransit' | 'delivered';
 };
 export type Billing = {
   address: Address;
-  contactDetails: {
-    firstName: string;
-    lastName: string;
-    company: string;
-  };
+  contactDetails: ContactDetails;
+};
+
+export type ContactDetails = {
+  firstName: string;
+  lastName: string;
+  company: string;
 };
 
 export type OrderItem = {
@@ -47,9 +48,6 @@ export type Payment = {
   _id: string;
 };
 export type AusPostShipping = {
-  _id: string;
-};
-export type Address = {
   _id: string;
 };
 

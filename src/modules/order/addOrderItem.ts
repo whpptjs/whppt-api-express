@@ -20,7 +20,10 @@ const addOrderItem: HttpModule<
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
-            assert(loadedOrder.orderStatus, 'Order already completed.');
+            assert(
+              loadedOrder.checkoutStatus === 'completed',
+              'Order already completed.'
+            );
 
             const events = [] as any[];
             assert(
