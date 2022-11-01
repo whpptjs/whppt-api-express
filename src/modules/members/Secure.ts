@@ -18,8 +18,10 @@ const parseMemberTokenFromCookie: ParseMemberTokenFromCookie = memberauthtoken =
 export const Secure: SecureModule = module => {
   const secureModule: HttpModule<any, any> = {
     authorise: (context: any, args: any, req: any) => {
+      if (!module) return Promise.reject({ status: 404, message: 'Module not found' });
       const member = parseMemberTokenFromCookie(req.headers.memberauthtoken);
       if (!member) return Promise.reject({ status: 404, message: 'Member not found' });
+      if (!module.authorise) return Promise.resolve();
       return module.authorise({ ...context, member }, args, req);
     },
     exec: (context: any, args: any, req: any) => {
