@@ -2,6 +2,7 @@ import { HttpModule } from '../HttpModule';
 
 import assert from 'assert';
 import { Order } from './Models/Order';
+import * as validations from './Validations';
 
 const changeOrderItemQuantity: HttpModule<
   { orderItemId: string; quantity: number; orderId?: string | undefined },
@@ -23,7 +24,7 @@ const changeOrderItemQuantity: HttpModule<
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
-            assert(loadedOrder.checkoutStatus !== 'paid', 'Order already completed.');
+            validations.canBeModified(loadedOrder);
 
             const order = {
               ...loadedOrder,
@@ -31,10 +32,12 @@ const changeOrderItemQuantity: HttpModule<
               items: (loadedOrder && loadedOrder.items) || [],
             } as Order;
 
-            const events = [] as any[];
-
             const productAlreadyOnOrder = order.items.find(i => i._id === orderItemId);
+            validations.itemExists(order, orderItemId);
+
             assert(productAlreadyOnOrder, 'Order Item not found on Order');
+
+            const events = [] as any[];
 
             if (productAlreadyOnOrder.quantity < quantityAsNumber) {
               events.push(

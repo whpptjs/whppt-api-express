@@ -1,14 +1,12 @@
 import assert from 'assert';
 import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
-import { Order } from './Models/Order';
+import { Order, OrderContact } from './Models/Order';
+import * as validations from './Validations';
 
 export type OrderRecordContactInformationArgs = {
   orderId: string;
-  contact: {
-    _id?: string;
-    email: string;
-  };
+  contact: OrderContact;
 };
 
 const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, void> = {
@@ -22,14 +20,10 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
           assert(loadedOrder, 'Order not found.');
-          if (
-            loadedOrder.contact?.email === contact.email &&
-            loadedOrder.contact?._id === contact._id
-          )
-            return;
 
-          assert(loadedOrder.checkoutStatus === 'pending', 'Order already completed.');
+          validations.canBeModified(loadedOrder);
 
+          if (detailsHaveNotChanged(loadedOrder, contact)) return;
           const event = createEvent('OrderContactInformationUpdated', {
             _id: loadedOrder._id,
             contact,
@@ -49,6 +43,10 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
         });
     });
   },
+};
+
+const detailsHaveNotChanged = (order: Order, contact: OrderContact) => {
+  return order.contact?.email === contact.email && order.contact?._id === contact._id;
 };
 
 export default recordContactInformation;

@@ -2,6 +2,7 @@ import assert from 'assert';
 import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Order } from './Models/Order';
+import * as validations from './Validations';
 
 export type ChangeOrderBillingArgs = {
   orderId: string;
@@ -42,7 +43,7 @@ const changeOrderBilling: HttpModule<ChangeOrderBillingArgs, void> = {
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
           assert(loadedOrder, 'Order not found.');
-          assert(loadedOrder.checkoutStatus === 'pending', 'Order already completed.');
+          validations.canBeModified(loadedOrder);
 
           const event = createEvent('OrderBillingDetailsUpdated', {
             orderId: loadedOrder._id,
