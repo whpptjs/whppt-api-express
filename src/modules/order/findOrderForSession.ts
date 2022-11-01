@@ -8,7 +8,7 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
     return $roles.validate(user, []);
   },
   exec({ $database }, { orderId }) {
-    const query = orderId ? { _id: orderId } : { checkoutStatus: { $ne: 'completed' } };
+    const query = orderId ? { _id: orderId } : { checkoutStatus: 'pending' };
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return db
