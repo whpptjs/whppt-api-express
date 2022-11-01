@@ -1,5 +1,5 @@
 import { ContextType } from 'src/context/Context';
-import { loadOrderWithProducts } from '../../../routers/Stripe/Helpers/loadOrderWithProducts';
+import { loadOrderWithProducts } from './loadOrderWithProducts';
 
 export type CalculateTotalArgs = (
   context: ContextType,

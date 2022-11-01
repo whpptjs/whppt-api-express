@@ -24,6 +24,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
             stripe: {
               ...loadedOrder.stripe,
               status: 'paid',
+              intentId: loadedOrder.stripe.intentId || paymentIntent,
             },
             checkoutStatus: 'paid',
           });

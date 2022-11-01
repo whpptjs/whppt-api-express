@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { WhpptRequest } from 'src';
 import { createPaymentIntent } from './createPaymentIntent';
 import { getSavedCards } from './getSavedCards';
-import { createPaymentIntentWithSavedCard } from './createPaymentIntentWithSavedCard';
+import { payWithSavedCard } from './payWithSavedCard';
 import { saveCardOnContact } from './saveCardOnContact';
 
 const router = Router();
@@ -45,11 +45,11 @@ export const StripeRouter: StripeRouterConstructor = function () {
       .catch((err: any) => res.status(err.status || 500).send(err.message || err));
   });
 
-  router.post('/stripe/createPaymentIntentWithSavedCard', (req, res) => {
+  router.post('/stripe/payWithSavedCard', (req, res) => {
     return (req as WhpptRequest).moduleContext.then(context => {
       const createEvent = context.CreateEvent(req.user);
       const ctx = { ...context, createEvent };
-      return createPaymentIntentWithSavedCard({ context: ctx, stripe }, req.body)
+      return payWithSavedCard({ context: ctx, stripe }, req.body)
         .then(paymentIntent => res.json({ paymentIntent }))
         .catch((err: any) => res.status(err.status || 500).send(err.message || err));
     });

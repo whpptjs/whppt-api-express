@@ -7,12 +7,12 @@ export type StripeToken = {
   secret: string;
 };
 
-export type CreatePaymentIntentWithSavedCardArgs = (
+export type PayWithSavedCardArgs = (
   contextArgs: { context: ContextType; stripe: any },
   args: { customerId: string; cardId: string; orderId: string }
 ) => Promise<string>;
 
-export const createPaymentIntentWithSavedCard: CreatePaymentIntentWithSavedCardArgs = (
+export const payWithSavedCard: PayWithSavedCardArgs = (
   { context, stripe },
   { customerId, cardId, orderId }
 ) => {

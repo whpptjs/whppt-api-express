@@ -7,8 +7,6 @@ import { getStripCustomerIdFromContact } from './Queries';
 
 export type StripeRouterConstructor = () => Router;
 
-//TODO Need to get this from reading the config
-
 export type StripeToken = {
   object: string;
   secret: string;
