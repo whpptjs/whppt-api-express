@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ContextType } from 'src/context/Context';
-import { calculateTotal } from 'src/modules/order/Queries/calculateTotal';
+import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
 
 export type StripeToken = {
   object: string;

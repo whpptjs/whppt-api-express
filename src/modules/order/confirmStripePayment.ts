@@ -15,7 +15,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
           validations.canBeModified(loadedOrder);
 
           assert(
-            loadedOrder.stripe.intentId === paymentIntent,
+            loadedOrder.stripe?.intentId === paymentIntent,
             'Payment Intent Id doesnt not match'
           );
 

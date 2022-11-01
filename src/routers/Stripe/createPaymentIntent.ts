@@ -1,8 +1,8 @@
 import assert from 'assert';
 import { Router } from 'express';
 import { ContextType } from 'src/context/Context';
-import { calculateTotal } from 'src/modules/order/Queries/calculateTotal';
-import { loadOrder } from 'src/modules/order/Queries/loadOrder';
+import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
+import { loadOrder } from '../../modules/order/Queries/loadOrder';
 import { getStripCustomerIdFromContact } from './Queries';
 
 export type StripeRouterConstructor = () => Router;
