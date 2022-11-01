@@ -2,6 +2,7 @@ import { HttpModule } from '../HttpModule';
 
 import assert from 'assert';
 import { Order } from './Models/Order';
+import * as validations from './Validations';
 
 const removeOrderItem: HttpModule<{ orderItemId: string; orderId: string }, void> = {
   authorise({ $roles }, { user }) {
@@ -17,13 +18,10 @@ const removeOrderItem: HttpModule<{ orderItemId: string; orderId: string }, void
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
+            validations.canBeModified(loadedOrder);
+            validations.itemExists(loadedOrder, orderItemId);
 
             const events = [] as any[];
-
-            assert(
-              loadedOrder.items.filter(i => i._id === orderItemId),
-              'Order Item was not found on order.'
-            );
 
             loadedOrder.items = loadedOrder.items.filter(i => {
               return i._id !== orderItemId;
