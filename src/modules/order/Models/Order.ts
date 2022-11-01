@@ -14,6 +14,7 @@ export type Order = {
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;
+  note?: string;
   stripe?: {
     intentId: string;
     status: 'pending' | 'paid';

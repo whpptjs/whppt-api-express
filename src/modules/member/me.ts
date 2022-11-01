@@ -1,7 +1,7 @@
 import { HttpModule } from '../HttpModule';
 import { LoggedInMemberInfo, Secure } from './Secure';
 
-const authMember: HttpModule<any, LoggedInMemberInfo> = {
+const authMember: HttpModule<void, LoggedInMemberInfo> = {
   authorise(context) {
     if (context.member) return Promise.resolve(true);
 
@@ -12,4 +12,4 @@ const authMember: HttpModule<any, LoggedInMemberInfo> = {
   },
 };
 
-export const me = Secure(authMember);
+export default Secure(authMember);

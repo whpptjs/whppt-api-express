@@ -18,6 +18,7 @@ import addOrderItem from './addOrderItem';
 import recordContactInformation from './recordContactInformation';
 import changeOrderShippingDetails from './changeOrderShippingDetails';
 import changeOrderBilling from './changeOrderBilling';
+import addNote from './addNote';
 
 export const order = {
   createOrderWithProduct,
@@ -39,4 +40,5 @@ export const order = {
   recordContactInformation,
   changeOrderShippingDetails,
   changeOrderBilling,
+  addNote,
 };

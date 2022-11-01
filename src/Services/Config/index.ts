@@ -63,10 +63,7 @@ export const ConfigService: ConfigServiceFactory = (logger, config) => {
   const loadModulesPromise = loadModules(config.modules || {}).then(modules => {
     _config.modules = modules;
   });
-  console.log(
-    '🚀 ~ file: index.ts ~ line 66 ~ loadModulesPromise ~ loadModulesPromise',
-    loadModulesPromise
-  );
+
   const middleware = ConfigMiddleware(logger, loadModulesPromise);
   return { runtime: _config, middleware };
 };
