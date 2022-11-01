@@ -1,10 +1,11 @@
 import { Address } from 'src/modules/contact/Models/Contact';
-import { Product } from '../../product/Models/Product';
+import { Product } from 'src/modules/product/Models/Product';
 
 export type Order = {
   _id: string;
   domainId?: string;
   contact?: OrderContact;
+  memberId?: string;
   items: OrderItem[];
   billing?: Billing;
   shipping?: Shipping;
@@ -14,6 +15,7 @@ export type Order = {
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;
+  note?: string;
   stripe?: {
     intentId: string;
     status: 'pending' | 'paid';
@@ -43,12 +45,21 @@ export type OrderItem = {
   _id: string;
   productId?: string;
   quantity: number;
+  purchasedPrice?: number;
+};
+
+export type OrderWithProducts = Order & {
+  items?: OrderItemWithProduct;
+};
+
+export type OrderItemWithProduct = OrderItem & {
   product?: Product;
 };
 
 export type Payment = {
   _id: string;
 };
+
 export type AusPostShipping = {
   _id: string;
 };
@@ -59,6 +70,7 @@ export type OrderContact = {
   firstName?: string;
   lastName?: string;
 };
+
 export type Member = {
   _id: string;
   loyaltyLevel: string;

@@ -1,18 +1,33 @@
+import { ContactDetails } from 'src/modules/order/Models/Order';
+
 export type Contact = {
   _id: string;
-  email: string;
+  email?: string;
   firstName?: string;
+  company?: string;
+  phone?: string;
   lastName?: string;
   phoneNumber?: number;
   address?: Address;
-  billingAddress?: Address;
-  shippingAddress?: Address;
+  shipping: ContactShipping;
+  billing: ContactBilling;
 };
 
 export type Address = {
-  addressLine1: string;
-  addressLine2: string;
-  postcode: string;
-  country: string;
+  number: string;
+  street: string;
+  suburb: string;
+  postCode: string;
+  city: string;
   state: string;
+  country: string;
+};
+
+export type ContactShipping = {
+  address: Address;
+  contactDetails: ContactDetails;
+};
+export type ContactBilling = {
+  address: Address;
+  contactDetails: ContactDetails;
 };
