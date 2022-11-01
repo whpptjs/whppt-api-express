@@ -11,10 +11,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
         .then(({ document, startTransaction }) => {
           return document.fetch('orders', orderId).then(loadedOrder => {
             assert(loadedOrder, 'Order not found');
-            assert(
-              loadedOrder.checkoutStatus !== 'completed',
-              'Order already completed.'
-            );
+            assert(loadedOrder.checkoutStatus !== 'paid', 'Order already completed.');
             assert(
               loadedOrder.stripe.intentId === paymentIntent,
               'Payment Intent Id doesnt not match'
@@ -26,7 +23,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                 ...loadedOrder.stripe,
                 status: 'paid',
               },
-              checkoutStatus: 'completed',
+              checkoutStatus: 'paid',
             });
 
             const events = [
@@ -34,11 +31,9 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                 _id: orderId,
                 paymentIntent,
               }),
-              createEvent('CheckoutCompleted', {
-                _id: orderId,
-                order: loadedOrder,
-              }),
             ];
+
+            //TODO add these events
             //   events: [
             //     giftCardUsed,
             //     productsConfirmedToOrder,
