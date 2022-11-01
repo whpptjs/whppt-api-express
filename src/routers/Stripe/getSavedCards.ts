@@ -10,7 +10,7 @@ export type StripeToken = {
 export type SaveCardOnContactArgs = (
   contextArgs: { context: ContextType; stripe: any },
   args: { contactId: string }
-) => Promise<void>;
+) => Promise<{ customerId: string; cards: any[] }>;
 
 export const getSavedCards: SaveCardOnContactArgs = (
   { context, stripe },

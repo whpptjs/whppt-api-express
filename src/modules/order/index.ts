@@ -7,7 +7,7 @@ import addDiscountCode from './addDiscountCode';
 import removeDiscountCode from './removeDiscountCode';
 import startCheckout from './startCheckout';
 import continueToPayment from './continueToPayment';
-import completeOrder from './completeOrder';
+import confirmStripePayment from './confirmStripePayment';
 import cancelOrder from './cancelOrder';
 import prepareOrder from './prepareOrder';
 import shipOrder from './shipOrder';
@@ -28,7 +28,7 @@ export const order = {
   removeDiscountCode,
   startCheckout,
   continueToPayment,
-  completeOrder,
+  confirmStripePayment,
   cancelOrder,
   prepareOrder,
   shipOrder,
