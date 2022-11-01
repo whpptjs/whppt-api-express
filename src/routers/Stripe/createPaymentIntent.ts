@@ -1,7 +1,9 @@
 import assert from 'assert';
 import { Router } from 'express';
 import { ContextType } from 'src/context/Context';
-import { loadOrder, calculateTotal, getStripCustomerIdFromContact } from './Helpers';
+import { calculateTotal } from 'src/modules/order/Queries/calculateTotal';
+import { loadOrder } from 'src/modules/order/Queries/loadOrder';
+import { getStripCustomerIdFromContact } from './Queries';
 
 export type StripeRouterConstructor = () => Router;
 
@@ -23,7 +25,7 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
 ) => {
   assert(orderId, 'Order Id not provided');
   return loadOrder(context, orderId).then(order => {
-    return calculateTotal(context, orderId).then(amount => {
+    return calculateTotal(context, orderId).then(({ total: amount }) => {
       return getStripCustomerIdFromContact(context, stripe, order.contact?._id).then(
         customer => {
           return stripe.paymentIntents
@@ -33,7 +35,7 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
               payment_method_types: [cardType],
               capture_method: 'automatic',
               customer,
-              setup_future_usage: saveCard ? 'off_session' : undefined,
+              setup_future_usage: saveCard && customer ? 'off_session' : undefined,
             })
             .then((intent: { client_secret: string; id: string }) => {
               return context.$database

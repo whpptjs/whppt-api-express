@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ContextType } from 'src/context/Context';
-import { getStripCustomerIdFromContact } from './Helpers';
+import { getStripCustomerIdFromContact } from './Queries';
 
 export type StripeToken = {
   object: string;

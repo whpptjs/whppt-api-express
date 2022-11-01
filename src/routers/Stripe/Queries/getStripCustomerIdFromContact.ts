@@ -21,6 +21,7 @@ export const getStripCustomerIdFromContact: GetStripCustomerIdFromContactArgs = 
       assert(contact, 'Contact Not Found.');
       if (contact.stripeCustomerId) return contact.stripeCustomerId;
       const name = `${contact.firstName} ${contact.lastName}`;
+
       return stripe.customers.create({ name }).then((customer: any) => {
         contact.stripeCustomerId = customer.id;
         return document.save('contacts', contact).then(() => {

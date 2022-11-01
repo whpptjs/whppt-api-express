@@ -1,10 +1,10 @@
 import { ContextType } from 'src/context/Context';
-import { loadOrderWithProducts } from './loadOrderWithProducts';
+import { loadOrderWithProducts } from '../../../routers/Stripe/Helpers/loadOrderWithProducts';
 
 export type CalculateTotalArgs = (
   context: ContextType,
   orderId: string
-) => Promise<number>;
+) => Promise<{ total: number }>;
 
 export const calculateTotal: CalculateTotalArgs = (ctx, orderId) => {
   return loadOrderWithProducts(ctx, orderId).then(order => {
@@ -20,6 +20,7 @@ export const calculateTotal: CalculateTotalArgs = (ctx, orderId) => {
     const postageCost = order?.shipping?.shippingCost || 0;
     const postageCostInCents = postageCost * 1000;
 
-    return itemsCostInCents + postageCostInCents;
+    const total = itemsCostInCents + postageCostInCents;
+    return { total };
   });
 };
