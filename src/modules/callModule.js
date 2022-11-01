@@ -3,6 +3,7 @@ module.exports = (context, mod, handlerName, params, req) => {
     const { $modules } = context;
 
     const module = $modules[mod];
+
     if (!module)
       return Promise.reject({
         status: 404,
