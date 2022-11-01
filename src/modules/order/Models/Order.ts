@@ -4,13 +4,10 @@ import { Product } from '../../product/Models/Product';
 export type Order = {
   _id: string;
   domainId?: string;
-  contactRecord?: {
-    email: string;
-  };
+  contact?: OrderContact;
   items: OrderItem[];
   billing?: Billing;
   shipping?: Shipping;
-  contactId?: string;
   discountIds?: string;
   checkoutStatus: 'pending' | 'paid';
   dispatchedStatus?: 'pending' | 'picked' | 'packed' | 'dispatched';
@@ -51,11 +48,11 @@ export type AusPostShipping = {
   _id: string;
 };
 
-export type Contact = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  address: Address;
+export type OrderContact = {
+  _id?: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
 };
 export type Member = {
   _id: string;

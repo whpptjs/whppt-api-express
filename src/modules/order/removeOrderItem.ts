@@ -17,7 +17,7 @@ const removeOrderItem: HttpModule<{ orderItemId: string; orderId: string }, void
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
-            assert(loadedOrder.checkoutStatus !== 'paid', 'Order already completed.');
+            assert(loadedOrder.checkoutStatus === 'pending', 'Order already completed.');
 
             const events = [] as any[];
 

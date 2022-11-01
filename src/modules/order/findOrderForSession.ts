@@ -56,7 +56,7 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
                 },
               },
               domainId: { $first: '$domainId' },
-              contactRecord: { $first: '$contactRecord' },
+              contact: { $first: '$contact' },
               billingAddress: { $first: '$billingAddress' },
               shippingAddress: { $first: '$shippingAddress' },
               contactId: { $first: '$contactId' },

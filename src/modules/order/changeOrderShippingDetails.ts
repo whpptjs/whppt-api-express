@@ -41,7 +41,7 @@ const changeOrderShippingDetails: HttpModule<ChangeOrderShippingArgs, Order> = {
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
           assert(loadedOrder, 'Order not found.');
-          assert(loadedOrder.checkoutStatus !== 'paid', 'Order already completed.');
+          assert(loadedOrder.checkoutStatus === 'pending', 'Order already completed.');
 
           const event = createEvent('OrderShippingDetailsUpdated', {
             _id: loadedOrder._id,

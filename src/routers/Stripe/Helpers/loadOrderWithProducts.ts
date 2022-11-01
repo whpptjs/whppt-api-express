@@ -59,7 +59,7 @@ export const loadOrderWithProducts: LoadOrderWithProductsArgs = (
               },
             },
             domainId: { $first: '$domainId' },
-            contactRecord: { $first: '$contactRecord' },
+            contact: { $first: '$contact' },
             billingAddress: { $first: '$billingAddress' },
             shippingAddress: { $first: '$shippingAddress' },
             contactId: { $first: '$contactId' },

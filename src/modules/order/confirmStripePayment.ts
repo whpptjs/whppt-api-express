@@ -11,7 +11,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
         .then(({ document, startTransaction }) => {
           return document.fetch('orders', orderId).then(loadedOrder => {
             assert(loadedOrder, 'Order not found');
-            assert(loadedOrder.checkoutStatus !== 'paid', 'Order already completed.');
+            assert(loadedOrder.checkoutStatus === 'pending', 'Order already completed.');
             assert(
               loadedOrder.stripe.intentId === paymentIntent,
               'Payment Intent Id doesnt not match'
