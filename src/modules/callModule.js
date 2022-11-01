@@ -29,7 +29,7 @@ module.exports = (context, mod, handlerName, params, req) => {
             status: (err && err.status) || 500,
             error: new ModuleExecError(
               err && err.status,
-              `Error executing Module: ${mod}/${handlerName}`,
+              `Error executing Module: ${mod}/${handlerName}, Error - ${err.message}`,
               err.message || err.error || err
             ),
           });
