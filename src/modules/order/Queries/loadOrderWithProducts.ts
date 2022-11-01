@@ -1,6 +1,6 @@
 import { ContextType } from 'src/context/Context';
 import { Order } from 'src/modules/order/Models/Order';
-import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
+import type { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 
 export type LoadOrderWithProductsArgs = (
   context: ContextType,
