@@ -1,50 +1,63 @@
 import { HttpModule } from '../HttpModule';
 import assert from 'assert';
-import omit from 'lodash';
+import omit from 'lodash/omit';
 import { Member } from './Model';
+import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 
-const login: HttpModule<any, any> = {
-  exec({ $mongo: { $db }, $security, $logger }, { username, password }) {
+const login: HttpModule<{ username: string; password: string }, any> = {
+  exec({ $database, $security, $logger }, { username, password }) {
     assert(username, 'A username or email address is required.');
     assert(password, 'A password is required.');
 
-    type MemberProjection = Pick<Member, 'username' | 'email' | 'password'>;
+    type MemberProjection = {
+      _id: string;
+      username: string;
+      email: string;
+      password: string;
+    };
 
-    return $db
-      .collection<Member>('members')
-      .findOne<MemberProjection>(
-        {
-          $or: [{ username }, { email: username }],
-        },
-        {
-          username: true,
-          email: true,
-          password: true,
-        } as any
-      )
-      .then((member: MemberProjection | null) => {
-        if (!member)
-          return Promise.reject(new Error('Something went wrong. Could not log you in.'));
+    return $database.then(database => {
+      const { db } = database as WhpptMongoDatabase;
+      return db
+        .collection<Member>('members')
+        .findOne<MemberProjection>(
+          {
+            $or: [{ username }, { email: username }],
+          },
+          {
+            username: true,
+            email: true,
+            password: true,
+          } as any
+        )
+        .then(member => {
+          if (!member)
+            return Promise.reject(
+              new Error('Something went wrong. Could not log you in.')
+            );
 
-        return $security.encrypt(password).then((encrypted: string) => {
-          $logger.dev('Checking password for member %s, %s', username, encrypted);
+          return $security.encrypt(password).then((encrypted: string) => {
+            $logger.dev('Checking password for member %s, %s', username, encrypted);
 
-          return $security
-            .compare(password, member.password)
-            .then((passwordMatches: boolean) => {
-              if (passwordMatches)
+            return $security
+              .compare(password, member.password)
+              .then((passwordMatches: boolean) => {
+                if (!passwordMatches)
+                  return Promise.reject(
+                    new Error('Something went wrong. Could not log in.')
+                  );
+
                 return $security
-                  .createToken('legacy', omit(member, ['password']))
+                  .createToken('legacy', omit(member, 'password'))
                   .then(token => {
                     return {
                       token,
                     };
                   });
-
-              return Promise.reject(new Error('Something went wrong. Could not log in.'));
-            });
+              });
+          });
         });
-      });
+    });
   },
 };
 

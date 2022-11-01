@@ -10,7 +10,6 @@ import type { LoggerService } from '../Logger';
 
 import { JwtProvider } from './Providers/Jwt';
 import { SecurityProvider } from './Providers/Provider';
-import { WhpptUser } from './User';
 import { HostingService } from '../Hosting';
 
 const saltRounds = 10;
@@ -25,7 +24,7 @@ export type SecurityService = {
   encrypt: (password: string) => Promise<string>;
   compare: (password: string, hash: string) => Promise<boolean>;
   authenticate: (req: Request, res: Response, next: NextFunction) => void;
-  createToken: (apiKey: string, user: WhpptUser) => Promise<string>;
+  createToken: <T>(apiKey: string, user: T) => Promise<string>;
   generateAccessToken: (
     apiKey: string,
     userId: string,

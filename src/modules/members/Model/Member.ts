@@ -1,16 +1,22 @@
+import { Address } from '../../../modules/order/Models/Order';
+
 export type Member = {
   _id: string;
   username: string;
   password: string;
-  totalPaid: string;
   membership: string;
+  totalPaid: string;
+  createdAt?: Date;
+};
+
+export type Contact = {
+  _id: string;
   firstName: string;
-  lastName: string;
-  createdAt: Date;
   email: string;
+  lastName: string;
   phone: string;
-  address: string;
-  shippingName: string;
-  shippingAddress: string;
-  accountEmail: string;
+  address: Address;
+  // shipping: Shipping;
+  // billing: Shipping;
+  createdAt?: Date;
 };
