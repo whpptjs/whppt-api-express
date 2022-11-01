@@ -15,4 +15,4 @@ const memberInfo: HttpModule<{ memberId: string }, Member> = {
   },
 };
 
-export const showMemberInfo = Secure(memberInfo);
+export default Secure(memberInfo);

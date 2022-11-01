@@ -25,9 +25,10 @@ const login: HttpModule<{ username: string; password: string }, any> = {
             $or: [{ username }, { email: username }],
           },
           {
-            username: true,
-            email: true,
-            password: true,
+            username: 1,
+            email: 1,
+            password: 1,
+            contactId: 1,
           } as any
         )
         .then(member => {
