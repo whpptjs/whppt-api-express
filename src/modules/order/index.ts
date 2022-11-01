@@ -7,7 +7,7 @@ import addDiscountCode from './addDiscountCode';
 import removeDiscountCode from './removeDiscountCode';
 import startCheckout from './startCheckout';
 import continueToPayment from './continueToPayment';
-import completeOrder from './completeOrder';
+import confirmStripePayment from './confirmStripePayment';
 import cancelOrder from './cancelOrder';
 import prepareOrder from './prepareOrder';
 import shipOrder from './shipOrder';
@@ -15,6 +15,9 @@ import findOrderForSession from './findOrderForSession';
 import loadCart from './loadCart';
 import removeOrderItem from './removeOrderItem';
 import addOrderItem from './addOrderItem';
+import recordContactInformation from './recordContactInformation';
+import changeOrderShippingDetails from './changeOrderShippingDetails';
+import changeOrderBilling from './changeOrderBilling';
 
 export const order = {
   createOrderWithProduct,
@@ -25,7 +28,7 @@ export const order = {
   removeDiscountCode,
   startCheckout,
   continueToPayment,
-  completeOrder,
+  confirmStripePayment,
   cancelOrder,
   prepareOrder,
   shipOrder,
@@ -33,4 +36,7 @@ export const order = {
   loadCart,
   removeOrderItem,
   addOrderItem,
+  recordContactInformation,
+  changeOrderShippingDetails,
+  changeOrderBilling,
 };

@@ -59,9 +59,14 @@ export const ConfigService: ConfigServiceFactory = (logger, config) => {
     onPublish: (!config.disablePublishing && config.onPublish) || voidCallback,
     onUnPublish: (!config.disablePublishing && config.onUnPublish) || voidCallback,
   };
+
   const loadModulesPromise = loadModules(config.modules || {}).then(modules => {
     _config.modules = modules;
   });
+  console.log(
+    '🚀 ~ file: index.ts ~ line 66 ~ loadModulesPromise ~ loadModulesPromise',
+    loadModulesPromise
+  );
   const middleware = ConfigMiddleware(logger, loadModulesPromise);
   return { runtime: _config, middleware };
 };

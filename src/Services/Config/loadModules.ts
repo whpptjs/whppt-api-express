@@ -1,9 +1,11 @@
 const loadGlobModules = require('require-glob');
 import { WhpptModule } from '../../modules/HttpModule';
+import * as order from '../../modules/order';
 
 const modulePromise = loadGlobModules(
   [
     '../../modules/**/*.js',
+    '!../../modules/order/**/*.js',
     '!../../modules/callModule.js',
     '!../../modules/callModule.test.js',
   ],
@@ -15,7 +17,10 @@ export type LoadModules = (configModules: { [key: string]: WhpptModule }) => Pro
 }>;
 
 export const loadModules: LoadModules = (configModules: { [key: string]: WhpptModule }) =>
-  modulePromise.then((modules: { [key: string]: WhpptModule }) => ({
-    ...modules,
-    ...configModules,
-  }));
+  modulePromise.then((modules: { [key: string]: WhpptModule }) => {
+    return {
+      ...modules,
+      ...order,
+      ...configModules,
+    };
+  });

@@ -8,7 +8,7 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
     return $roles.validate(user, []);
   },
   exec({ $database }, { orderId }) {
-    const query = orderId ? { _id: orderId } : { orderStatus: { $ne: 'completed' } };
+    const query = orderId ? { _id: orderId } : { checkoutStatus: 'pending' };
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return db
@@ -55,6 +55,15 @@ const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
                   },
                 },
               },
+              domainId: { $first: '$domainId' },
+              contact: { $first: '$contact' },
+              billingAddress: { $first: '$billingAddress' },
+              shippingAddress: { $first: '$shippingAddress' },
+              contactId: { $first: '$contactId' },
+              discountIds: { $first: '$discountIds' },
+              shipping: { $first: '$shipping' },
+              checkoutStatus: { $first: '$checkoutStatus' },
+              payment: { $first: '$payment' },
             },
           },
         ])

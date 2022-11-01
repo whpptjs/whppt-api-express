@@ -2,6 +2,7 @@ import { HttpModule } from '../HttpModule';
 
 import assert from 'assert';
 import { Order } from './Models/Order';
+import * as validations from './Validations';
 
 const addOrderItem: HttpModule<
   { productId: string; orderId: string; quantity: number },
@@ -20,12 +21,13 @@ const addOrderItem: HttpModule<
           .query<Order>('orders', { filter: { _id: orderId } })
           .then(loadedOrder => {
             assert(loadedOrder, 'Order not found.');
-
-            const events = [] as any[];
+            validations.canBeModified(loadedOrder);
             assert(
               !loadedOrder.items.find(i => i.productId === productId),
               'Product already on order.'
             );
+
+            const events = [] as any[];
 
             loadedOrder.items.push({ productId, quantity, _id: $id.newId() });
 
