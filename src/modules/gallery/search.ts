@@ -38,11 +38,21 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
 
     return $db
       .collection('gallery')
-      .find<GalleryItem>(query, { projection: { fileInfo: 1 } })
-      .skip(sizeNum * (pageNum - 1))
-      .limit(sizeNum)
+      .aggregate([
+        { $match: query },
+        { $sort: { uploadedOn: -1 } },
+        {
+          $facet: {
+            total: [{ $count: 'count' }],
+            items: [{ $skip: sizeNum * (pageNum - 1) }, { $limit: sizeNum }],
+          },
+        },
+      ])
       .toArray()
-      .then(items => ({ items }));
+      .then(({ 0: { total, items } }) => ({
+        total: total[0] ? total[0].count : 0,
+        items,
+      }));
   },
 };
 
