@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 const listPreviousOrders = {
-  exec({ $mongo: { $dbPub } }, { memberId }) {
+  exec({ $mongo: { $dbPub } }: any, { memberId }: any) {
     const orderStatuses = ['paid', 'completed'];
     assert(memberId, 'A memberId is required');
 

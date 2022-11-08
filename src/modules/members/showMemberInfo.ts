@@ -1,4 +1,4 @@
-import { HttpModule } from '@whppt/api-express';
+import { HttpModule } from '../HttpModule';
 import { Secure } from './Secure';
 
 const memberInfo: HttpModule<any, any> = {
