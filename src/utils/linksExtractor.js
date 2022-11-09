@@ -27,7 +27,7 @@ module.exports = function linksExtractor(pageType, page) {
           : []
       );
       const _componentLinks = map(componentLinks, cl => ({
-        _id: $id.newId(),
+        _id: $id(),
         parentId: page._id,
         slug: page.slug,
         href: cl,
