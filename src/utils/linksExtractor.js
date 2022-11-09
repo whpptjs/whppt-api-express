@@ -4,7 +4,7 @@ const $id = require('uniqid');
 module.exports = function linksExtractor(pageType, page) {
   let links = pageType.extractLinks
     ? map(pageType.extractLinks(page), link => ({
-        _id: $id.newId(),
+        _id: $id(),
         parentId: page._id,
         slug: page.slug,
         href: link,
