@@ -16,8 +16,8 @@ const authMember: HttpModule<void, Member> = {
 
       const { db } = database as WhpptMongoDatabase;
       return db
-        .collection<MemberContact>('members')
-        .aggregate([
+        .collection('members')
+        .aggregate<MemberContact>([
           {
             $match: {
               _id: member.sub._id,
@@ -45,7 +45,7 @@ const authMember: HttpModule<void, Member> = {
         .toArray()
         .then(members => {
           assert(members.length, 'Member not found.');
-          return members[0] as MemberContact;
+          return members[0];
         });
     });
   },
