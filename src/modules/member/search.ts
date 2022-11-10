@@ -10,22 +10,19 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
   exec({ $database }, { searchBy }) {
     if (!searchBy) return Promise.resolve([] as Member[]);
     const query = [
-      { firstName: { $regex: searchBy } },
-      { lastName: { $regex: searchBy } },
-      { email: { $regex: searchBy } },
+      { firstName: { $regex: searchBy, $options: 'i' } },
+      { lastName: { $regex: searchBy, $options: 'i' } },
+      { email: { $regex: searchBy, $options: 'i' } },
     ];
 
     //TODO make this a mongo search query
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return db
-        .collection<Member>('contacts')
-        .aggregate([
+        .collection('contacts')
+        .aggregate<Member>([
           {
             $match: {
-              memberId: {
-                $exists: true,
-              },
               $or: query,
             },
           },
@@ -62,10 +59,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
             },
           },
         ])
-        .toArray()
-        .then(members => {
-          return members as Member[];
-        });
+        .toArray();
     });
   },
 };
