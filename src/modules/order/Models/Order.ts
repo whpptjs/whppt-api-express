@@ -54,6 +54,9 @@ export type OrderWithProducts = Order & {
 
 export type OrderItemWithProduct = OrderItem & {
   product?: Product;
+  _id: string;
+  productId?: string;
+  quantity: number;
 };
 
 export type Payment = {
