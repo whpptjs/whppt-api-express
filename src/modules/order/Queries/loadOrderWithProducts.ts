@@ -26,7 +26,7 @@ export const loadOrderWithProducts: LoadOrderWithProductsArgs = (
       return queryDocuments<Product>('products', {
         filter: { _id: { $in: productIds } },
       }).then(products => {
-        const _order = {
+        const _order: OrderWithProducts = {
           ...order,
           items: order.items.map(i => {
             const product = find(products, p => p._id === i.productId);
@@ -37,7 +37,7 @@ export const loadOrderWithProducts: LoadOrderWithProductsArgs = (
           }),
         };
 
-        return _order as unknown as OrderWithProducts;
+        return _order;
       });
     });
   });

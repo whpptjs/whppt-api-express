@@ -49,7 +49,7 @@ export type OrderItem = {
 };
 
 export type OrderWithProducts = Order & {
-  items?: OrderItemWithProduct;
+  items?: OrderItemWithProduct[];
 };
 
 export type OrderItemWithProduct = OrderItem & {
