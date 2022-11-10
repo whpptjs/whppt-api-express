@@ -1,51 +1,66 @@
 import assert from 'assert';
-import { assign } from 'lodash';
+import { assign, omit } from 'lodash';
 import { HttpModule } from '../HttpModule';
-import { Order } from './Models/Order';
+import { Order, OrderItemWithProduct } from './Models/Order';
+import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 import * as validations from './Validations';
 
 const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string }, void> =
   {
-    exec({ $database, createEvent }, { orderId, paymentIntent }) {
+    exec(context, { orderId, paymentIntent }) {
       assert(orderId, 'Order Id not found');
       assert(paymentIntent, 'Payment Intent not provided');
-      return $database.then(({ document, startTransaction }) => {
+      return context.$database.then(({ document, startTransaction }) => {
         return document.fetch<Order>('orders', orderId).then(loadedOrder => {
-          assert(loadedOrder, 'Order not found');
-          validations.canBeModified(loadedOrder);
+          return loadOrderWithProducts(context, { _id: orderId }).then(
+            orderWithProducts => {
+              assert(loadedOrder, 'Order not found');
+              validations.canBeModified(loadedOrder);
 
-          assert(
-            loadedOrder.stripe?.intentId === paymentIntent,
-            'Payment Intent Id doesnt not match'
+              assert(
+                loadedOrder.stripe?.intentId === paymentIntent,
+                'Payment Intent Id doesnt not match'
+              );
+
+              assign(loadedOrder, {
+                ...loadedOrder,
+                stripe: {
+                  ...loadedOrder.stripe,
+                  status: 'paid',
+                  intentId: loadedOrder.stripe.intentId || paymentIntent,
+                },
+                checkoutStatus: 'paid',
+                items: orderWithProducts.items.map((item: OrderItemWithProduct) => {
+                  return omit(
+                    { ...item, purchasedPrice: item.product?.price },
+                    'product'
+                  );
+                }),
+              });
+              const events = [
+                context.createEvent('OrderPaymentConfirmedThroughStripe', {
+                  _id: orderId,
+                  paymentIntent,
+                }),
+                context.createEvent('ProductsConfirmedToOrder', {
+                  _id: orderId,
+                  items: loadedOrder.items,
+                }),
+              ];
+
+              //TODO add these events
+              //   events: [
+              //     giftCardUsed,
+              //     confirmationEmailQueued,
+              // ]
+
+              return startTransaction(session => {
+                return document.saveWithEvents('orders', loadedOrder, events, {
+                  session,
+                });
+              });
+            }
           );
-
-          assign(loadedOrder, {
-            ...loadedOrder,
-            stripe: {
-              ...loadedOrder.stripe,
-              status: 'paid',
-              intentId: loadedOrder.stripe.intentId || paymentIntent,
-            },
-            checkoutStatus: 'paid',
-          });
-
-          const events = [
-            createEvent('OrderPaymentConfirmedThroughStripe', {
-              _id: orderId,
-              paymentIntent,
-            }),
-          ];
-
-          //TODO add these events
-          //   events: [
-          //     giftCardUsed,
-          //     productsConfirmedToOrder,
-          //     confirmationEmailQueued,
-          // ]
-
-          return startTransaction(session => {
-            return document.saveWithEvents('orders', loadedOrder, events, { session });
-          });
         });
       });
     },

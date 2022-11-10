@@ -1,77 +1,23 @@
-import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 import { HttpModule } from '../HttpModule';
 
 import { Order } from './Models/Order';
+import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 
-const findOrderForSession: HttpModule<{ orderId?: string }, Order | {}> = {
+const findOrderForSession: HttpModule<
+  { orderId?: string; memberId?: string },
+  Order | {}
+> = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, []);
   },
-  exec({ $database }, { orderId }) {
-    const query = orderId ? { _id: orderId } : { checkoutStatus: 'pending' };
-    return $database.then(database => {
-      const { db } = database as WhpptMongoDatabase;
-      return db
-        .collection<Order>('orders')
-        .aggregate([
-          {
-            $match: query,
-          },
-          {
-            $limit: 1,
-          },
-          {
-            $unwind: {
-              path: '$items',
-            },
-          },
-          {
-            $lookup: {
-              from: 'products',
-              localField: 'items.productId',
-              foreignField: '_id',
-              as: 'items.product',
-            },
-          },
-          {
-            $unwind: {
-              path: '$items.product',
-            },
-          },
-          {
-            $group: {
-              _id: '$_id',
-              items: {
-                $push: {
-                  id: '$items._id',
-                  quantity: '$items.quantity',
-                  product: {
-                    _id: '$items.product._id',
-                    name: '$items.product.name',
-                    image: '$items.product.image',
-                    vintage: '$items.product.vintage',
-                    stockKeepingUnit: '$items.product.stockKeepingUnit',
-                    price: '$items.product.price',
-                  },
-                },
-              },
-              domainId: { $first: '$domainId' },
-              contact: { $first: '$contact' },
-              billingAddress: { $first: '$billingAddress' },
-              shippingAddress: { $first: '$shippingAddress' },
-              contactId: { $first: '$contactId' },
-              discountIds: { $first: '$discountIds' },
-              shipping: { $first: '$shipping' },
-              checkoutStatus: { $first: '$checkoutStatus' },
-              payment: { $first: '$payment' },
-            },
-          },
-        ])
-        .toArray()
-        .then(orders => {
-          return orders[0] || {};
-        });
-    });
+  exec(context, { orderId, memberId }) {
+    const query = orderId
+      ? { _id: orderId }
+      : memberId
+      ? { checkoutStatus: 'pending', memberId }
+      : undefined;
+    if (!query) return Promise.reject({ status: 404, message: 'Order Not Found.' });
+    return loadOrderWithProducts(context, query);
   },
 };
 
