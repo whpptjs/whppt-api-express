@@ -3,6 +3,7 @@ import { WhpptModule } from '../../modules/HttpModule';
 import * as contact from '../../modules/contact';
 import * as order from '../../modules/order';
 import * as member from '../../modules/member';
+import * as staff from '../../modules/staff';
 
 const modulePromise = loadGlobModules(
   [
@@ -10,6 +11,7 @@ const modulePromise = loadGlobModules(
     '!../../modules/contact/**/*.js',
     '!../../modules/order/**/*.js',
     '!../../modules/member/**/*.js',
+    '!../../modules/staff/**/*.js',
     '!../../modules/callModule.js',
     '!../../modules/callModule.test.js',
   ],
@@ -27,6 +29,7 @@ export const loadModules: LoadModules = (configModules: { [key: string]: WhpptMo
       ...contact,
       ...order,
       ...member,
+      ...staff,
       ...configModules,
     };
   });
