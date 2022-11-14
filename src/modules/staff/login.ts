@@ -30,10 +30,6 @@ const login: HttpModule<{ username: string; password: string }, any> = {
             return $security
               .compare(password, staffMember.password)
               .then((passwordMatches: boolean) => {
-                console.log(
-                  '🚀 ~ file: login.ts ~ line 34 ~ .then ~ staffMember',
-                  staffMember
-                );
                 if (!passwordMatches)
                   return Promise.reject(
                     new Error("The password that you've entered is incorrect.")
