@@ -2,6 +2,7 @@ import assert from 'assert';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Member, Order } from './Models/Order';
+import * as validations from './Validations';
 
 const addMember: HttpModule<{ memberId: string; orderId: string }, void> = {
   exec({ $database, createEvent }, { memberId, orderId }) {
@@ -11,8 +12,8 @@ const addMember: HttpModule<{ memberId: string; orderId: string }, void> = {
     return $database.then(database => {
       const { document, startTransaction } = database;
       return document.fetch<Order>('orders', orderId).then(order => {
+        validations.canBeModified(order);
         if (order.memberId === memberId) return;
-        console.log('🚀 ~ file: addMember.ts ~ line 15 ~ exec ~ memberId', memberId);
         assert(!order.memberId, 'A member has already been assigned to the order.');
         return document.fetch<Member>('members', memberId || '').then(member => {
           return document

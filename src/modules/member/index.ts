@@ -6,6 +6,8 @@ import showMemberInfo from './showMemberInfo';
 import checkUsernameIsAvailable from './checkUsernameIsAvailable';
 import changePassword from './changePassword';
 import search from './search';
+import getNotes from './getNotes';
+import saveNote from './saveNote';
 
 export const member = {
   createFromContact,
@@ -16,4 +18,6 @@ export const member = {
   checkUsernameIsAvailable,
   changePassword,
   search,
+  saveNote,
+  getNotes,
 };
