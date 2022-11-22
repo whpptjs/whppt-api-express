@@ -3,22 +3,19 @@ import { HttpModule } from '../HttpModule';
 import { Order } from './Models/Order';
 import * as validations from './Validations';
 
-const addMember: HttpModule<{ memberId: string; orderId: string }, void> = {
-  exec({ $database, createEvent }, { memberId, orderId }) {
-    assert(memberId, 'A member id is required');
+const removeMember: HttpModule<{ orderId: string }, void> = {
+  exec({ $database, createEvent }, { orderId }) {
     assert(orderId, 'An Order id is required');
 
     return $database.then(database => {
       const { document, startTransaction } = database;
       return document.fetch<Order>('orders', orderId).then(order => {
+        if (!order.memberId) return;
         validations.canBeModified(order);
-        if (order.memberId === memberId) return;
 
-        assert(!order.memberId, 'A member has already been assigned to the order.');
+        const events = [createEvent('RemovedMemberFromOrder', { orderId })];
 
-        const events = [createEvent('AddedMemberToOrder', { memberId, orderId })];
-
-        order.memberId = memberId;
+        order.memberId = undefined;
 
         return startTransaction(session => {
           return document.saveWithEvents('orders', order, events, { session });
@@ -28,4 +25,4 @@ const addMember: HttpModule<{ memberId: string; orderId: string }, void> = {
   },
 };
 
-export default addMember;
+export default removeMember;

@@ -9,18 +9,11 @@ const login: HttpModule<{ username: string; password: string }, any> = {
     assert(username, 'A username or email address is required.');
     assert(password, 'A password is required.');
 
-    type MemberProjection = {
-      _id: string;
-      username: string;
-      email: string;
-      password: string;
-    };
-
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return db
-        .collection<Member>('members')
-        .findOne<MemberProjection>(
+        .collection('members')
+        .findOne<Member>(
           {
             $or: [{ username }, { email: username }],
           },
@@ -41,7 +34,8 @@ const login: HttpModule<{ username: string; password: string }, any> = {
 
           return $security.encrypt(password).then((encrypted: string) => {
             $logger.dev('Checking password for member %s, %s', username, encrypted);
-
+            if (!member.password)
+              return Promise.reject(new Error('This account is not verified'));
             return $security
               .compare(password, member.password)
               .then((passwordMatches: boolean) => {

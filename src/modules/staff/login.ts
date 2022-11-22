@@ -17,7 +17,7 @@ const login: HttpModule<{ username: string; password: string }, any> = {
           $or: [{ username }, { email: username }],
         })
         .then(staffMember => {
-          if (!staffMember)
+          if (!staffMember || !staffMember.password)
             return Promise.reject(
               new Error(
                 "The username / email address you entered isn't connected to an account."
@@ -28,8 +28,8 @@ const login: HttpModule<{ username: string; password: string }, any> = {
             $logger.dev('Checking password for member %s, %s', username, encrypted);
 
             return $security
-              .compare(password, staffMember.password)
-              .then((passwordMatches: boolean) => {
+              .compare(password, staffMember.password || '')
+              .then(passwordMatches => {
                 if (!passwordMatches)
                   return Promise.reject(
                     new Error("The password that you've entered is incorrect.")

@@ -2,14 +2,14 @@ import assert from 'assert';
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { HttpModule } from '../HttpModule';
 import { Member, MemberContact } from './Model';
-import { Secure } from './Secure';
 
 const memberInfo: HttpModule<{ memberId: string }, Member> = {
-  authorise(context) {
-    if (context.member) return Promise.resolve(true);
+  //TODO Work out what auth is needed
+  // authorise(context) {
+  //   if (context.member) return Promise.resolve(true);
 
-    return Promise.reject({ status: 401, message: 'Not Authrozided' });
-  },
+  //   return Promise.reject({ status: 401, message: 'Not Authrozided' });
+  // },
   exec({ $database }, { memberId }) {
     return $database.then(database => {
       assert(memberId, 'Member Id required');
@@ -39,6 +39,7 @@ const memberInfo: HttpModule<{ memberId: string }, Member> = {
           {
             $project: {
               password: 0,
+              notes: 0,
             },
           },
         ])
@@ -51,4 +52,4 @@ const memberInfo: HttpModule<{ memberId: string }, Member> = {
   },
 };
 
-export default Secure(memberInfo);
+export default memberInfo;
