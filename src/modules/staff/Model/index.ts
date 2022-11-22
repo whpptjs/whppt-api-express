@@ -1,3 +1,5 @@
+import { Contact } from 'src/modules/contact/Models/Contact';
+
 export type StaffLoginArgs = {
   username: string;
   password: string;
@@ -10,8 +12,10 @@ export const emptyStaffLoginArgs = {
 
 export type Staff = {
   _id: string;
+  contactId: string;
   username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  password?: string;
+  createdAt?: Date;
 };
+
+export type StaffContact = Staff & { contact: Contact };
