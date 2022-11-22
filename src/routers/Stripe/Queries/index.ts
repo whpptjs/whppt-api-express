@@ -1,1 +1,1 @@
-export * from './getStripCustomerIdFromContact';
+export * from './getStripCustomerIdFromMember';
