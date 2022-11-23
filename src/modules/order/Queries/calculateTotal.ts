@@ -5,7 +5,7 @@ import { loadOrderWithProducts } from './loadOrderWithProducts';
 export type CalculateTotalArgs = (
   context: ContextType,
   orderId: string
-) => Promise<{ total: number }>;
+) => Promise<number>;
 
 export const calculateTotal: CalculateTotalArgs = (ctx, orderId) => {
   return loadOrderWithProducts(ctx, { _id: orderId }).then(order => {
@@ -20,6 +20,6 @@ export const calculateTotal: CalculateTotalArgs = (ctx, orderId) => {
     const postageCostInCents = order?.shipping?.shippingCost || 0;
 
     const total = itemsCostInCents + postageCostInCents;
-    return { total };
+    return total;
   });
 };

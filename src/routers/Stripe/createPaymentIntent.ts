@@ -23,10 +23,9 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
 ) => {
   assert(orderId, 'Order Id not provided');
   return loadOrder(context, orderId).then(order => {
-    return calculateTotal(context, orderId).then(({ total: amount }) => {
+    return calculateTotal(context, orderId).then(amount => {
       return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
         customer => {
-          console.log('🚀customer', customer);
           return stripe.paymentIntents
             .create({
               amount,

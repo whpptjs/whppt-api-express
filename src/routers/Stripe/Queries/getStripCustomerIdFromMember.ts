@@ -22,8 +22,6 @@ export const getStripCustomerIdFromMember: GetStripCustomerIdFromMemberArgs = (
     const { db, document } = database as WhpptMongoDatabase;
 
     return getMemberContact(db, memberId).then(({ contact }) => {
-      console.log('🚀 contact', contact);
-
       assert(contact, 'Member Contact Not Found.');
       if (contact.stripeCustomerId) return contact.stripeCustomerId;
       const name = `${contact.firstName} ${contact.lastName}`;
@@ -65,6 +63,7 @@ const getMemberContact = (db: Db, memberId: string) => {
         $project: {
           _id: 1,
           contact: 1,
+          stripeCustomerId: 1,
         },
       },
     ])
