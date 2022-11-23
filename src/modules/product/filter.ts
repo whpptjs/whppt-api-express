@@ -6,6 +6,7 @@ export type ProductListFilters = {
   style: string;
   vintage: string;
   sortBy: string;
+  search?: string;
 };
 
 const filter: HttpModule<
@@ -22,8 +23,8 @@ const filter: HttpModule<
       query = {
         ...query,
         $and: query.$and
-          ? (query.$and = [...query.$and, { vintage: filters.vintage }])
-          : (query.$and = [{ vintage: filters.vintage }]),
+          ? (query.$and = [...query.$and, { 'customFields.vintage': filters.vintage }])
+          : (query.$and = [{ 'customFields.vintage': filters.vintage }]),
       };
     }
     if (filters.collection && filters.collection !== 'all') {
@@ -40,6 +41,17 @@ const filter: HttpModule<
         $and: query.$and
           ? (query.$and = [...query.$and, { style: filters.style }])
           : (query.$and = [{ style: filters.style }]),
+      };
+    }
+    if (filters.search) {
+      query = {
+        ...query,
+        $and: query.$and
+          ? (query.$and = [
+              ...query.$and,
+              { name: { $regex: filters.search, $options: 'i' } },
+            ])
+          : (query.$and = [{ name: { $regex: filters.search, $options: 'i' } }]),
       };
     }
 

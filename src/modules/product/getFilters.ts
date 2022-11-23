@@ -10,7 +10,7 @@ const getFilters: HttpModule<{
       return Promise.all([
         queryDistinct('products', { distinct: 'family' }),
         queryDistinct('products', { distinct: 'style' }),
-        queryDistinct('products', { distinct: 'vintage' }),
+        queryDistinct('products', { distinct: 'customFields.vintage' }),
       ]).then(([collections, styles, vintages]) => {
         return { collections, styles, vintages };
       });
