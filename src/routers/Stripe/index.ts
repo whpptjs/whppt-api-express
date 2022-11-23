@@ -36,9 +36,9 @@ export const StripeRouter: StripeRouterConstructor = function () {
   });
 
   router.get('/stripe/getSavedCards', (req, res) => {
-    const { contactId } = req.query as { contactId: string };
+    const { memberId } = req.query as { memberId: string };
     return (req as WhpptRequest).moduleContext
-      .then(context => getSavedCards({ context, stripe }, { contactId }))
+      .then(context => getSavedCards({ context, stripe }, { memberId }))
       .then(data => {
         res.json(data);
       })

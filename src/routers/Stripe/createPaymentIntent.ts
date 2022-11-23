@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { ContextType } from 'src/context/Context';
 import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
 import { loadOrder } from '../../modules/order/Queries/loadOrder';
-import { getStripCustomerIdFromContact } from './Queries';
+import { getStripCustomerIdFromMember } from './Queries';
 
 export type StripeRouterConstructor = () => Router;
 
@@ -23,8 +23,8 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
 ) => {
   assert(orderId, 'Order Id not provided');
   return loadOrder(context, orderId).then(order => {
-    return calculateTotal(context, orderId).then(({ total: amount }) => {
-      return getStripCustomerIdFromContact(context, stripe, order.contact?._id).then(
+    return calculateTotal(context, orderId).then(amount => {
+      return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
         customer => {
           return stripe.paymentIntents
             .create({
