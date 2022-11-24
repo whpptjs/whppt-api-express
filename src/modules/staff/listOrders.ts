@@ -8,10 +8,15 @@ export type ListOrdersRetured = {
 };
 
 const listOrders: HttpModule<
-  { searchBy: string; limit: string; currentPage: string; status: string },
+  {
+    searchBy: string;
+    limit: string;
+    currentPage: string;
+    status: string;
+  },
   ListOrdersRetured
 > = {
-  exec({ $database }, { searchBy, limit, currentPage, status }) {
+  exec({ $database }, { searchBy, limit = '10', currentPage = '0', status }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
 
