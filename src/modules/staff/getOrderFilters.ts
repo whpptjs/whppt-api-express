@@ -1,11 +1,11 @@
 import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 
-export type ListOrdersRetured = {
+export type OrderFiltersRetured = {
   statuses: { _id: string; amount: number }[];
 };
 
-const listOrders: HttpModule<{}, ListOrdersRetured> = {
+const listOrders: HttpModule<{}, OrderFiltersRetured> = {
   exec({ $database }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
@@ -33,7 +33,7 @@ const listOrders: HttpModule<{}, ListOrdersRetured> = {
         .then(statuses => {
           return {
             statuses,
-          } as ListOrdersRetured;
+          } as OrderFiltersRetured;
         });
     });
   },
