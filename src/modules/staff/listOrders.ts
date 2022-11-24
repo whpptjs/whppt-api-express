@@ -5,7 +5,10 @@ export type ListOrdersRetured = {
   statuses: { _id: string; amount: number }[];
 };
 
-const listOrders: HttpModule<{}, ListOrdersRetured> = {
+const listOrders: HttpModule<
+  { searchBy: string; size: string; page: string; status: string },
+  ListOrdersRetured
+> = {
   exec({ $database }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
@@ -13,13 +16,6 @@ const listOrders: HttpModule<{}, ListOrdersRetured> = {
       return db
         .collection('orders')
         .aggregate([
-          {
-            $match: {
-              checkoutStatus: {
-                $ne: 'pending',
-              },
-            },
-          },
           {
             $group: {
               _id: '$checkoutStatus',
