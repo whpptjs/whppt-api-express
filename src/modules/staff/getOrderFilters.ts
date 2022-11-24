@@ -14,13 +14,6 @@ const listOrders: HttpModule<{}, OrderFiltersRetured> = {
         .collection('orders')
         .aggregate([
           {
-            $match: {
-              checkoutStatus: {
-                $ne: 'pending',
-              },
-            },
-          },
-          {
             $group: {
               _id: '$checkoutStatus',
               amount: {
