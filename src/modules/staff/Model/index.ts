@@ -19,3 +19,4 @@ export type Staff = {
 };
 
 export type StaffContact = Staff & { contact: Contact };
+export type StaffDepartment = 'Cellar Door' | 'Office' | 'Restaurant';
