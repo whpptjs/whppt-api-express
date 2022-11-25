@@ -18,7 +18,6 @@ const list: HttpModule<{ productGroup: string }, UnleashedProduct[]> = {
           ProductDescription: 1,
           ProductGroup: 1,
           UnitOfMeasure: 1,
-          InventoryDetails: 1,
         },
       });
     });
