@@ -1,32 +1,50 @@
 import assert from 'assert';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
-import { Member } from '../member/Model';
+import { Staff, StaffDepartment } from './Model';
 
-const createFromContact: HttpModule<{ contactId: string }, Member> = {
-  exec({ $database, $id, createEvent }, { contactId }) {
+const createFromContact: HttpModule<
+  { contactId: string; username: string; password: string; department: StaffDepartment },
+  Staff
+> = {
+  exec(
+    { $database, $id, createEvent, $security },
+    { contactId, username, password, department }
+  ) {
     assert(contactId, 'A contact Id is required');
 
     return $database.then(database => {
-      const { document, startTransaction } = database;
+      return $security.encrypt(password).then(hashedPassword => {
+        const { document, startTransaction } = database;
 
-      return Promise.all([
-        document.query<Contact>('contacts', { filter: { _id: contactId } }),
-        document.query<Member>('members', { filter: { contactId } }),
-      ]).then(([contact, alreadyAMember]) => {
-        assert(contact, 'Could not find contact.');
-        assert(!alreadyAMember, 'Contact is already a member.');
+        return Promise.all([
+          document.query<Contact>('contacts', { filter: { _id: contactId } }),
+          document.query<Staff>('staff', { filter: { contactId } }),
+        ]).then(([contact, alreadyAStaffMember]) => {
+          assert(contact, 'Could not find contact.');
+          assert(!alreadyAStaffMember, 'Contact is already a staff member.');
 
-        const member = {
-          _id: $id.newId(),
-          contactId,
-        } as Member;
+          const staff = {
+            _id: $id.newId(),
+            contactId,
+            username,
+            department,
+            password: hashedPassword,
+          } as Staff;
 
-        const memberEvents = [createEvent('MemberCreated', member)];
+          const staffEvents = [
+            createEvent('StaffMemberCreated', {
+              staffId: staff._id,
+              contactId,
+              username,
+              department,
+            }),
+          ];
 
-        return startTransaction(session => {
-          return document.saveWithEvents('members', member, memberEvents, { session });
-        }).then(() => member);
+          return startTransaction(session => {
+            return document.saveWithEvents('staff', staff, staffEvents, { session });
+          }).then(() => staff);
+        });
       });
     });
   },
