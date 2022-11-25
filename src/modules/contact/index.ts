@@ -4,6 +4,7 @@ import changeDetails from './changeDetails';
 import changeBillingDetails from './changeBillingDetails';
 import changeShippingDetails from './changeShippingDetails';
 import checkEmailAvailability from './checkEmailAvailability';
+import canBeLinkedToStaff from './canBeLinkedToStaff';
 
 export const contact = {
   create,
@@ -12,4 +13,5 @@ export const contact = {
   changeBillingDetails,
   changeShippingDetails,
   checkEmailAvailability,
+  canBeLinkedToStaff,
 };
