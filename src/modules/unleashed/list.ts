@@ -2,14 +2,15 @@ import { HttpModule } from '../HttpModule';
 
 import { UnleashedProduct } from './Models/UnleashedProduct';
 
-const list: HttpModule<{}, UnleashedProduct[]> = {
+const list: HttpModule<{ productGroup: string }, UnleashedProduct[]> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $database }) {
+  exec({ $database }, { productGroup }) {
     return $database.then(({ queryDocuments }) => {
+      const query = productGroup ? { 'ProductGroup.GroupName': productGroup } : {};
       return queryDocuments<UnleashedProduct>('unleashed', {
-        filter: {},
+        filter: query,
         projection: {
           _id: 1,
           IsSellable: 1,
