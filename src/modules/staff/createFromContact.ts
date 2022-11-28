@@ -7,6 +7,9 @@ const createFromContact: HttpModule<
   { contactId: string; username: string; password: string; department: StaffDepartment },
   Staff
 > = {
+  authorise({ $identity }, { user }) {
+    return $identity.isUser(user);
+  },
   exec(
     { $database, $id, createEvent, $security },
     { contactId, username, password, department }

@@ -8,6 +8,8 @@ const login: HttpModule<{ username: string; password: string }, any> = {
   exec({ $database, $security, $logger, apiKey }, { username, password }) {
     assert(username, 'A username or email address is required.');
     assert(password, 'A password is required.');
+    console.log('🚀 ~ file: login.ts ~ line 9 ~ exec ~ username', username);
+    console.log('🚀 ~ file: login.ts ~ line 9 ~ exec ~ password', password);
 
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
@@ -17,6 +19,7 @@ const login: HttpModule<{ username: string; password: string }, any> = {
           $or: [{ username }, { email: username }],
         })
         .then(staffMember => {
+          console.log('🚀 ~ file: login.ts ~ line 20 ~ exec ~ staffMember', staffMember);
           if (!staffMember || !staffMember.password)
             return Promise.reject(
               new Error(

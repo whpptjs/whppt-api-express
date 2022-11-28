@@ -1,6 +1,7 @@
 import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 import { Order } from '../order/Models/Order';
+import { Secure } from './Secure';
 
 export type ListOrdersRetured = {
   orders: Order[];
@@ -59,4 +60,4 @@ const listOrders: HttpModule<
   },
 };
 
-export default listOrders;
+export default Secure(listOrders);

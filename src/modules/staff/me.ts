@@ -2,7 +2,7 @@ import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { StaffContact } from './Model';
-// import { Secure } from './Secure';
+import { Secure } from './Secure';
 
 const authMember: HttpModule<void, StaffContact> = {
   authorise(context) {
@@ -51,5 +51,4 @@ const authMember: HttpModule<void, StaffContact> = {
   },
 };
 
-// export default Secure(authMember);
-export default authMember;
+export default Secure(authMember);
