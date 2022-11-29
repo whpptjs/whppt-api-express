@@ -24,7 +24,6 @@ export const StripeRouter: StripeRouterConstructor = function () {
       .then(context => {
         const createEvent = context.CreateEvent(req.user);
         const ctx = { ...context, createEvent };
-        console.log('🚀 ~ file: index.ts ~ line 28 ~ router.post ~ req.body', req.body);
         return capturePaymentIntent({ context: ctx, stripe }, req.body).then(() => {
           return res.status(200).send({});
         });
