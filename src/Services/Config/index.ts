@@ -26,6 +26,7 @@ export type WhpptConfig = {
   /**
    * @deprecated this options should not be used. The various routers will use their own prefixes.
    */
+  taggingOptions?: any[];
   apiPrefix?: string;
 };
 
@@ -60,7 +61,7 @@ export const ConfigService: ConfigServiceFactory = (logger, config) => {
     onUnPublish: (!config.disablePublishing && config.onUnPublish) || voidCallback,
   };
 
-  const loadModulesPromise = loadModules(config.modules || {}).then(modules => {
+  const loadModulesPromise = loadModules(config.modules || {}, config).then(modules => {
     _config.modules = modules;
   });
 

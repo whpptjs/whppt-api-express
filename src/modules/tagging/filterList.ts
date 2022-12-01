@@ -38,12 +38,15 @@ const filterList: HttpModule<FilterList, any> = {
         query['header.heading'].$regex = headerFilter;
         query['header.heading'].$options = 'i';
       }
+
+      const _size = Number(size);
+      const _pageIndex = Number(pageIndex);
       return db
         .collection('pages')
         .find(query)
         .sort({ 'header.heading': 1 })
-        .skip(pageIndex * size)
-        .limit(size)
+        .skip(_pageIndex * _size)
+        .limit(_size)
         .toArray();
     });
   },
