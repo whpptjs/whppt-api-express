@@ -11,7 +11,6 @@ export const capturePaymentIntent: CapturePaymentIntentArgs = (
   { context, stripe },
   { paymentId, orderId }
 ) => {
-  console.log('🚀 ~ file: capturePaymentIntent.ts ~ line 14 ~ orderId', orderId);
   assert(orderId, 'Order Id not provided');
   assert(paymentId, 'Payment Id not provided');
   return stripe.paymentIntents.capture(paymentId).then(() => {

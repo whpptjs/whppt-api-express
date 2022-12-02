@@ -40,10 +40,6 @@ module.exports = (context, mod, handlerName, params, req) => {
     return Promise.resolve()
       .then(() => callHandler.authorise(_context, params, req))
       .catch(err => {
-        console.log(
-          '🚀 ~ file: callModule.js ~ line 43 ~ returnPromise.resolve ~ err',
-          err
-        );
         return Promise.reject({
           status: 403,
           error: new AuthError(
