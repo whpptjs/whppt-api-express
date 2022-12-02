@@ -24,6 +24,7 @@ export const Secure: SecureModule = module => {
     authorise: (context, args: any, req: any) => {
       return context.$hosting.then(config => {
         if (!module) return Promise.reject({ status: 404, message: 'Module not found' });
+
         const member = parseMemberTokenFromCookie(
           req.headers.staffauthtoken,
           config.security.appKey
