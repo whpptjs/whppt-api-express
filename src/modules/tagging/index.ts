@@ -3,9 +3,9 @@ import filterList from './filterList';
 import filterListSelected from './filterListSelected';
 import save from './save';
 
-export const tagging = (options: any[]) => ({
-  fetch: fetch(options),
+export const tagging = {
+  fetch,
   filterList,
   filterListSelected,
-  save: save(options),
-});
+  save,
+};

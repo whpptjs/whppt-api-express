@@ -2,13 +2,10 @@ import { HttpModule } from '../HttpModule';
 import { Tag } from './models';
 
 export type SaveArgs = { domainId: string; tags: Tag[] };
-export type SaveConstructor = (developerTags: any) => HttpModule<SaveArgs, {}>;
 
-const save: SaveConstructor = developerTags => ({
+const save: HttpModule<SaveArgs, {}> = {
   exec({ $database }, { domainId, tags }) {
-    const developerTagIds = developerTags.map((t: any) => t.id);
-    const customTags = tags.filter(t => !developerTagIds.includes(t.id));
-    const tagSettings = { _id: `tags_${domainId}`, tags: customTags };
+    const tagSettings = { _id: `tags_${domainId}`, tags };
 
     return $database.then(db => {
       return db.startTransaction(session => {
@@ -18,6 +15,6 @@ const save: SaveConstructor = developerTags => ({
       });
     });
   },
-});
+};
 
 export default save;

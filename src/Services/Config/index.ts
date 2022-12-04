@@ -26,7 +26,6 @@ export type WhpptConfig = {
   /**
    * @deprecated this options should not be used. The various routers will use their own prefixes.
    */
-  taggingOptions?: any[];
   apiPrefix?: string;
 };
 
