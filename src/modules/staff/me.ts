@@ -6,13 +6,13 @@ import { Secure } from './Secure';
 
 const authMember: HttpModule<void, StaffContact> = {
   authorise(context) {
-    if (context.member) return Promise.resolve(true);
+    if (context.staff) return Promise.resolve(true);
 
     return Promise.reject({ status: 401, message: 'Not Authrozided' });
   },
-  exec({ $database, member }) {
+  exec({ $database, staff }) {
     return $database.then(database => {
-      assert(member.sub, 'Member Id required');
+      assert(staff.sub, 'Staff Id required');
 
       const { db } = database as WhpptMongoDatabase;
       return db
@@ -20,7 +20,7 @@ const authMember: HttpModule<void, StaffContact> = {
         .aggregate<StaffContact>([
           {
             $match: {
-              _id: member.sub._id,
+              _id: staff.sub._id,
             },
           },
           {
@@ -43,9 +43,9 @@ const authMember: HttpModule<void, StaffContact> = {
           },
         ])
         .toArray()
-        .then(members => {
-          assert(members.length, 'Member not found.');
-          return members[0];
+        .then(staffMembers => {
+          assert(staffMembers.length, 'Staff Member not found.');
+          return staffMembers[0];
         });
     });
   },
