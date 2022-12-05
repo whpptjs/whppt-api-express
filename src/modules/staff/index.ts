@@ -8,6 +8,6 @@ export const staff = {
   login,
   getOrderFilters,
   listOrders,
-    list,
-  createFromContact
+  list,
+  createFromContact,
 };
