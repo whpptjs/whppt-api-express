@@ -20,10 +20,7 @@ const modulePromise = loadGlobModules(
   { cwd: __dirname }
 );
 
-export type LoadModules = (
-  configModules: { [key: string]: WhpptModule },
-  c: any
-) => Promise<{
+export type LoadModules = (configModules: { [key: string]: WhpptModule }) => Promise<{
   [key: string]: WhpptModule;
 }>;
 

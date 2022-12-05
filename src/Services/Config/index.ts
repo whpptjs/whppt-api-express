@@ -60,7 +60,7 @@ export const ConfigService: ConfigServiceFactory = (logger, config) => {
     onUnPublish: (!config.disablePublishing && config.onUnPublish) || voidCallback,
   };
 
-  const loadModulesPromise = loadModules(config.modules || {}, config).then(modules => {
+  const loadModulesPromise = loadModules(config.modules || {}).then(modules => {
     _config.modules = modules;
   });
 
