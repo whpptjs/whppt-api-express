@@ -1,5 +1,6 @@
 import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
+import { Secure } from './Secure';
 
 export type OrderFiltersRetured = {
   statuses: { _id: string; amount: number }[];
@@ -32,4 +33,4 @@ const listOrders: HttpModule<{}, OrderFiltersRetured> = {
   },
 };
 
-export default listOrders;
+export default Secure(listOrders);

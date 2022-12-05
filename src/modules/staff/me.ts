@@ -1,10 +1,10 @@
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
-import { Member, MemberContact } from './Model';
+import { StaffContact } from './Model';
 import { Secure } from './Secure';
 
-const authMember: HttpModule<void, Member> = {
+const authMember: HttpModule<void, StaffContact> = {
   authorise(context) {
     if (context.member) return Promise.resolve(true);
 
@@ -16,8 +16,8 @@ const authMember: HttpModule<void, Member> = {
 
       const { db } = database as WhpptMongoDatabase;
       return db
-        .collection('members')
-        .aggregate<MemberContact>([
+        .collection('staff')
+        .aggregate<StaffContact>([
           {
             $match: {
               _id: member.sub._id,
@@ -39,7 +39,6 @@ const authMember: HttpModule<void, Member> = {
           {
             $project: {
               password: 0,
-              notes: 0,
             },
           },
         ])

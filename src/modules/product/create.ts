@@ -22,6 +22,7 @@ const create: HttpModule<CreateProductArgs, Product> = {
     return $database.then(({ document, startTransaction }) => {
       return document
         .query<Product>('products', { filter: { name, productCode, domainId } })
+
         .then(_product => {
           assert(
             !_product,

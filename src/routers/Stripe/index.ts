@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
+import { capturePaymentIntent } from './capturePaymentIntent';
 import { createPaymentIntent } from './createPaymentIntent';
 import { getSavedCards } from './getSavedCards';
 import { payWithSavedCard } from './payWithSavedCard';
@@ -18,6 +19,18 @@ export type StripeToken = {
 };
 
 export const StripeRouter: StripeRouterConstructor = function () {
+  router.post('/stripe/capturePaymentIntent', (req, res) => {
+    return (req as WhpptRequest).moduleContext
+      .then(context => {
+        const createEvent = context.CreateEvent(req.user);
+        const ctx = { ...context, createEvent };
+        return capturePaymentIntent({ context: ctx, stripe }, req.body).then(() => {
+          return res.status(200).send({});
+        });
+      })
+      .catch(err => res.status(err.status || 500).send(err.message || err));
+  });
+
   router.post('/stripe/createPaymentIntent', (req, res) => {
     return (req as WhpptRequest).moduleContext
       .then(context => {
@@ -55,63 +68,11 @@ export const StripeRouter: StripeRouterConstructor = function () {
     });
   });
 
-  // Below are Not in use yet. Dont delete --- Ben
-
-  // router.get('/stripe/createToken', (__, res) => {
-  //   return stripe.terminal.connectionTokens.create().then((token: StripeToken) => {
-  //     res.json(token.secret);
-  //   });
-  // });
-  // router.post('/stripe/createPaymentIntentWithExistingCustomer', (req, res) => {
-  //   const { amount = 2000 } = req.body;
-  //   //TODO make this work
-  //   return stripe.customers.create().then(customer => {
-  //     return stripe.paymentIntents
-  //       .create({
-  //         amount,
-  //         currency: 'aud',
-  //         payment_method_types: ['card_present'],
-  //         customer: customer.id,
-  //         capture_method: 'manual',
-  //       })
-  //       .then((intent: StripeToken) => {
-  //         console.log('🚀 ~ file: Stripe.ts ~ line 38 ~ .then ~ intent', intent);
-  //         res.json({
-  //           id: intent.id,
-  //           client_secret: intent.client_secret,
-  //         });
-  //       });
-  //   });
-  // });
-
-  // router.post('/stripe/createPaymentIntentWithNewCustomer', (req, res) => {
-  //   const { amount = 2000 } = req.body;
-  //   return stripe.customers.create().then(customer => {
-  //     return stripe.paymentIntents
-  //       .create({
-  //         amount,
-  //         currency: 'aud',
-  //         payment_method_types: ['card_present'],
-  //         customer: customer.id,
-  //         setup_future_usage: 'off_session',
-  //         capture_method: 'manual',
-  //       })
-  //       .then((intent: StripeToken) => {
-  //         console.log('🚀 ~ file: Stripe.ts ~ line 38 ~ .then ~ intent', intent);
-  //         res.json({
-  //           id: intent.id,
-  //           client_secret: intent.client_secret,
-  //         });
-  //       });
-  //   });
-  // });
-
-  // router.post('/stripe/capturePaymentIntent', async (req, res) => {
-  //   const { paymentId } = req.body;
-  //   return stripe.paymentIntents.capture(paymentId).then(x => {
-  //     res.json(x);
-  //   });
-  // });
+  router.get('/stripe/createToken', (__, res) => {
+    return stripe.terminal.connectionTokens.create().then((token: StripeToken) => {
+      res.json(token.secret);
+    });
+  });
 
   return router;
 };

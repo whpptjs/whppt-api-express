@@ -14,13 +14,14 @@ export type StripeToken = {
 
 export type CreatePaymentIntentArgs = (
   contextArgs: { context: ContextType; stripe: any },
-  args: { cardType: string; orderId: string; saveCard: boolean }
+  args: { cardType: string; orderId: string; saveCard: boolean; ageConfirmed: boolean }
 ) => Promise<{ client_secret: string; amount: number; customer: string }>;
 
 export const createPaymentIntent: CreatePaymentIntentArgs = (
   { context, stripe },
-  { cardType = 'card_present', orderId, saveCard }
+  { cardType = 'card_present', orderId, saveCard, ageConfirmed }
 ) => {
+  assert(ageConfirmed, 'Must be over 18');
   assert(orderId, 'Order Id not provided');
   return loadOrder(context, orderId).then(order => {
     return calculateTotal(context, orderId).then(amount => {
@@ -31,7 +32,7 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
               amount,
               currency: 'aud',
               payment_method_types: [cardType],
-              capture_method: 'automatic',
+              capture_method: cardType === 'card_present' ? 'manual' : 'automatic',
               customer,
               setup_future_usage: saveCard && customer ? 'off_session' : undefined,
             })
@@ -42,12 +43,14 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                   return startTransaction(session => {
                     Object.assign(order, {
                       stripe: { intentId: intent.id, status: 'pending', amount },
+                      ageConfirmed,
                     });
 
                     const events = [
                       context.createEvent('OrderCreatedPaymentIntent', {
                         _id: order._id,
                         stripe: { intentId: intent.id, status: 'pending', amount },
+                        ageConfirmed,
                       }),
                     ];
 
