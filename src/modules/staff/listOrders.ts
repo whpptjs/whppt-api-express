@@ -18,6 +18,8 @@ const listOrders: HttpModule<
   ListOrdersRetured
 > = {
   exec({ $database }, { searchBy, limit = '10', currentPage = '0', status }) {
+    console.log('🚀currentPage', currentPage);
+    console.log('🚀  limit', limit);
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
 
@@ -45,6 +47,7 @@ const listOrders: HttpModule<
         });
       }
 
+      //TODO Some reason unwind is limiting results/
       return Promise.all([
         db
           .collection('orders')
@@ -52,7 +55,6 @@ const listOrders: HttpModule<
             {
               $match: query,
             },
-
             {
               $lookup: {
                 from: 'member',
