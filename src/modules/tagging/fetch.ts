@@ -8,8 +8,8 @@ const fetch: HttpModule<{ domainId: string }, any> = {
       return db
         .collection('site')
         .findOne({ _id: `tags_${domainId}` })
-        .then(settings => {
-          return settings?.tags || [];
+        .then(setting => {
+          return setting?.tags || [];
         });
     });
   },
