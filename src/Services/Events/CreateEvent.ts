@@ -3,6 +3,7 @@ export type DomainEvent = {
   timestamp: Date;
   user: any;
   data: any;
+  processed?: boolean;
 };
 
 export const CreateEvent = (user: any) => {
