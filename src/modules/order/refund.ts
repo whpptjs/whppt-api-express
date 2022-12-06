@@ -44,8 +44,7 @@ const refund: HttpModule<{ orderId: string; refundReason: string }, void> = {
               payment_intent: loadedOrder?.stripe?.intentId,
               amount: loadedOrder?.stripe?.amount,
             })
-            .then((refund: any) => {
-              console.log('🚀 ~ file: refund.ts:38 ~ .then ~ refund', refund);
+            .then(() => {
               return document.saveWithEvents('orders', loadedOrder, events, {
                 session,
               });
