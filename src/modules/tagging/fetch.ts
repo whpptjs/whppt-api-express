@@ -5,7 +5,12 @@ const fetch: HttpModule<{ domainId: string }, any> = {
   exec({ $database }, { domainId }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
-      return db.collection('site').findOne({ _id: `tags_${domainId}` });
+      return db
+        .collection('site')
+        .findOne({ _id: `tags_${domainId}` })
+        .then(setting => {
+          return setting?.tags || [];
+        });
     });
   },
 };
