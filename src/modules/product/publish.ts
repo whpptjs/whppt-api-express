@@ -7,7 +7,7 @@ const publish: HttpModule<{ productId: string }, void> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $salesforce, $database, createEvent }, { productId }) {
+  exec({ $salesForce, $database, createEvent }, { productId }) {
     assert(productId, 'Product Id is required.');
 
     return $database
@@ -22,8 +22,8 @@ const publish: HttpModule<{ productId: string }, void> = {
               document.publish('products', product, { session }),
             ]).then(() => {
               // TODO Consider moving this to an event.
-              return $salesforce.$Oauth().then((token: string) => {
-                return $salesforce.$upsert(token, product._id, salesForceItem(product));
+              return $salesForce.$Oauth().then((token: string) => {
+                return $salesForce.$upsert(token, product._id, salesForceItem(product));
               });
             });
           });

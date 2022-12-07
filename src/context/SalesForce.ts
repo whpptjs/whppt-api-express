@@ -22,6 +22,7 @@ export default () => {
       return _client
         .post(`services/oauth2/token?${queryString}`)
         .then(({ data }) => {
+          console.log('🚀 ~ file: SalesForce.ts:25 ~ .then ~ data', data);
           return data && data.access_token;
         })
         .catch(err => {
@@ -52,6 +53,29 @@ export default () => {
         .patch(path, _data)
         .then(({ data }) => data)
         .catch(err => {
+          return Promise.reject({ ...err, status: 500 });
+        });
+    },
+    $patch: (token: any, path: string, args: any) => {
+      // TODO check this doesn't breack sales force integration. Downgraded axios to pre 1.0
+      // (_client.defaults.headers as any).Authorization = `Bearer ${token}`;
+      // (_client.defaults.headers as any)['Content-Type'] = `application/json`;
+
+      console.log('🚀 ~ file: SalesForce.ts:62 ~ token', token);
+      const _data = JSON.stringify(args);
+      const _path = `services/data/v53.0/sobjects/${path}`;
+      console.log('🚀_path', _path);
+
+      return _client
+        .patch(_path, _data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ['Content-Type']: `application/json`,
+          },
+        })
+        .then(({ data }) => data)
+        .catch(err => {
+          console.log('🚀 ~ file: SalesForce.ts:69 ~ err', err);
           return Promise.reject({ ...err, status: 500 });
         });
     },
