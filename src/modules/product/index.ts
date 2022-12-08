@@ -8,6 +8,7 @@ import saveConfig from './saveConfig';
 import publish from './publish';
 import addImage from './addImage';
 import removeImage from './removeImage';
+import load from './load';
 
 export const product = {
   list,
@@ -20,4 +21,5 @@ export const product = {
   getFilters,
   saveConfig,
   publish,
+  load,
 };
