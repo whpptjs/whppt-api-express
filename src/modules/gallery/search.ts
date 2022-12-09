@@ -36,13 +36,15 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
     if (queryTags.length && !filterTag) query.tags = searchQuery;
     if (filterTag && queryTags.length) query.tags = { $and: [filterQuery, searchQuery] };
 
-    return $db
-      .collection('gallery')
-      .find<GalleryItem>(query, { projection: { fileInfo: 1 } })
-      .skip(sizeNum * (pageNum - 1))
-      .limit(sizeNum)
-      .toArray()
-      .then(items => ({ items }));
+    return Promise.all([
+      $db
+        .collection('gallery')
+        .find<GalleryItem>(query, { projection: { fileInfo: 1 } })
+        .skip(sizeNum * (pageNum - 1))
+        .limit(sizeNum)
+        .toArray(),
+      $db.collection('gallery').countDocuments(query),
+    ]).then(([items, total]) => ({ items, total }));
   },
 };
 
