@@ -8,7 +8,6 @@ const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const refund: HttpModule<{ orderId: string; refundReason: string }, void> = {
   exec(context, { orderId, refundReason }) {
-    console.log('🚀 ~ file: refund.ts:11 ~ exec ~ context', context);
     assert(orderId, 'Order Id not found');
     assert(refundReason, 'A Reason not provided');
     return context.$database.then(({ document, startTransaction }) => {
