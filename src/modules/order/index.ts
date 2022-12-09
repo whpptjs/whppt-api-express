@@ -21,6 +21,7 @@ import changeOrderBilling from './changeOrderBilling';
 import changeNote from './changeNote';
 import addMember from './addMember';
 import removeMember from './removeMember';
+import refund from './refund';
 
 export const order = {
   createOrderWithProduct,
@@ -45,4 +46,5 @@ export const order = {
   changeNote,
   addMember,
   removeMember,
+  refund,
 };

@@ -25,22 +25,22 @@ export const Secure: SecureModule = module => {
       return context.$hosting.then(config => {
         if (!module) return Promise.reject({ status: 404, message: 'Module not found' });
 
-        const member = parseMemberTokenFromCookie(
+        const staff = parseMemberTokenFromCookie(
           req.headers.staffauthtoken,
           config.security.appKey
         );
-        if (!member) return Promise.reject({ status: 404, message: 'Member not found' });
+        if (!staff) return Promise.reject({ status: 404, message: 'Member not found' });
         if (!module.authorise) return Promise.resolve();
-        return module.authorise({ ...context, member }, args, req);
+        return module.authorise({ ...context, staff }, args, req);
       });
     },
     exec: (context, args: any, req: any) => {
       return context.$hosting.then(config => {
-        const member = parseMemberTokenFromCookie(
+        const staff = parseMemberTokenFromCookie(
           req.headers.staffauthtoken,
           config.security.appKey
         );
-        return module.exec({ ...context, member }, args, req);
+        return module.exec({ ...context, staff }, args, req);
       });
     },
   };
