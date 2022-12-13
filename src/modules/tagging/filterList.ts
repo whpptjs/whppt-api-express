@@ -22,7 +22,10 @@ const filterList: HttpModule<FilterList, any> = {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       const query = {
-        'header.heading': { $exists: true, $ne: '' },
+        $or: [
+          { 'header.heading': { $exists: true, $ne: '' } },
+          { 'header.title': { $exists: true, $ne: '' } },
+        ],
       } as any;
       if (domainId && domainId !== 'undefined') query.domainId = domainId;
 
@@ -35,8 +38,13 @@ const filterList: HttpModule<FilterList, any> = {
       }
 
       if (headerFilter) {
-        query['header.heading'].$regex = headerFilter;
-        query['header.heading'].$options = 'i';
+        query.$or.map((o: any) => {
+          return {
+            ...o,
+            $regex: headerFilter,
+            $options: 'i',
+          };
+        });
       }
 
       const _size = Number(size);

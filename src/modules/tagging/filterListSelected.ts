@@ -37,6 +37,7 @@ const filterListSelected: HttpModule<FilterListSelected, any> = {
 
       if (!tagFilters.ignoreLimit) promise.limit(Number(tagFilters.limit) || 8);
 
+      console.log('🚀 ~ file: filterListSelected.ts:41 ~ exec ~ tagFilters', tagFilters);
       if (!tagFilters.ignoreSort) promise = sortLookup(promise, tagFilters.sort);
 
       return promise.toArray().then(items => {
@@ -54,12 +55,16 @@ const filterListSelected: HttpModule<FilterListSelected, any> = {
 export default filterListSelected;
 
 const sortLookup = (promise: any, key: { sortType: string; fields: any }) => {
-  key.sortType = key.sortType || 'name (a-z)';
-  switch (key.sortType) {
+  const _key = {
+    sortType: key && key.sortType ? key.sortType : 'name (a-z)',
+    fields: key && key.fields ? key.fields : { 'header.title': -1 },
+  };
+
+  switch (_key.sortType) {
     case 'string':
-      return promise.collation({ locale: 'en' }).sort(key.fields);
+      return promise.collation({ locale: 'en' }).sort(_key.fields);
 
     default:
-      return promise.sort(key.fields);
+      return promise.sort(_key.fields);
   }
 };
