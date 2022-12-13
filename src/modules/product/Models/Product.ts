@@ -22,6 +22,6 @@ export type Product = {
     [key: string]: any;
   };
   customFields: {
-    [key: string]: string | undefined;
+    [key: string]: string | any | undefined;
   };
 };
