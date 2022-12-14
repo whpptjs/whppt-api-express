@@ -50,11 +50,9 @@ const forgottenPassword: HttpModule<{ email: string }, void> = {
 
                       return $email.send({
                         to: email,
-                        subject: 'Rcover your password',
+                        subject: 'Recover your password',
                         html,
                       });
-
-                      //TODO ?? (Ben): log email sent or send email to @svelte
                     });
                 });
               });
