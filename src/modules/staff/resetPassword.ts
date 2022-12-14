@@ -19,7 +19,7 @@ const resetPassword: HttpModule<
     return $database.then(database => {
       const { document, startTransaction } = database;
       return Promise.all([
-        document.query<Staff>('staff', { filter: { resetPasswordToken: token } }),
+        document.query<Staff>('staff', { filter: { 'resetPasswordToken.token': token } }),
         document.query<Contact>('contacts', { filter: { email } }),
       ])
         .then(([staff, contact]) => {
@@ -27,7 +27,7 @@ const resetPassword: HttpModule<
           assert(staff, 'No staff member found');
           assert(contact._id === staff.contactId, 'No staff member found');
 
-          const events = createEvent('StaffResetPassword', { email });
+          const events = [createEvent('StaffResetPassword', { email })];
 
           return $security.encrypt(password).then(hashedPassword => {
             assign(staff, { resetPasswordToken: undefined, password: hashedPassword });
