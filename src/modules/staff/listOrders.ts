@@ -10,14 +10,19 @@ export type ListOrdersRetured = {
 
 const listOrders: HttpModule<
   {
-    searchBy: string;
+    search: string;
     limit: string;
+    dateFrom: string;
+    dateTo: string;
     currentPage: string;
     status: string;
   },
   ListOrdersRetured
 > = {
-  exec({ $database }, { searchBy, limit = '10', currentPage = '0', status }) {
+  exec(
+    { $database },
+    { search, dateFrom, dateTo, limit = '10', currentPage = '0', status }
+  ) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
 
@@ -28,20 +33,30 @@ const listOrders: HttpModule<
         ],
       } as any;
 
-      if (searchBy) {
+      if (search && search !== 'undefined') {
         query.$and.push({
           $or: [
             {
               _id: {
-                $regex: searchBy,
+                $regex: search,
               },
             },
             {
               orderNumber: {
-                $regex: searchBy,
+                $regex: search,
               },
             },
           ],
+        });
+      }
+      if (dateFrom) {
+        query.$and.push({
+          createdAt: { $gte: new Date(dateFrom) },
+        });
+      }
+      if (dateTo) {
+        query.$and.push({
+          createdAt: { $lt: new Date(dateTo) },
         });
       }
 
