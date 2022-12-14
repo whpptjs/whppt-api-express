@@ -21,7 +21,7 @@ const load: HttpModule<{ productId: string }, Product> = {
         const connectedVintageIds = product?.customFields?.vintages?.map(
           (v: any) => v.productId
         );
-        if (!connectedVintageIds.length) return product;
+        if (!connectedVintageIds || !connectedVintageIds.length) return product;
         return queryDocuments<any>('pages', {
           filter: {
             productId: { $in: connectedVintageIds },
