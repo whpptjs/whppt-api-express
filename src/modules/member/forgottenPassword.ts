@@ -5,7 +5,7 @@ import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
 
 const forgottenPassword: HttpModule<{ email: string }, any> = {
-  exec({ $database, $security, createEvent, apiKey, $email }, { email }) {
+  exec({ $database, $security, createEvent, apiKey, $email }, { email }, { headers }) {
     assert(email, 'A email is required');
 
     return $database.then(database => {
@@ -33,9 +33,7 @@ const forgottenPassword: HttpModule<{ email: string }, any> = {
                   return document
                     .saveWithEvents('members', member, events, { session })
                     .then(() => {
-                      //TODO (Ben): get site domain dynamically.
-                      const domain = 'domain.com.au';
-                      const recoveryPageLink = `${domain}/hentley-password-recovery/member?email=${email}&recoveryToken=${token.token}`;
+                      const recoveryPageLink = `${headers.origin}/hentley-password-recovery/member?email=${email}&recoveryToken=${token.token}`;
 
                       let html = `
                         <h3>Password reset for ${usedEmail.firstName} ${usedEmail.lastName}</h3>
@@ -54,8 +52,6 @@ const forgottenPassword: HttpModule<{ email: string }, any> = {
                         subject: 'Recover your password',
                         html,
                       });
-
-                      //TODO ?? (Ben): log email sent or send email to @svelte
                     });
                 });
               });
