@@ -8,6 +8,8 @@ import changePassword from './changePassword';
 import search from './search';
 import getNotes from './getNotes';
 import saveNote from './saveNote';
+import forgottenPassword from './forgottenPassword';
+import resetPassword from './resetPassword';
 
 export const member = {
   createFromContact,
@@ -20,4 +22,6 @@ export const member = {
   search,
   saveNote,
   getNotes,
+  forgottenPassword,
+  resetPassword,
 };
