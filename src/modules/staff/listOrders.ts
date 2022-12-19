@@ -61,6 +61,7 @@ const listOrders: HttpModule<
       }
 
       //TODO Some reason unwind is limiting results/
+      console.log('🚀 ~ file: listOrders.ts:71 ~ query', query);
       return Promise.all([
         db
           .collection('orders')
@@ -68,32 +69,32 @@ const listOrders: HttpModule<
             {
               $match: query,
             },
-            {
-              $lookup: {
-                from: 'member',
-                localField: 'memberId',
-                foreignField: '_id',
-                as: 'member',
-              },
-            },
-            {
-              $unwind: {
-                path: '$member',
-              },
-            },
-            {
-              $lookup: {
-                from: 'contacts',
-                localField: 'member.contactId',
-                foreignField: '_id',
-                as: 'contact',
-              },
-            },
-            {
-              $unwind: {
-                path: '$contact',
-              },
-            },
+            // {
+            //   $lookup: {
+            //     from: 'member',
+            //     localField: 'memberId',
+            //     foreignField: '_id',
+            //     as: 'member',
+            //   },
+            // },
+            // {
+            //   $unwind: {
+            //     path: '$member',
+            //   },
+            // },
+            // {
+            //   $lookup: {
+            //     from: 'contacts',
+            //     localField: 'member.contactId',
+            //     foreignField: '_id',
+            //     as: 'contact',
+            //   },
+            // },
+            // {
+            //   $unwind: {
+            //     path: '$contact',
+            //   },
+            // },
             {
               $project: {
                 member: 0,

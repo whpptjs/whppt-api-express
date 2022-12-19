@@ -23,8 +23,8 @@ const filterList: HttpModule<FilterList, any> = {
       const { db } = database as WhpptMongoDatabase;
       const query = {
         $or: [
-          { 'header.heading': { $exists: true, $ne: '' } },
-          { 'header.title': { $exists: true, $ne: '' } },
+          { 'header.content.heading': { $exists: true, $ne: '' } },
+          { 'header.content.title': { $exists: true, $ne: '' } },
         ],
       } as any;
       if (domainId && domainId !== 'undefined') query.domainId = domainId;
