@@ -10,15 +10,15 @@ export type StripeToken = {
 
 export type PayWithSavedCardArgs = (
   contextArgs: { context: ContextType; stripe: any },
-  args: { customerId: string; cardId: string; orderId: string }
+  args: { customerId: string; cardId: string; orderId: string; domainId: string }
 ) => Promise<string>;
 
 export const payWithSavedCard: PayWithSavedCardArgs = (
   { context, stripe },
-  { customerId, cardId, orderId }
+  { customerId, cardId, orderId, domainId }
 ) => {
   assert(orderId, 'Order Id not provided');
-  return calculateTotal(context, orderId).then(amount => {
+  return calculateTotal(context, { orderId, domainId }).then(amount => {
     return loadOrder(context, orderId).then(order => {
       return stripe.paymentIntents
         .create({

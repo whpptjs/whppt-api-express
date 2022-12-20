@@ -23,12 +23,20 @@ export type Order = {
   };
 };
 
+export type ShippingCost = {
+  price: number | string | undefined;
+  allowCheckout: boolean;
+  message?: string;
+  type: 'aus_metro' | 'aus_regional' | 'international' | 'pickup';
+};
+
 export type Shipping = {
   address: Address;
   contactDetails: ContactDetails;
-  shippingCost: number;
+  shippingCost: ShippingCost;
   ausPost?: AusPostShipping;
   status: 'preparing' | 'inTransit' | 'delivered';
+  pickup?: boolean;
 };
 export type Billing = {
   address: Address;

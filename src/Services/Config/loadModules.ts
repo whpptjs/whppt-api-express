@@ -5,6 +5,7 @@ import * as order from '../../modules/order';
 import * as member from '../../modules/member';
 import * as staff from '../../modules/staff';
 import * as tagging from '../../modules/tagging';
+import * as delivery from '../../modules/delivery';
 
 const modulePromise = loadGlobModules(
   [
@@ -12,6 +13,7 @@ const modulePromise = loadGlobModules(
     '!../../modules/contact/**/*.js',
     '!../../modules/order/**/*.js',
     '!../../modules/member/**/*.js',
+    '!../../modules/delivery/**/*.js',
     '!../../modules/staff/**/*.js',
     '!../../modules/tagging/**/*.js',
     '!../../modules/callModule.js',
@@ -32,6 +34,7 @@ export const loadModules: LoadModules = (configModules: {
       ...modules,
       ...contact,
       ...order,
+      ...delivery,
       ...member,
       ...staff,
       ...tagging,
