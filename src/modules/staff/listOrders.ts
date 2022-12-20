@@ -24,7 +24,7 @@ const listOrders: HttpModule<
     { search, dateFrom, dateTo, limit = '10', currentPage = '0', status }
   ) {
     return $database.then(database => {
-      const { db } = database as WhpptMongoDatabase;
+      const { db, queryDocuments } = database as WhpptMongoDatabase;
 
       const query = {
         $and: [
@@ -46,6 +46,11 @@ const listOrders: HttpModule<
                 $regex: search,
               },
             },
+            {
+              'contact.email': {
+                $regex: search,
+              },
+            },
           ],
         });
       }
@@ -61,7 +66,6 @@ const listOrders: HttpModule<
       }
 
       //TODO Some reason unwind is limiting results/
-      console.log('🚀 ~ file: listOrders.ts:71 ~ query', query);
       return Promise.all([
         db
           .collection('orders')
@@ -110,18 +114,27 @@ const listOrders: HttpModule<
           .toArray(),
         db.collection('orders').countDocuments(query),
       ]).then(([orders, total = 0]) => {
-        return {
-          orders: orders.map(order => ({
-            ...order,
-            contact: {
-              _id: order?.contact?._id,
-              firstName: order?.contact?.firstName,
-              lastName: order?.contact?.lastName,
-              email: order?.contact?.email,
-            },
-          })),
-          total,
-        };
+        const contactIds = orders.map(o => o.contact?._id);
+        return queryDocuments('contacts', { filter: { _id: { $in: contactIds } } }).then(
+          contacts => {
+            return {
+              orders: orders.map(order => {
+                const _contactId = order?.contact?._id;
+                const _contact = contacts.find(c => c._id === _contactId);
+                return {
+                  ...order,
+                  contact: {
+                    _id: order?.contact?._id,
+                    firstName: _contact?.firstName,
+                    lastName: _contact?.lastName,
+                    email: order?.contact?.email,
+                  },
+                };
+              }),
+              total,
+            };
+          }
+        );
       });
     });
   },
