@@ -10,6 +10,7 @@ import getNotes from './getNotes';
 import saveNote from './saveNote';
 import forgottenPassword from './forgottenPassword';
 import resetPassword from './resetPassword';
+import getMemberTier from './getMemberTier';
 
 export const member = {
   createFromContact,
@@ -24,4 +25,5 @@ export const member = {
   getNotes,
   forgottenPassword,
   resetPassword,
+  getMemberTier,
 };
