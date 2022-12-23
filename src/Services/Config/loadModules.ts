@@ -6,6 +6,7 @@ import * as member from '../../modules/member';
 import * as staff from '../../modules/staff';
 import * as tagging from '../../modules/tagging';
 import * as delivery from '../../modules/delivery';
+import * as membershipTier from '../../modules/membershipTier';
 
 const modulePromise = loadGlobModules(
   [
@@ -14,6 +15,7 @@ const modulePromise = loadGlobModules(
     '!../../modules/order/**/*.js',
     '!../../modules/member/**/*.js',
     '!../../modules/delivery/**/*.js',
+    '!../../modules/membershipTier/**/*.js',
     '!../../modules/staff/**/*.js',
     '!../../modules/tagging/**/*.js',
     '!../../modules/callModule.js',
@@ -35,6 +37,7 @@ export const loadModules: LoadModules = (configModules: {
       ...contact,
       ...order,
       ...delivery,
+      ...membershipTier,
       ...member,
       ...staff,
       ...tagging,
