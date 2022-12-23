@@ -26,7 +26,7 @@ export const calculateTotal: CalculateTotalArgs = (ctx, { orderId, domainId }) =
               0
             )
           : 0;
-      const postageCostInCents = order?.shipping?.shippingCost || 0;
+      const postageCostInCents = order?.shipping?.shippingCost?.price || 0;
 
       if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
       const total =
