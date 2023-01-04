@@ -37,7 +37,6 @@ const filterListSelected: HttpModule<FilterListSelected, any> = {
 
       if (!tagFilters.ignoreLimit) promise.limit(Number(tagFilters.limit) || 8);
 
-      console.log('🚀 ~ file: filterListSelected.ts:41 ~ exec ~ tagFilters', tagFilters);
       if (!tagFilters.ignoreSort) promise = sortLookup(promise, tagFilters.sort);
 
       return promise.toArray().then(items => {
