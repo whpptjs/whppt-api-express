@@ -30,13 +30,20 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
   assert(ageConfirmed, 'Must be over 18');
   assert(orderId, 'Order Id not provided');
   return loadOrder(context, orderId).then(order => {
-    return calculateTotal(context, { orderId, domainId }).then(
-      ({ total, shippingCost }) => {
+    return calculateTotal(context, { orderId, domainId, memberId: order.memberId }).then(
+      ({
+        shippingCost,
+        total,
+        tax,
+        subTotal,
+        memberTotalDiscount,
+        memberShippingDiscount,
+      }) => {
         return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
           customer => {
             return stripe.paymentIntents
               .create({
-                amount: total,
+                amount: Math.round(total),
                 currency: 'aud',
                 payment_method_types: [cardType],
                 capture_method: cardType === 'card_present' ? 'manual' : 'automatic',
@@ -52,6 +59,14 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                         stripe: { intentId: intent.id, status: 'pending', amount: total },
                         ageConfirmed,
                         shipping: { ...order.shipping, shippingCost },
+                        payment: {
+                          status: 'pending',
+                          amount: total,
+                          tax,
+                          subTotal,
+                          memberTotalDiscount,
+                          memberShippingDiscount,
+                        },
                       });
 
                       const events = [

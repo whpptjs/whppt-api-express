@@ -30,6 +30,11 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                   intentId: loadedOrder.stripe.intentId || paymentIntent,
                   date: new Date(),
                 },
+                payment: {
+                  ...loadedOrder.payment,
+                  status: 'paid',
+                  date: new Date(),
+                },
                 checkoutStatus: 'paid',
                 items: orderWithProducts.items.map((item: OrderItemWithProduct) => {
                   return omit(

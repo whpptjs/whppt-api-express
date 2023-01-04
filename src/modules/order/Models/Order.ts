@@ -68,7 +68,13 @@ export type OrderItemWithProduct = OrderItem & {
 };
 
 export type Payment = {
-  _id: string;
+  status: 'pending' | 'refunded' | 'paid';
+  date: Date;
+  amount: number;
+  tax: number;
+  subTotal: number;
+  memberTotalDiscount: number;
+  memberShippingDiscount: number;
 };
 
 export type AusPostShipping = {

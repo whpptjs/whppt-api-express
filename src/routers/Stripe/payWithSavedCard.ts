@@ -10,56 +10,86 @@ export type StripeToken = {
 
 export type PayWithSavedCardArgs = (
   contextArgs: { context: ContextType; stripe: any },
-  args: { customerId: string; cardId: string; orderId: string; domainId: string }
+  args: {
+    customerId: string;
+    cardId: string;
+    orderId: string;
+    ageConfirmed: boolean;
+    domainId: string;
+  }
 ) => Promise<string>;
 
 export const payWithSavedCard: PayWithSavedCardArgs = (
   { context, stripe },
-  { customerId, cardId, orderId, domainId }
+  { customerId, cardId, orderId, ageConfirmed, domainId }
 ) => {
   assert(orderId, 'Order Id not provided');
-  return calculateTotal(context, { orderId, domainId }).then(amount => {
-    return loadOrder(context, orderId).then(order => {
-      return stripe.paymentIntents
-        .create({
-          amount,
-          currency: 'aud',
-          payment_method_types: ['card'],
-          capture_method: 'automatic',
-          customer: customerId,
-          payment_method: cardId,
-          setup_future_usage: 'off_session',
-          confirm: true,
-        })
-        .then((intent: any) => {
-          return context.$database
-            .then(database => {
-              const { document, startTransaction } = database;
-              return startTransaction(session => {
-                Object.assign(order, {
-                  stripe: { intentId: intent.id, status: 'pending', amount },
-                });
-
-                const events = [
-                  context.createEvent('OrderCreatedPaymentIntentForSavedCard', {
-                    _id: order._id,
-                    stripe: {
-                      intentId: intent.id,
+  return loadOrder(context, orderId).then(order => {
+    return calculateTotal(context, { orderId, domainId, memberId: order.memberId }).then(
+      ({
+        shippingCost,
+        total,
+        tax,
+        subTotal,
+        memberTotalDiscount,
+        memberShippingDiscount,
+      }) => {
+        return stripe.paymentIntents
+          .create({
+            amount: Math.round(total),
+            currency: 'aud',
+            payment_method_types: ['card'],
+            capture_method: 'automatic',
+            customer: customerId,
+            payment_method: cardId,
+            setup_future_usage: 'off_session',
+            confirm: true,
+          })
+          .then((intent: any) => {
+            return context.$database
+              .then(database => {
+                const { document, startTransaction } = database;
+                return startTransaction(session => {
+                  Object.assign(order, {
+                    stripe: { intentId: intent.id, status: 'pending', amount: total },
+                    ageConfirmed,
+                    shipping: { ...order.shipping, shippingCost },
+                    payment: {
                       status: 'pending',
-                      amount,
-                      cardId,
-                      customerId,
+                      amount: total,
+                      tax,
+                      subTotal,
+                      memberTotalDiscount,
+                      memberShippingDiscount,
                     },
-                  }),
-                ];
+                  });
 
-                return document.saveWithEvents('orders', order, events, {
-                  session,
+                  const events = [
+                    context.createEvent('OrderShipingCalculated', {
+                      _id: order._id,
+                      shippingCost,
+                    }),
+                    context.createEvent('OrderCreatedPaymentIntentForSavedCard', {
+                      _id: order._id,
+                      stripe: {
+                        intentId: intent.id,
+                        status: 'pending',
+                        amount: total,
+                        customerId,
+                        cardId,
+                      },
+                      ageConfirmed,
+                    }),
+                  ];
+
+                  return document.saveWithEvents('orders', order, events, {
+                    session,
+                  });
                 });
-              });
-            })
-            .then(() => intent.id);
-        });
-    });
+              })
+              .then(() => intent.id);
+          });
+      }
+    );
   });
 };
