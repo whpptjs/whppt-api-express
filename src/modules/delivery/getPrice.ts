@@ -15,7 +15,7 @@ const load: HttpModule<
           const lowEnd = f.split('-')[0];
           const highEnd = f.split('-')[1];
           if (!highEnd) return lowEnd === postcode;
-          const _range = range(Number(lowEnd), Number(highEnd));
+          const _range = postcodeRange(Number(lowEnd), Number(highEnd));
           return _range.find(inRangeCode => inRangeCode === postcode);
         });
 
@@ -30,7 +30,7 @@ const load: HttpModule<
           const lowEnd = f.split('-')[0];
           const highEnd = f.split('-')[1];
           if (!highEnd) return lowEnd === postcode;
-          const _range = range(Number(lowEnd), Number(highEnd));
+          const _range = postcodeRange(Number(lowEnd), Number(highEnd));
           return _range.find(inRangeCode => inRangeCode === postcode);
         });
         if (regional)
@@ -54,7 +54,7 @@ const load: HttpModule<
 
 export default load;
 
-const range = (start: number, end: number) => {
+export const postcodeRange = (start: number, end: number) => {
   var _start = start;
   var arr = new Array(end - start + 1);
   for (var i = 0; i < arr.length; i++, _start++) {
