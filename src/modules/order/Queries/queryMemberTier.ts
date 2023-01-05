@@ -51,7 +51,7 @@ export const queryMemberTier: QueryMemberTier = (
           },
           {
             $project: {
-              stripe: 1,
+              payment: 1,
             },
           },
         ])
