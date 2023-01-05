@@ -51,17 +51,21 @@ export const calculateTotal: CalculateTotalArgs = (
         : 0;
 
       const memberShippingDiscount = memberTier?.discounts
-        ? membersShippingSaving(memberTier, Number(shippingCost.price))
+        ? membersShippingSaving(memberTier, shippingCost)
         : 0;
 
       const gst = (itemsCostInCents - memberTotalDiscount) * GST;
 
-      const total =
-        Number(itemsCostInCents) +
-        Number(postageCostInCents) +
-        gst -
-        memberTotalDiscount -
-        memberShippingDiscount;
+      const itemsWithDiscount =
+        Number(itemsCostInCents) - memberTotalDiscount < 0
+          ? 0
+          : Number(itemsCostInCents) - memberTotalDiscount;
+      const postageWithDiscount =
+        Number(postageCostInCents) - memberShippingDiscount < 0
+          ? 0
+          : Number(postageCostInCents) - memberShippingDiscount;
+
+      const total = itemsWithDiscount + postageWithDiscount + gst;
 
       return {
         total,
@@ -84,14 +88,15 @@ const membersTotalSavings = (tier: MembershipTier, subTotal: number) => {
   return savings || 0;
 };
 
-const membersShippingSaving = (tier: MembershipTier, shippingCost: number) => {
+const membersShippingSaving = (tier: MembershipTier, shippingCost: ShippingCost) => {
   if (!tier?.discounts) return 0;
 
   const _cost = tier?.discounts?.reduce((partialSum, discount) => {
     if (discount.appliedTo === 'total') return partialSum + 0;
+    if (discount?.shipping?.value !== shippingCost.type) return partialSum + 0;
     if (discount.type === 'flat') return partialSum + discount.value;
 
-    return partialSum + shippingCost * (discount.value / 100);
+    return partialSum + Number(shippingCost.price) * (discount.value / 100);
   }, 0);
-  return _cost || 0;
+  return _cost;
 };

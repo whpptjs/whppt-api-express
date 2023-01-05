@@ -14,7 +14,9 @@ const refund: HttpModule<{ orderId: string; refundReason: string }, void> = {
       return document.fetch<Order>('orders', orderId).then(loadedOrder => {
         assert(loadedOrder, 'Order not found');
         assert(loadedOrder?.stripe?.status === 'paid', 'Order not in a paid status');
-
+        const amount =
+          (loadedOrder?.payment?.subTotal || 0) -
+          (loadedOrder?.payment?.memberTotalDiscount || 0);
         assign(loadedOrder, {
           ...loadedOrder,
           checkoutStatus: 'refunded',
@@ -22,6 +24,19 @@ const refund: HttpModule<{ orderId: string; refundReason: string }, void> = {
             ...loadedOrder.stripe,
             status: 'refunded',
             refund: {
+              reason: refundReason,
+              amount,
+              by: {
+                username: context.staff.sub.username,
+                _id: context.staff.sub._id,
+              },
+            },
+          },
+          payment: {
+            ...loadedOrder.payment,
+            status: 'refunded',
+            refund: {
+              amount,
               reason: refundReason,
               by: {
                 username: context.staff.sub.username,
@@ -41,7 +56,7 @@ const refund: HttpModule<{ orderId: string; refundReason: string }, void> = {
           return stripe.refunds
             .create({
               payment_intent: loadedOrder?.stripe?.intentId,
-              amount: loadedOrder?.stripe?.amount,
+              amount: Math.round(amount),
             })
             .then(() => {
               return document.saveWithEvents('orders', loadedOrder, events, {

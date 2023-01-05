@@ -39,6 +39,10 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
         memberTotalDiscount,
         memberShippingDiscount,
       }) => {
+        console.log(
+          '🚀 ~ file: createPaymentIntent.ts:51 ~ returnloadOrder ~ total',
+          total
+        );
         return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
           customer => {
             return stripe.paymentIntents
@@ -66,6 +70,7 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                           subTotal,
                           memberTotalDiscount,
                           memberShippingDiscount,
+                          shippingCost,
                         },
                       });
 

@@ -22,6 +22,7 @@ import changeNote from './changeNote';
 import addMember from './addMember';
 import removeMember from './removeMember';
 import refund from './refund';
+import sendReceipt from './sendReceipt';
 
 export const order = {
   createOrderWithProduct,
@@ -47,4 +48,5 @@ export const order = {
   addMember,
   removeMember,
   refund,
+  sendReceipt,
 };
