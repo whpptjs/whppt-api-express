@@ -61,6 +61,7 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                       subTotal,
                       memberTotalDiscount,
                       memberShippingDiscount,
+                      shippingCost,
                     },
                   });
 
