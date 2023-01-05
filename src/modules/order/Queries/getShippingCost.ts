@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { ContextType } from 'src/context/Context';
-import { postcodeRange } from 'src/modules/delivery/getPrice';
 import { Delivery } from 'src/modules/delivery/Models/Delivery';
+import { postcodeInRange } from '../../delivery/Queries/postcodeRange';
 import { ShippingCost } from '../Models/Order';
 
 export type LoadOrderWithProductsArgs = (
@@ -25,13 +25,8 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
     assert(domainId, 'DomainId is required');
     return document.fetch<Delivery>('site', `delivery_${domainId}`).then(delivery => {
       if (!delivery) throw new Error('Delivery must be set up');
-      const metro = delivery.aus_metro.postcodes.find(f => {
-        const lowEnd = f.split('-')[0];
-        const highEnd = f.split('-')[1];
-        if (!highEnd) return lowEnd === postcode;
-        const _range = postcodeRange(Number(lowEnd), Number(highEnd));
-        return _range.find(inRangeCode => inRangeCode === postcode);
-      });
+      const metro = postcodeInRange(delivery.aus_metro.postcodes, postcode);
+      const regional = postcodeInRange(delivery.aus_regional.postcodes, postcode);
 
       if (metro)
         return {
@@ -40,13 +35,7 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
           message: delivery.aus_metro.message,
           type: 'aus_metro',
         };
-      const regional = delivery.aus_regional.postcodes.find(f => {
-        const lowEnd = f.split('-')[0];
-        const highEnd = f.split('-')[1];
-        if (!highEnd) return lowEnd === postcode;
-        const _range = postcodeRange(Number(lowEnd), Number(highEnd));
-        return _range.find(inRangeCode => inRangeCode === postcode);
-      });
+
       if (regional)
         return {
           price: delivery.aus_regional.price || 0,

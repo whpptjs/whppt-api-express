@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Delivery } from './Models/Delivery';
+import { postcodeInRange } from './Queries/postcodeRange';
 
 const load: HttpModule<
   { domainId: string; postcode: string },
@@ -11,13 +12,7 @@ const load: HttpModule<
     assert(domainId, 'DomainId is required');
     return $database.then(({ document }) => {
       return document.fetch<Delivery>('site', `delivery_${domainId}`).then(delivery => {
-        const metro = delivery.aus_metro.postcodes.find(f => {
-          const lowEnd = f.split('-')[0];
-          const highEnd = f.split('-')[1];
-          if (!highEnd) return lowEnd === postcode;
-          const _range = postcodeRange(Number(lowEnd), Number(highEnd));
-          return _range.find(inRangeCode => inRangeCode === postcode);
-        });
+        const metro = postcodeInRange(delivery.aus_metro.postcodes, postcode);
 
         if (metro)
           return {
@@ -26,13 +21,8 @@ const load: HttpModule<
             message: delivery.aus_metro.message,
             type: 'aus_metro',
           };
-        const regional = delivery.aus_regional.postcodes.find(f => {
-          const lowEnd = f.split('-')[0];
-          const highEnd = f.split('-')[1];
-          if (!highEnd) return lowEnd === postcode;
-          const _range = postcodeRange(Number(lowEnd), Number(highEnd));
-          return _range.find(inRangeCode => inRangeCode === postcode);
-        });
+        const regional = postcodeInRange(delivery.aus_regional.postcodes, postcode);
+
         if (regional)
           return {
             price: delivery.aus_regional.price,
@@ -53,12 +43,3 @@ const load: HttpModule<
 };
 
 export default load;
-
-export const postcodeRange = (start: number, end: number) => {
-  var _start = start;
-  var arr = new Array(end - start + 1);
-  for (var i = 0; i < arr.length; i++, _start++) {
-    arr[i] = `${_start}`;
-  }
-  return arr;
-};
