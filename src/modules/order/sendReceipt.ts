@@ -1,6 +1,6 @@
 import { HttpModule } from '../HttpModule';
+import { getOrderTemplate } from '../email/Templates/emailReceipt';
 import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
-import { getOrderTemplate } from './Templates/emailReceipt';
 
 const sendReceipt: HttpModule<{ orderId: string; email: string }, void> = {
   authorise({ $roles }, { user }) {
