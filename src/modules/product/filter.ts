@@ -10,10 +10,16 @@ export type ProductListFilters = {
 };
 
 const filter: HttpModule<
-  { domainId: string; limit: string; currentPage: string; filters: ProductListFilters },
+  {
+    domainId: string;
+    limit: string;
+    currentPage: string;
+    forViewingOn?: 'website' | 'pos';
+    filters: ProductListFilters;
+  },
   { products: Product[]; total: number }
 > = {
-  exec({ $database }, { domainId, limit, currentPage, filters = {} }) {
+  exec({ $database }, { domainId, limit, currentPage, filters = {}, forViewingOn }) {
     let query = {
       domainId,
       isActive: true,
@@ -39,10 +45,24 @@ const filter: HttpModule<
       query = {
         ...query,
         $and: query.$and
-          ? (query.$and = [...query.$and, { style: filters.style }])
-          : (query.$and = [{ style: filters.style }]),
+          ? (query.$and = [...query.$and, { 'customFields.varietal': filters.style }])
+          : (query.$and = [{ 'customFields.varietal': filters.style }]),
       };
     }
+    if (forViewingOn) {
+      const _filter =
+        forViewingOn === 'pos'
+          ? { forSaleOnPos: { $eq: true } }
+          : { forSaleOnWebsite: { $eq: true } };
+
+      query = {
+        ...query,
+        $and: query.$and
+          ? (query.$and = [...query.$and, _filter])
+          : (query.$and = [_filter]),
+      };
+    }
+
     if (filters.search) {
       query = {
         ...query,
