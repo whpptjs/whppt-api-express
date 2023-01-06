@@ -3,6 +3,7 @@ import { assign } from 'lodash';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
+import { resetPasswordTemplate } from '../email/Templates/passwordResetEmail';
 
 const forgottenPassword: HttpModule<{ email: string }, any> = {
   exec({ $database, $security, createEvent, apiKey, $email }, { email }, { headers }) {
@@ -35,17 +36,7 @@ const forgottenPassword: HttpModule<{ email: string }, any> = {
                     .then(() => {
                       const recoveryPageLink = `${headers.origin}/hentley-password-recovery/member?email=${email}&recoveryToken=${token.token}`;
 
-                      let html = `
-                        <h3>Password reset for ${usedEmail.firstName} ${usedEmail.lastName}</h3>
-
-                        <div>
-                            <p>
-                              It seems like you forgot your password. If this is true, click the link below to reset your password.
-                            </p>
-                            <p>Reset your password <a href=${recoveryPageLink}>here</a></p>
-                            <p>If you did not forget your password, please disregard this email.</p>
-                        </div>
-                        `;
+                      let html = resetPasswordTemplate(recoveryPageLink);
 
                       return $email.send({
                         to: email,
