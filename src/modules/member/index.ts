@@ -10,6 +10,7 @@ import getNotes from './getNotes';
 import saveNote from './saveNote';
 import forgottenPassword from './forgottenPassword';
 import resetPassword from './resetPassword';
+import signUp from './signUp';
 import getMemberTier from './getMemberTier';
 
 export const member = {
@@ -26,4 +27,5 @@ export const member = {
   forgottenPassword,
   resetPassword,
   getMemberTier,
+  signUp,
 };
