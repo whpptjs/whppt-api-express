@@ -6,6 +6,7 @@ import {
 } from 'src/modules/membershipTier/Models/MembershipTier';
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { Order } from '../Models/Order';
+import sortBy from 'lodash/sortBy';
 
 export type QueryMemberTier = (
   context: ContextType,
@@ -61,21 +62,20 @@ export const queryMemberTier: QueryMemberTier = (
       console.log('🚀 orders', orders);
       assert(tiers, 'MembershipTiers not found.');
 
-      const sortedTiers = tiers.membershipTiers.sort(a => a.level);
-      console.log('🚀 sortedTiers', sortedTiers);
+      const sortedTiers = sortBy(tiers.membershipTiers, a => !a.level);
+      console.log(
+        '🚀 ~ file: queryMemberTier.ts:66 ~ ]).then ~ sortedTiers',
+        sortedTiers
+      );
 
       const amountSpentForYear = orders.reduce(
         (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
         0
       );
-      console.log('🚀 amountSpentForYear', amountSpentForYear);
 
       const currentTier = sortedTiers.find(t => t.entryLevelSpend <= amountSpentForYear);
-      console.log('🚀  currentTier', currentTier);
       const nextTierLevel = (currentTier?.level || 0) + 1;
-      console.log('🚀 nextTierLevel', nextTierLevel);
       const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
-      console.log('🚀 nextTier', nextTier);
 
       return {
         ...currentTier,
