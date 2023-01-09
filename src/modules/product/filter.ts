@@ -87,7 +87,21 @@ const filter: HttpModule<
         }),
         countDocuments('products', { filter: query }),
       ]).then(([products, total = 0]) => {
-        return { products, total };
+        const productIds = products.map(p => p._id);
+        return queryDocuments<any>('pages', {
+          filter: { productId: { $in: productIds } },
+        }).then(pages => {
+          return {
+            products: products.map(p => {
+              const slug = pages.find(page => page.productId === p._id)?.slug;
+              return {
+                ...p,
+                slug,
+              };
+            }),
+            total,
+          };
+        });
       });
     });
   },
