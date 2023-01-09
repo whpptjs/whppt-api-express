@@ -58,14 +58,9 @@ export const queryMemberTier: QueryMemberTier = (
         ])
         .toArray(),
     ]).then(([tiers, orders]) => {
-      console.log('🚀 tiers', tiers);
-      console.log('🚀 orders', orders);
       assert(tiers, 'MembershipTiers not found.');
 
       const sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
-      console.log('🚀 sortedTiers', sortedTiers);
-      const _sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
-      console.log('🚀 _sortedTiers', _sortedTiers);
 
       const amountSpentForYear = orders.reduce(
         (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
