@@ -9,6 +9,7 @@ import publish from './publish';
 import addImage from './addImage';
 import removeImage from './removeImage';
 import load from './load';
+import loadProducts from './loadProducts';
 
 export const product = {
   list,
@@ -22,4 +23,5 @@ export const product = {
   saveConfig,
   publish,
   load,
+  loadProducts,
 };
