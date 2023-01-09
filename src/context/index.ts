@@ -18,8 +18,8 @@ import {
   StorageService,
 } from '../Services';
 import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
+import { Email } from './email';
 
-const Email = require('./email');
 const { ValidateRoles, saveRole, isGuest } = require('./roles');
 const sitemapQuery = require('./sitemap');
 

@@ -1,7 +1,12 @@
+import { ContextType } from '../Context';
+
 const assert = require('assert');
 const nodemailer = require('nodemailer');
 
-module.exports = ({ $logger, $env }) => {
+// module.exports = ({ $logger, $env }) => {
+export type AwsSmtpContrustor = (context: ContextType) => any;
+
+export const AwsSmtp: AwsSmtpContrustor = ({ $logger, $env }) => {
   assert($env.SMTP_HOST, 'Env var SMTP_HOST is required');
   assert($env.SMTP_PORT, 'Env var SMTP_PORT is required');
   assert($env.SMTP_AUTH_USER, 'Env var SMTP_AUTH_USER is required');
@@ -18,7 +23,7 @@ module.exports = ({ $logger, $env }) => {
       user: $env.SMTP_AUTH_USER,
       pass: $env.SMTP_AUTH_PASS,
     },
-  };
+  } as any;
   if ($env.SMTP_TLS_CIPHERS && $env.SMTP_TLS_MIN_VERSION) {
     transportOptions.tls = {
       minVersion: $env.SMTP_TLS_MIN_VERSION,
@@ -32,12 +37,12 @@ module.exports = ({ $logger, $env }) => {
     from: `${$env.EMAIL_FROM_NAME} <${$env.EMAIL_FROM_ADDRESS}>`,
   };
 
-  const send = function (email) {
+  const send = function (email: any) {
     $logger.info('Sending Email: %o', email);
     const transporter = nodemailer.createTransport(transportOptions, defaults);
 
     return new Promise((resolve, reject) => {
-      return transporter.sendMail(email, error => {
+      return transporter.sendMail(email, (error: any) => {
         if (error) {
           $logger.error('Email Failed: %o', email);
           return reject(error);
