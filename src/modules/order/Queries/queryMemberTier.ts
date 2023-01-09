@@ -57,18 +57,25 @@ export const queryMemberTier: QueryMemberTier = (
         ])
         .toArray(),
     ]).then(([tiers, orders]) => {
+      console.log('🚀 tiers', tiers);
+      console.log('🚀 orders', orders);
       assert(tiers, 'MembershipTiers not found.');
 
       const sortedTiers = tiers.membershipTiers.sort(a => a.level);
+      console.log('🚀 sortedTiers', sortedTiers);
 
       const amountSpentForYear = orders.reduce(
         (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
         0
       );
+      console.log('🚀 amountSpentForYear', amountSpentForYear);
 
       const currentTier = sortedTiers.find(t => t.entryLevelSpend <= amountSpentForYear);
+      console.log('🚀  currentTier', currentTier);
       const nextTierLevel = (currentTier?.level || 0) + 1;
+      console.log('🚀 nextTierLevel', nextTierLevel);
       const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
+      console.log('🚀 nextTier', nextTier);
 
       return {
         ...currentTier,
