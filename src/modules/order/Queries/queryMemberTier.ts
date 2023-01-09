@@ -62,11 +62,14 @@ export const queryMemberTier: QueryMemberTier = (
       console.log('🚀 orders', orders);
       assert(tiers, 'MembershipTiers not found.');
 
-      const sortedTiers = sortBy(tiers.membershipTiers, a => !a.level);
-      console.log(
-        '🚀 ~ file: queryMemberTier.ts:66 ~ ]).then ~ sortedTiers',
-        sortedTiers
-      );
+      const sortedTiers = sortBy(tiers.membershipTiers, a => !Number(a.level));
+      console.log('🚀 sortedTiers', sortedTiers);
+      const _sortedTiers = sortBy(tiers.membershipTiers, a => Number(a.level));
+      console.log('🚀 _sortedTiers', _sortedTiers);
+      const _2sortedTiers = sortBy(tiers.membershipTiers, a => a.level);
+      console.log('🚀 _2sortedTiers', _2sortedTiers);
+      const _3sortedTiers = sortBy(tiers.membershipTiers, a => !a.level);
+      console.log('🚀 _3sortedTiers', _3sortedTiers);
 
       const amountSpentForYear = orders.reduce(
         (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
