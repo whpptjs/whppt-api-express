@@ -98,6 +98,9 @@ export const S3: S3Constructor = $hosting => {
         .then(fileData => {
           if (!fileData || !fileData.Body) throw new Error('No file body');
           return streamToBuffer(fileData.Body);
+        })
+        .catch(err => {
+          throw new Error(err.message || 'Fetching image failed');
         });
     });
   };

@@ -3,6 +3,7 @@ import { Product } from 'src/modules/product/Models/Product';
 
 export type Order = {
   _id: string;
+  orderNumber?: string;
   domainId?: string;
   contact?: OrderContact;
   memberId?: string;
@@ -36,7 +37,7 @@ export type Shipping = {
   contactDetails: ContactDetails;
   shippingCost: ShippingCost;
   ausPost?: AusPostShipping;
-  status: 'preparing' | 'inTransit' | 'delivered';
+  status: 'preparing' | 'dispatched' | 'delivered';
   pickup?: boolean;
 };
 export type Billing = {

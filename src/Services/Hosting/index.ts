@@ -37,13 +37,11 @@ export type StorageHostingConfig = {
   };
 };
 export type EmailHostingConfig = {
-  provider: string;
-  smtpAuthUser?: string;
-  smtpAuthPass?: string;
-  smtpHost?: string;
-  smtpPort?: string;
-  emailFromName?: string;
-  emailFromAddress?: string;
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  fromAddress: string;
+  feedbackAddress: string;
 };
 
 export type HostingConfig = {
@@ -114,13 +112,11 @@ export const HostingService = (
               },
             },
             email: {
-              provider: process.env.EMAIL_PROVIDER || 'Fake',
-              smtpAuthUser: process.env.SMTP_AUTH_USER,
-              smtpAuthPass: process.env.SMTP_AUTH_PASS,
-              smtpHost: process.env.SMTP_HOST,
-              smtpPort: process.env.SMTP_PORT,
-              emailFromName: process.env.EMAIL_FROM_NAME,
-              emailFromAddress: process.env.EMAIL_FROM_ADDRESS,
+              region: process.env.EMAIL_AWS_REGION || '',
+              accessKeyId: process.env.EMAIL_AWS_ACCESS_KEYID || '',
+              secretAccessKey: process.env.EMAIL_AWS_SECRET_ACCESS_KEY || '',
+              fromAddress: process.env.EMAIL_FROM_ADDRESS || '',
+              feedbackAddress: process.env.EMAIL_FEEDBACK_ADDRESS || '',
             },
             cors: [],
           };

@@ -10,7 +10,7 @@ const sendReceipt: HttpModule<{ orderId: string; email: string }, void> = {
     return loadOrderWithProducts(context, { _id: orderId }).then(order => {
       if (!order._id) return Promise.reject({ status: 404, message: 'Order not found' });
 
-      if (order._id && email) {
+      if (!(order._id && email)) {
         return context.$email.send({
           to: email,
           subject: `Hentley Farm receipt${

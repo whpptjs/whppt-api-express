@@ -1,5 +1,6 @@
 export * from './Id';
 export * from './Logger';
+export * from './Email';
 export * from './Events';
 export * from './Mongo';
 export * from './Security';

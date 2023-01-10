@@ -16,9 +16,9 @@ import {
   WhpptDatabase,
   HostingConfig,
   StorageService,
+  // EmailServiceConstructor,
 } from '../Services';
 import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
-import { Email } from './email';
 
 const { ValidateRoles, saveRole, isGuest } = require('./roles');
 const sitemapQuery = require('./sitemap');
@@ -32,6 +32,7 @@ const Context = (
   $database: Promise<WhpptDatabase>,
   $config: ConfigService,
   $hosting: Promise<HostingConfig>,
+  // $email: EmailServiceConstructor,
   $storage: StorageService,
   $gallery: GalleryService,
   $image: ImageService,
@@ -58,6 +59,7 @@ const Context = (
         $modules: $config.runtime.modules,
         $pageTypes: $config.runtime.pageTypes,
         $fullUrl,
+        // $email,
         $sitemap: {
           filter: sitemapQuery({
             $mongo: database,
@@ -82,7 +84,7 @@ const Context = (
         apiKey,
       } as ContextType;
 
-      _context.$email = Email(_context);
+      // _context.$email = $email(_context);
       _context.$unleashed = Unleashed(_context);
       _context.$gallery = $gallery;
       _context.CreateEvent = CreateEvent;
