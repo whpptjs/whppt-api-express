@@ -51,7 +51,10 @@ export const S3: S3Constructor = $hosting => {
             Metadata: meta,
           })
         )
-        .then(() => {});
+        .then(() => {})
+        .catch(err => {
+          throw new Error(err?.message || 'Uploading image failed.');
+        });
     });
   };
 
@@ -68,7 +71,10 @@ export const S3: S3Constructor = $hosting => {
             Key: path,
           })
         )
-        .then(() => {});
+        .then(() => {})
+        .catch(err => {
+          throw new Error(err?.message || 'Removing image failed.');
+        });
     });
   };
 
@@ -98,6 +104,9 @@ export const S3: S3Constructor = $hosting => {
         .then(fileData => {
           if (!fileData || !fileData.Body) throw new Error('No file body');
           return streamToBuffer(fileData.Body);
+        })
+        .catch(err => {
+          throw new Error(err?.message || 'Fetching image failed.');
         });
     });
   };
