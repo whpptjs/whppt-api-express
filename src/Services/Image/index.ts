@@ -85,8 +85,8 @@ export const Image: ImageServiceConstructor = ($id, $database, $storage, config)
           const _resizedImage =
             format.w || format.h
               ? _extractedImage.resize(
-                  format.w && Math.ceil(parseFloat(format.w) * scale),
-                  format.h && Math.ceil(parseFloat(format.h) * scale),
+                  format.w ? Math.ceil(parseFloat(format.w) * scale) : undefined,
+                  format.h ? Math.ceil(parseFloat(format.h) * scale) : undefined,
                   {
                     withoutEnlargement: true,
                   }
