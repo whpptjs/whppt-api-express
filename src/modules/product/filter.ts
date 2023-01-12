@@ -121,11 +121,11 @@ function sortLookup(key: string) {
       };
     case 'price (lowest to highest)':
       return {
-        price: -1,
+        price: 1,
       };
     case 'price (highest to lowest)':
       return {
-        price: 1,
+        price: -1,
       };
     default:
       return { name: 1 };
