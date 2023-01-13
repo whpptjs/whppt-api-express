@@ -19,7 +19,7 @@ import {
   IdService,
   Logger,
   Security,
-  // EmailService,
+  EmailService,
 } from './Services';
 import { DatabaseService } from './Services/Database';
 import { MongoDatabaseConnection } from './Services/Database/Mongo/Connection';
@@ -110,7 +110,7 @@ export const Whppt = (config: WhpptConfig) => {
     const databasePromise = dbConnection.then(con => con.getDatabase(dbConfig));
     // TODO: Work towards a generic storage api. S3 used here
     const $storage = S3(hostingConfig);
-    // const $email = EmailService;
+    const $email = EmailService;
 
     req.moduleContext = ModuleContext(
       $id,
@@ -119,7 +119,7 @@ export const Whppt = (config: WhpptConfig) => {
       databasePromise,
       $config,
       hostingConfig,
-      // $email,
+      $email,
       $storage,
       Gallery($id, databasePromise, $storage),
       Image($id, databasePromise, $storage, config),

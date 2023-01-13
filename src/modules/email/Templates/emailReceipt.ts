@@ -11,9 +11,9 @@ function getOrderItems(order: any) {
         '<tr><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         item.quantity.toString() +
         '</td><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
-        item.product.name +
+        (item?.product?.name || 'Legacy Item') +
         '</td><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
-        (item.product.price / 100).toFixed(2).toString() +
+        ((item.purchasedPrice || item?.product?.price) / 100).toFixed(2).toString() +
         '</td></tr>';
     }
 
@@ -25,7 +25,9 @@ function getSubtotal(order: any) {
   return order && order.items.length
     ? order.items.reduce(
         (acc: number, item: OrderItemWithProduct) =>
-          acc + (Number(item.product?.price) / 100) * Number(item.quantity),
+          acc +
+          (Number(item?.purchasedPrice || item.product?.price || 0) / 100) *
+            Number(item.quantity),
         0
       )
     : 0;
@@ -44,9 +46,10 @@ export function getOrderTemplate(order: any) {
     ? order?.payment?.shippingCost?.price / 100 - memberShippingDiscount
     : 0;
   const subtotal = getSubtotal(order) - memberTotalDiscount;
+  console.log('🚀  memberTotalDiscount', memberTotalDiscount);
   const tax = order?.payment?.tax / 100 || 0;
 
-  return /* HTML */ `
+  return `
     <table
       border="0"
       cellpadding="0"
@@ -62,13 +65,15 @@ export function getOrderTemplate(order: any) {
           </h2>
           <p
             style="color:#ACACAC;font-weight:normal;font-size:16px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:30px">
-            ${order.updatedAt &&
-            new Date(order.updatedAt).toLocaleDateString('en-US', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            ${
+              order.updatedAt &&
+              new Date(order.updatedAt).toLocaleDateString('en-US', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })
+            }
           </p>
           <table
             cellspacing="0"
@@ -95,9 +100,11 @@ export function getOrderTemplate(order: any) {
             <tfoot>
               <tr>
                 <th scope="row" colspan="2" style=${getStyle(memberTotalDiscount)}>
-                  ${memberTotalDiscount
-                    ? `Subtotal - (Member discount on items: ${memberTotalDiscount})`
-                    : 'Subtotal'}
+                  ${
+                    memberTotalDiscount
+                      ? `Subtotal - (Member discount on items: ${memberTotalDiscount})`
+                      : 'Subtotal'
+                  }
                 </th>
                 <td style=${getStyle(memberTotalDiscount)}>${subtotal.toFixed(2)}</td>
               </tr>
@@ -114,11 +121,13 @@ export function getOrderTemplate(order: any) {
               </tr>
               <tr>
                 <th scope="row" colspan="2" style=${getStyle(memberShippingDiscount)}>
-                  ${memberShippingDiscount
-                    ? `Shipping - (Member shipping discount: $${memberShippingDiscount.toFixed(
-                        2
-                      )})`
-                    : 'Shipping'}
+                  ${
+                    memberShippingDiscount
+                      ? `Shipping - (Member shipping discount: $${memberShippingDiscount.toFixed(
+                          2
+                        )})`
+                      : 'Shipping'
+                  }
                 </th>
                 <td style=${getStyle(memberShippingDiscount)}>${shipping.toFixed(2)}</td>
               </tr>

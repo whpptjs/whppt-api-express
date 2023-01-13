@@ -16,7 +16,7 @@ import {
   WhpptDatabase,
   HostingConfig,
   StorageService,
-  // EmailServiceConstructor,
+  EmailServiceConstructor,
 } from '../Services';
 import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
@@ -32,7 +32,7 @@ const Context = (
   $database: Promise<WhpptDatabase>,
   $config: ConfigService,
   $hosting: Promise<HostingConfig>,
-  // $email: EmailServiceConstructor,
+  $email: EmailServiceConstructor,
   $storage: StorageService,
   $gallery: GalleryService,
   $image: ImageService,
@@ -59,7 +59,6 @@ const Context = (
         $modules: $config.runtime.modules,
         $pageTypes: $config.runtime.pageTypes,
         $fullUrl,
-        // $email,
         $sitemap: {
           filter: sitemapQuery({
             $mongo: database,
@@ -84,7 +83,6 @@ const Context = (
         apiKey,
       } as ContextType;
 
-      // _context.$email = $email(_context);
       _context.$unleashed = Unleashed(_context);
       _context.$gallery = $gallery;
       _context.CreateEvent = CreateEvent;
@@ -92,7 +90,9 @@ const Context = (
       forEach($config.runtime.services, (serviceConstructor, serviceName) => {
         _context[`$${serviceName}`] = serviceConstructor(_context);
       });
-      return _context;
+      return $email(_context).then(_email => {
+        return { ..._context, $email: _email };
+      });
     });
   });
 };
