@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { assign } from 'lodash';
+import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Order, OrderContact } from './Models/Order';
 import * as validations from './Validations';
@@ -14,32 +15,65 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
     assert(contact.email, 'email is required.');
-
     return $database.then(({ document, startTransaction }) => {
       return document
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
-          assert(loadedOrder, 'Order not found.');
+          const _filter = contact._id ? { _id: contact._id } : { email: contact.email };
 
-          validations.canBeModified(loadedOrder);
+          return document
+            .query<Contact>('contacts', { filter: _filter })
+            .then(loadedContact => {
+              assert(loadedOrder, 'Order not found.');
 
-          if (detailsHaveNotChanged(loadedOrder, contact)) return;
-          const event = createEvent('OrderContactInformationUpdated', {
-            _id: loadedOrder._id,
-            contact,
-          });
+              validations.canBeModified(loadedOrder);
 
-          assign(loadedOrder, {
-            ...loadedOrder,
-            contact: {
-              ...loadedOrder.contact,
-              ...contact,
-            },
-          });
+              if (detailsHaveNotChanged(loadedOrder, contact)) return;
+              const contactToUse = loadedContact
+                ? {
+                    email: loadedContact.email,
+                    firstName: loadedContact.firstName,
+                    lastName: loadedContact.lastName,
+                    _id: loadedContact._id,
+                  }
+                : {
+                    _id: context.$id.newId(),
+                    firstName: 'Guest',
+                    lastName: 'Website',
+                    ...contact,
+                  };
 
-          return startTransaction(session => {
-            return document.saveWithEvents('orders', loadedOrder, [event], { session });
-          });
+              const event = createEvent('OrderContactInformationUpdated', {
+                _id: loadedOrder._id,
+                contact: contactToUse,
+              });
+
+              assign(loadedOrder, {
+                ...loadedOrder,
+                contact: contactToUse,
+              });
+
+              return startTransaction(session => {
+                return document
+                  .saveWithEvents('orders', loadedOrder, [event], {
+                    session,
+                  })
+                  .then(() => {
+                    if (contact._id) return;
+
+                    const contactEvents = [createEvent('ContactCreated', contactToUse)];
+
+                    return document.saveWithEvents(
+                      'contacts',
+                      contactToUse,
+                      contactEvents,
+                      {
+                        session,
+                      }
+                    );
+                  });
+              });
+            });
         });
     });
   },

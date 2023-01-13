@@ -1,4 +1,5 @@
 import {
+  // EmailService,
   HostingConfig,
   IdService,
   LoggerService,
@@ -35,7 +36,7 @@ export type ContextType = {
   $roles: { validate: (user: any, roles: any[]) => Promise<void> };
   $env?: any;
   $publishing?: any;
-  $email?: any;
+  // $email: EmailService;
   $gallery?: GalleryService;
   EventSession: EventSessionFactory;
   useService: UseService;

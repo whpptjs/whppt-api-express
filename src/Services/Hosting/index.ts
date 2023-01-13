@@ -36,12 +36,20 @@ export type StorageHostingConfig = {
     secretAccessKey: string;
   };
 };
+export type EmailHostingConfig = {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  fromAddress: string;
+  feedbackAddress: string;
+};
 
 export type HostingConfig = {
   apiKey: string;
   database: DatabaseHostingConfig;
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
+  email: EmailHostingConfig;
   cors: string[];
 };
 
@@ -50,6 +58,7 @@ type PersistedHostingConfig = {
   database: PersistedDatabaseHostingConfig;
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
+  email: EmailHostingConfig;
   cors: string[];
 };
 
@@ -101,6 +110,13 @@ export const HostingService = (
                 accessKeyId: process.env.S3_ACCESS_KEY_ID,
                 secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
               },
+            },
+            email: {
+              region: process.env.EMAIL_AWS_REGION || '',
+              accessKeyId: process.env.EMAIL_AWS_ACCESS_KEYID || '',
+              secretAccessKey: process.env.EMAIL_AWS_SECRET_ACCESS_KEY || '',
+              fromAddress: process.env.EMAIL_FROM_ADDRESS || '',
+              feedbackAddress: process.env.EMAIL_FEEDBACK_ADDRESS || '',
             },
             cors: [],
           };

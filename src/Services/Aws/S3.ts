@@ -106,7 +106,7 @@ export const S3: S3Constructor = $hosting => {
           return streamToBuffer(fileData.Body);
         })
         .catch(err => {
-          throw new Error(err?.message || 'Fetching image failed.');
+          throw new Error(err.message || 'Fetching image failed');
         });
     });
   };
