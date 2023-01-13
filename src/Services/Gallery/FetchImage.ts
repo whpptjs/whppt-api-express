@@ -86,10 +86,10 @@ export const FetchImage: FetchImageConstructor =
         }
         const scale = parseFloat(format.s) || baseImageScale;
         const _resizedImage =
-          format.w && format.h
+          format.w || format.h
             ? _extractedImage.resize(
-                Math.ceil(parseFloat(format.w) * scale),
-                Math.ceil(parseFloat(format.h) * scale),
+                format.w ? Math.ceil(parseFloat(format.w) * scale) : undefined,
+                format.h ? Math.ceil(parseFloat(format.h) * scale) : undefined,
                 {
                   withoutEnlargement: true,
                 }

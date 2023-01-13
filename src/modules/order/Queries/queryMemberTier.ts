@@ -6,6 +6,7 @@ import {
 } from 'src/modules/membershipTier/Models/MembershipTier';
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { Order } from '../Models/Order';
+import orderBy from 'lodash/orderBy';
 
 export type QueryMemberTier = (
   context: ContextType,
@@ -59,7 +60,7 @@ export const queryMemberTier: QueryMemberTier = (
     ]).then(([tiers, orders]) => {
       assert(tiers, 'MembershipTiers not found.');
 
-      const sortedTiers = tiers.membershipTiers.sort(a => a.level);
+      const sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
 
       const amountSpentForYear = orders.reduce(
         (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),

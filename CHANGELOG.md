@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.39](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.38...v2.0.39) (2023-01-12)
+
+### [2.0.38](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.37...v2.0.38) (2023-01-12)
+
+### [2.0.37](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.36...v2.0.37) (2023-01-11)
+
+### [2.0.36](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.35...v2.0.36) (2023-01-11)
+
+### [2.0.35](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.34...v2.0.35) (2023-01-10)
+
+### [2.0.34](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.33...v2.0.34) (2023-01-09)
+
+### [2.0.33](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.32...v2.0.33) (2023-01-09)
+
+### [2.0.32](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.31...v2.0.32) (2023-01-09)
+
+### [2.0.31](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.30...v2.0.31) (2023-01-09)
+
+### [2.0.30](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.29...v2.0.30) (2023-01-09)
+
 ### [2.0.29](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.28...v2.0.29) (2023-01-06)
 
 ### [2.0.28](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.27...v2.0.28) (2023-01-05)
