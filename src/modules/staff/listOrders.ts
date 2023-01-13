@@ -73,6 +73,9 @@ const listOrders: HttpModule<
             {
               $match: query,
             },
+            {
+              $sort: { updatedAt: -1 },
+            },
             // {
             //   $lookup: {
             //     from: 'member',
