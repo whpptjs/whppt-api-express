@@ -4,7 +4,7 @@ import { loadModules } from './loadModules';
 import { buildCollections } from './buildCollections';
 import { LoggerService } from '../Logger';
 import { ConfigMiddleware } from './middleware';
-import { ContextService } from '../../context/Context';
+import { ContextService, ContextType } from '../../context/Context';
 
 export * from './PageType';
 
@@ -20,8 +20,8 @@ export type WhpptConfig = {
   services?: { [name: string]: ContextService<any> };
   pageTypes?: PageType[];
   disablePublishing?: boolean;
-  onPublish?: (page: any) => void;
-  onUnPublish?: (page: any) => void;
+  onPublish?: (context: ContextType, page: any, collection: string) => void;
+  onUnPublish?: (context: ContextType, page: any, collection: string) => void;
   routers?: { path: string; routerFactory: any }[];
   /**
    * @deprecated this options should not be used. The various routers will use their own prefixes.
@@ -34,8 +34,8 @@ export type RuntimeConfig = {
   pageTypes: PageType[];
   modules: { [key: string]: WhpptModule };
   services: { [name: string]: ContextService<any> };
-  onPublish: (page: any) => void;
-  onUnPublish: (page: any) => void;
+  onPublish: (context: ContextType, page: any, collection: string) => void;
+  onUnPublish: (context: ContextType, page: any, collection: string) => void;
 };
 
 export type ConfigServiceFactory = (

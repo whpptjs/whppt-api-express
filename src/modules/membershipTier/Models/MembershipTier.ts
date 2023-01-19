@@ -8,6 +8,7 @@ export type MembershipDiscount = {
     text?: string;
   };
   _id: string;
+  minItemsRequiredForDiscount?: number;
 };
 
 export type MembershipTier = {

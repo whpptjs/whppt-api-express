@@ -6,7 +6,6 @@ import removeGiftCard from './removeGiftCard';
 import addDiscountCode from './addDiscountCode';
 import removeDiscountCode from './removeDiscountCode';
 import startCheckout from './startCheckout';
-import continueToPayment from './continueToPayment';
 import confirmStripePayment from './confirmStripePayment';
 import cancelOrder from './cancelOrder';
 import prepareOrder from './prepareOrder';
@@ -23,6 +22,7 @@ import addMember from './addMember';
 import removeMember from './removeMember';
 import refund from './refund';
 import sendReceipt from './sendReceipt';
+import refundViaCash from './refundViaCash';
 
 export const order = {
   createOrderWithProduct,
@@ -32,7 +32,6 @@ export const order = {
   addDiscountCode,
   removeDiscountCode,
   startCheckout,
-  continueToPayment,
   confirmStripePayment,
   cancelOrder,
   prepareOrder,
@@ -49,4 +48,5 @@ export const order = {
   removeMember,
   refund,
   sendReceipt,
+  refundViaCash,
 };
