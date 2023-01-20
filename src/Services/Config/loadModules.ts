@@ -34,10 +34,6 @@ export const loadModules: LoadModules = (configModules: {
   [key: string]: WhpptModule;
 }) => {
   return modulePromise.then((modules: { [key: string]: WhpptModule }) => {
-    console.log(
-      '🚀 ~ file: loadModules.ts:49 ~ returnmodulePromise.then ~ search',
-      search
-    );
     return {
       ...modules,
       ...contact,

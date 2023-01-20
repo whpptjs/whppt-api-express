@@ -17,6 +17,16 @@ export type MembershipTier = {
   discounts: MembershipDiscount[];
   level: number;
   entryLevelSpend: number;
+  messageToMembers: {
+    _id: string;
+    message: string;
+    link: {
+      _id?: string;
+      type: 'file' | 'anchor' | 'page' | 'external';
+      text: any;
+      href: any;
+    };
+  };
 };
 
 export type MembershipOptions = {
