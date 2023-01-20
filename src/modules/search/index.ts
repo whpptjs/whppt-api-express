@@ -1,5 +1,5 @@
 import query from './query';
 
-export const product = {
+export const search = {
   query,
 };
