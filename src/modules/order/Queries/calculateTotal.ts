@@ -1,6 +1,6 @@
 import { ContextType } from 'src/context/Context';
 import { MembershipTier } from 'src/modules/membershipTier/Models/MembershipTier';
-import { OrderItemWithProduct, ShippingCost } from '../Models/Order';
+import { Order, OrderItem, OrderItemWithProduct, ShippingCost } from '../Models/Order';
 import { getShippingCost } from './getShippingCost';
 import { loadOrderWithProducts } from './loadOrderWithProducts';
 import { queryMemberTier } from './queryMemberTier';
@@ -46,12 +46,14 @@ export const calculateTotal: CalculateTotalArgs = (
 
       if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
 
+      const amountOfProducts = calcAmountOfProducts(order);
+
       const memberTotalDiscount = memberTier?.discounts
-        ? membersTotalSavings(memberTier, itemsCostInCents)
+        ? membersTotalSavings(memberTier, itemsCostInCents, amountOfProducts)
         : 0;
 
       const memberShippingDiscount = memberTier?.discounts
-        ? membersShippingSaving(memberTier, shippingCost)
+        ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
         : 0;
 
       const gst = (itemsCostInCents - memberTotalDiscount) * GST;
@@ -79,20 +81,47 @@ export const calculateTotal: CalculateTotalArgs = (
   });
 };
 
-const membersTotalSavings = (tier: MembershipTier, subTotal: number) => {
+const calcAmountOfProducts = (order: Order) => {
+  return (
+    order?.items?.reduce(
+      (partialSum: number, item: OrderItem) => partialSum + item.quantity,
+      0
+    ) || 0
+  );
+};
+
+const membersTotalSavings = (
+  tier: MembershipTier,
+  subTotal: number,
+  amountOfProducts: number
+) => {
   const savings = tier?.discounts?.reduce((partialSum, discount) => {
     if (discount.appliedTo === 'shipping') return partialSum + 0;
+    if (
+      discount.minItemsRequiredForDiscount &&
+      discount.minItemsRequiredForDiscount > amountOfProducts
+    )
+      return partialSum + 0;
     if (discount.type === 'flat') return partialSum + discount.value;
     return partialSum + subTotal * (discount.value / 100);
   }, 0);
   return savings || 0;
 };
 
-const membersShippingSaving = (tier: MembershipTier, shippingCost: ShippingCost) => {
+const membersShippingSaving = (
+  tier: MembershipTier,
+  shippingCost: ShippingCost,
+  amountOfProducts: number
+) => {
   if (!tier?.discounts) return 0;
 
   const _cost = tier?.discounts?.reduce((partialSum, discount) => {
     if (discount.appliedTo === 'total') return partialSum + 0;
+    if (
+      discount.minItemsRequiredForDiscount &&
+      discount.minItemsRequiredForDiscount > amountOfProducts
+    )
+      return partialSum + 0;
     if (discount?.shipping?.value !== shippingCost.type) return partialSum + 0;
     if (discount.type === 'flat') return partialSum + discount.value;
 

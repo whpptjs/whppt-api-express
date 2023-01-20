@@ -11,9 +11,9 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
     authorise({ $roles }, { page, user }) {
       return $roles.validate(user, [page.editorRoles]);
     },
-    exec({ $pageTypes, $id, $database }, { page, collection, user, publish }) {
+    exec(context, { page, collection, user, publish }) {
       assert(page, 'Please provide a page.');
-
+      const { $pageTypes, $id, $database, $publishing } = context;
       page._id = page._id || $id.newId();
 
       const pageType = find($pageTypes, pt => pt.name === page.pageType);
@@ -29,6 +29,9 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
         const { startTransaction, db, document } = database as WhpptMongoDatabase;
         return startTransaction(async session => {
           if (publish) await document.publish(_collection, page, { session });
+          if (publish && $publishing.onPublish)
+            await $publishing.onPublish(context, page, _collection);
+
           await db
             .collection('dependencies')
             .deleteMany({ parentId: page._id }, { session });

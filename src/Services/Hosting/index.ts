@@ -46,6 +46,7 @@ export type EmailHostingConfig = {
 
 export type HostingConfig = {
   apiKey: string;
+  searchIndex: string;
   database: DatabaseHostingConfig;
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
@@ -54,6 +55,7 @@ export type HostingConfig = {
 };
 
 type PersistedHostingConfig = {
+  searchIndex: string;
   apiKey: string;
   database: PersistedDatabaseHostingConfig;
   security: SecurityHostingConfig;
@@ -118,6 +120,7 @@ export const HostingService = (
               fromAddress: process.env.EMAIL_FROM_ADDRESS || '',
               feedbackAddress: process.env.EMAIL_FEEDBACK_ADDRESS || '',
             },
+            searchIndex: process.env.SEARCH_INDEX || '',
             cors: [],
           };
         });
