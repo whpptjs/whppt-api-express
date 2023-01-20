@@ -30,6 +30,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
         return startTransaction(async session => {
           if (publish) await document.publish(_collection, page, { session });
           console.log('🚀 publish', publish);
+          console.log('🚀 $publishing', $publishing);
           console.log('🚀 publishing.onPublish', $publishing.onPublish);
 
           if (publish && $publishing.onPublish)
