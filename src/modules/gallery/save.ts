@@ -8,13 +8,26 @@ const save: HttpModule<{ item?: GalleryItem }> = {
     const requiredRoles = [] as string[];
     return $roles.validate(user, [requiredRoles]);
   },
-  exec({ $mongo: { $save } }, { item }) {
+  exec({ $database }, { item }) {
     assert(item, 'Gallery item is required');
     assert(item.domainId, 'Gallery item requires a domain id');
-
-    return $save('gallery', item).then(savedItem => ({
-      item: savedItem,
-    }));
+    return $database
+      .then(({ document, startTransaction }) => {
+        return startTransaction(session => {
+          return document
+            .save('gallery', item, {
+              session,
+            })
+            .then(() => {
+              return document.publish('gallery', item, {
+                session,
+              });
+            });
+        });
+      })
+      .then(savedItem => ({
+        item: savedItem,
+      }));
   },
 };
 

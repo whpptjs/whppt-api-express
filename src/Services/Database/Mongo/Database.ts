@@ -24,6 +24,7 @@ import {
   SaveDocumentWithEvents,
   QueryDistinct,
   QueryDocument,
+  PublishDocumentWithEvents,
 } from '..';
 import { IdService } from '../../Id/index';
 import { pick } from 'lodash';
@@ -275,6 +276,34 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
           .then(() => {});
       });
   };
+  const publishDocumentWithEvents: PublishDocumentWithEvents = (
+    collection,
+    doc,
+    events,
+    { session }
+  ) => {
+    assert(pubDb, 'Publish database is not configured');
+
+    doc = {
+      ...doc,
+      _id: doc._id || id.newId(),
+      createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date(),
+      updatedAt: new Date(),
+    };
+
+    const eventCollection = collection + 'Events';
+
+    return db
+      .collection(collection)
+      .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+      .then(() => {
+        return pubDb
+          .collection(collection)
+          .updateOne({ _id: doc._id }, { $set: doc }, { session, upsert: true })
+          .then(() => pubDb.collection(eventCollection).insertMany(events, { session }));
+      })
+      .then(() => doc);
+  };
 
   //TODO: Performance: EnsureCollections. Do this for each configured db when the app starts or a new api key is created. For now its done on each request.
   const ensureCollections: EnsureCollections = (collections: string[]) => {
@@ -306,6 +335,7 @@ export const WhpptMongoDatabase: MongoDabaseFactory = (logger, id, client, db, p
       remove: removeDocument,
       delete: deleteDocument,
       publish: publishDocument,
+      publishWithEvents: publishDocumentWithEvents,
       unpublish: unpublishDocument,
     },
     $startTransaction: startTransaction,

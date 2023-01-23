@@ -18,6 +18,8 @@ const login: HttpModule<{ username: string; password: string }, any> = {
               "The username / email address you entered isn't connected to an account."
             )
           );
+        if (!staffMember.isActive)
+          return Promise.reject(new Error('This account has been deactivated.'));
 
         return $security.encrypt(password).then((encrypted: string) => {
           $logger.dev('Checking password for member %s, %s', username, encrypted);
@@ -55,7 +57,9 @@ const findStaff = (db: WhpptDatabase, username: string) => {
       contact,
       "The username / email address you entered isn't connected to an account."
     );
-    return db.document.query<Staff>('staff', { filter: { contactId: contact._id } });
+    return db.document.query<Staff>('staff', {
+      filter: { contactId: contact._id },
+    });
   });
 };
 

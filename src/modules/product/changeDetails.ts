@@ -5,27 +5,30 @@ import { HttpModule } from '../HttpModule';
 import { Product } from './Models/Product';
 
 export type ChangeDetailsArgs = {
-  _id: string;
-  domainId: string;
-  name: string;
-  productCode: string;
-  description?: string;
-  family?: string;
-  quantityAvailable?: string;
-  canPlaceOrderQuantity?: string;
-  unitOfMeasure?: string;
-  price?: string;
-  isActive: boolean;
-  customFields: {
-    [key: string]: string | undefined;
+  product: {
+    _id: string;
+    domainId: string;
+    name: string;
+    productCode: string;
+    description?: string;
+    family?: string;
+    quantityAvailable?: string;
+    canPlaceOrderQuantity?: string;
+    unitOfMeasure?: string;
+    price?: string;
+    isActive: boolean;
+    customFields: {
+      [key: string]: string | undefined;
+    };
   };
+  publish: boolean;
 };
 
 const changeDetails: HttpModule<ChangeDetailsArgs, void> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $database, createEvent }, productData) {
+  exec({ $database, createEvent }, { product: productData, publish }) {
     assert(productData.domainId, 'Product requires a Domain Id.');
     assert(productData._id, 'Product requires a Product Id.');
     assert(productData.name, 'Product requires a Name.');
@@ -40,7 +43,12 @@ const changeDetails: HttpModule<ChangeDetailsArgs, void> = {
           return startTransaction(session => {
             return document
               .saveWithEvents('products', product, [event], { session })
-              .then(() => {});
+              .then(() => {
+                if (!publish) return;
+                return document.publishWithEvents('products', product, [event], {
+                  session,
+                });
+              });
           });
         });
       })

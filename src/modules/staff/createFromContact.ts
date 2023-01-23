@@ -45,7 +45,13 @@ const createFromContact: HttpModule<
           ];
 
           return startTransaction(session => {
-            return document.saveWithEvents('staff', staff, staffEvents, { session });
+            return document
+              .saveWithEvents('staff', staff, staffEvents, { session })
+              .then(() => {
+                return document.publishWithEvents('staff', staff, staffEvents, {
+                  session,
+                });
+              });
           }).then(() => staff);
         });
       });

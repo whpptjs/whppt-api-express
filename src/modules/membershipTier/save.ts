@@ -27,7 +27,11 @@ export const saveConfig: HttpModule<
       return startTransaction(session => {
         return document
           .saveWithEvents('site', membershipOptions, events, { session })
-          .then(() => {});
+          .then(() => {
+            return document.publishWithEvents('site', membershipOptions, events, {
+              session,
+            });
+          });
       });
     });
   },

@@ -30,7 +30,9 @@ const search: HttpModule<SearchParams, { items: GalleryItem[] }> = {
     } as any;
 
     const filterQuery = { $elemMatch: { $eq: filterTag } };
-    const searchQuery = { $in: queryTags };
+    const searchQuery = {
+      $in: queryTags.map(t => t.charAt(0).toUpperCase() + t.slice(1)),
+    };
 
     if (filterTag && !queryTags.length) query.tags = filterQuery;
     if (queryTags.length && !filterTag) query.tags = searchQuery;

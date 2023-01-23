@@ -29,7 +29,13 @@ const create: HttpModule<
           const events = [createEvent('ContactCreated', contact)];
 
           return startTransaction(session => {
-            return document.saveWithEvents('contacts', contact, events, { session });
+            return document
+              .saveWithEvents('contacts', contact, events, { session })
+              .then(() => {
+                return document.publishWithEvents('contacts', contact, events, {
+                  session,
+                });
+              });
           }).then(() => contact);
         });
     });

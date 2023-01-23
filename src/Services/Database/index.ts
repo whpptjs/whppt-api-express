@@ -77,6 +77,13 @@ export type SaveDocumentWithEvents = <T extends DatabaseDocument>(
   options: { session: any }
 ) => Promise<T>;
 
+export type PublishDocumentWithEvents = <T extends DatabaseDocument>(
+  collection: string,
+  doc: T,
+  events: DomainEvent[],
+  options: { session: any }
+) => Promise<T>;
+
 export type SaveDocumentToPubWithEvents = <T extends DatabaseDocument>(
   collection: string,
   doc: T,
@@ -132,6 +139,7 @@ export type WhpptDatabase = {
     delete: DeleteDocument;
     remove: RemoveDocument;
     publish: PublishDocument;
+    publishWithEvents: PublishDocumentWithEvents;
     unpublish: UnpublishDocument;
   };
   /**

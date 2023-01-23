@@ -16,6 +16,8 @@ export type Staff = {
   username: string;
   password?: string;
   createdAt?: Date;
+  department?: StaffDepartment;
+  isActive?: boolean;
 };
 
 export type StaffContact = Staff & { contact: Contact };

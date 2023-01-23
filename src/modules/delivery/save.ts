@@ -16,9 +16,11 @@ export const saveConfig: HttpModule<{ domainId: string; delivery: Delivery }, vo
 
       events.push(createEvent('DeliveryConfigSaved', { _id: delivery._id, delivery }));
       return startTransaction(session => {
-        return document
-          .saveWithEvents('site', delivery, events, { session })
-          .then(() => {});
+        return document.saveWithEvents('site', delivery, events, { session }).then(() => {
+          return document.publishWithEvents('site', delivery, events, {
+            session,
+          });
+        });
       });
     });
   },
