@@ -30,6 +30,7 @@ const list: HttpModule<
     if (sellableFilter === 'website') query.forSaleOnWebsite = true;
     if (family) query.family = family;
     if (search) query.name = { $regex: search, $options: 'i' };
+    console.log('🚀 ~ file: list.ts:33 ~ query', query);
 
     return $database.then(({ queryDocuments, countDocuments }) => {
       return Promise.all([

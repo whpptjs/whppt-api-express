@@ -1,13 +1,11 @@
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { HttpModule } from '../HttpModule';
+import { Secure } from '../staff/Secure';
 import { Member } from './Model';
 
 const search: HttpModule<{ searchBy: string }, Member[]> = {
-  //   authorise() {
-  //     //TODO make this staff member only
-  //     return Promise.resolve(true);
-  //   },
   exec({ $database }, { searchBy }) {
+    console.log('🚀 ~ file: search.ts:9 ~ exec ~ searchBy', searchBy);
     if (!searchBy) return Promise.resolve([] as Member[]);
     const query = [
       { firstName: { $regex: searchBy, $options: 'i' } },
@@ -25,6 +23,9 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
             $match: {
               $or: query,
             },
+          },
+          {
+            $limit: 50,
           },
           {
             $lookup: {
@@ -59,9 +60,13 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
             },
           },
         ])
-        .toArray();
+        .toArray()
+        .then(members => {
+          console.log('🚀 ~ file: search.ts:62 ~ .toArray ~ members', members);
+          return members;
+        });
     });
   },
 };
 
-export default search;
+export default Secure(search);
