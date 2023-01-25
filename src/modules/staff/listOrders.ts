@@ -100,6 +100,9 @@ const listOrders: HttpModule<
             //   },
             // },
             {
+              updatedAt: -1,
+            },
+            {
               $project: {
                 member: 0,
               },
