@@ -8,7 +8,7 @@ const getAusPostLabel: HttpModule<
     return $roles.validate(user, []);
   },
   exec({ $auspost }, { labelRequestId }) {
-    const { getLabel } = $auspost();
+    const { getLabel } = $auspost;
 
     return getLabel(labelRequestId);
   },
