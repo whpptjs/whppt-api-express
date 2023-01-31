@@ -80,7 +80,9 @@ export type Payment = {
 };
 
 export type AusPostShipping = {
-  _id: string;
+  shipmentId: string;
+  label_request_id: string;
+  status: 'labelPrinted';
 };
 
 export type OrderContact = {

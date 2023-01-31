@@ -17,6 +17,7 @@ import {
   HostingConfig,
   StorageService,
   EmailServiceConstructor,
+  AusPostService,
 } from '../Services';
 import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
@@ -37,7 +38,8 @@ const Context = (
   $gallery: GalleryService,
   $image: ImageService,
   $file: FileService,
-  apiKey: string
+  apiKey: string,
+  $auspost: AusPostService
 ) => {
   return Promise.resolve().then(() => {
     // TODO: Support other databases. Currently only Mongo is supported and we use it directly here.
@@ -91,7 +93,9 @@ const Context = (
         _context[`$${serviceName}`] = serviceConstructor(_context);
       });
       return $email(_context).then(_email => {
-        return { ..._context, $email: _email };
+        return $auspost(_context).then(_auspost => {
+          return { ..._context, $email: _email, $auspost: _auspost };
+        });
       });
     });
   });

@@ -23,6 +23,8 @@ import removeMember from './removeMember';
 import refund from './refund';
 import sendReceipt from './sendReceipt';
 import refundViaCash from './refundViaCash';
+import createAuspostLabel from './createAuspostLabel';
+import getAusPostLabel from './getAusPostLabel';
 
 export const order = {
   createOrderWithProduct,
@@ -49,4 +51,6 @@ export const order = {
   refund,
   sendReceipt,
   refundViaCash,
+  createAuspostLabel,
+  getAusPostLabel,
 };

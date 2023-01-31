@@ -12,3 +12,4 @@ export * from './Image';
 export * from './Config';
 export * from './Database';
 export * from './Hosting';
+export * from './AusPost';

@@ -36,6 +36,7 @@ export const ModulesRouter: ModulesRouter = ($logger, apiPrefix) => {
         const { status, error } = err;
 
         const _error = error && error.message ? error && error.message : error || err;
+
         $logger.error(
           'Error in modules route [POST]: %s %s %O %O',
           mod,

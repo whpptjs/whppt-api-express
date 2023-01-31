@@ -43,6 +43,12 @@ export type EmailHostingConfig = {
   fromAddress: string;
   feedbackAddress: string;
 };
+export type AusPostConfig = {
+  base_url: string;
+  account_number: string;
+  authorization: string;
+  cookie: string;
+};
 
 export type HostingConfig = {
   apiKey: string;
@@ -51,6 +57,7 @@ export type HostingConfig = {
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
   email: EmailHostingConfig;
+  ausPost: AusPostConfig;
   cors: string[];
 };
 
@@ -61,6 +68,7 @@ type PersistedHostingConfig = {
   security: SecurityHostingConfig;
   storage: StorageHostingConfig;
   email: EmailHostingConfig;
+  ausPost: AusPostConfig;
   cors: string[];
 };
 
@@ -119,6 +127,12 @@ export const HostingService = (
               secretAccessKey: process.env.EMAIL_AWS_SECRET_ACCESS_KEY || '',
               fromAddress: process.env.EMAIL_FROM_ADDRESS || '',
               feedbackAddress: process.env.EMAIL_FEEDBACK_ADDRESS || '',
+            },
+            ausPost: {
+              base_url: process.env.AUS_POST_BASE_URL || '',
+              account_number: process.env.AUS_POST_ACCOUNT_NUMBER || '',
+              authorization: process.env.AUS_POST_AUTH || '',
+              cookie: process.env.AUS_POST_COOKIE || '',
             },
             searchIndex: process.env.SEARCH_INDEX || '',
             cors: [],

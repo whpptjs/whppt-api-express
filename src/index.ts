@@ -20,6 +20,7 @@ import {
   Logger,
   Security,
   EmailService,
+  AusPost,
 } from './Services';
 import { DatabaseService } from './Services/Database';
 import { MongoDatabaseConnection } from './Services/Database/Mongo/Connection';
@@ -111,6 +112,7 @@ export const Whppt = (config: WhpptConfig) => {
     // TODO: Work towards a generic storage api. S3 used here
     const $storage = S3(hostingConfig);
     const $email = EmailService;
+    const $auspost = AusPost;
 
     req.moduleContext = ModuleContext(
       $id,
@@ -124,7 +126,8 @@ export const Whppt = (config: WhpptConfig) => {
       Gallery($id, databasePromise, $storage),
       Image($id, databasePromise, $storage, config),
       File($id, databasePromise, $storage, config),
-      req.apiKey
+      req.apiKey,
+      $auspost
     );
     next();
   });
