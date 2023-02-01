@@ -26,6 +26,7 @@ import refundViaCash from './refundViaCash';
 import createAuspostLabel from './createAuspostLabel';
 import getAusPostLabel from './getAusPostLabel';
 import confirmCashPayment from './confirmCashPayment';
+import markOrderAsPointOfSale from './markOrderAsPointOfSale';
 
 export const order = {
   createOrderWithProduct,
@@ -55,4 +56,5 @@ export const order = {
   createAuspostLabel,
   getAusPostLabel,
   confirmCashPayment,
+  markOrderAsPointOfSale,
 };
