@@ -71,6 +71,7 @@ export type OrderItemWithProduct = OrderItem & {
 
 export type Payment = {
   status: 'pending' | 'refunded' | 'paid';
+  type?: 'card' | 'cash';
   date: Date;
   amount: number;
   tax: number;

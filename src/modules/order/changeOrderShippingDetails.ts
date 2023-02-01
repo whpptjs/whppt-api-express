@@ -44,11 +44,6 @@ const changeOrderShippingDetails: HttpModule<ChangeOrderShippingArgs, Order> = {
       return document
         .query<Order>('orders', { filter: { _id: orderId } })
         .then(loadedOrder => {
-          console.log(
-            '🚀 ~ file: changeOrderShippingDetails.ts:70 ~ return$database.then ~ loadedOrder',
-            loadedOrder
-          );
-
           assert(loadedOrder, 'Order not found.');
           validations.canBeModified(loadedOrder);
 
