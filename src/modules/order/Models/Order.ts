@@ -17,6 +17,7 @@ export type Order = {
   payment?: Payment;
   updatedAt?: Date;
   note?: string;
+  fromPos?: boolean;
   number?: string | number;
   stripe?: {
     intentId: string;
