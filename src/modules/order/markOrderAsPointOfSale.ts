@@ -4,11 +4,11 @@ import { loadOrder } from './Queries/loadOrder';
 import assert from 'assert';
 import { assign } from 'lodash';
 
-const markOrderAsPointOfSale: HttpModule<{ orderId: string }, Order> = {
+const markOrderAsPointOfSale: HttpModule<{ orderId: string; staffId: string }, Order> = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, []);
   },
-  exec(context, { orderId }) {
+  exec(context, { orderId, staffId }) {
     assert(orderId, 'An Order id is required');
 
     return loadOrder(context, orderId).then(loadedOrder => {
@@ -20,6 +20,7 @@ const markOrderAsPointOfSale: HttpModule<{ orderId: string }, Order> = {
       assign(loadedOrder, {
         ...loadedOrder,
         fromPos: true,
+        staffId,
       });
 
       const events = [context.createEvent('MarkedOrderAsPos', loadedOrder)];
