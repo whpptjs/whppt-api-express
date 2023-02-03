@@ -1,30 +1,50 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
+import { Contact } from '../contact/Models/Contact';
 
 const signUp: HttpModule<{ name: string; email: string }, any> = {
-  exec({ $database }, { name, email }) {
-    console.log('🚀 ~ file: signup.ts:6 ~ exec ~ $database', $database);
+  exec({ $database, $id, createEvent }, { name, email }) {
     assert(name, 'A name is required');
     assert(email, 'An email is required');
-    return Promise.resolve({});
 
-    // return $database.then(database => {
+    return $database.then(database => {
+      const { document, startTransaction } = database;
 
-    // return document.query<Contact>('contacts', { filter: { _id: email } })).then(contact => {
-    //   assert(contact, 'Could not find contact.');
+      document.query<Contact>('contacts', { filter: { email } }).then(usedEmail => {
+        assert(!usedEmail, 'Email already in use.');
 
-    // const member = {
-    //   _id: $id.newId(),
-    //   contactId,
-    // } as Member;
+        let splitName;
+        let firstName;
+        let lastName;
 
-    // const memberEvents = [createEvent('MemberCreated', member)];
+        if (name.includes(' ')) {
+          splitName = name.split(' ');
+          firstName = splitName[0];
+          lastName = splitName[1];
+        } else {
+          firstName = name;
+        }
 
-    // return startTransaction(session => {
-    //   return document.saveWithEvents('members', member, memberEvents, { session });
-    // }).then(() => member);
-    // });
-    // });
+        const contact = {
+          _id: $id.newId(),
+          firstName,
+          lastName,
+          email,
+        } as Contact;
+
+        const events = [createEvent('ContactCreated', contact)];
+
+        return startTransaction(session => {
+          return document
+            .saveWithEvents('contacts', contact, events, { session })
+            .then(() => {
+              return document.publishWithEvents('contacts', contact, events, {
+                session,
+              });
+            });
+        });
+      });
+    });
   },
 };
 
