@@ -12,6 +12,7 @@ const createAuspostLabel: HttpModule<
     weight: number;
     firstName?: string;
     lastName?: string;
+    company?: string;
     number?: string;
     street?: string;
     suburb?: string;
@@ -30,6 +31,7 @@ const createAuspostLabel: HttpModule<
       weight,
       firstName,
       lastName,
+      company,
       number,
       street,
       suburb,
@@ -55,6 +57,7 @@ const createAuspostLabel: HttpModule<
             shippingDetails: {
               firstName,
               lastName,
+              company,
               number,
               street,
               suburb,
@@ -85,7 +88,7 @@ const createAuspostLabel: HttpModule<
                 contactDetails: {
                   firstName: firstName || loadedOrder?.shipping?.contactDetails.firstName,
                   lastName: lastName || loadedOrder?.shipping?.contactDetails.lastName,
-                  company: loadedOrder?.shipping?.contactDetails?.company,
+                  company: company || loadedOrder?.shipping?.contactDetails?.company,
                 },
                 address: {
                   number: number || loadedOrder?.shipping?.address?.number,

@@ -63,6 +63,7 @@ export const AusPost: AusPostService = ({ $hosting }) => {
               },
               to: {
                 name: [firstName, lastName, company ? company : ''].join(' '),
+                company,
                 lines: [`${number} ${street}`],
                 suburb,
                 state,

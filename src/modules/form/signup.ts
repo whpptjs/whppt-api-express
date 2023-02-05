@@ -2,7 +2,7 @@ import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Contact } from '../contact/Models/Contact';
 
-const signUp: HttpModule<{ name: string; email: string }, any> = {
+const signUp: HttpModule<{ name: string; email: string }, void> = {
   exec({ $database, $id, createEvent }, { name, email }) {
     assert(name, 'A name is required');
     assert(email, 'An email is required');
@@ -10,40 +10,52 @@ const signUp: HttpModule<{ name: string; email: string }, any> = {
     return $database.then(database => {
       const { document, startTransaction } = database;
 
-      document.query<Contact>('contacts', { filter: { email } }).then(usedEmail => {
-        assert(!usedEmail, 'Email already in use.');
+      return document
+        .query<Contact>('contacts', { filter: { email } })
+        .then(usedEmail => {
+          if (usedEmail && usedEmail.isSubscribed) return;
 
-        let splitName;
-        let firstName;
-        let lastName;
+          const events = [] as any[];
 
-        if (name.includes(' ')) {
-          splitName = name.split(' ');
-          firstName = splitName[0];
-          lastName = splitName[1];
-        } else {
-          firstName = name;
-        }
+          let contact = {} as Contact;
 
-        const contact = {
-          _id: $id.newId(),
-          firstName,
-          lastName,
-          email,
-        } as Contact;
+          if (!usedEmail) {
+            let firstName;
+            let lastName;
+            let splitName;
 
-        const events = [createEvent('ContactCreated', contact)];
+            if (name.includes(' ')) {
+              splitName = name.split(' ');
+              firstName = splitName[0];
+              lastName = splitName[1];
+            } else {
+              firstName = name;
+            }
+            contact = {
+              _id: $id.newId(),
+              firstName,
+              lastName,
+              email,
+              isSubscribed: true,
+            } as Contact;
+            events.push(createEvent('ContactCreated', contact));
+            events.push(createEvent('ContactSubscribed', contact));
+          } else {
+            contact = usedEmail;
+            contact.isSubscribed = true;
+            events.push(createEvent('ContactSubscribed', contact));
+          }
 
-        return startTransaction(session => {
-          return document
-            .saveWithEvents('contacts', contact, events, { session })
-            .then(() => {
-              return document.publishWithEvents('contacts', contact, events, {
-                session,
+          return startTransaction(session => {
+            return document
+              .saveWithEvents('contacts', contact, events, { session })
+              .then(() => {
+                return document.publishWithEvents('contacts', contact, events, {
+                  session,
+                });
               });
-            });
+          });
         });
-      });
     });
   },
 };
