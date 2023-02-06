@@ -24,18 +24,18 @@ const resetPassword: HttpModule<
         }),
         document.query<Contact>('contacts', { filter: { email } }),
       ])
-        .then(([staff, contact]) => {
-          assert(contact, 'No staff member found');
-          assert(staff, 'No staff member found');
-          assert(contact._id === staff.contactId, 'No staff member found');
+        .then(([member, contact]) => {
+          assert(contact, 'No member member found');
+          assert(member, 'No member member found');
+          assert(contact._id === member.contactId, 'No member member found');
 
-          const events = [createEvent('StaffResetPassword', { email })];
+          const events = [createEvent('MemberResetPassword', { email })];
 
           return $security.encrypt(password).then(hashedPassword => {
-            assign(staff, { resetPasswordToken: undefined, password: hashedPassword });
+            assign(member, { resetPasswordToken: undefined, password: hashedPassword });
 
             return startTransaction(session => {
-              return document.saveWithEvents('staff', staff, events, { session });
+              return document.saveWithEvents('members', member, events, { session });
             });
           });
         })
