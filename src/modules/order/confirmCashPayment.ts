@@ -40,7 +40,6 @@ const confirmCashPayment: HttpModule<
                   ({
                     shippingCost,
                     total,
-                    tax,
                     subTotal,
                     memberTotalDiscount,
                     memberShippingDiscount,
@@ -66,7 +65,6 @@ const confirmCashPayment: HttpModule<
                             type: 'cash',
                             date: new Date(),
                             amount: total,
-                            tax,
                             subTotal,
                             memberTotalDiscount,
                             memberShippingDiscount,
@@ -79,7 +77,6 @@ const confirmCashPayment: HttpModule<
                             _id: orderId,
                             staffMember,
                             amount: total,
-                            tax,
                             subTotal,
                             memberTotalDiscount,
                             memberShippingDiscount,
