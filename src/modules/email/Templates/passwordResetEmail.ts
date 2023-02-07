@@ -8,17 +8,19 @@ export function resetPasswordTemplate(recoveryPageLink: string) {
       cellspacing="0"
       width="800"
       style="background-color: #F6F6F4">
-      ${headers('Reset password')}
+      ${headers('Reset your password')}
       <tr>
         <td valign="top" style="padding:35px">
           <p style="font-size:16px">
-            Someone requested that the password be reset for your account.
+            We've received a request to reset your account password. Click the link below
+            to reset your password. Please note, this link will expire in 60 minutes.
           </p>
           <p style="font-size:16px">
-            If this was a mistake, just ignore this email and nothing will happen.
+            Not expecting this email? Don't worry! Your password is safe and you can
+            ignore this email.
           </p>
           <p style="font-size:16px">
-            Reset your password click this link
+            Reset your password
             <a style="color:#9D7837;" href=${recoveryPageLink}>here</a>
           </p>
           ${footer}
