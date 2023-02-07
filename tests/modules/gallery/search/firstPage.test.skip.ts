@@ -17,7 +17,10 @@ test('load first page for type', () => {
 
   return search.exec(context, args as SearchParams).then(response => {
     expect($mongo.$db.collection.firstCall.firstArg).toBe('gallery');
-    expect(collection.find.firstCall.firstArg).toStrictEqual({ domainId: args.domainId, type: 'image' });
+    expect(collection.find.firstCall.firstArg).toStrictEqual({
+      domainId: args.domainId,
+      type: 'image',
+    });
     expect(skip.firstCall.firstArg).toBe(0);
     expect(limit.firstCall.firstArg).toBe(30);
     expect(response.items.length).toEqual(1);
