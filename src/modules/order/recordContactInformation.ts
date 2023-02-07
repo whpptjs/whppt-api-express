@@ -38,8 +38,8 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                   }
                 : {
                     _id: context.$id.newId(),
-                    firstName: 'Guest',
-                    lastName: 'Website',
+                    firstName: contact?.firstName || 'Guest',
+                    lastName: contact?.lastName || 'Website',
                     ...contact,
                   };
 
