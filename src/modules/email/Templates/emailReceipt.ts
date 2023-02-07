@@ -46,7 +46,6 @@ export function getOrderTemplate(order: any) {
     ? order?.payment?.shippingCost?.price / 100 - memberShippingDiscount
     : 0;
   const subtotal = getSubtotal(order) - memberTotalDiscount;
-  console.log('🚀  memberTotalDiscount', memberTotalDiscount);
 
   return `
     <table
