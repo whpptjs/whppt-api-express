@@ -1,5 +1,5 @@
 import { ContactEmailContent } from '../sendContactEmail';
-import { headers, footer } from './layoutTemplates';
+import { layout } from './layout';
 
 export function getContactTemplate({
   firstName,
@@ -15,31 +15,35 @@ export function getContactTemplate({
   const enquiryReason = `Reason for enquiry: ${reason}`;
   const contactComments = `Coments: ${comments}`;
 
-  return `
+  const template = /* HTML */ `
     <table
       border="0"
       cellpadding="0"
       cellspacing="0"
-      width="800"
-      style="background-color: #F6F6F4">
-      ${headers('Contact Form')}
+      width="650"
+      style="background-color: #242424">
       <tr>
         <td valign="top" style="padding:35px">
-          <p style="font-size:16px">
+          <p
+            style="font-family:'Arial',sans-serif;font-size:16px;line-height:18px;color:#ffffff;font-weight:400;">
             ${sender}${contactEmail}
           </p>
-          <p style="font-size:16px">
+          <p
+            style="font-family:'Arial',sans-serif;font-size:16px;line-height:18px;color:#ffffff;font-weight:400;">
             ${phoneNumber}
           </p>
-          <p style="font-size:16px">
+          <p
+            style="font-family:'Arial',sans-serif;font-size:16px;line-height:18px;color:#ffffff;font-weight:400;">
             ${enquiryReason}
           </p>
-          <p style="font-size:16px">
+          <p
+            style="font-family:'Arial',sans-serif;font-size:16px;line-height:18px;color:#ffffff;font-weight:400;">
             ${contactComments}
           </p>
-          ${footer}
         </td>
       </tr>
     </table>
   `;
+
+  return layout(template);
 }
