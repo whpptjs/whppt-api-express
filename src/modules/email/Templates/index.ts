@@ -1,6 +1,7 @@
 import { getContactTemplate } from './contactTemplate';
 import { getOrderTemplate } from './emailReceipt';
-import { headers } from './layoutTemplates';
+import { headers } from './headers';
+import { footer } from './footer';
 import { resetPasswordTemplate } from './passwordResetEmail';
 
 type EmailTemplates = {
@@ -10,6 +11,7 @@ type EmailTemplates = {
 export const Templates: EmailTemplates = {
   HentleyFarm: {
     headers,
+    footer,
     getOrderTemplate,
     resetPasswordTemplate,
     getContactTemplate,
