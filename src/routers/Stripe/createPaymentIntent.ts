@@ -34,15 +34,10 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
       ({
         shippingCost,
         total,
-        tax,
         subTotal,
         memberTotalDiscount,
         memberShippingDiscount,
       }) => {
-        console.log(
-          '🚀 ~ file: createPaymentIntent.ts:51 ~ returnloadOrder ~ total',
-          total
-        );
         return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
           customer => {
             return stripe.paymentIntents
@@ -66,7 +61,6 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                         payment: {
                           status: 'pending',
                           amount: total,
-                          tax,
                           subTotal,
                           memberTotalDiscount,
                           memberShippingDiscount,

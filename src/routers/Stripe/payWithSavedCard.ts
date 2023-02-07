@@ -29,7 +29,6 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
       ({
         shippingCost,
         total,
-        tax,
         subTotal,
         memberTotalDiscount,
         memberShippingDiscount,
@@ -57,7 +56,6 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                     payment: {
                       status: 'pending',
                       amount: total,
-                      tax,
                       subTotal,
                       memberTotalDiscount,
                       memberShippingDiscount,

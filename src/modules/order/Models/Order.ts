@@ -75,7 +75,6 @@ export type Payment = {
   type?: 'card' | 'cash';
   date: Date;
   amount: number;
-  tax: number;
   subTotal: number;
   memberTotalDiscount: number;
   memberShippingDiscount: number;

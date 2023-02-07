@@ -46,8 +46,6 @@ export function getOrderTemplate(order: any) {
     ? order?.payment?.shippingCost?.price / 100 - memberShippingDiscount
     : 0;
   const subtotal = getSubtotal(order) - memberTotalDiscount;
-  console.log('🚀  memberTotalDiscount', memberTotalDiscount);
-  const tax = order?.payment?.tax / 100 || 0;
 
   return `
     <table
@@ -107,17 +105,6 @@ export function getOrderTemplate(order: any) {
                   }
                 </th>
                 <td style=${getStyle(memberTotalDiscount)}>${subtotal.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <th
-                  scope="row"
-                  colspan="2"
-                  style="text-align:left;border:1px solid #937a4a;">
-                  Tax (GST)
-                </th>
-                <td style="text-align:left;border:1px solid #937a4a;">
-                  ${tax.toFixed(2)}
-                </td>
               </tr>
               <tr>
                 <th scope="row" colspan="2" style=${getStyle(memberShippingDiscount)}>

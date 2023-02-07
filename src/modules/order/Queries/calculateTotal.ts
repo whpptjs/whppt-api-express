@@ -10,14 +10,11 @@ export type CalculateTotalArgs = (
   args: { orderId: string; domainId: string; memberId?: string }
 ) => Promise<{
   total: number;
-  tax: number;
   subTotal: number;
   memberTotalDiscount: number;
   memberShippingDiscount: number;
   shippingCost: ShippingCost;
 }>;
-
-export const GST = 0.1;
 
 export const calculateTotal: CalculateTotalArgs = (
   ctx,
@@ -56,8 +53,6 @@ export const calculateTotal: CalculateTotalArgs = (
         ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
         : 0;
 
-      const gst = (itemsCostInCents - memberTotalDiscount) * GST;
-
       const itemsWithDiscount =
         Number(itemsCostInCents) - memberTotalDiscount < 0
           ? 0
@@ -67,11 +62,10 @@ export const calculateTotal: CalculateTotalArgs = (
           ? 0
           : Number(postageCostInCents) - memberShippingDiscount;
 
-      const total = itemsWithDiscount + postageWithDiscount + gst;
+      const total = itemsWithDiscount + postageWithDiscount;
 
       return {
         total,
-        tax: gst,
         subTotal: itemsCostInCents,
         shippingCost: order?.shipping?.shippingCost || shippingCost,
         memberTotalDiscount,
