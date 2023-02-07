@@ -1,5 +1,5 @@
 import { OrderItemWithProduct } from 'src/modules/order/Models/Order';
-import { footer, headers } from './layoutTemplates';
+import { layout } from './layout';
 
 function getOrderItems(order: any) {
   if (order.items?.length) {
@@ -8,11 +8,12 @@ function getOrderItems(order: any) {
 
     for (let item of items) {
       itemsHtml +=
-        '<tr><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '<tr><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         item.quantity.toString() +
-        '</td><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         (item?.product?.name || 'Legacy Item') +
-        '</td><td style="color:#242424;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '&nbsp;&nbsp;$' +
         ((item.purchasedPrice || item?.product?.price) / 100).toFixed(2).toString() +
         '</td></tr>';
     }
@@ -33,45 +34,56 @@ function getSubtotal(order: any) {
     : 0;
 }
 
-function getStyle(discount: number) {
-  let basicStyle = 'text-align:left;border:1pxsolid#937a4a;';
-  basicStyle += !!discount ? 'color:#4BB543;' : '';
-  return basicStyle;
+function getMemberDiscount(memberTotalDiscount: number) {
+  return /* HTML */ `
+    <tr>
+      <th style=${getRowStyle()} scope="row" colspan="2">Member discount</th>
+      <td style=${getRowStyle()}>- $${memberTotalDiscount.toFixed(2)}</td>
+    </tr>
+  `;
+}
+
+function getShippingDiscount(memberShippingDiscount: number) {
+  return /* HTML */ `
+    <tr>
+      <th style=${getRowStyle()} scope="row" colspan="2">Shipping discount</th>
+      <td style=${getRowStyle()}>- $${memberShippingDiscount.toFixed(2)}</td>
+    </tr>
+  `;
+}
+
+function getRowStyle() {
+  return 'color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;';
 }
 
 export function getOrderTemplate(order: any) {
   const memberShippingDiscount = order?.payment?.memberShippingDiscount / 100 || 0;
   const memberTotalDiscount = order?.payment?.memberTotalDiscount / 100 || 0;
-  const shipping = order?.payment?.shippingCost?.price
-    ? order?.payment?.shippingCost?.price / 100 - memberShippingDiscount
-    : 0;
-  const subtotal = getSubtotal(order) - memberTotalDiscount;
+  const shipping = order?.payment?.shippingCost?.price / 100;
+  const subtotal = getSubtotal(order);
 
-  return `
+  const template = /* HTML */ `
     <table
       border="0"
       cellpadding="0"
       cellspacing="0"
-      width="800"
-      style="background-color: #F6F6F4">
-      ${headers('Invoice')}
+      width="650"
+      style="background-color: #242424">
       <tr>
         <td valign="top" style="padding: 35px;">
           <h2
-            style="color:#9D7837;font-weight:bold;font-size:24px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
+            style="color:#ffffff;font-weight:500;font-size:24px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
             Order ${order.number || order._id},<br />
           </h2>
           <p
             style="color:#ACACAC;font-weight:normal;font-size:16px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:30px">
-            ${
-              order.updatedAt &&
-              new Date(order.updatedAt).toLocaleDateString('en-US', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })
-            }
+            ${order.updatedAt &&
+            new Date(order.updatedAt).toLocaleDateString('en-US', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
           </p>
           <table
             cellspacing="0"
@@ -81,13 +93,19 @@ export function getOrderTemplate(order: any) {
             bordercolor="#937a4a">
             <thead>
               <tr>
-                <th scope="col" style="text-align:left; border: 1px solid #937a4a;">
+                <th
+                  scope="col"
+                  style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Product
                 </th>
-                <th scope="col" style="text-align:left; border: 1px solid #937a4a;">
+                <th
+                  scope="col"
+                  style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Quantity
                 </th>
-                <th scope="col" style="text-align:left; border: 1px solid #937a4a;">
+                <th
+                  scope="col"
+                  style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Price
                 </th>
               </tr>
@@ -97,37 +115,19 @@ export function getOrderTemplate(order: any) {
             </tbody>
             <tfoot>
               <tr>
-                <th scope="row" colspan="2" style=${getStyle(memberTotalDiscount)}>
-                  ${
-                    memberTotalDiscount
-                      ? `Subtotal - (Member discount on items: ${memberTotalDiscount})`
-                      : 'Subtotal'
-                  }
-                </th>
-                <td style=${getStyle(memberTotalDiscount)}>${subtotal.toFixed(2)}</td>
+                <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
+              ${memberTotalDiscount && getMemberDiscount(memberTotalDiscount)}
               <tr>
-                <th scope="row" colspan="2" style=${getStyle(memberShippingDiscount)}>
-                  ${
-                    memberShippingDiscount
-                      ? `Shipping - (Member shipping discount: $${memberShippingDiscount.toFixed(
-                          2
-                        )})`
-                      : 'Shipping'
-                  }
-                </th>
-                <td style=${getStyle(memberShippingDiscount)}>${shipping.toFixed(2)}</td>
+                <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${shipping.toFixed(2)}</td>
               </tr>
+              ${memberShippingDiscount && getShippingDiscount(memberShippingDiscount)}
               <tr>
-                <th
-                  scope="row"
-                  colspan="2"
-                  style="text-align:left; font-weight:bold; font-size:16px; border: 1px solid #937a4a;">
-                  Total
-                </th>
-                <td
-                  style="text-align:left; font-weight:bold; font-size:16px; border: 1px solid #937a4a;">
-                  ${(
+                <th scope="row" colspan="2" style=${getRowStyle()}>Total</th>
+                <td style=${getRowStyle()}>
+                  &nbsp;&nbsp;$${(
                     subtotal +
                     shipping -
                     memberTotalDiscount -
@@ -139,7 +139,8 @@ export function getOrderTemplate(order: any) {
           </table>
         </td>
       </tr>
-      ${footer}
     </table>
   `;
+
+  return layout(template, 'hentleyfarm.com/member/purchases');
 }

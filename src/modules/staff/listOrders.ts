@@ -16,12 +16,13 @@ const listOrders: HttpModule<
     dateTo: string;
     currentPage: string;
     status: string;
+    origin?: string;
   },
   ListOrdersRetured
 > = {
   exec(
     { $database },
-    { search, dateFrom, dateTo, limit = '10', currentPage = '0', status }
+    { search, dateFrom, dateTo, limit = '10', currentPage = '0', status, origin }
   ) {
     return $database.then(database => {
       const { db, queryDocuments } = database as WhpptMongoDatabase;
@@ -29,7 +30,7 @@ const listOrders: HttpModule<
       const query = {
         $and: [
           { _id: { $exists: true } },
-          { checkoutStatus: status ? status : { $ne: 'pending' } },
+          { checkoutStatus: status ? status : { $exists: true } },
         ],
       } as any;
 
@@ -54,6 +55,7 @@ const listOrders: HttpModule<
           ],
         });
       }
+
       if (dateFrom) {
         query.$and.push({
           createdAt: { $gte: new Date(dateFrom) },
@@ -62,6 +64,11 @@ const listOrders: HttpModule<
       if (dateTo) {
         query.$and.push({
           createdAt: { $lt: new Date(dateTo) },
+        });
+      }
+      if (origin) {
+        query.$and.push({
+          fromPos: { $exists: origin === 'pos' },
         });
       }
 
