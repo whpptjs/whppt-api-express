@@ -3,14 +3,16 @@ import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Member, MemberContact } from './Model';
 import { Secure } from './Secure';
+import { queryMemberTier } from '../order/Queries/queryMemberTier';
 
-const authMember: HttpModule<void, Member> = {
+const authMember: HttpModule<{ domainId: string }, Member> = {
   authorise(context) {
     if (context.member) return Promise.resolve(true);
 
     return Promise.reject({ status: 401, message: 'Not Authrozided' });
   },
-  exec({ $database, member }) {
+  exec(context, { domainId }) {
+    const { $database, member } = context;
     return $database.then(database => {
       assert(member.sub, 'Member Id required');
 
@@ -46,7 +48,13 @@ const authMember: HttpModule<void, Member> = {
         .toArray()
         .then(members => {
           assert(members.length, 'Member not found.');
-          return members[0];
+          const member = members[0];
+          assert(member && member._id, 'Member not found.');
+          return queryMemberTier(context, { memberId: member._id, domainId }).then(
+            memberTier => {
+              return { ...member, memberTier };
+            }
+          );
         });
     });
   },

@@ -21,9 +21,9 @@ export const queryMemberTier: QueryMemberTier = (
   return $database.then(database => {
     assert(domainId, 'Domain Id required');
 
-    // const year = new Date().getFullYear();
-    // const startYear = new Date(`1/1/${year} 10:30`);
-    // const endYear = new Date(`1/1/${year + 1} 10:30`);
+    const year = new Date().getFullYear();
+    const startYear = new Date(`1/1/${year} 10:30`);
+    const endYear = new Date(`1/1/${year + 1} 10:30`);
 
     const { db, document } = database as WhpptMongoDatabase;
     return Promise.all([
@@ -38,16 +38,16 @@ export const queryMemberTier: QueryMemberTier = (
               memberId: memberId,
               'payment.status': 'paid',
 
-              // $and: [
-              //   {
-              //     updatedAt: {
-              //       $gte: startYear,
-              //     },
-              //   },
-              //   {
-              //     updatedAt: { $lt: endYear },
-              //   },
-              // ],
+              $and: [
+                {
+                  updatedAt: {
+                    $gte: startYear,
+                  },
+                },
+                {
+                  updatedAt: { $lt: endYear },
+                },
+              ],
             },
           },
           {
