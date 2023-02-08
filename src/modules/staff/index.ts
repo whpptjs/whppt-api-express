@@ -8,6 +8,7 @@ import forgottenPassword from './forgottenPassword';
 import resetPassword from './resetPassword';
 import getMemberTier from './getMemberTier';
 import save from './save';
+import listReadyToDispatch from './listReadyToDispatch';
 
 export const staff = {
   login,
@@ -20,4 +21,5 @@ export const staff = {
   resetPassword,
   getMemberTier,
   save,
+  listReadyToDispatch,
 };
