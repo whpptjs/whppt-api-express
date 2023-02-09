@@ -28,6 +28,7 @@ import getAusPostLabel from './getAusPostLabel';
 import confirmCashPayment from './confirmCashPayment';
 import markOrderAsPointOfSale from './markOrderAsPointOfSale';
 import addGuestToOrder from './addGuestToOrder';
+import setDiner from './setDiner';
 
 export const order = {
   createOrderWithProduct,
@@ -59,4 +60,5 @@ export const order = {
   confirmCashPayment,
   markOrderAsPointOfSale,
   addGuestToOrder,
+  setDiner,
 };
