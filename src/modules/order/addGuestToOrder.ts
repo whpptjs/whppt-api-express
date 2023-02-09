@@ -11,7 +11,6 @@ const addGuestToOrder: HttpModule<{ orderId: string }, Order> = {
     return $roles.validate(user, []);
   },
   exec(context, { orderId }) {
-    console.log('🚀 ~ file: addGuestToOrder.ts:14 ~ exec ~ orderId', orderId);
     assert(orderId, 'An Order id is required');
 
     return loadOrder(context, orderId).then(loadedOrder => {

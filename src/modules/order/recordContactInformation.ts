@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { assign } from 'lodash';
+import { ToggleSubscription } from '../contact/Common/ToggleSubscription';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Order, OrderContact } from './Models/Order';
@@ -7,7 +8,7 @@ import * as validations from './Validations';
 
 export type OrderRecordContactInformationArgs = {
   orderId: string;
-  contact: OrderContact;
+  contact: OrderContact & { optInMarketing: boolean };
 };
 
 const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, void> = {
@@ -40,8 +41,12 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                     _id: context.$id.newId(),
                     firstName: contact?.firstName || 'Guest',
                     lastName: contact?.lastName || 'Website',
-                    ...contact,
+                    email: contact?.email || '',
                   };
+              console.log(
+                '🚀 ~ file: recordContactInformation.ts:39 ~ return$database.then ~ contactToUse',
+                contactToUse
+              );
 
               const event = createEvent('OrderContactInformationUpdated', {
                 _id: loadedOrder._id,
@@ -59,18 +64,32 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                     session,
                   })
                   .then(() => {
-                    if (contact._id) return;
+                    if (loadedContact?._id)
+                      return ToggleSubscription(
+                        { ...context, document },
+                        {
+                          contact: contactToUse as Contact,
+                          optInMarketing: contact.optInMarketing,
+                        },
+                        session
+                      );
 
                     const contactEvents = [createEvent('ContactCreated', contactToUse)];
 
-                    return document.saveWithEvents(
-                      'contacts',
-                      contactToUse,
-                      contactEvents,
-                      {
+                    return document
+                      .saveWithEvents('contacts', contactToUse, contactEvents, {
                         session,
-                      }
-                    );
+                      })
+                      .then(() => {
+                        return ToggleSubscription(
+                          { ...context, document },
+                          {
+                            contact: contactToUse as Contact,
+                            optInMarketing: contact.optInMarketing,
+                          },
+                          session
+                        );
+                      });
                   });
               });
             });

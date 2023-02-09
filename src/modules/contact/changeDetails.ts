@@ -2,6 +2,8 @@ import assert from 'assert';
 import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Contact } from './Models/Contact';
+import { saveContactAndPublish } from './Common/SaveContact';
+import { ToggleSubscription } from './Common/ToggleSubscription';
 
 const changeDetails: HttpModule<
   {
@@ -11,16 +13,17 @@ const changeDetails: HttpModule<
     contactId: string;
     company: string;
     email: string;
+    optInMarketing: boolean;
   },
   void
 > = {
   exec(
-    { $database, createEvent },
-    { firstName, lastName, phone, company, contactId, email }
+    context,
+    { firstName, lastName, phone, company, contactId, email, optInMarketing }
   ) {
     assert(firstName, 'A First name is required');
     assert(lastName, 'A last name is required');
-
+    const { $database, createEvent } = context;
     return $database.then(database => {
       const { document, startTransaction } = database;
 
@@ -55,7 +58,17 @@ const changeDetails: HttpModule<
         assign(contact, { firstName, lastName, phone, company });
 
         return startTransaction(session => {
-          return document.saveWithEvents('contacts', contact, contactEvents, { session });
+          return saveContactAndPublish(
+            { ...context, document },
+            { contact, events: contactEvents },
+            session
+          ).then(() => {
+            return ToggleSubscription(
+              { ...context, document },
+              { contact, optInMarketing },
+              session
+            );
+          });
         });
       });
     });

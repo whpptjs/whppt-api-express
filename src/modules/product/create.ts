@@ -24,10 +24,10 @@ const create: HttpModule<CreateProductArgs, Product> = {
         .query<Product>('products', { filter: { name, productCode, domainId } })
 
         .then(_product => {
-          assert(
-            !_product,
-            `Product already exsits with Code: ${productCode} and Name ${name}`
-          );
+          if (_product)
+            throw new Error(
+              `Product already exists with Code: ${productCode} and Name ${name}. Product that already exists is ${_product?.name}`
+            );
 
           const product = Object.assign(
             {},

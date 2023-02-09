@@ -1,21 +1,17 @@
 import { ContextType } from 'src/context/Context';
 import { Contact } from '../Models/Contact';
 
-type CreateContactArgs = (
+type LoadOrderWithProductsArgs = (
   context: ContextType,
-  contact:
-    | { _id?: string; firstName: string; lastName: string; email?: string }
-    | Contact,
+  args: { contact: Contact; events: any[] },
   session: any
 ) => Promise<{ _id: string; firstName: string; lastName: string; email?: string }>;
 
-export const createContactAndPublish: CreateContactArgs = (
-  { document, createEvent, $id },
-  contact,
+export const saveContactAndPublish: LoadOrderWithProductsArgs = (
+  { document },
+  { contact, events },
   session
 ) => {
-  contact._id = contact._id || $id.newId();
-  const events = [createEvent('ContactCreated', contact)];
   return document
     .saveWithEvents('contacts', contact, events, { session })
     .then(() => {

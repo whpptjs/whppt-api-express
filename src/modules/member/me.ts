@@ -50,6 +50,7 @@ const authMember: HttpModule<{ domainId: string }, Member> = {
           assert(members.length, 'Member not found.');
           const member = members[0];
           assert(member && member._id, 'Member not found.');
+          if (!domainId) return { ...member, memberTier: {} };
           return queryMemberTier(context, { memberId: member._id, domainId }).then(
             memberTier => {
               return { ...member, memberTier };

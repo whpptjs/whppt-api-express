@@ -1,11 +1,16 @@
 import assert from 'assert';
+import { ToggleSubscription } from '../contact/Common/ToggleSubscription';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
 
-const createFromContact: HttpModule<{ contactId: string }, Member> = {
-  exec({ $database, $id, createEvent }, { contactId }) {
+const createFromContact: HttpModule<
+  { contactId: string; optInMarketing?: boolean },
+  Member
+> = {
+  exec(context, { contactId, optInMarketing }) {
     assert(contactId, 'A contact Id is required');
+    const { $database, $id, createEvent } = context;
 
     return $database.then(database => {
       const { document, startTransaction } = database;
@@ -25,7 +30,15 @@ const createFromContact: HttpModule<{ contactId: string }, Member> = {
         const memberEvents = [createEvent('MemberCreated', member)];
 
         return startTransaction(session => {
-          return document.saveWithEvents('members', member, memberEvents, { session });
+          return document
+            .saveWithEvents('members', member, memberEvents, { session })
+            .then(() => {
+              return ToggleSubscription(
+                { ...context, document },
+                { contact, optInMarketing: optInMarketing || false },
+                session
+              );
+            });
         }).then(() => member);
       });
     });

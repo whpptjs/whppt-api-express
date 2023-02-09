@@ -6,7 +6,7 @@ import { Contact } from '../contact/Models/Contact';
 import { WhpptDatabase } from 'src/Services';
 
 const login: HttpModule<{ username: string; password: string }, any> = {
-  exec({ $database, $security, $logger, apiKey }, { username, password }) {
+  exec({ $database, $security, apiKey }, { username, password }) {
     assert(username, 'A username or email address is required.');
     assert(password, 'A password is required.');
 
@@ -19,27 +19,23 @@ const login: HttpModule<{ username: string; password: string }, any> = {
             )
           );
 
-        return $security.encrypt(password).then((encrypted: string) => {
-          $logger.dev('Checking password for member %s, %s', username, encrypted);
-          if (!member.password)
-            return Promise.reject(new Error('This account is not verified'));
-          return $security
-            .compare(password, member.password)
-            .then((passwordMatches: boolean) => {
-              if (!passwordMatches)
-                return Promise.reject(
-                  new Error("The password that you've entered is incorrect.")
-                );
+        if (!member.password)
+          return Promise.reject(new Error('This account is not verified'));
 
-              return $security
-                .createToken(apiKey, omit(member, 'password'))
-                .then(token => {
-                  return {
-                    token,
-                  };
-                });
+        return $security
+          .compare(password, member.password)
+          .then((passwordMatches: boolean) => {
+            if (!passwordMatches)
+              return Promise.reject(
+                new Error("The password that you've entered is incorrect.")
+              );
+
+            return $security.createToken(apiKey, omit(member, 'password')).then(token => {
+              return {
+                token,
+              };
             });
-        });
+          });
       });
     });
   },
