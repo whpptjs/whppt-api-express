@@ -1,6 +1,6 @@
 import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
-import { Secure } from './Secure';
+import { Secure } from '../staff/Secure';
 
 const listReadyToDispatch: HttpModule<{}> = {
   exec({ $database }) {
@@ -12,13 +12,13 @@ const listReadyToDispatch: HttpModule<{}> = {
         .aggregate([
           {
             $match: {
-              dispatchedStatus: { $nin: ['packed', 'dispatched'] },
-              checkoutStatus: { $nin: ['pending'] },
+              checkoutStatus: 'paid',
+              'shipping.pickup': { $ne: true },
             },
           },
           {
             $group: {
-              _id: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' } },
+              _id: { $dateToString: { format: '%Y-%m-%d', date: '$payment.date' } },
               orders: { $push: '$$ROOT' },
             },
           },

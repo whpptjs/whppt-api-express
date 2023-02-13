@@ -29,6 +29,7 @@ import confirmCashPayment from './confirmCashPayment';
 import markOrderAsPointOfSale from './markOrderAsPointOfSale';
 import addGuestToOrder from './addGuestToOrder';
 import setDiner from './setDiner';
+import listReadyToDispatch from './listReadyToDispatch';
 
 export const order = {
   createOrderWithProduct,
@@ -61,4 +62,5 @@ export const order = {
   markOrderAsPointOfSale,
   addGuestToOrder,
   setDiner,
+  listReadyToDispatch,
 };
