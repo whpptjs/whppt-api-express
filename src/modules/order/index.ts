@@ -30,6 +30,7 @@ import markOrderAsPointOfSale from './markOrderAsPointOfSale';
 import addGuestToOrder from './addGuestToOrder';
 import setDiner from './setDiner';
 import listReadyToDispatch from './listReadyToDispatch';
+import dispatch from './dispatch';
 
 export const order = {
   createOrderWithProduct,
@@ -63,4 +64,5 @@ export const order = {
   addGuestToOrder,
   setDiner,
   listReadyToDispatch,
+  dispatch
 };

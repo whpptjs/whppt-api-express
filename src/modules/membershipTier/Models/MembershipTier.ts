@@ -14,6 +14,7 @@ export type MembershipDiscount = {
 export type MembershipTier = {
   _id: string;
   name: string;
+  shortName?: string;
   discounts: MembershipDiscount[];
   level: number;
   entryLevelSpend: number;
