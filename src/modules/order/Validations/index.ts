@@ -3,6 +3,11 @@ import { Order } from '../Models/Order';
 
 export const canBeModified = (order: Order) =>
   assert(order?.checkoutStatus === 'pending', 'Only pending orders can be modified.');
+export const hasBeenPaid = (order: Order) =>
+  assert(
+    order?.checkoutStatus === 'paid' && order?.payment?.status === 'paid',
+    `Order has not been paid for. ${order._id}`
+  );
 
 export const itemExists = (order: Order, orderItemId: string) =>
   assert(
