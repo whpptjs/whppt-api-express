@@ -64,5 +64,5 @@ export const order = {
   addGuestToOrder,
   setDiner,
   listReadyToDispatch,
-  dispatch
+  dispatch,
 };
