@@ -22,6 +22,12 @@
     "strict": true,
     "target": "es6"
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/index.ts.old", "json-router.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/index.ts.old",
+    "json-router.d.ts",
+    "src/**/*.ttf"
+  ],
   "exclude": ["node_modules", "dist", "types", "**/*test.ts"]
 }
