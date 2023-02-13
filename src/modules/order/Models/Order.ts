@@ -11,8 +11,8 @@ export type Order = {
   billing?: Billing;
   shipping?: Shipping;
   discountIds?: string;
-  checkoutStatus: 'pending' | 'paid';
-  dispatchedStatus?: 'pending' | 'picked' | 'packed' | 'dispatched';
+  checkoutStatus: 'pending' | 'paid' | 'refunded';
+  dispatchedStatus?: 'pending' | 'packed' | 'dispatched';
   createdAt?: Date;
   payment?: Payment;
   updatedAt?: Date;
