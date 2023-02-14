@@ -116,7 +116,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
         .then(({ $gallery }) => {
           if (!$gallery) throw new Error('Gallery is required');
           return $gallery
-            .fetchOriginal({ itemId: id, type: 'docs' })
+            .fetchOriginal({ itemId: id, type: 'doc' })
             .then((fileBuffer: any) => {
               if (!fileBuffer) return res.status(500).send('File not found');
 
