@@ -24,6 +24,7 @@ export type Order = {
     status: 'pending' | 'paid';
     amount: number;
   };
+  staffId?: string;
 };
 
 export type ShippingCost = {
