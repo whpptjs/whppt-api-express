@@ -46,6 +46,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
                 _id: '$member._id',
                 contactId: '$member.contactId',
                 username: '$member.username',
+                createdAt: '$createdAt',
                 contact: {
                   _id: '$_id',
                   firstName: '$firstName',
