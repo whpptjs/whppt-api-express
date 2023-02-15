@@ -51,7 +51,7 @@ const buildOrderTable = (orders: OrderWithProductInfo[]) => {
     order.items.map((item: any, index: number) => {
       table.table.body.push([
         {
-          text: String(index),
+          text: String(index + 1),
           font: 'SweetSansPro',
           style: 'tableCell',
         } as any,
