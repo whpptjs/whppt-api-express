@@ -1,4 +1,5 @@
 import createOrderWithProduct from './createOrderWithProduct';
+import createOrderWithMember from './createOrderWithMember';
 import changeOrderItemQuantity from './changeOrderItemQuantity';
 
 import addGiftCard from './addGiftCard';
@@ -34,6 +35,7 @@ import dispatch from './dispatch';
 
 export const order = {
   createOrderWithProduct,
+  createOrderWithMember,
   changeOrderItemQuantity,
   addGiftCard,
   removeGiftCard,

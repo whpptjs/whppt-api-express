@@ -21,13 +21,13 @@ const addMember: HttpModule<{ memberId: string; orderId: string }, void> = {
             .then(contact => {
               const events = [
                 createEvent('AddedMemberToOrder', { memberId, orderId }),
-                createEvent('AddedContactToOrder', { memberId, orderId }),
+                createEvent('AddedContactToOrder', { contactId: contact._id, orderId }),
               ];
 
               order.memberId = memberId;
 
               order.contact = {
-                _id: contact._id || order?.contact?._id || contact._id,
+                _id: contact._id || order?.contact?._id,
                 email: contact.email || order?.contact?.email || '',
               };
 

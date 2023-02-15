@@ -5,7 +5,6 @@ import { Member } from './Model';
 
 const search: HttpModule<{ searchBy: string }, Member[]> = {
   exec({ $database }, { searchBy }) {
-    console.log('🚀 ~ file: search.ts:9 ~ exec ~ searchBy', searchBy);
     if (!searchBy) return Promise.resolve([] as Member[]);
     const query = [
       { firstName: { $regex: searchBy, $options: 'i' } },
@@ -61,11 +60,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
             },
           },
         ])
-        .toArray()
-        .then(members => {
-          console.log('🚀 ~ file: search.ts:62 ~ .toArray ~ members', members);
-          return members;
-        });
+        .toArray();
     });
   },
 };
