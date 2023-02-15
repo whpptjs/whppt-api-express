@@ -5,3 +5,4 @@ export * from './SeoRouter';
 export * from './FileRouter';
 export * from './ImageRouter';
 export * from './Stripe';
+export * from './Pdf';

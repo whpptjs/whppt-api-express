@@ -29,6 +29,7 @@ import { ConfigService } from './Services/Config';
 import { ContextType } from './context/Context';
 import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 import { StripeRouter } from './routers/Stripe/index';
+import { PdfRouter } from './routers/index';
 
 export * from './Services/Config';
 export * from './modules/HttpModule';
@@ -139,6 +140,7 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(GalleryRouter($logger));
   router.use(SeoRouter());
   router.use(StripeRouter());
+  router.use(PdfRouter());
 
   if (config.routers && config.routers.length) {
     config.routers.forEach(entry => {
