@@ -24,7 +24,7 @@ import removeMember from './removeMember';
 import refund from './refund';
 import sendReceipt from './sendReceipt';
 import refundViaCash from './refundViaCash';
-import createAuspostLabel from './createAuspostLabel';
+import createAuspostShipment from './createAuspostShipment';
 import getAusPostLabel from './getAusPostLabel';
 import confirmCashPayment from './confirmCashPayment';
 import markOrderAsPointOfSale from './markOrderAsPointOfSale';
@@ -59,7 +59,7 @@ export const order = {
   refund,
   sendReceipt,
   refundViaCash,
-  createAuspostLabel,
+  createAuspostShipment,
   getAusPostLabel,
   confirmCashPayment,
   markOrderAsPointOfSale,

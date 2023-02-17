@@ -7,7 +7,7 @@ const listReadyToDispatch: HttpModule<
   { currentPage: string; size: string },
   { orders: Order[]; total: number }
 > = {
-  exec({ $database }, { currentPage = '1', size = '100' }) {
+  exec({ $database }, { currentPage = '1', size = '10' }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
       return Promise.all([
@@ -29,6 +29,8 @@ const listReadyToDispatch: HttpModule<
                     _id: '$_id',
                     date: '$payment.date',
                     checkoutStatus: '$checkoutStatus',
+                    dispatchedStatus: '$dispatchedStatus',
+                    shipmentId: '$shipping.ausPost.shipmentId',
                     payment: {
                       amount: '$payment.amount',
                     },

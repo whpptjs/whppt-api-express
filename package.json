@@ -20,7 +20,7 @@
     "lint": "eslint --ext ts --ext js src/ --ignore-path .gitignore",
     "lint:fix": "yarn lint -- --fix",
     "watch": "run-p watch:*",
-    "watch:js": "rm -rf dist && rm -rf types && tsc --watch",
+    "watch:js": "rm -rf dist && rm -rf types && tsc --watch ",
     "build": "run-p build:*",
     "build:js": "rm -rf dist && rm -rf types && tsc && yarn copyFiles",
     "copyFiles": "mkdir -p dist/fonts && cp -r src/routers/Pdf/fonts/* dist/fonts && mkdir -p dist/images && cp -r src/routers/Pdf/images/* dist/images",
