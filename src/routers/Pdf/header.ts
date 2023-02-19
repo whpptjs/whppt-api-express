@@ -18,12 +18,21 @@ const header = (orderId: string, updatedAt: string) => [
             verticalAlignment: 'middle',
             fillColor: '#D4CAB7',
             color: [36, 36, 36],
-            margin: [50, 20, 50, 0],
+            margin: [50, 20, 50, 10],
             layout: 'noBorders',
             table: {
               verticalAlignment: 'middle',
               widths: ['*', '*'],
               body: [
+                [
+                  {
+                    image: path.join(rootDirectory, 'images', 'logo', 'logo.png'),
+                    width: 79,
+                    height: 30,
+                    alignment: 'left',
+                  },
+                  '',
+                ],
                 [
                   {
                     text: `Order ID: ${orderId}`,
@@ -32,12 +41,7 @@ const header = (orderId: string, updatedAt: string) => [
                     alignment: 'left',
                     verticalAlignment: 'bottom',
                   },
-                  {
-                    image: path.join(rootDirectory, 'images', 'logo', 'logo.png'),
-                    width: 79,
-                    height: 30,
-                    alignment: 'right',
-                  },
+                  '',
                 ],
                 [
                   {

@@ -1,12 +1,14 @@
+import { queryMemberTier } from './../../modules/order/Queries/queryMemberTier';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
-import buildPdf from './buildPdf';
+import buildDispatchListPdf from './Dispatch/buildDispatchListPdf';
 import { loadOrderWithProducts } from '../../../src/modules/order/Queries/loadOrderWithProducts';
 import { Staff } from 'src/modules/staff/Model';
-import { composeOrderData } from './composeOrderData';
+import { composeOrderData } from './Dispatch/composeOrderData';
 import { Contact } from 'src/modules/contact/Models/Contact';
 import { Product } from 'src/modules/product/Models/Product';
 import { OrderItem } from 'src/modules/order/Models/Order';
+import buildReceiptPdf from './Order/buildReceiptPdf';
 
 export type OrderWithProductInfo = {
   orderId: any;
@@ -22,10 +24,10 @@ export type OrderWithProductInfo = {
   staffContactInfo: any;
 };
 
-export const PdfRouter = () => {
-  const router = Router();
+const router = Router();
 
-  router.get('/pdf/create/:orderIds', (req: any, res: any) => {
+export const PdfRouter = () => {
+  router.get('/pdf/dispatchList/:orderIds', (req: any, res: any) => {
     const ordersWithProductInfo: OrderWithProductInfo[] = [];
     const orderIds = req.params.orderIds.split(',');
 
@@ -80,9 +82,7 @@ export const PdfRouter = () => {
         });
 
         return createPdfBinary(
-          {
-            products: ordersWithProductInfo,
-          },
+          buildDispatchListPdf({ products: ordersWithProductInfo }),
           function (binary: any) {
             res.contentType('application/pdf');
             res.send(binary);
@@ -92,12 +92,57 @@ export const PdfRouter = () => {
     });
   });
 
+  router.get('/pdf/orderReceipt', (req: any, res: any) => {
+    const orderId = req.query.orderId;
+    const domainId = req.query.domainId;
+
+    return (req as WhpptRequest).moduleContext.then(context => {
+      return loadOrderWithProducts(context, { _id: orderId }).then(order => {
+        return context.$database.then(database => {
+          const { document } = database;
+
+          if (order.memberId) {
+            return queryMemberTier(context, { memberId: order.memberId, domainId }).then(
+              (memberTier: any) => {
+                return document
+                  .query<Contact>('contacts', {
+                    filter: { _id: order.contact?._id },
+                  })
+                  .then(contact => {
+                    return createPdfBinary(
+                      buildReceiptPdf({ order, contact, memberTier }),
+                      function (binary: any) {
+                        res.contentType('application/pdf');
+                        res.send(binary);
+                      }
+                    );
+                  });
+              }
+            );
+          } else {
+            return document
+              .query<Contact>('contacts', {
+                filter: { _id: order.contact?._id },
+              })
+              .then(contact => {
+                return createPdfBinary(
+                  buildReceiptPdf({ order, contact }),
+                  function (binary: any) {
+                    res.contentType('application/pdf');
+                    res.send(binary);
+                  }
+                );
+              });
+          }
+        });
+      });
+    });
+  });
+
   return router;
 };
 
-const createPdfBinary = ({ products }: { products: any }, callback: any) => {
-  const doc = buildPdf({ products });
-
+const createPdfBinary = (doc: any, callback: any) => {
   const chunks: any = [];
   let result;
 

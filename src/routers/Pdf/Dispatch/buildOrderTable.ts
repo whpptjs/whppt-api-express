@@ -1,5 +1,5 @@
-import { OrderWithProductInfo } from '.';
-import header from './header';
+import { OrderWithProductInfo } from '..';
+import header from '../header';
 import { note } from './note';
 import { staff } from './staff';
 import { subheader } from './subheader';
