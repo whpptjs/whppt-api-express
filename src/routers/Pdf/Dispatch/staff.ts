@@ -1,6 +1,4 @@
-import { Contact } from 'src/modules/contact/Models/Contact';
-
-export const staff = (staffContactInfo: Contact) => {
+export const staff = (staffContactInfo: any) => {
   return staffContactInfo
     ? [
         {
