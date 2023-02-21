@@ -8,24 +8,32 @@ export type ListOrdersRetured = {
   total: number;
 };
 
-const listOrders: HttpModule<
+const listSales: HttpModule<
   {
-    search: string;
     limit: string;
     dateFrom: string;
     dateTo: string;
     currentPage: string;
-    status: string;
     origin?: string;
+    staffId?: string;
+    status: 'paid';
   },
   ListOrdersRetured
 > = {
   exec(
     { $database },
-    { search, dateFrom, dateTo, limit = '10', currentPage = '0', status, origin }
+    {
+      dateFrom,
+      dateTo,
+      limit = '10',
+      currentPage = '0',
+      origin,
+      staffId,
+      status = 'paid',
+    }
   ) {
     return $database.then(database => {
-      const { db, queryDocuments } = database as WhpptMongoDatabase;
+      const { db } = database as WhpptMongoDatabase;
 
       const query = {
         $and: [
@@ -34,25 +42,9 @@ const listOrders: HttpModule<
         ],
       } as any;
 
-      if (search && search !== 'undefined') {
+      if (staffId) {
         query.$and.push({
-          $or: [
-            {
-              _id: {
-                $regex: search,
-              },
-            },
-            {
-              orderNumber: {
-                $regex: search,
-              },
-            },
-            {
-              'contact.email': {
-                $regex: search,
-              },
-            },
-          ],
+          staffId,
         });
       }
 
@@ -61,18 +53,18 @@ const listOrders: HttpModule<
           createdAt: { $gte: new Date(dateFrom) },
         });
       }
+
       if (dateTo) {
         query.$and.push({
           createdAt: { $lt: dateTo ? new Date(dateTo) : new Date() },
         });
       }
+
       if (origin) {
         query.$and.push({
           fromPos: { $exists: origin === 'pos' },
         });
       }
-
-      //TODO Some reason unwind is limiting results/
 
       return Promise.all([
         db
@@ -100,31 +92,30 @@ const listOrders: HttpModule<
           ])
           .toArray(),
         db.collection('orders').countDocuments(query),
-      ]).then(([orders, total = 0]) => {
-        const contactIds = orders.map(o => o.contact?._id);
-        return queryDocuments('contacts', { filter: { _id: { $in: contactIds } } }).then(
-          contacts => {
-            return {
-              orders: orders.map(order => {
-                const _contactId = order?.contact?._id;
-                const _contact = contacts.find(c => c._id === _contactId);
-                return {
-                  ...order,
-                  contact: {
-                    _id: order?.contact?._id,
-                    firstName: _contact?.firstName,
-                    lastName: _contact?.lastName,
-                    email: order?.contact?.email,
-                  },
-                };
-              }),
-              total,
-            };
-          }
-        );
+        db
+          .collection('orders')
+          .aggregate([
+            {
+              $match: {
+                checkoutStatus: 'paid',
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                salesTotal: { $sum: '$payment.amount' },
+                itemsTotal: {
+                  $sum: '$items.quantity',
+                },
+              },
+            },
+          ])
+          .toArray(),
+      ]).then(([orders, total = 0, [{ salesTotal, itemsTotal }]]) => {
+        return { orders, total, salesTotal, itemsTotal };
       });
     });
   },
 };
 
-export default Secure(listOrders);
+export default Secure(listSales);

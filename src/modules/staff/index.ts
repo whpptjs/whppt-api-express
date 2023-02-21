@@ -8,6 +8,8 @@ import forgottenPassword from './forgottenPassword';
 import resetPassword from './resetPassword';
 import getMemberTier from './getMemberTier';
 import save from './save';
+import listSales from './listSales';
+import getStaffMembers from './getStaffMembers';
 
 export const staff = {
   login,
@@ -20,4 +22,6 @@ export const staff = {
   resetPassword,
   getMemberTier,
   save,
+  listSales,
+  getStaffMembers,
 };
