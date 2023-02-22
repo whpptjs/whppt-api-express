@@ -66,6 +66,7 @@ const listSales: HttpModule<
         });
       }
 
+      console.log('🚀 ~ file: listSales.ts:76 ~ query:', query['$and']);
       return Promise.all([
         db
           .collection('orders')
@@ -94,24 +95,38 @@ const listSales: HttpModule<
         db.collection('orders').countDocuments(query),
         db
           .collection('orders')
-          .aggregate([
+          .aggregate<any>([
             {
-              $match: {
-                checkoutStatus: 'paid',
+              $match: query,
+            },
+            {
+              $project: {
+                paymentAmount: '$payment.amount',
+                quantities: '$items.quantity',
+              },
+            },
+            {
+              $unwind: {
+                path: '$quantities',
               },
             },
             {
               $group: {
                 _id: null,
-                salesTotal: { $sum: '$payment.amount' },
+                salesTotal: {
+                  $sum: '$paymentAmount',
+                },
                 itemsTotal: {
-                  $sum: '$items.quantity',
+                  $sum: {
+                    $add: '$quantities',
+                  },
                 },
               },
             },
           ])
           .toArray(),
-      ]).then(([orders, total = 0, [{ salesTotal, itemsTotal }]]) => {
+      ]).then(([orders, total = 0, amounts]) => {
+        const { salesTotal = 0, itemsTotal = 0 } = amounts[0] || {};
         return { orders, total, salesTotal, itemsTotal };
       });
     });

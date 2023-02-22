@@ -57,7 +57,6 @@ const signUp: HttpModule<{ name: string; email: string }, void> = {
             );
           }
 
-          console.log('🚀 ~ file: signup.ts:52 ~ exec ~ events:', events);
           return startTransaction(session => {
             return document
               .saveWithEvents('contacts', contact, events, { session })
