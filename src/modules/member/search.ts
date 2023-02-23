@@ -10,6 +10,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
       { firstName: { $regex: searchBy, $options: 'i' } },
       { lastName: { $regex: searchBy, $options: 'i' } },
       { email: { $regex: searchBy, $options: 'i' } },
+      { _id: searchBy },
     ];
 
     //TODO make this a mongo search query
