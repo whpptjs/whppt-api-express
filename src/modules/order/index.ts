@@ -32,6 +32,7 @@ import addGuestToOrder from './addGuestToOrder';
 import setDiner from './setDiner';
 import listReadyToDispatch from './listReadyToDispatch';
 import dispatch from './dispatch';
+import getProductSales from './getProductSales';
 
 export const order = {
   createOrderWithProduct,
@@ -67,4 +68,5 @@ export const order = {
   setDiner,
   listReadyToDispatch,
   dispatch,
+  getProductSales,
 };

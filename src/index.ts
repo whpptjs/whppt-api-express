@@ -30,6 +30,7 @@ import { ContextType } from './context/Context';
 import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 import { StripeRouter } from './routers/Stripe/index';
 import { PdfRouter } from './routers/index';
+import { CsvRouter } from './routers/index';
 
 export * from './Services/Config';
 export * from './modules/HttpModule';
@@ -141,6 +142,7 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(SeoRouter());
   router.use(StripeRouter());
   router.use(PdfRouter());
+  router.use(CsvRouter());
 
   if (config.routers && config.routers.length) {
     config.routers.forEach(entry => {
