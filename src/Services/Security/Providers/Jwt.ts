@@ -47,7 +47,7 @@ export const JwtProvider: SecurityProviderConstructor = ({ $id, $hosting, config
   },
   authenticate(req, res, next) {
     // return new Promise((_, reject) => {
-    passport.authenticate('jwt', function (err, user) {
+    passport.authenticate('jwt', function (err: any, user: any) {
       if (err) {
         res.status(401).send('Could not authenticate').send();
         return;
