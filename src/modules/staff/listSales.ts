@@ -16,6 +16,7 @@ const listSales: HttpModule<
     currentPage: string;
     origin?: string;
     staffId?: string;
+    paymentType?: string;
     status: 'paid';
   },
   ListOrdersRetured
@@ -29,6 +30,7 @@ const listSales: HttpModule<
       currentPage = '0',
       origin,
       staffId,
+      paymentType,
       status = 'paid',
     }
   ) {
@@ -65,8 +67,12 @@ const listSales: HttpModule<
           fromPos: { $exists: origin === 'pos' },
         });
       }
+      if (paymentType) {
+        query.$and.push({
+          'payment.type': paymentType,
+        });
+      }
 
-      console.log('🚀 ~ file: listSales.ts:76 ~ query:', query['$and']);
       return Promise.all([
         db
           .collection('orders')
