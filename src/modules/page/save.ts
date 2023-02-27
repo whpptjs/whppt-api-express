@@ -4,6 +4,7 @@ import imagesExtractor from '../../utils/imagesExtractor';
 import linksExtractor from '../../utils/linksExtractor';
 import { HttpModule } from '../HttpModule';
 import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
+import galleryItemsExtractor from '../../utils/galleryItemsExtractor';
 
 // TODO: collection should not be passed from the client side
 const save: HttpModule<{ page: any; collection?: string; user: any; publish: boolean }> =
@@ -19,6 +20,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
       const pageType = find($pageTypes, pt => pt.name === page.pageType);
 
       const usedImages = imagesExtractor(pageType, page);
+      const usedGalleryItems = galleryItemsExtractor(pageType, page);
       const usedLinks = linksExtractor(pageType, page);
 
       const _collection = pageType ? pageType.collection.name : collection;
@@ -40,7 +42,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
             .collection('dependencies')
             .deleteMany({ parentId: page._id }, { session });
           const dependencies = uniqBy(
-            [...usedImages, ...usedLinks],
+            [...usedImages, ...usedLinks, ...usedGalleryItems],
             image => image._id
           ) as any;
 
