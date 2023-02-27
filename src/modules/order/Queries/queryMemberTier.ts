@@ -63,7 +63,11 @@ export const queryMemberTier: QueryMemberTier = (
       const sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
 
       const amountSpentForYear = orders.reduce(
-        (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
+        (partialSum, a) =>
+          partialSum +
+          (a?.payment?.subTotal
+            ? a?.payment?.subTotal - a?.payment?.memberTotalDiscount
+            : 0),
         0
       );
 
