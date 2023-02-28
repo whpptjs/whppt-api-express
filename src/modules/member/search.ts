@@ -53,6 +53,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
                   lastName: '$lastName',
                   email: '$email',
                   phone: '$phone',
+                  mobile: '$mobile',
                   company: '$company',
                   billing: '$billing',
                   shipping: '$shipping',
