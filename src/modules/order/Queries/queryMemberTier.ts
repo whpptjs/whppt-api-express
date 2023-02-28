@@ -11,7 +11,7 @@ import orderBy from 'lodash/orderBy';
 export type QueryMemberTier = (
   context: ContextType,
   args: { memberId?: string; domainId: string }
-) => Promise<MembershipTier>;
+) => Promise<MembershipTier | void>;
 
 export const queryMemberTier: QueryMemberTier = (
   { $database },
@@ -21,66 +21,86 @@ export const queryMemberTier: QueryMemberTier = (
   return $database.then(database => {
     assert(domainId, 'Domain Id required');
 
-    const year = new Date().getFullYear();
-    const startYear = new Date(`1/1/${year} 10:30`);
-    const endYear = new Date(`1/1/${year + 1} 10:30`);
-
     const { db, document } = database as WhpptMongoDatabase;
-    return Promise.all([
-      document.query<MembershipOptions>('site', {
-        filter: { _id: `membershipOptions_${domainId}` },
-      }),
-      db
-        .collection('orders')
-        .aggregate<Order>([
-          {
-            $match: {
-              memberId: memberId,
-              'payment.status': 'paid',
 
-              $and: [
-                {
-                  updatedAt: {
-                    $gte: startYear,
+    return db
+      .collection('members')
+      .findOne({ _id: memberId })
+      .then(member => {
+        return document
+          .query<MembershipOptions>('site', {
+            filter: { _id: `membershipOptions_${domainId}` },
+          })
+          .then(membershipOptions => {
+            if (member?.lockToTier) {
+              return membershipOptions?.membershipTiers?.find(
+                tier => tier._id === member.lockToTier
+              );
+            } else {
+              const year = new Date().getFullYear();
+              const startYear = new Date(`1/1/${year} 10:30`);
+              const endYear = new Date(`1/1/${year + 1} 10:30`);
+
+              return db
+                .collection('orders')
+                .aggregate<Order>([
+                  {
+                    $match: {
+                      memberId: memberId,
+                      'payment.status': 'paid',
+
+                      $and: [
+                        {
+                          updatedAt: {
+                            $gte: startYear,
+                          },
+                        },
+                        {
+                          updatedAt: { $lt: endYear },
+                        },
+                      ],
+                    },
                   },
-                },
-                {
-                  updatedAt: { $lt: endYear },
-                },
-              ],
-            },
-          },
-          {
-            $project: {
-              payment: 1,
-            },
-          },
-        ])
-        .toArray(),
-    ]).then(([tiers, orders]) => {
-      assert(tiers, 'MembershipTiers not found.');
+                  {
+                    $project: {
+                      payment: 1,
+                    },
+                  },
+                ])
+                .toArray()
+                .then(orders => {
+                  assert(membershipOptions, 'MembershipTiers not found.');
 
-      const sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
+                  const sortedTiers = orderBy(
+                    membershipOptions.membershipTiers,
+                    ['level'],
+                    ['desc']
+                  );
 
-      const amountSpentForYear = orders.reduce(
-        (partialSum, a) =>
-          partialSum +
-          (a?.payment?.subTotal
-            ? a?.payment?.subTotal - a?.payment?.memberTotalDiscount
-            : 0),
-        0
-      );
+                  const amountSpentForYear = orders.reduce(
+                    (partialSum, a) =>
+                      partialSum +
+                      (a?.payment?.subTotal
+                        ? a?.payment?.subTotal - a?.payment?.memberTotalDiscount
+                        : 0),
+                    0
+                  );
 
-      const currentTier = sortedTiers.find(t => t.entryLevelSpend <= amountSpentForYear);
-      const nextTierLevel = (currentTier?.level || 0) + 1;
-      const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
+                  const currentTier = sortedTiers.find(
+                    t => t.entryLevelSpend <= amountSpentForYear
+                  );
+                  const nextTierLevel = (currentTier?.level || 0) + 1;
+                  const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
 
-      return {
-        ...currentTier,
-        amountToSpendToNextTier: nextTier
-          ? nextTier.entryLevelSpend - amountSpentForYear
-          : 0,
-      } as MembershipTier;
-    });
+                  return {
+                    ...currentTier,
+                    amountToSpendToNextTier: nextTier
+                      ? nextTier.entryLevelSpend - amountSpentForYear
+                      : 0,
+                  } as MembershipTier;
+                });
+            }
+          });
+      });
   });
 };
