@@ -10,6 +10,7 @@ const changeDetails: HttpModule<
     firstName: string;
     lastName: string;
     phone: string;
+    mobile: string;
     contactId: string;
     company: string;
     email: string;
@@ -19,7 +20,7 @@ const changeDetails: HttpModule<
 > = {
   exec(
     context,
-    { firstName, lastName, phone, company, contactId, email, optInMarketing }
+    { firstName, lastName, phone, company, contactId, email, optInMarketing, mobile }
   ) {
     assert(firstName, 'A First name is required');
     assert(lastName, 'A last name is required');
@@ -36,7 +37,8 @@ const changeDetails: HttpModule<
         assert(contact, 'Unable to find Contact.');
         if (email) assert(!emailInUse, 'Email already in use.');
 
-        if (noChanges(contact, { firstName, lastName, phone, company, email })) return;
+        if (noChanges(contact, { firstName, lastName, phone, company, email, mobile }))
+          return;
 
         const contactEvents = [
           createEvent('ContactDetailsChanged', {
@@ -44,6 +46,7 @@ const changeDetails: HttpModule<
             firstName,
             lastName,
             phone,
+            mobile,
             company,
             email,
             from: {
@@ -55,7 +58,7 @@ const changeDetails: HttpModule<
             },
           }),
         ];
-        assign(contact, { firstName, lastName, phone, company });
+        assign(contact, { firstName, lastName, phone, company, mobile });
 
         return startTransaction(session => {
           return saveContactAndPublish(
@@ -81,12 +84,14 @@ const noChanges = (
     firstName,
     lastName,
     phone,
+    mobile,
     company,
     email,
   }: {
     firstName: string;
     lastName: string;
     phone: string;
+    mobile: string;
     company: string;
     email: string;
   }
@@ -96,7 +101,8 @@ const noChanges = (
     contact.lastName === lastName &&
     contact.company === company &&
     contact.email === email &&
-    contact.phone === phone
+    contact.phone === phone &&
+    contact.mobile === mobile
   );
 };
 

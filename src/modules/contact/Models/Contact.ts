@@ -8,7 +8,7 @@ export type Contact = {
   phone?: string;
   lastName?: string;
   stripeCustomerId?: string;
-  phoneNumber?: number;
+  mobile?: string;
   isSubscribed?: boolean;
   address?: Address;
   shipping: ContactShipping;
