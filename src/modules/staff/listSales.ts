@@ -46,7 +46,7 @@ const listSales: HttpModule<
 
       if (staffId) {
         query.$and.push({
-          staffId,
+          'staff._id': staffId,
         });
       }
 

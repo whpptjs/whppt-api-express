@@ -1,12 +1,13 @@
 import assert from 'assert';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
-import { Staff, StaffDepartment } from './Model';
+import { Staff, StaffDepartment, MarketArea } from './Model';
 
 const save: HttpModule<
   {
     _id: string;
     contactId: string;
+    marketArea: MarketArea;
     department: StaffDepartment;
     firstName: string;
     lastName: string;
@@ -19,7 +20,7 @@ const save: HttpModule<
   },
   exec(
     { $database, createEvent },
-    { _id, contactId, department, firstName, lastName, isActive }
+    { _id, contactId, department, firstName, lastName, isActive, marketArea }
   ) {
     assert(_id, 'A Staff Id is required');
     assert(contactId, 'A contact Id is required');
@@ -36,6 +37,7 @@ const save: HttpModule<
 
         staffMember.isActive = isActive;
         staffMember.department = department;
+        staffMember.marketArea = marketArea;
         contact.firstName = firstName;
         contact.lastName = lastName;
 
@@ -65,7 +67,6 @@ const save: HttpModule<
         ];
 
         return startTransaction(session => {
-          console.log('🚀 ~ file: save.ts:70 ~ ]).then ~ staffMember', staffMember);
           return document
             .saveWithEvents('staff', staffMember, staffEvents, { session })
             .then(() =>

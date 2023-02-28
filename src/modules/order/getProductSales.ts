@@ -53,6 +53,11 @@ const getProductSales: HttpModule<
           'contact._id': customerId,
         });
       }
+      if (marketArea) {
+        query.$and.push({
+          'staff.marketArea': marketArea,
+        });
+      }
 
       return Promise.all([
         db
@@ -61,27 +66,27 @@ const getProductSales: HttpModule<
             {
               $match: query,
             },
-            {
-              $lookup: {
-                from: 'staff',
-                localField: 'staffId',
-                foreignField: '_id',
-                as: 'staffInfo',
-              },
-            },
-            {
-              $match: marketArea ? { 'staffInfo.marketArea': marketArea } : {},
-            },
+            // {
+            //   $lookup: {
+            //     from: 'staff',
+            //     localField: 'staffId',
+            //     foreignField: '_id',
+            //     as: 'staffInfo',
+            //   },
+            // },
+            // {
+            //   $match: marketArea ? { 'staff.marketArea': marketArea } : {},
+            // },
             {
               $sort: {
                 updatedAt: -1,
               },
             },
-            {
-              $project: {
-                staffInfo: { $arrayElemAt: ['$staffInfo', 0] },
-              },
-            },
+            // {
+            //   $project: {
+            //     staffInfo: { $arrayElemAt: ['$staffInfo', 0] },
+            //   },
+            // },
             {
               $skip: parseInt(limit) * parseInt(currentPage),
             },

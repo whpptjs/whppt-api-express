@@ -1,10 +1,16 @@
 import assert from 'assert';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
-import { Staff, StaffDepartment } from './Model';
+import { MarketArea, Staff, StaffDepartment } from './Model';
 
 const createFromContact: HttpModule<
-  { contactId: string; username: string; password: string; department: StaffDepartment },
+  {
+    contactId: string;
+    username: string;
+    password: string;
+    department: StaffDepartment;
+    marketArea: MarketArea;
+  },
   Staff
 > = {
   authorise({ $identity }, { user }) {
@@ -12,7 +18,7 @@ const createFromContact: HttpModule<
   },
   exec(
     { $database, $id, createEvent, $security },
-    { contactId, username, password, department }
+    { contactId, username, password, department, marketArea }
   ) {
     assert(contactId, 'A contact Id is required');
 
@@ -32,6 +38,7 @@ const createFromContact: HttpModule<
             contactId,
             username,
             department,
+            marketArea,
             password: hashedPassword,
           } as Staff;
 
@@ -41,6 +48,7 @@ const createFromContact: HttpModule<
               contactId,
               username,
               department,
+              marketArea,
             }),
           ];
 

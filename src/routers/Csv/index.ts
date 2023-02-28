@@ -44,27 +44,40 @@ export const CsvRouter = () => {
 
         return db
           .collection('orders')
-          .aggregate<Order>([
-            {
-              $match: query,
-            },
-            {
-              $lookup: {
-                from: 'staff',
-                localField: 'staffId',
-                foreignField: '_id',
-                as: 'staffInfo',
+          .aggregate<Order>(
+            [
+              {
+                $match: query,
               },
-            },
-            {
-              $match: marketArea ? { 'staffInfo.marketArea': `${marketArea}` } : {},
-            },
-            {
-              $sort: {
-                updatedAt: -1,
+              {
+                $lookup: {
+                  from: 'staff',
+                  localField: 'staffId',
+                  foreignField: '_id',
+                  as: 'staffInfo',
+                },
               },
-            },
-          ])
+              {
+                $match: marketArea ? { 'staffInfo.marketArea': `${marketArea}` } : {},
+              },
+              {
+                $project: {
+                  _id: 1,
+                  orderNumber: 1,
+                  items: 1,
+                  fromPos: 1,
+                  isDiner: 1,
+                  dispatchedStatus: 1,
+                },
+              },
+              {
+                $sort: {
+                  updatedAt: -1,
+                },
+              },
+            ],
+            { allowDiskUse: true }
+          )
           .toArray()
           .then(orders => {
             const ordersWithProducts: any = [];
@@ -77,7 +90,7 @@ export const CsvRouter = () => {
           })
           .then(orders => {
             const headers = [
-              'PRODUCT NAE',
+              'PRODUCT NAME',
               'PRICE',
               'SOLD',
               'REVENUE(S)',
