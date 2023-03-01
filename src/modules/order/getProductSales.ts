@@ -27,7 +27,7 @@ const getProductSales: HttpModule<
       const { db } = database as WhpptMongoDatabase;
 
       const query = {
-        $and: [{ _id: { $exists: true } }],
+        $and: [{ _id: { $exists: true }, checkoutStatus: 'paid' }],
       } as any;
 
       if (dateFrom) {
@@ -66,27 +66,12 @@ const getProductSales: HttpModule<
             {
               $match: query,
             },
-            // {
-            //   $lookup: {
-            //     from: 'staff',
-            //     localField: 'staffId',
-            //     foreignField: '_id',
-            //     as: 'staffInfo',
-            //   },
-            // },
-            // {
-            //   $match: marketArea ? { 'staff.marketArea': marketArea } : {},
-            // },
+            { $project: { _id: 1 } },
             {
               $sort: {
                 updatedAt: -1,
               },
             },
-            // {
-            //   $project: {
-            //     staffInfo: { $arrayElemAt: ['$staffInfo', 0] },
-            //   },
-            // },
             {
               $skip: parseInt(limit) * parseInt(currentPage),
             },
@@ -96,13 +81,47 @@ const getProductSales: HttpModule<
           ])
           .toArray()
           .then(orders => {
-            const ordersWithProducts: any = [];
+            const ordersWithProductsPromises: any = [];
 
             orders.forEach(order => {
-              ordersWithProducts.push(loadOrderWithProducts(context, { _id: order._id }));
+              ordersWithProductsPromises.push(
+                loadOrderWithProducts(context, { _id: order._id }).then(_order => {
+                  const memberDiscount = _order?.payment?.memberTotalDiscount
+                    ? Number(_order?.payment?.memberTotalDiscount)
+                    : undefined;
+
+                  const totalPrice = Number(_order?.payment?.subTotal);
+
+                  return {
+                    ..._order,
+                    items: _order.items.map(item => {
+                      const purchasedPrice = Number(item.purchasedPrice);
+                      const ratio = totalPrice
+                        ? purchasedPrice / totalPrice
+                        : purchasedPrice;
+
+                      const multiplyRatio =
+                        memberDiscount && ratio ? memberDiscount * ratio : false;
+
+                      const unitPriceWithDiscount = multiplyRatio
+                        ? purchasedPrice - multiplyRatio
+                        : purchasedPrice;
+
+                      return {
+                        ...item,
+                        unitPriceWithDiscount,
+                        discountApplied: unitPriceWithDiscount
+                          ? ((purchasedPrice - unitPriceWithDiscount) / purchasedPrice) *
+                            100
+                          : 0,
+                      };
+                    }),
+                  };
+                })
+              );
             });
 
-            return Promise.all(ordersWithProducts).then(orders => orders);
+            return Promise.all(ordersWithProductsPromises).then(orders => orders);
           }),
         db.collection('orders').countDocuments(query),
       ]).then(([orders, total]) => {
