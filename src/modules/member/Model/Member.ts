@@ -6,6 +6,7 @@ export type Member = {
   contactId: string;
   username: string;
   password?: string;
+  lockToTier?: string;
   createdAt?: Date;
   notes?: Note[];
 };
