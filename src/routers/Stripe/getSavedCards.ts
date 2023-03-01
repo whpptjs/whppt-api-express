@@ -18,10 +18,6 @@ export const getSavedCards: SaveCardOnContactArgs = (
 ) => {
   assert(memberId, 'MemberId not provided');
   return getStripCustomerIdFromMember(context, stripe, memberId).then(customer => {
-    console.log(
-      '🚀 ~ file: getSavedCards.ts ~ line 21 ~ returngetStripCustomerIdFromMember ~ customer',
-      customer
-    );
     return stripe.customers
       .listPaymentMethods(customer, { type: 'card' })
       .then((cards: any) => {

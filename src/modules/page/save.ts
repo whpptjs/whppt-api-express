@@ -31,9 +31,6 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
         const { startTransaction, db, document } = database as WhpptMongoDatabase;
         return startTransaction(async session => {
           if (publish) await document.publish(_collection, page, { session });
-          console.log('🚀 publish', publish);
-          console.log('🚀 $publishing', $publishing);
-          console.log('🚀 publishing.onPublish', $publishing.onPublish);
 
           if (publish && $publishing.onPublish)
             await $publishing.onPublish(context, page, _collection);

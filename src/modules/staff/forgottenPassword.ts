@@ -7,7 +7,6 @@ import { resetPasswordTemplate } from '../email/Templates/passwordResetEmail';
 
 const forgottenPassword: HttpModule<{ email: string }, void> = {
   exec({ $database, $security, createEvent, apiKey, $email }, { email }, { headers }) {
-    console.log('🚀 ~ file: forgottenPassword.ts:9 ~ exec ~ headers', headers);
     assert(email, 'A email is required');
 
     return $database.then(database => {
