@@ -20,7 +20,7 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
       message: '',
       type: 'pickup',
     });
-  if (override.override) return Promise.resolve(override);
+  if (override?.override) return Promise.resolve(override);
   return $database.then(({ document }) => {
     assert(postcode, 'Postcode is required');
     assert(domainId, 'DomainId is required');
