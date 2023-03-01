@@ -32,7 +32,9 @@ import addGuestToOrder from './addGuestToOrder';
 import setDiner from './setDiner';
 import listReadyToDispatch from './listReadyToDispatch';
 import dispatch from './dispatch';
+import requestCall from './requestCall';
 import getProductSales from './getProductSales';
+import overrideShippingCost from './overrideShippingCost';
 
 export const order = {
   createOrderWithProduct,
@@ -69,4 +71,6 @@ export const order = {
   listReadyToDispatch,
   dispatch,
   getProductSales,
+  requestCall,
+  overrideShippingCost,
 };

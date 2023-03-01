@@ -11,7 +11,8 @@ export type Order = {
   billing?: Billing;
   shipping?: Shipping;
   discountIds?: string;
-  checkoutStatus: 'pending' | 'paid' | 'refunded';
+  checkoutStatus: 'pending' | 'paid' | 'refunded' | 'requestingACall' | 'cancelled';
+  requestContactPhone?: string;
   dispatchedStatus?: 'pending' | 'packed' | 'dispatched';
   createdAt?: Date;
   payment?: Payment;
@@ -31,6 +32,7 @@ export type ShippingCost = {
   price: number | string | undefined;
   allowCheckout: boolean;
   message?: string;
+  override?: boolean;
   type: 'aus_metro' | 'aus_regional' | 'international' | 'pickup';
 };
 

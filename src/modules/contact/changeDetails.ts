@@ -36,6 +36,7 @@ const changeDetails: HttpModule<
       ]).then(([contact, emailInUse]) => {
         assert(contact, 'Unable to find Contact.');
         if (email) assert(!emailInUse, 'Email already in use.');
+        console.log('🚀 ~ file: changeDetails.ts:41 ~ ]).then ~ mobile:', mobile);
 
         if (noChanges(contact, { firstName, lastName, phone, company, email, mobile }))
           return;
@@ -53,6 +54,7 @@ const changeDetails: HttpModule<
               firstName: contact.firstName,
               lastName: contact.lastName,
               phone: contact.phone,
+              mobile: contact.mobile,
               company: contact.company,
               email: contact.email,
             },

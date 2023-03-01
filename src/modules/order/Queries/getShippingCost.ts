@@ -6,12 +6,12 @@ import { ShippingCost } from '../Models/Order';
 
 export type LoadOrderWithProductsArgs = (
   context: ContextType,
-  args: { postcode?: string; domainId: string; pickup?: boolean }
+  args: { postcode?: string; domainId: string; pickup?: boolean; override: ShippingCost }
 ) => Promise<ShippingCost>;
 
 export const getShippingCost: LoadOrderWithProductsArgs = (
   { $database },
-  { postcode, domainId, pickup }
+  { postcode, domainId, pickup, override }
 ) => {
   if (pickup)
     return Promise.resolve({
@@ -20,6 +20,7 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
       message: '',
       type: 'pickup',
     });
+  if (override.override) return Promise.resolve(override);
   return $database.then(({ document }) => {
     assert(postcode, 'Postcode is required');
     assert(domainId, 'DomainId is required');

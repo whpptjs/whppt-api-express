@@ -26,6 +26,9 @@ export const calculateTotal: CalculateTotalArgs = (
         postcode: order.shipping?.address?.postCode,
         pickup: order.shipping?.pickup || false,
         domainId,
+        override: order?.shipping?.shippingCost?.override
+          ? order?.shipping?.shippingCost
+          : ({} as ShippingCost),
       }),
       queryMemberTier(ctx, { domainId, memberId }),
     ]).then(([shippingCost, memberTier]) => {
@@ -40,6 +43,8 @@ export const calculateTotal: CalculateTotalArgs = (
 
       const postageCostInCents =
         order?.shipping?.shippingCost?.price || shippingCost?.price || 0;
+
+      console.log('🚀 shippingCost', shippingCost);
 
       if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
 
