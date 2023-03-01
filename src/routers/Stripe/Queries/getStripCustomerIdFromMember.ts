@@ -16,7 +16,6 @@ export const getStripCustomerIdFromMember: GetStripCustomerIdFromMemberArgs = (
   stripe,
   memberId
 ) => {
-  console.log('🚀memberId', memberId);
   if (!memberId) return Promise.resolve();
   return $database.then(database => {
     const { db, document } = database as WhpptMongoDatabase;
@@ -27,7 +26,6 @@ export const getStripCustomerIdFromMember: GetStripCustomerIdFromMemberArgs = (
       const name = `${contact.firstName} ${contact.lastName}`;
 
       return stripe.customers.create({ name }).then((customer: any) => {
-        console.log('🚀 customer', customer);
         contact.stripeCustomerId = customer.id;
         return document.save('contacts', contact).then(() => {
           return contact.stripeCustomerId;

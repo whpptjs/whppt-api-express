@@ -104,7 +104,6 @@ export const AusPost: AusPostService = ({ $hosting }) => {
             return shipment_id;
           })
           .catch((err: any) => {
-            console.log('🚀 ~ file: index.ts:109 ~ err', err);
             throw err;
           });
       },

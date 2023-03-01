@@ -42,11 +42,6 @@ const createAuspostShipment: HttpModule<
     assert(orderId, 'Order Id not found');
     return $database.then(({ document, startTransaction }) => {
       return document.fetch<Order>('orders', orderId).then(loadedOrder => {
-        console.log(
-          '🚀 ~ file: createAuspostShipment.ts:131 ~ return$database.then ~ loadedOrder',
-          loadedOrder
-        );
-
         assert(loadedOrder, 'Order not found');
         assert(loadedOrder?.payment?.status === 'paid', 'Order not in a paid status');
         assert(

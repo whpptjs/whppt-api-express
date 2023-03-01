@@ -43,10 +43,6 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                     lastName: contact?.lastName || 'Website',
                     email: contact?.email || '',
                   };
-              console.log(
-                '🚀 ~ file: recordContactInformation.ts:39 ~ return$database.then ~ contactToUse',
-                contactToUse
-              );
 
               const event = createEvent('OrderContactInformationUpdated', {
                 _id: loadedOrder._id,
