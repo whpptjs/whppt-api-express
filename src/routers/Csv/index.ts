@@ -42,60 +42,79 @@ export const CsvRouter = () => {
           });
         }
 
+        if (marketArea) {
+          query.$and.push({
+            'staff.marketArea': marketArea,
+          });
+        }
+
         return db
           .collection('orders')
-          .aggregate<Order>(
-            [
-              {
-                $match: query,
+          .aggregate<Order>([
+            {
+              $match: query,
+            },
+            { $project: { _id: 1 } },
+            {
+              $sort: {
+                updatedAt: -1,
               },
-              {
-                $lookup: {
-                  from: 'staff',
-                  localField: 'staffId',
-                  foreignField: '_id',
-                  as: 'staffInfo',
-                },
-              },
-              {
-                $match: marketArea ? { 'staffInfo.marketArea': `${marketArea}` } : {},
-              },
-              {
-                $project: {
-                  _id: 1,
-                  orderNumber: 1,
-                  items: 1,
-                  fromPos: 1,
-                  isDiner: 1,
-                  dispatchedStatus: 1,
-                },
-              },
-              {
-                $sort: {
-                  updatedAt: -1,
-                },
-              },
-            ],
-            { allowDiskUse: true }
-          )
+            },
+          ])
           .toArray()
           .then(orders => {
-            const ordersWithProducts: any = [];
+            const ordersWithProductsPromises: any = [];
 
             orders.forEach(order => {
-              ordersWithProducts.push(loadOrderWithProducts(context, { _id: order._id }));
+              ordersWithProductsPromises.push(
+                loadOrderWithProducts(context, { _id: order._id }).then(_order => {
+                  const memberDiscount = _order?.payment?.memberTotalDiscount
+                    ? Number(_order?.payment?.memberTotalDiscount)
+                    : undefined;
+
+                  const totalPrice = Number(_order?.payment?.subTotal);
+
+                  return {
+                    ..._order,
+                    items: _order.items.map(item => {
+                      const purchasedPrice = Number(item.purchasedPrice);
+                      const ratio = totalPrice
+                        ? purchasedPrice / totalPrice
+                        : purchasedPrice;
+
+                      const multiplyRatio =
+                        memberDiscount && ratio ? memberDiscount * ratio : false;
+
+                      const unitPriceWithDiscount = multiplyRatio
+                        ? purchasedPrice - multiplyRatio
+                        : purchasedPrice;
+
+                      return {
+                        ...item,
+                        unitPriceWithDiscount,
+                        discountApplied: unitPriceWithDiscount
+                          ? ((purchasedPrice - unitPriceWithDiscount) / purchasedPrice) *
+                            100
+                          : 0,
+                      };
+                    }),
+                  };
+                })
+              );
             });
 
-            return Promise.all(ordersWithProducts).then(orders => orders);
+            return Promise.all(ordersWithProductsPromises).then(orders => orders);
           })
           .then(orders => {
             const headers = [
+              'CODE',
               'PRODUCT NAME',
               'PRICE',
               'SOLD',
               'REVENUE(S)',
-              'ONLINE/POS',
-              'RESTAURANT DINER',
+              'DISCOUNT',
+              'SOURCE',
+              'DINER',
               'ORDER ID',
               'DISPATCH',
             ];
@@ -111,10 +130,12 @@ export const CsvRouter = () => {
             orders.forEach((order: any) => {
               order.items.forEach((item: any) => {
                 csvStream.write([
+                  item.product?.productCode,
                   item.product?.name,
                   item.product?.price / 100,
                   item.quantity,
-                  (item.product?.price / 100) * item.quantity,
+                  item.quantity * (item.unitPriceWithDiscount / 100),
+                  item.discountApplied,
                   order.fromPos ? 'POS' : 'Web',
                   order.isDiner ? 'Yes' : 'No',
                   order._id,

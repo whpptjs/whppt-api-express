@@ -53,6 +53,7 @@ const getProductSales: HttpModule<
           'contact._id': customerId,
         });
       }
+
       if (marketArea) {
         query.$and.push({
           'staff.marketArea': marketArea,
