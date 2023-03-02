@@ -14,7 +14,9 @@ const sendReceipt: HttpModule<{ orderId: string; email: string }, void> = {
       return context.$email.send({
         to: email,
         subject: `Hentley Farm receipt${
-          order._id || order.number ? ` for order ${order._id || order.number}` : ''
+          order.orderNumber || order._id
+            ? ` for order #${order.orderNumber || order._id}`
+            : ''
         }`,
         html: getOrderTemplate(order),
       });

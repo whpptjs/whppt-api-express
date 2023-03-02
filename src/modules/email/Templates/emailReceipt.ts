@@ -73,7 +73,7 @@ export function getOrderTemplate(order: any) {
         <td valign="top" style="padding: 35px;">
           <h2
             style="color:#ffffff;font-weight:500;font-size:24px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
-            Order ${order.number || order._id},<br />
+            Order #${order.orderNumber || order._id},<br />
           </h2>
           <p
             style="color:#ACACAC;font-weight:normal;font-size:16px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:30px">
