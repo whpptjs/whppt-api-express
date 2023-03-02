@@ -16,7 +16,6 @@ const changeBillingDetails: HttpModule<ChangeContactBillingArgs, void> = {
     assert(billing.address.number, 'Address number is required.');
     assert(billing.address.street, 'Address street is required.');
     assert(billing.address.suburb, 'Address suburb is required.');
-    assert(billing.address.city, 'Address city is required.');
     assert(billing.address.state, 'Address state is required.');
     assert(billing.address.country, 'Address country is required.');
     assert(billing.address.postCode, 'Address postCode is required.');

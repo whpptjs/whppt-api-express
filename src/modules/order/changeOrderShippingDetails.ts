@@ -34,7 +34,6 @@ const changeOrderShippingDetails: HttpModule<ChangeOrderShippingArgs, Order> = {
       assert(shipping.address.number, 'Address number is required.');
       assert(shipping.address.street, 'Address street is required.');
       assert(shipping.address.suburb, 'Address suburb is required.');
-      assert(shipping.address.city, 'Address city is required.');
       assert(shipping.address.state, 'Address state is required.');
       assert(shipping.address.country, 'Address country is required.');
       assert(shipping.address.postCode, 'Address postCode is required.');
