@@ -107,7 +107,7 @@ const listSales: HttpModule<
             },
             {
               $project: {
-                paymentAmount: '$payment.amount',
+                paymentAmount: '$payment.subTotal',
                 quantities: '$items.quantity',
               },
             },
