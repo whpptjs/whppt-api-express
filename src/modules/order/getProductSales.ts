@@ -1,5 +1,6 @@
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { HttpModule } from '../HttpModule';
+import { addUnitDiscountsToOrder } from './Helpers/AddUnitDiscounts';
 
 import { Order } from './Models/Order';
 import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
@@ -87,37 +88,7 @@ const getProductSales: HttpModule<
             orders.forEach(order => {
               ordersWithProductsPromises.push(
                 loadOrderWithProducts(context, { _id: order._id }).then(_order => {
-                  const memberDiscount = _order?.payment?.memberTotalDiscount
-                    ? Number(_order?.payment?.memberTotalDiscount)
-                    : undefined;
-
-                  const totalPrice = Number(_order?.payment?.subTotal);
-
-                  return {
-                    ..._order,
-                    items: _order.items.map(item => {
-                      const purchasedPrice = Number(item.purchasedPrice);
-                      const ratio = totalPrice
-                        ? purchasedPrice / totalPrice
-                        : purchasedPrice;
-
-                      const multiplyRatio =
-                        memberDiscount && ratio ? memberDiscount * ratio : false;
-
-                      const unitPriceWithDiscount = multiplyRatio
-                        ? purchasedPrice - multiplyRatio
-                        : purchasedPrice;
-
-                      return {
-                        ...item,
-                        unitPriceWithDiscount,
-                        discountApplied: unitPriceWithDiscount
-                          ? ((purchasedPrice - unitPriceWithDiscount) / purchasedPrice) *
-                            100
-                          : 0,
-                      };
-                    }),
-                  };
+                  return addUnitDiscountsToOrder(_order);
                 })
               );
             });

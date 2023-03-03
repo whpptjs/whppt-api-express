@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
-import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
-import { Order } from 'src/modules/order/Models/Order';
+import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
+import { Order } from '../../modules/order/Models/Order';
 import * as csv from 'fast-csv';
 import { loadOrderWithProducts } from '../../modules/order/Queries/loadOrderWithProducts';
+import { addUnitDiscountsToOrder } from '../../modules/order/Helpers/AddUnitDiscounts';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ export const CsvRouter = () => {
         const { dateFrom, dateTo, origin, marketArea, customerId } = req.query;
 
         const query = {
-          $and: [{ _id: { $exists: true } }],
+          $and: [{ _id: { $exists: true }, checkoutStatus: 'paid' }],
         } as any;
 
         if (dateFrom) {
@@ -68,37 +69,7 @@ export const CsvRouter = () => {
             orders.forEach(order => {
               ordersWithProductsPromises.push(
                 loadOrderWithProducts(context, { _id: order._id }).then(_order => {
-                  const memberDiscount = _order?.payment?.memberTotalDiscount
-                    ? Number(_order?.payment?.memberTotalDiscount)
-                    : undefined;
-
-                  const totalPrice = Number(_order?.payment?.subTotal);
-
-                  return {
-                    ..._order,
-                    items: _order.items.map(item => {
-                      const purchasedPrice = Number(item.purchasedPrice);
-                      const ratio = totalPrice
-                        ? purchasedPrice / totalPrice
-                        : purchasedPrice;
-
-                      const multiplyRatio =
-                        memberDiscount && ratio ? memberDiscount * ratio : false;
-
-                      const unitPriceWithDiscount = multiplyRatio
-                        ? purchasedPrice - multiplyRatio
-                        : purchasedPrice;
-
-                      return {
-                        ...item,
-                        unitPriceWithDiscount,
-                        discountApplied: unitPriceWithDiscount
-                          ? ((purchasedPrice - unitPriceWithDiscount) / purchasedPrice) *
-                            100
-                          : 0,
-                      };
-                    }),
-                  };
+                  return addUnitDiscountsToOrder(_order);
                 })
               );
             });
