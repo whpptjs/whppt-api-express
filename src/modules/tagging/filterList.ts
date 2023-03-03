@@ -15,18 +15,29 @@ export type FilterList = {
     limit: number;
     sort: any;
   };
+  queryInput?: string;
 };
 
 const filterList: HttpModule<FilterList, any> = {
-  exec({ $database }, { domainId, tagFilters, headerFilter, pageIndex = 0, size = 20 }) {
+  exec(
+    { $database },
+    { domainId, tagFilters, headerFilter, pageIndex = 0, size = 20, queryInput }
+  ) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
+
       const query = {
-        $or: [
-          { 'header.content.heading': { $exists: true, $ne: '' } },
-          { 'header.content.title': { $exists: true, $ne: '' } },
-        ],
+        $or: queryInput
+          ? [
+              { 'header.content.heading': { $regex: queryInput, $options: 'i' } },
+              { 'header.content.title': { $regex: queryInput, $options: 'i' } },
+            ]
+          : [
+              { 'header.content.heading': { $exists: true, $ne: '' } },
+              { 'header.content.title': { $exists: true, $ne: '' } },
+            ],
       } as any;
+
       if (domainId && domainId !== 'undefined') query.domainId = domainId;
 
       if (tagFilters) {
