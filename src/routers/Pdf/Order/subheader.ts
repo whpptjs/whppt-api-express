@@ -60,14 +60,22 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                   ],
                   [
                     {
-                      text: `${format(new Date(order.payment.date), 'dd LLL y')}`,
+                      text: `${
+                        order.payment
+                          ? format(new Date(order.payment.date), 'dd LLL y')
+                          : '-'
+                      }`,
                       fontSize: 10,
                       font: 'SweetSansPro',
                       alignment: 'left',
                       verticalAlignment: 'bottom',
                     },
                     {
-                      text: `$${(order.payment.subTotal / 100).toFixed(2)}`,
+                      text: `${
+                        order.payment
+                          ? `$${(order.payment.subTotal / 100).toFixed(2)}`
+                          : '-'
+                      }`,
                       fontSize: 10,
                       font: 'SweetSansPro',
                       alignment: 'left',
@@ -106,7 +114,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                     {
                       text: `${memberTier ? `${memberTier.name}` : ''}
                       ${contact?.firstName} ${contact?.lastName}
-                      ${contact?.email}
+                      ${contact?.email || ''}
                     `,
                       fontSize: 10,
                       alignment: 'left',
