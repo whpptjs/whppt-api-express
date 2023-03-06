@@ -11,6 +11,7 @@ const list: HttpModule<
     statusFilter: string;
     sellableFilter: string;
     family: string;
+    vintage: string;
   },
   { products: Product[]; total: number }
 > = {
@@ -19,7 +20,16 @@ const list: HttpModule<
   },
   exec(
     { $database },
-    { domainId, limit, currentPage, search, family, statusFilter, sellableFilter }
+    {
+      domainId,
+      limit,
+      currentPage,
+      search,
+      family,
+      statusFilter,
+      sellableFilter,
+      vintage,
+    }
   ) {
     let query = {
       domainId,
@@ -29,7 +39,12 @@ const list: HttpModule<
     if (sellableFilter === 'pos') query.forSaleOnPos = true;
     if (sellableFilter === 'website') query.forSaleOnWebsite = true;
     if (family) query.family = family;
-    if (search) query.name = { $regex: search, $options: 'i' };
+    if (vintage) query['customFields.vintage'] = vintage;
+    if (search)
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { productCode: { $regex: search, $options: 'i' } },
+      ];
 
     return $database.then(({ queryDocuments, countDocuments }) => {
       return Promise.all([
