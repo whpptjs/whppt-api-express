@@ -3,6 +3,8 @@ export const footer = (payment: any) => {
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
   const subtotal = payment.subTotal / 100;
+  const tax = payment.subTotal / 11 / 100;
+  const total = payment.amount / 100;
 
   const table = {
     layout: {
@@ -26,7 +28,7 @@ export const footer = (payment: any) => {
           },
           {
             text: `$${subtotal.toFixed(2)}`,
-            bold: true,
+            bold: false,
             font: 'SweetSansPro',
             alignment: 'right',
             fontSize: 10,
@@ -48,7 +50,7 @@ export const footer = (payment: any) => {
       },
       {
         text: `$${memberTotalDiscount.toFixed(2)}`,
-        bold: true,
+        bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
         fontSize: 10,
@@ -66,7 +68,7 @@ export const footer = (payment: any) => {
     },
     {
       text: `${shipping ? `$${shipping.toFixed(2)}` : 'Free'}`,
-      bold: true,
+      bold: false,
       font: 'SweetSansPro',
       alignment: 'right',
       fontSize: 10,
@@ -84,13 +86,29 @@ export const footer = (payment: any) => {
       },
       {
         text: `$${memberShippingDiscount.toFixed(2)}`,
-        bold: true,
+        bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
         fontSize: 10,
       },
     ]);
   }
+  table.table.body.push([
+    {
+      text: 'TAX (incl.)',
+      bold: true,
+      font: 'SweetSansPro',
+      alignment: 'left',
+      fontSize: 10,
+    },
+    {
+      text: `$${tax.toFixed(2)}`,
+      bold: false,
+      font: 'SweetSansPro',
+      alignment: 'right',
+      fontSize: 10,
+    },
+  ]);
 
   table.table.body.push([
     {
@@ -101,13 +119,8 @@ export const footer = (payment: any) => {
       fontSize: 12,
     },
     {
-      text: `$${(
-        subtotal +
-        shipping -
-        memberTotalDiscount -
-        memberShippingDiscount
-      ).toFixed(2)}`,
-      bold: true,
+      text: `$${total.toFixed(2)}`,
+      bold: false,
       font: 'SweetSansPro',
       alignment: 'right',
       fontSize: 12,

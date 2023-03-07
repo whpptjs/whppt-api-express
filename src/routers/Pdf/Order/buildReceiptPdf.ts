@@ -24,6 +24,12 @@ const docDefinition = ({ order, contact, memberTier }: any) => {
       footer(order.payment),
     ],
     pageMargins: [0, 0],
+    // footer: function (currentPage: any, pageCount: any) {
+    //   return {
+    //     text: `${currentPage.toString() + ' of ' + pageCount}`,
+    //     alignment: 'center',
+    //   };
+    // },
   };
 };
 
