@@ -55,7 +55,12 @@ const confirmCashPayment: HttpModule<
                           items: orderWithProducts.items.map(
                             (item: OrderItemWithProduct) => {
                               return omit(
-                                { ...item, purchasedPrice: item.product?.price },
+                                {
+                                  ...item,
+                                  purchasedPrice:
+                                    item.overidedPrice || item.product?.price,
+                                  preOveridePrice: item.product?.price,
+                                },
                                 'product'
                               );
                             }

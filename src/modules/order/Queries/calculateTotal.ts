@@ -36,15 +36,14 @@ export const calculateTotal: CalculateTotalArgs = (
         order && order.items.length
           ? order.items.reduce(
               (acc: number, item: OrderItemWithProduct) =>
-                acc + Number(item.product?.price) * Number(item.quantity),
+                acc +
+                Number(item.overidedPrice || item.product?.price) * Number(item.quantity),
               0
             )
           : 0;
 
       const postageCostInCents =
         order?.shipping?.shippingCost?.price || shippingCost?.price || 0;
-
-      console.log('🚀 shippingCost', shippingCost);
 
       if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
 

@@ -60,6 +60,7 @@ export type OrderItem = {
   productId?: string;
   quantity: number;
   purchasedPrice?: number;
+  overidedPrice?: number;
 };
 
 export type OrderWithProducts = Order & {

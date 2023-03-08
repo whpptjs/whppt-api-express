@@ -35,6 +35,7 @@ import dispatch from './dispatch';
 import requestCall from './requestCall';
 import getProductSales from './getProductSales';
 import overrideShippingCost from './overrideShippingCost';
+import changeItemPrice from './changeItemPrice';
 
 export const order = {
   createOrderWithProduct,
@@ -73,4 +74,5 @@ export const order = {
   getProductSales,
   requestCall,
   overrideShippingCost,
+  changeItemPrice,
 };
