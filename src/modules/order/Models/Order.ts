@@ -61,6 +61,7 @@ export type OrderItem = {
   quantity: number;
   purchasedPrice?: number;
   overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type OrderWithProducts = Order & {
@@ -72,6 +73,9 @@ export type OrderItemWithProduct = OrderItem & {
   _id: string;
   productId?: string;
   quantity: number;
+  purchasedPrice?: number;
+  overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type Payment = {
