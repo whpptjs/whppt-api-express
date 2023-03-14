@@ -4,10 +4,10 @@ import { ToggleSubscription } from './Common/ToggleSubscription';
 import { Contact } from './Models/Contact';
 
 const create: HttpModule<
-  { firstName: string; lastName: string; email: string; optInMarketing: boolean },
+  { firstName: string; lastName: string; email: string; isSubscribed: boolean },
   Contact
 > = {
-  exec(context, { firstName, lastName, email, optInMarketing }) {
+  exec(context, { firstName, lastName, email, isSubscribed }) {
     assert(email, 'An email is required');
     assert(firstName, 'A first name is required');
     assert(lastName, 'A last name is required');
@@ -41,7 +41,7 @@ const create: HttpModule<
                   .then(() => {
                     return ToggleSubscription(
                       { ...context, document },
-                      { contact, optInMarketing },
+                      { contact, isSubscribed },
                       session
                     );
                   });

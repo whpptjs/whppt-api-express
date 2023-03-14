@@ -8,7 +8,7 @@ import * as validations from './Validations';
 
 export type OrderRecordContactInformationArgs = {
   orderId: string;
-  contact: OrderContact & { optInMarketing: boolean };
+  contact: OrderContact & { isSubscribed: boolean };
 };
 
 const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, void> = {
@@ -65,7 +65,7 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                         { ...context, document },
                         {
                           contact: contactToUse as Contact,
-                          optInMarketing: contact.optInMarketing,
+                          isSubscribed: contact.isSubscribed,
                         },
                         session
                       );
@@ -81,7 +81,7 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                           { ...context, document },
                           {
                             contact: contactToUse as Contact,
-                            optInMarketing: contact.optInMarketing,
+                            isSubscribed: contact.isSubscribed,
                           },
                           session
                         );
