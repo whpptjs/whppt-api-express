@@ -43,6 +43,10 @@ const confirmCashPayment: HttpModule<
                     subTotal,
                     memberTotalDiscount,
                     memberShippingDiscount,
+                    originalTotal,
+                    originalSubTotal,
+                    overrideTotalPrice,
+                    discountApplied,
                   }) => {
                     return loadOrderWithProducts(context, { _id: orderId }).then(
                       orderWithProducts => {
@@ -58,7 +62,9 @@ const confirmCashPayment: HttpModule<
                                 {
                                   ...item,
                                   purchasedPrice:
-                                    item.overidedPrice || item.product?.price,
+                                    item.overidedPrice || item.overidedPrice === 0
+                                      ? item.overidedPrice
+                                      : item.product?.price,
                                   originalPrice: item.product?.price,
                                 },
                                 'product'
@@ -74,6 +80,10 @@ const confirmCashPayment: HttpModule<
                             memberTotalDiscount,
                             memberShippingDiscount,
                             shippingCost,
+                            originalTotal,
+                            originalSubTotal,
+                            overrideTotalPrice,
+                            discountApplied,
                           },
                         });
 
@@ -86,12 +96,19 @@ const confirmCashPayment: HttpModule<
                             memberTotalDiscount,
                             memberShippingDiscount,
                             shippingCost,
+                            originalTotal,
+                            overrideTotalPrice,
+                            discountApplied,
                           }),
                           context.createEvent('ProductsConfirmedToOrder', {
                             _id: orderId,
                             items: loadedOrder.items,
                           }),
                         ];
+                        console.log(
+                          '🚀 ~ file: confirmCashPayment.ts:115 ~ returncontext.$security.encrypt ~ loadedOrder:',
+                          loadedOrder.payment
+                        );
 
                         return startTransaction((session: any) => {
                           return document.saveWithEvents('orders', loadedOrder, events, {

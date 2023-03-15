@@ -10,7 +10,7 @@ import orderBy from 'lodash/orderBy';
 
 export type QueryMemberTier = (
   context: ContextType,
-  args: { memberId?: string; domainId: string }
+  args: { memberId?: string; domainId: string; orderId?: string }
 ) => Promise<MembershipTier>;
 
 export const queryMemberTier: QueryMemberTier = (

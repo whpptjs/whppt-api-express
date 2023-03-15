@@ -37,6 +37,9 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
         subTotal,
         memberTotalDiscount,
         memberShippingDiscount,
+        originalTotal,
+        overrideTotalPrice,
+        discountApplied,
       }) => {
         return getStripCustomerIdFromMember(context, stripe, order.memberId).then(
           customer => {
@@ -65,6 +68,9 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                           memberTotalDiscount,
                           memberShippingDiscount,
                           shippingCost,
+                          originalTotal,
+                          overrideTotalPrice,
+                          discountApplied,
                         },
                       });
 
@@ -79,6 +85,9 @@ export const createPaymentIntent: CreatePaymentIntentArgs = (
                             intentId: intent.id,
                             status: 'pending',
                             amount: total,
+                            originalTotal,
+                            overrideTotalPrice,
+                            discountApplied,
                           },
                           ageConfirmed,
                         }),
