@@ -56,6 +56,15 @@ const signUp: HttpModule<
               newContact
             ),
           ];
+
+          if (!contact?._id)
+            events.push(
+              createEvent('ContactOptedInForMarketing', {
+                contactId: newContact._id,
+                isSubscribed: true,
+              })
+            );
+
           const memberEvents = [createEvent('MemberCreated', member)];
 
           return startTransaction(session => {
@@ -72,15 +81,12 @@ const signUp: HttpModule<
                         session,
                       })
                       .then(() => {
-                        const events = [
-                          createEvent('ContactOptedInForMarketing', {
-                            contactId: newContact._id,
-                            isSubscribed: true,
-                          }),
-                        ];
+                        const events = [] as any[];
 
                         return document
-                          .saveWithEvents('contacts', newContact, events, { session })
+                          .saveWithEvents('contacts', newContact, events, {
+                            session,
+                          })
                           .then(() => {
                             return document.publishWithEvents(
                               'contacts',
