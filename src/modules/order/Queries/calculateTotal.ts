@@ -74,13 +74,20 @@ export const calculateTotal: CalculateTotalArgs = (
 
       const amountOfProducts = calcAmountOfProducts(order);
 
-      const memberTotalDiscount = memberTier?.discounts
-        ? membersTotalSavings(memberTier, itemsCostInCents, amountOfProducts)
-        : 0;
+      const overrideTotalPrice =
+        order?.overrides?.total || order?.overrides?.total === 0
+          ? Number(order?.overrides?.total)
+          : undefined;
 
-      const memberShippingDiscount = memberTier?.discounts
-        ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
-        : 0;
+      const memberTotalDiscount =
+        memberTier?.discounts && !overrideTotalPrice
+          ? membersTotalSavings(memberTier, itemsCostInCents, amountOfProducts)
+          : 0;
+
+      const memberShippingDiscount =
+        memberTier?.discounts && !overrideTotalPrice
+          ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
+          : 0;
 
       const itemsWithDiscount =
         itemsDiscountedCostInCents > 0
@@ -94,11 +101,6 @@ export const calculateTotal: CalculateTotalArgs = (
           : Number(postageCostInCents) - memberShippingDiscount < 0
           ? 0
           : Number(postageCostInCents) - memberShippingDiscount;
-
-      const overrideTotalPrice =
-        order?.overrides?.total || order?.overrides?.total === 0
-          ? Number(order?.overrides?.total)
-          : undefined;
 
       const total =
         overrideTotalPrice || overrideTotalPrice == 0
@@ -114,7 +116,6 @@ export const calculateTotal: CalculateTotalArgs = (
       const totalOverrideOfOriginalTotal = overrideTotalPrice
         ? originalTotal - overrideTotalPrice
         : undefined;
-      console.log('🚀 --- ~ overrideTotalPrice:', overrideTotalPrice);
 
       const itemOverridesDiscount = itemsDiscountedCostInCents
         ? itemsOriginalCostInCents - itemsDiscountedCostInCents

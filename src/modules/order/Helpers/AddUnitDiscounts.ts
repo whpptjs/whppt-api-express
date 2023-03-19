@@ -2,8 +2,9 @@ import { OrderItemWithProduct, OrderWithProducts } from '../Models/Order';
 
 export const addUnitDiscountsToOrder = (order: OrderWithProducts) => {
   const orderLevelDiscountPercentage =
-    order.payment?.overrideTotalPrice ||
-    0 / (order.payment?.originalSubTotal || order.payment?.subTotal || 0);
+    order.payment?.overrideTotalPrice && order.payment.originalSubTotal
+      ? order.payment?.overrideTotalPrice / order.payment.originalSubTotal
+      : 0;
 
   return {
     ...order,
@@ -17,6 +18,7 @@ export const addUnitDiscountsToOrder = (order: OrderWithProducts) => {
       const totalDiscountOnLineItem = 1 - percentagePaidOnLineItem;
 
       const remainder = orgPrice - Number(item.overidedPrice || 0);
+
       const remainderWithOriginal = remainder / orgPrice;
       const manualAdjustedDiscount = (remainderWithOriginal * 100).toFixed(2);
 
