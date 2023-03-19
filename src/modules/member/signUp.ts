@@ -13,7 +13,7 @@ const signUp: HttpModule<
     password: string;
     termsAndConditions: boolean;
     contactId?: string;
-    optInMarketing?: boolean;
+    isSubscribed?: boolean;
   },
   Member
 > = {
@@ -27,7 +27,7 @@ const signUp: HttpModule<
       password,
       termsAndConditions,
       contactId,
-      optInMarketing,
+      isSubscribed,
     }
   ) {
     assert(email, 'An email is required');
@@ -49,6 +49,7 @@ const signUp: HttpModule<
           email,
           shipping: { address },
           billing: { address },
+          isSubscribed,
         } as Contact;
         return $security.encrypt(password).then(hashedPassword => {
           const member = {
@@ -83,7 +84,7 @@ const signUp: HttpModule<
                           { ...context, document },
                           {
                             contact: newContact,
-                            optInMarketing: optInMarketing || false,
+                            isSubscribed: isSubscribed || false,
                           },
                           session
                         );

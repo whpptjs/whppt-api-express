@@ -14,13 +14,13 @@ const changeDetails: HttpModule<
     contactId: string;
     company: string;
     email: string;
-    optInMarketing: boolean;
+    isSubscribed: boolean;
   },
   void
 > = {
   exec(
     context,
-    { firstName, lastName, phone, company, contactId, email, optInMarketing, mobile }
+    { firstName, lastName, phone, company, contactId, email, isSubscribed, mobile }
   ) {
     assert(firstName, 'A First name is required');
     assert(lastName, 'A last name is required');
@@ -38,7 +38,17 @@ const changeDetails: HttpModule<
         if (email) assert(!emailInUse, 'Email already in use.');
         console.log('🚀 ~ file: changeDetails.ts:41 ~ ]).then ~ mobile:', mobile);
 
-        if (noChanges(contact, { firstName, lastName, phone, company, email, mobile }))
+        if (
+          noChanges(contact, {
+            firstName,
+            lastName,
+            phone,
+            company,
+            email,
+            mobile,
+            isSubscribed,
+          })
+        )
           return;
 
         const contactEvents = [
@@ -70,7 +80,7 @@ const changeDetails: HttpModule<
           ).then(() => {
             return ToggleSubscription(
               { ...context, document },
-              { contact, optInMarketing },
+              { contact, isSubscribed },
               session
             );
           });
@@ -89,6 +99,7 @@ const noChanges = (
     mobile,
     company,
     email,
+    isSubscribed,
   }: {
     firstName: string;
     lastName: string;
@@ -96,6 +107,7 @@ const noChanges = (
     mobile: string;
     company: string;
     email: string;
+    isSubscribed: boolean;
   }
 ) => {
   return (
@@ -104,7 +116,8 @@ const noChanges = (
     contact.company === company &&
     contact.email === email &&
     contact.phone === phone &&
-    contact.mobile === mobile
+    contact.mobile === mobile &&
+    contact.isSubscribed === isSubscribed
   );
 };
 
