@@ -33,6 +33,7 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
         memberTotalDiscount,
         memberShippingDiscount,
         originalTotal,
+        originalSubTotal,
         overrideTotalPrice,
         discountApplied,
       }) => {
@@ -66,6 +67,7 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                       originalTotal,
                       overrideTotalPrice,
                       discountApplied,
+                      originalSubTotal,
                     },
                   });
 
@@ -85,6 +87,7 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                         originalTotal,
                         overrideTotalPrice,
                         discountApplied,
+                        originalSubTotal,
                       },
                       ageConfirmed,
                     }),

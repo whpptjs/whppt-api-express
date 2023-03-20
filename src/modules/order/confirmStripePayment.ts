@@ -42,7 +42,7 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                     {
                       ...item,
                       purchasedPrice: item.overidedPrice || item.product?.price,
-                      preOveridePrice: item.product?.price,
+                      originalPrice: item.product?.price,
                     },
                     'product'
                   );
