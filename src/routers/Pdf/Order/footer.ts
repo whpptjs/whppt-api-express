@@ -1,10 +1,12 @@
 export const footer = (payment: any) => {
+
   const memberShippingDiscount = payment.memberShippingDiscount / 100 || 0;
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
   const subtotal = payment.subTotal / 100;
   const tax = payment.subTotal / 11 / 100;
   const total = payment.amount / 100;
+
 
   const table = {
     layout: {

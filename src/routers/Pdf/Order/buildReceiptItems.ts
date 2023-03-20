@@ -98,7 +98,9 @@ const buildReceiptItems = (items: any) => {
               verticalAlignment: 'middle',
             },
             {
-              text: `$${(item.purchasedPrice / 100).toFixed(2)}`,
+              text: `${
+                item.purchasedPrice ? `$${(item.purchasedPrice / 100).toFixed(2)}` : '-'
+              }`,
               styles: 'tableCell',
               alignment: 'left',
               font: 'SweetSansPro',
