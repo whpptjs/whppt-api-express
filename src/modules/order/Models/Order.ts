@@ -25,6 +25,9 @@ export type Order = {
     status: 'pending' | 'paid';
     amount: number;
   };
+  overrides?: {
+    total: number;
+  };
   staffId?: string;
 };
 
@@ -60,6 +63,8 @@ export type OrderItem = {
   productId?: string;
   quantity: number;
   purchasedPrice?: number;
+  overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type OrderWithProducts = Order & {
@@ -71,6 +76,9 @@ export type OrderItemWithProduct = OrderItem & {
   _id: string;
   productId?: string;
   quantity: number;
+  purchasedPrice?: number;
+  overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type Payment = {
@@ -81,6 +89,9 @@ export type Payment = {
   subTotal: number;
   memberTotalDiscount: number;
   memberShippingDiscount: number;
+  discountApplied?: number;
+  overrideTotalPrice?: number;
+  originalSubTotal?: number;
 };
 
 export type AusPostShipping = {

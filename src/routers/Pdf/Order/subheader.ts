@@ -8,7 +8,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
         fontSize: 12,
         color: [147, 122, 74],
         font: 'SweetSansPro',
-        alignment: 'left',
+        alignment: 'right',
         verticalAlignment: 'bottom',
       }
     : {
@@ -16,7 +16,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
         fontSize: 12,
         color: [147, 122, 74],
         font: 'SweetSansPro',
-        alignment: 'left',
+        alignment: 'right',
         verticalAlignment: 'bottom',
       };
 
@@ -54,7 +54,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       fontSize: 12,
                       color: [147, 122, 74],
                       font: 'SweetSansPro',
-                      alignment: 'left',
+                      alignment: 'right',
                       verticalAlignment: 'bottom',
                     },
                   ],
@@ -78,7 +78,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       }`,
                       fontSize: 10,
                       font: 'SweetSansPro',
-                      alignment: 'left',
+                      alignment: 'right',
                       verticalAlignment: 'bottom',
                     },
                   ],
@@ -117,7 +117,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       ${contact?.email || ''}
                     `,
                       fontSize: 10,
-                      alignment: 'left',
+                      alignment: 'right',
                       font: 'SweetSansPro',
                     },
                   ],

@@ -7,10 +7,20 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
   exec({ $database }, { searchBy }) {
     if (!searchBy) return Promise.resolve([] as Member[]);
     const query = [
-      { firstName: { $regex: searchBy, $options: 'i' } },
-      { lastName: { $regex: searchBy, $options: 'i' } },
-      { email: { $regex: searchBy, $options: 'i' } },
-      { _id: searchBy },
+      {
+        $or: [
+          { firstName: { $regex: searchBy, $options: 'i' } },
+          { lastName: { $regex: searchBy, $options: 'i' } },
+          {
+            $and: [
+              { firstName: { $regex: searchBy.split(' ')[0], $options: 'i' } },
+              { lastName: { $regex: searchBy.split(' ')[1] || '', $options: 'i' } },
+            ],
+          },
+          { email: { $regex: searchBy, $options: 'i' } },
+          { _id: searchBy },
+        ],
+      },
     ];
 
     //TODO make this a mongo search query

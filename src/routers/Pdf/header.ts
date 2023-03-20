@@ -41,8 +41,16 @@ const header = (orderId: string, updatedAt: string) => [
                     alignment: 'left',
                     verticalAlignment: 'bottom',
                   },
-                  '',
+                  {
+                    text: `Jenke Road, Seppeltsfield, SA 5355`,
+                    font: 'Roxborough',
+                    fontSize: 10,
+
+                    alignment: 'right',
+                    verticalAlignment: 'bottom',
+                  },
                 ],
+
                 [
                   {
                     text: `Order date: ${format(new Date(updatedAt), 'dd LLL y')}`,
@@ -52,9 +60,20 @@ const header = (orderId: string, updatedAt: string) => [
                     alignment: 'left',
                   },
                   {
-                    text: '',
+                    text: '08 8562 8427 - 08 8333 0246 (fax)',
                     fontSize: 10,
                     font: 'Roxborough',
+                    alignment: 'right',
+                  },
+                ],
+
+                [
+                  '',
+                  {
+                    text: 'ABN (33 097 614 661)',
+                    fontSize: 10,
+                    font: 'Roxborough',
+                    alignment: 'right',
                   },
                 ],
               ],
