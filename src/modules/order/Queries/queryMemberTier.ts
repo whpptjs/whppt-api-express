@@ -40,8 +40,8 @@ export const queryMemberTier: QueryMemberTier = (
         return { ...lockedTier, amountToSpendToNextTier: 0 } as MembershipTier;
 
       const year = new Date().getFullYear();
-      const startYear = new Date(`1/1/${year} 10:30`);
-      const endYear = new Date(`1/1/${year + 1} 10:30`);
+      const startYear = new Date(`1/1/${year - 2} 10:30`);
+      const endYear = new Date(`1/1/${year} 10:30`);
 
       return db
         .collection('orders')
