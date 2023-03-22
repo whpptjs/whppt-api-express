@@ -81,22 +81,14 @@ const signUp: HttpModule<
                         session,
                       })
                       .then(() => {
-                        const events = [] as any[];
-
-                        return document
-                          .saveWithEvents('contacts', newContact, events, {
+                        return document.publishWithEvents(
+                          'contacts',
+                          member,
+                          memberEvents,
+                          {
                             session,
-                          })
-                          .then(() => {
-                            return document.publishWithEvents(
-                              'contacts',
-                              newContact,
-                              events,
-                              {
-                                session,
-                              }
-                            );
-                          });
+                          }
+                        );
                       });
                   });
               });
