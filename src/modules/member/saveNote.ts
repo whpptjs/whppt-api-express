@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Member, Note } from './Model';
+import { Secure } from '../staff/Secure';
 
 const saveNote: HttpModule<{ memberId: string; note: string }, Note> = {
   exec({ $database, $id, createEvent }, { memberId, note }) {
@@ -35,4 +36,4 @@ const saveNote: HttpModule<{ memberId: string; note: string }, Note> = {
   },
 };
 
-export default saveNote;
+export default Secure(saveNote);
