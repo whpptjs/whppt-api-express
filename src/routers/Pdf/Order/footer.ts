@@ -20,7 +20,7 @@ export const footer = (payment: any) => {
       body: [
         [
           {
-            text: 'SUBTOTAL',
+            text: 'SUBTOTAL (incl. GST)',
             bold: true,
             font: 'SweetSansPro',
             fontSize: 10,
@@ -49,7 +49,7 @@ export const footer = (payment: any) => {
         fontSize: 10,
       },
       {
-        text: `$${memberTotalDiscount.toFixed(2)}`,
+        text: `($${memberTotalDiscount.toFixed(2)})`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
@@ -85,7 +85,7 @@ export const footer = (payment: any) => {
         fontSize: 10,
       },
       {
-        text: `$${memberShippingDiscount.toFixed(2)}`,
+        text: `($${memberShippingDiscount.toFixed(2)})`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',

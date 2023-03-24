@@ -1,5 +1,5 @@
 import { sanitizeAddressString } from '../Dispatch/composeOrderData';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 
 const subheader = (order: any, contact: any, memberTier: any) => {
   const userData = memberTier
@@ -42,48 +42,6 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                 body: [
                   [
                     {
-                      text: 'DATE',
-                      fontSize: 12,
-                      color: [147, 122, 74],
-                      font: 'SweetSansPro',
-                      alignment: 'left',
-                      verticalAlignment: 'bottom',
-                    },
-                    {
-                      text: 'SUBTOTAL',
-                      fontSize: 12,
-                      color: [147, 122, 74],
-                      font: 'SweetSansPro',
-                      alignment: 'right',
-                      verticalAlignment: 'bottom',
-                    },
-                  ],
-                  [
-                    {
-                      text: `${
-                        order.payment
-                          ? format(new Date(order.payment.date), 'dd LLL y')
-                          : '-'
-                      }`,
-                      fontSize: 10,
-                      font: 'SweetSansPro',
-                      alignment: 'left',
-                      verticalAlignment: 'bottom',
-                    },
-                    {
-                      text: `${
-                        order.payment
-                          ? `$${(order.payment.subTotal / 100).toFixed(2)}`
-                          : '-'
-                      }`,
-                      fontSize: 10,
-                      font: 'SweetSansPro',
-                      alignment: 'right',
-                      verticalAlignment: 'bottom',
-                    },
-                  ],
-                  [
-                    {
                       text: 'SHIPPING',
                       fontSize: 12,
                       color: [147, 122, 74],
@@ -105,7 +63,8 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                         order?.shipping?.address?.city
                       )} ${sanitizeAddressString(
                         order?.shipping?.address?.state
-                      )} ${sanitizeAddressString(order?.shipping?.address?.country)} `,
+                      )} ${sanitizeAddressString(order?.shipping?.address?.country)} 
+                      ${sanitizeAddressString(order?.shipping?.address?.postCode)} `,
                       fontSize: 10,
                       font: 'SweetSansPro',
                       verticalAlignment: 'middle',
