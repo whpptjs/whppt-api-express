@@ -37,7 +37,7 @@ import getProductSales from './getProductSales';
 import overrideShippingCost from './overrideShippingCost';
 import changeItemPrice from './changeItemPrice';
 import overrideTotalPrice from './overrideTotalPrice';
-import getOrderTotals from './getOrderTotals';
+import getOrderTotalWithDiscounts from './getOrderTotalWithDiscounts';
 
 export const order = {
   createOrderWithProduct,
@@ -78,5 +78,5 @@ export const order = {
   overrideShippingCost,
   changeItemPrice,
   overrideTotalPrice,
-  getOrderTotals,
+  getOrderTotalWithDiscounts,
 };

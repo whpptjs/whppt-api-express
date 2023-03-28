@@ -1,7 +1,7 @@
 import { HttpModule } from '../HttpModule';
 import { calculateTotal } from './Queries/calculateTotal';
 
-const getOrderTotals: HttpModule<
+const getOrderTotalWithDiscounts: HttpModule<
   { orderId: string; domainId: string; memberId?: string },
   any
 > = {
@@ -14,4 +14,4 @@ const getOrderTotals: HttpModule<
   },
 };
 
-export default getOrderTotals;
+export default getOrderTotalWithDiscounts;
