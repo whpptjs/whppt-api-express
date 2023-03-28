@@ -4,10 +4,15 @@ import { Order, OrderItem, OrderItemWithProduct, ShippingCost } from '../Models/
 import { getShippingCost } from './getShippingCost';
 import { loadOrderWithProducts } from './loadOrderWithProducts';
 import { queryMemberTier } from './queryMemberTier';
+import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
 
 export type CalculateTotalArgs = (
   context: ContextType,
-  args: { orderId: string; domainId: string; memberId?: string }
+  args: {
+    orderId: string;
+    domainId: string;
+    memberId?: string;
+  }
 ) => Promise<{
   total: number;
   subTotal: number;
@@ -35,7 +40,8 @@ export const calculateTotal: CalculateTotalArgs = (
           : ({} as ShippingCost),
       }),
       queryMemberTier(ctx, { domainId, memberId, orderId }),
-    ]).then(([shippingCost, memberTier]) => {
+      queryMemberAmountSpentForYear(ctx, { memberId }),
+    ]).then(([shippingCost, memberTier, amountSpentForYear]) => {
       const itemsCostInCents =
         order && order.items.length
           ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
@@ -86,7 +92,13 @@ export const calculateTotal: CalculateTotalArgs = (
 
       const memberShippingDiscount =
         memberTier?.discounts && !overrideTotalPrice
-          ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
+          ? membersShippingSaving(
+              memberTier,
+              shippingCost,
+              itemsCostInCents,
+              amountOfProducts,
+              amountSpentForYear
+            )
           : 0;
 
       const itemsWithDiscount =
@@ -172,11 +184,26 @@ const membersTotalSavings = (
 const membersShippingSaving = (
   tier: MembershipTier,
   shippingCost: ShippingCost,
-  amountOfProducts: number
+  itemsCostInCents: number,
+  amountOfProducts: number,
+  amountSpentForYear: number
 ) => {
   if (!tier?.discounts) return 0;
 
-  const _cost = tier?.discounts?.reduce((partialSum, discount) => {
+  let selectedDiscountTier: MembershipTier = tier;
+
+  if (tier.nextTiers.length) {
+    tier.nextTiers.sort((a, b) => a.entryLevelSpend - b.entryLevelSpend);
+
+    tier.nextTiers.forEach(tier => {
+      if (amountSpentForYear + itemsCostInCents >= tier.entryLevelSpend)
+        selectedDiscountTier = tier;
+    });
+  }
+
+  return selectedDiscountTier?.discounts?.reduce(getDiscountedAmount, 0);
+
+  function getDiscountedAmount(partialSum: number, discount: any) {
     if (discount.appliedTo === 'total') return partialSum + 0;
     if (
       discount.minItemsRequiredForDiscount &&
@@ -187,6 +214,5 @@ const membersShippingSaving = (
     if (discount.type === 'flat') return partialSum + discount.value;
 
     return partialSum + Number(shippingCost.price) * (discount.value / 100);
-  }, 0);
-  return _cost;
+  }
 };
