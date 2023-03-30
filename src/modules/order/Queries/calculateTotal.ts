@@ -199,11 +199,22 @@ const membersTotalSavings = (
     if (!tier) return discounts;
 
     const nextTier = tiers[nextTierIndex + 1];
-    const tierBase = nextTier
+    let tierBase = nextTier
       ? Math.min(nextTier.entryLevelSpend - amountSpent, remainingSubTotal)
       : remainingSubTotal;
+    let discountAmount = tier.discounts.reduce(calculateDiscountAmount(tierBase), 0);
 
-    const discountAmount = tier.discounts.reduce(calculateDiscountAmount(tierBase), 0);
+    if (
+      nextTier &&
+      amountSpent + remainingSubTotal - tierBase - discountAmount <
+        nextTier?.entryLevelSpend
+    ) {
+      tierBase = remainingSubTotal;
+      discountAmount = tier.discounts.reduce(
+        calculateDiscountAmount(remainingSubTotal),
+        0
+      );
+    }
 
     discounts.push({
       amount: Number(discountAmount.toFixed(2)),
