@@ -204,24 +204,13 @@ const membersTotalSavings = (
       : remainingSubTotal;
     let discountAmount = tier.discounts.reduce(calculateDiscountAmount(tierBase), 0);
 
-    if (
-      nextTier &&
-      amountSpent + remainingSubTotal - tierBase - discountAmount <
-        nextTier?.entryLevelSpend
-    ) {
-      tierBase = remainingSubTotal;
-      discountAmount = tier.discounts.reduce(
-        calculateDiscountAmount(remainingSubTotal),
-        0
-      );
-    }
-
     discounts.push({
       amount: Number(discountAmount.toFixed(2)),
       tier: tier.name,
     });
 
-    const updatedSubtotal = remainingSubTotal - tierBase - discountAmount;
+    const updatedSubtotal =
+      remainingSubTotal - (nextTierIndex === 0 ? tierBase + discountAmount : tierBase);
     const updatedAmountSpent = amountSpent + tierBase;
 
     if (updatedSubtotal > 0 && nextTier) {
