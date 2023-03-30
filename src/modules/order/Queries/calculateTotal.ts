@@ -42,8 +42,6 @@ export const calculateTotal: CalculateTotalArgs = (
       queryMemberTier(ctx, { domainId, memberId, orderId }),
       queryMemberAmountSpentForYear(ctx, { memberId }),
     ]).then(([shippingCost, memberTier, amountSpentForYear]) => {
-      let totalDiscountsBreakdown;
-
       const itemsCostInCents =
         order && order.items.length
           ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
@@ -89,20 +87,12 @@ export const calculateTotal: CalculateTotalArgs = (
 
       const memberTotalDiscount =
         memberTier?.discounts && !overrideTotalPrice
-          ? (() => {
-              totalDiscountsBreakdown = membersTotalSavings(
-                memberTier,
-                itemsCostInCents,
-                amountOfProducts,
-                amountSpentForYear
-              );
-
-              return totalDiscountsBreakdown
-                .reduce((acc: number, discount: any) => {
-                  return acc + Number(discount.amount);
-                }, 0)
-                .toFixed(2);
-            })()
+          ? membersTotalSavings(
+              memberTier,
+              itemsCostInCents,
+              amountOfProducts,
+              amountSpentForYear
+            )
           : 0;
 
       const memberShippingDiscount =
@@ -165,7 +155,6 @@ export const calculateTotal: CalculateTotalArgs = (
         originalTotal,
         overrideTotalPrice,
         discountApplied,
-        totalDiscountsBreakdown,
       };
     });
   });
@@ -244,7 +233,11 @@ const membersTotalSavings = (
     []
   );
 
-  return discounts;
+  return Number(
+    discounts.reduce((acc: number, discount: any) => {
+      return acc + discount.amount;
+    }, 0)
+  );
 };
 
 const membersShippingSaving = (
@@ -276,9 +269,8 @@ const membersShippingSaving = (
       discount.minItemsRequiredForDiscount > amountOfProducts
     )
       return partialSum + 0;
-    if (discount?.shipping?.value !== shippingCost.type) {
-      return partialSum + 0;
-    }
+
+    if (discount?.shipping?.value !== shippingCost.type) return partialSum + 0;
 
     if (discount.type === 'flat') return partialSum + discount.value;
 
