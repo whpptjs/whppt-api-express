@@ -176,7 +176,7 @@ const membersTotalSavings = (
   amountSpentForYear: number
 ) => {
   const calculateDiscountAmount =
-    (tierBase: number) => (partialSum: number, discount: any) => {
+    (tierBase: number, applyOnce: boolean) => (partialSum: number, discount: any) => {
       if (discount.appliedTo === 'shipping') return partialSum + 0;
       if (
         discount.minItemsRequiredForDiscount &&
@@ -185,8 +185,22 @@ const membersTotalSavings = (
         return partialSum + 0;
       if (discount.type === 'flat') return partialSum + discount.value;
 
-      return partialSum + tierBase * (discount.value / 100);
+      return applyOnce
+        ? (tierBase * discount.value) / 100
+        : getFullDiscountAmmount(tierBase, discount.value / 100);
     };
+
+  const getFullDiscountAmmount = (tierBase: number, percentage: number) => {
+    let discount = 0;
+    let partial = tierBase * percentage;
+
+    while (partial >= 1) {
+      discount += partial;
+      partial *= percentage;
+    }
+
+    return Math.floor(discount);
+  };
 
   const applyDiscountsRecursively: any = (
     tiers: any,
@@ -199,19 +213,22 @@ const membersTotalSavings = (
     if (!tier) return discounts;
 
     const nextTier = tiers[nextTierIndex + 1];
+
     let tierBase = nextTier
-      ? Math.min(nextTier.entryLevelSpend - amountSpent, remainingSubTotal)
+      ? Math.min(nextTier.entryLevelSpend - tier.entryLevelSpend, remainingSubTotal)
       : remainingSubTotal;
-    let discountAmount = tier.discounts.reduce(calculateDiscountAmount(tierBase), 0);
+    let discountAmount = tier.discounts.reduce(
+      calculateDiscountAmount(tierBase, !nextTier),
+      0
+    );
 
     discounts.push({
       amount: Number(discountAmount.toFixed(2)),
       tier: tier.name,
     });
 
-    const updatedSubtotal =
-      remainingSubTotal - (nextTierIndex === 0 ? tierBase + discountAmount : tierBase);
-    const updatedAmountSpent = amountSpent + tierBase;
+    const updatedSubtotal = remainingSubTotal - tierBase - discountAmount;
+    const updatedAmountSpent = amountSpent + tierBase + discountAmount;
 
     if (updatedSubtotal > 0 && nextTier) {
       return applyDiscountsRecursively(
