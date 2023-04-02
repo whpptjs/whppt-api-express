@@ -67,7 +67,7 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
 
             return nextTiers.map((t, i) => ({
               ...t,
-              amountLeftToUpgrade:
+              amountToSpendToNextTier:
                 i === 0
                   ? t.entryLevelSpend - amountSpentForYear
                   : calculatePreviousTiers(i) - amountSpentForYear,

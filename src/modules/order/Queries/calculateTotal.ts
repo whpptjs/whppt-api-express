@@ -215,7 +215,9 @@ const membersTotalSavings = (
     const nextTier = tiers[nextTierIndex + 1];
 
     let tierBase = nextTier
-      ? Math.min(nextTier.entryLevelSpend - tier.entryLevelSpend, remainingSubTotal)
+      ? remainingSubTotal > tier.amountToSpendToNextTier
+        ? tier.amountToSpendToNextTier
+        : remainingSubTotal
       : remainingSubTotal;
     let discountAmount = tier.discounts.reduce(
       calculateDiscountAmount(tierBase, !nextTier),
@@ -228,7 +230,7 @@ const membersTotalSavings = (
     });
 
     const updatedSubtotal = remainingSubTotal - tierBase - discountAmount;
-    const updatedAmountSpent = amountSpent + tierBase + discountAmount;
+    const updatedAmountSpent = amountSpent + tierBase;
 
     if (updatedSubtotal > 0 && nextTier) {
       return applyDiscountsRecursively(
