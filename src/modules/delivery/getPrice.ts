@@ -21,6 +21,7 @@ const load: HttpModule<
             message: delivery.aus_metro.message,
             type: 'aus_metro',
           };
+
         const regional = postcodeInRange(delivery.aus_regional.postcodes, postcode);
 
         if (regional)

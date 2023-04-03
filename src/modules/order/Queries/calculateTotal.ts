@@ -4,10 +4,15 @@ import { Order, OrderItem, OrderItemWithProduct, ShippingCost } from '../Models/
 import { getShippingCost } from './getShippingCost';
 import { loadOrderWithProducts } from './loadOrderWithProducts';
 import { queryMemberTier } from './queryMemberTier';
+import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
 
 export type CalculateTotalArgs = (
   context: ContextType,
-  args: { orderId: string; domainId: string; memberId?: string }
+  args: {
+    orderId: string;
+    domainId: string;
+    memberId?: string;
+  }
 ) => Promise<{
   total: number;
   subTotal: number;
@@ -35,7 +40,8 @@ export const calculateTotal: CalculateTotalArgs = (
           : ({} as ShippingCost),
       }),
       queryMemberTier(ctx, { domainId, memberId, orderId }),
-    ]).then(([shippingCost, memberTier]) => {
+      queryMemberAmountSpentForYear(ctx, { memberId }),
+    ]).then(([shippingCost, memberTier, amountSpentForYear]) => {
       const itemsCostInCents =
         order && order.items.length
           ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
@@ -81,12 +87,23 @@ export const calculateTotal: CalculateTotalArgs = (
 
       const memberTotalDiscount =
         memberTier?.discounts && !overrideTotalPrice
-          ? membersTotalSavings(memberTier, itemsCostInCents, amountOfProducts)
+          ? membersTotalSavings(
+              memberTier,
+              itemsCostInCents,
+              amountOfProducts,
+              amountSpentForYear
+            )
           : 0;
 
       const memberShippingDiscount =
         memberTier?.discounts && !overrideTotalPrice
-          ? membersShippingSaving(memberTier, shippingCost, amountOfProducts)
+          ? membersShippingSaving(
+              memberTier,
+              shippingCost,
+              itemsCostInCents,
+              amountOfProducts,
+              amountSpentForYear
+            )
           : 0;
 
       const itemsWithDiscount =
@@ -121,11 +138,12 @@ export const calculateTotal: CalculateTotalArgs = (
         ? itemsOriginalCostInCents - itemsDiscountedCostInCents
         : undefined;
 
-      const discountApplied =
+      const discountApplied = Number(
         (totalOverrideOfOriginalTotal &&
           totalOverrideOfOriginalTotal + (itemOverridesDiscount || 0)) ||
-        itemOverridesDiscount ||
-        memberTotalDiscount;
+          itemOverridesDiscount ||
+          memberTotalDiscount
+      );
 
       return {
         total,
@@ -154,39 +172,127 @@ const calcAmountOfProducts = (order: Order) => {
 const membersTotalSavings = (
   tier: MembershipTier,
   subTotal: number,
-  amountOfProducts: number
+  amountOfProducts: number,
+  amountSpentForYear: number
 ) => {
-  const savings = tier?.discounts?.reduce((partialSum, discount) => {
-    if (discount.appliedTo === 'shipping') return partialSum + 0;
-    if (
-      discount.minItemsRequiredForDiscount &&
-      discount.minItemsRequiredForDiscount > amountOfProducts
-    )
-      return partialSum + 0;
-    if (discount.type === 'flat') return partialSum + discount.value;
-    return partialSum + subTotal * (discount.value / 100);
-  }, 0);
-  return savings || 0;
+  const calculateDiscountAmount =
+    (tierBase: number, applyOnce: boolean) => (partialSum: number, discount: any) => {
+      if (discount.appliedTo === 'shipping') return partialSum + 0;
+      if (
+        discount.minItemsRequiredForDiscount &&
+        discount.minItemsRequiredForDiscount > amountOfProducts
+      )
+        return partialSum + 0;
+      if (discount.type === 'flat') return partialSum + discount.value;
+
+      return applyOnce
+        ? (tierBase * discount.value) / 100
+        : getFullDiscountAmmount(tierBase, discount.value / 100);
+    };
+
+  const getFullDiscountAmmount = (tierBase: number, percentage: number) => {
+    let discount = 0;
+    let partial = tierBase * percentage;
+
+    while (partial >= 1) {
+      discount += partial;
+      partial *= percentage;
+    }
+
+    return Math.floor(discount);
+  };
+
+  const applyDiscountsRecursively: any = (
+    tiers: any,
+    remainingSubTotal: number,
+    amountSpent: number,
+    discounts: any,
+    nextTierIndex = 0
+  ) => {
+    const tier = tiers[nextTierIndex];
+    if (!tier) return discounts;
+
+    const nextTier = tiers[nextTierIndex + 1];
+
+    let tierBase = nextTier
+      ? remainingSubTotal > tier.amountToSpendToNextTier
+        ? tier.amountToSpendToNextTier
+        : remainingSubTotal
+      : remainingSubTotal;
+    let discountAmount = tier.discounts.reduce(
+      calculateDiscountAmount(tierBase, !nextTier),
+      0
+    );
+
+    discounts.push({
+      amount: Number(discountAmount.toFixed(2)),
+      tier: tier.name,
+    });
+
+    const updatedSubtotal = remainingSubTotal - tierBase - discountAmount;
+    const updatedAmountSpent = amountSpent + tierBase;
+
+    if (updatedSubtotal > 0 && nextTier) {
+      return applyDiscountsRecursively(
+        tiers,
+        updatedSubtotal,
+        updatedAmountSpent,
+        discounts,
+        nextTierIndex + 1
+      );
+    } else {
+      return discounts;
+    }
+  };
+
+  const discounts = applyDiscountsRecursively(
+    [tier, ...tier.nextTiers],
+    subTotal,
+    amountSpentForYear,
+    []
+  );
+
+  return Number(
+    discounts.reduce((acc: number, discount: any) => {
+      return acc + discount.amount;
+    }, 0)
+  );
 };
 
 const membersShippingSaving = (
   tier: MembershipTier,
   shippingCost: ShippingCost,
-  amountOfProducts: number
+  itemsCostInCents: number,
+  amountOfProducts: number,
+  amountSpentForYear: number
 ) => {
   if (!tier?.discounts) return 0;
 
-  const _cost = tier?.discounts?.reduce((partialSum, discount) => {
+  let selectedDiscountTier: MembershipTier = tier;
+
+  if (tier.nextTiers.length) {
+    tier.nextTiers.sort((a, b) => a.entryLevelSpend - b.entryLevelSpend);
+
+    tier.nextTiers.forEach(tier => {
+      if (amountSpentForYear + itemsCostInCents >= tier.entryLevelSpend)
+        selectedDiscountTier = tier;
+    });
+  }
+
+  return selectedDiscountTier?.discounts?.reduce(getDiscountedAmount, 0);
+
+  function getDiscountedAmount(partialSum: number, discount: any) {
     if (discount.appliedTo === 'total') return partialSum + 0;
     if (
       discount.minItemsRequiredForDiscount &&
       discount.minItemsRequiredForDiscount > amountOfProducts
     )
       return partialSum + 0;
+
     if (discount?.shipping?.value !== shippingCost.type) return partialSum + 0;
+
     if (discount.type === 'flat') return partialSum + discount.value;
 
     return partialSum + Number(shippingCost.price) * (discount.value / 100);
-  }, 0);
-  return _cost;
+  }
 };

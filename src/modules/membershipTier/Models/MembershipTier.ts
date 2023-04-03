@@ -28,6 +28,8 @@ export type MembershipTier = {
       href: any;
     };
   };
+  nextTiers: MembershipTier[];
+  amountSpentForYear: number;
 };
 
 export type MembershipOptions = {
