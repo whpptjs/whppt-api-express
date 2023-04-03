@@ -3,8 +3,10 @@ export const footer = (payment: any) => {
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
   const subtotal = payment.subTotal / 100;
-  const tax = payment.subTotal / 11 / 100;
-  const total = payment.amount / 100;
+  const subTotalAfterShippingAndDiscounts =
+    subtotal + shipping - memberShippingDiscount - memberTotalDiscount;
+  const tax = subTotalAfterShippingAndDiscounts / 11;
+  const total = subTotalAfterShippingAndDiscounts + tax;
 
   const table = {
     layout: {
@@ -49,7 +51,7 @@ export const footer = (payment: any) => {
         fontSize: 10,
       },
       {
-        text: `$${memberTotalDiscount.toFixed(2)}`,
+        text: `(-$${memberTotalDiscount.toFixed(2)})`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
@@ -85,7 +87,7 @@ export const footer = (payment: any) => {
         fontSize: 10,
       },
       {
-        text: `$${memberShippingDiscount.toFixed(2)}`,
+        text: `(-$${memberShippingDiscount.toFixed(2)})`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
@@ -112,7 +114,7 @@ export const footer = (payment: any) => {
 
   table.table.body.push([
     {
-      text: 'TOTAL',
+      text: 'TOTAL (incl. GST)',
       bold: true,
       font: 'SweetSansPro',
       alignment: 'left',
