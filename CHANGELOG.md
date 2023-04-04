@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.78](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.77...v2.0.78) (2023-04-04)
+
 ### [2.0.77](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.76...v2.0.77) (2023-03-21)
 
 ### [2.0.76](https://github.com/svelte-studios/whppt-api-express/compare/v2.0.75...v2.0.76) (2023-03-20)
