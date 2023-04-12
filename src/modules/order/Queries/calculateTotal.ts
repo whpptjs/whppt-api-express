@@ -5,6 +5,7 @@ import { getShippingCost } from './getShippingCost';
 import { loadOrderWithProducts } from './loadOrderWithProducts';
 import { queryMemberTier } from './queryMemberTier';
 import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
+import { calculateMembersTotalSavings } from './helpers/membersTotalSavings';
 
 export type CalculateTotalArgs = (
   context: ContextType,
@@ -88,12 +89,12 @@ export const calculateTotal: CalculateTotalArgs = (
 
         const memberTotalDiscount =
           memberTier?.discounts && !overrideTotalPrice
-            ? membersTotalSavings(
-                memberTier,
+            ? calculateMembersTotalSavings(
+                [memberTier, ...(memberTier.nextTiers || [])],
                 itemsCostInCents,
                 amountOfProducts,
                 amountSpentForYear - discountAppliedForYear
-              )
+              ).reduce((acc: number, discount: any) => acc + discount.discountApplied, 0)
             : 0;
 
         const memberShippingDiscount =
@@ -168,96 +169,6 @@ const calcAmountOfProducts = (order: Order) => {
       (partialSum: number, item: OrderItem) => partialSum + item.quantity,
       0
     ) || 0
-  );
-};
-
-const membersTotalSavings = (
-  tier: MembershipTier,
-  subTotal: number,
-  amountOfProducts: number,
-  amountSpentForYear: number
-) => {
-  const calculateDiscountAmount =
-    (tierBase: number, applyOnce: boolean) => (partialSum: number, discount: any) => {
-      if (discount.appliedTo === 'shipping') return partialSum + 0;
-      if (
-        discount.minItemsRequiredForDiscount &&
-        discount.minItemsRequiredForDiscount > amountOfProducts
-      )
-        return partialSum + 0;
-      if (discount.type === 'flat') return partialSum + discount.value;
-
-      return applyOnce
-        ? (tierBase * discount.value) / 100
-        : getFullDiscountAmmount(tierBase, discount.value / 100);
-    };
-
-  const getFullDiscountAmmount = (tierBase: number, percentage: number) => {
-    let discount = 0;
-    let partial = tierBase * percentage;
-
-    while (partial >= 1) {
-      discount += partial;
-      partial *= percentage;
-    }
-
-    return Math.floor(discount);
-  };
-
-  const applyDiscountsRecursively: any = (
-    tiers: any,
-    remainingSubTotal: number,
-    amountSpent: number,
-    discounts: any,
-    nextTierIndex = 0
-  ) => {
-    const tier = tiers[nextTierIndex];
-    if (!tier) return discounts;
-
-    const nextTier = tiers[nextTierIndex + 1];
-
-    let tierBase = nextTier
-      ? remainingSubTotal > tier.amountToSpendToNextTier
-        ? tier.amountToSpendToNextTier
-        : remainingSubTotal
-      : remainingSubTotal;
-    let discountAmount = tier.discounts.reduce(
-      calculateDiscountAmount(tierBase, !nextTier),
-      0
-    );
-
-    discounts.push({
-      amount: Number(discountAmount.toFixed(2)),
-      tier: tier.name,
-    });
-
-    const updatedSubtotal = remainingSubTotal - tierBase - discountAmount;
-    const updatedAmountSpent = amountSpent + tierBase;
-
-    if (updatedSubtotal > 0 && nextTier) {
-      return applyDiscountsRecursively(
-        tiers,
-        updatedSubtotal,
-        updatedAmountSpent,
-        discounts,
-        nextTierIndex + 1
-      );
-    } else {
-      return discounts;
-    }
-  };
-
-  const discounts = applyDiscountsRecursively(
-    [tier, ...(tier.nextTiers ? tier.nextTiers : [])],
-    subTotal,
-    amountSpentForYear,
-    []
-  );
-
-  return Number(
-    discounts.reduce((acc: number, discount: any) => {
-      return acc + discount.amount;
-    }, 0)
   );
 };
 
