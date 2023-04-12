@@ -5,7 +5,7 @@ import { Order } from '../Models/Order';
 export type QueryMemberAmountSpentForYear = (
   context: ContextType,
   args: { memberId?: string }
-) => Promise<number>;
+) => Promise<{ discountAppliedForYear: number; amountSpentForYear: number }>;
 
 export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
   { $database },
@@ -49,14 +49,21 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
       .then(orders => {
         const amountSpentForYear = orders.reduce(
           (partialSum, a) =>
-            partialSum +
-            (a?.payment?.subTotal
-              ? a?.payment?.subTotal - a?.payment?.memberTotalDiscount
-              : 0),
+            partialSum + (a?.payment?.subTotal ? a?.payment?.subTotal : 0),
           0
         );
 
-        return amountSpentForYear;
+        const discountAppliedForYear = orders.reduce(
+          (partialSum, a) =>
+            partialSum +
+            (a?.payment?.memberShippingDiscount ? a?.payment?.memberShippingDiscount : 0),
+          0
+        );
+
+        return {
+          discountAppliedForYear,
+          amountSpentForYear,
+        };
       });
   });
 };
