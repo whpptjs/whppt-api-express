@@ -13,54 +13,21 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
   spentThisYear,
   amountOfProducts
 ) => {
-  const buildFFDiscount = (
-    currentPurchaseAmount: number,
-    spentThisYear: number,
-    ffTier: MembershipTier,
-    trTier: MembershipTier
-  ) => {
-    console.log(
-      '🚀 currentPurchaseAmount:',
-      currentPurchaseAmount,
-      spentThisYear,
-      ffTier,
-      trTier
-    );
-    const tierLimit =
-      trTier.entryLevelSpend - spentThisYear < 0
-        ? 0
-        : trTier.entryLevelSpend - spentThisYear;
-    const upperLimitDiscount = getUpperTierLimitDetla(tierLimit, ffTier);
-
-    // const { discountAmount, tierBase } = tier.discounts.reduce(
-    //   calculateDiscountAmount(remainingSubTotal, tier, amountSpent, nextTier),
-    //   0
-    // );
-  };
-
-  const getUpperTierLimitDetla = (base: number, percentage: number) => {
-    let discount = 0;
-    let partial = base * percentage;
-
-    while (partial >= 1) {
-      discount += partial;
-      partial *= percentage;
-    }
-
-    return Math.floor(discount);
-  };
-
   const ffTier = tiers.find(t => t.name === 'Friends of the Farm');
   const trTier = tiers.find(t => t.name === 'Tally Room Member');
-  const ccTier = tiers.find(t => t.name === 'Clos Otto Club Member');
-  console.log('🚀  ccTier:', ccTier);
+  // const coTier = tiers.find(t => t.name === 'Clos Otto Club Member');
 
   const { ffRemaining, ffDiscountApplied } = buildFFDiscount(
     currentPurchaseAmount,
     spentThisYear,
     ffTier,
-    trTier
+    trTier,
+    amountOfProducts
   );
+
+  //Check if there's remainder to apply discount to for TR
+
+  // Check if there is remainder to apply discount to for CO
 
   return {
     total: ffRemaining,
@@ -68,26 +35,103 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
   };
 };
 
-// const calculateDiscountAmount =
-//   (remainingToSpend: number, tier: MembershipTier, amountSpentForYear: number, nextTier?: MembershipTier) =>
-//   (partialSum: number, discount: any) => {
-//     if (discount.appliedTo === 'shipping') return partialSum + 0;
-//     if (discount.minItemsRequiredForDiscount && discount.minItemsRequiredForDiscount > amountOfProducts) return partialSum + 0;
-//     if (discount.type === 'flat') return partialSum + discount.value;
+const buildFFDiscount: any = (
+  currentPurchaseAmount: number,
+  spentThisYear: number,
+  ffTier: MembershipTier,
+  trTier: MembershipTier,
+  amountOfProducts: number
+) => {
+  console.log(
+    '🚀 ~ file: membersTotalSavingsChanges.ts:45 ~ currentPurchaseAmount:',
+    currentPurchaseAmount
+  );
 
-//     if (!nextTier) return (remainingToSpend * discount.value) / 100;
+  const tierLimit = getTierLimit(trTier, spentThisYear);
+  const upperLimitDiscount = getUpperTierLimitDelta(tierLimit, ffTier.discounts[0].value);
+  console.log(
+    '🚀 ~ file: membersTotalSavingsChanges.ts:55 ~ upperLimitDiscount:',
+    upperLimitDiscount
+  );
+  const discountBase = upperLimitDiscount - spentThisYear;
+  console.log(
+    '🚀 ~ file: membersTotalSavingsChanges.ts:57 ~ discountBase:',
+    discountBase
+  );
 
-//     const tierLimit = nextTier.entryLevelSpend - tier.entryLevelSpend;
-//     const deltaToSpend = maxTeirSpendDiscountDelta(tierLimit, discount.value / 100);
-//     const maxTierToSpend = (tier.amountToSpendToNextTier || 0) + deltaToSpend - (amountSpentForYear - nextTier.entryLevelSpend);
+  if (discountBase) {
+    const discount = ffTier.discounts.reduce(
+      calculateDiscountAmount(discountBase, amountOfProducts, ffTier),
+      0
+    );
 
-//     const tierBase = nextTier ? (remainingToSpend > maxTierToSpend ? maxTierToSpend : remainingToSpend) : remainingToSpend;
-//     const discountAmount = getFullDiscoutnAmount2(tierBase, tierLimit, discount.value / 100);
-//     return {
-//       discountAmount,
-//       tierBase,
-//     };
-//   };
+    console.log('🚀 ~ file: membersTotalSavingsChanges.ts:61 ~ discount:', discount);
+    console.log('discounts results : ************** : ', {
+      ffRemaining: upperLimitDiscount - discount - discountBase,
+      ffDiscountApplied: discount,
+    });
+
+    return {
+      ffRemaining: upperLimitDiscount - discount - discountBase,
+      ffDiscountApplied: discount,
+    };
+  }
+
+  return { ffRemaining: 0, ffDiscountApplied: 0 };
+
+  // const { discountAmount, tierBase } = tier.discounts.reduce(
+  //   calculateDiscountAmount(remainingSubTotal, tier, amountSpent, nextTier),
+  //   0
+  // );
+};
+
+//calculate how much till next tier according to spent in year
+const getTierLimit = (tier: MembershipTier, spentThisYear: number) => {
+  return tier.entryLevelSpend - spentThisYear < 0
+    ? 0
+    : tier.entryLevelSpend - spentThisYear;
+};
+
+// get limit plus the recursive discount
+const getUpperTierLimitDelta = (base: number, discountValue: number) => {
+  let percentage = discountValue / 100;
+  let discount = 0;
+  let partial = base * percentage;
+
+  while (partial >= 1) {
+    discount += partial;
+    partial *= percentage;
+  }
+
+  return Math.floor(discount);
+};
+
+const calculateDiscountAmount =
+  (remainingToSpend: number, amountOfProducts: number, nextTier?: MembershipTier) =>
+  (partialSum: number, discount: any) => {
+    console.log('🚀 ~ file: membersTotalSavingsChanges.ts:121 ~ discount:', discount);
+    if (discount.appliedTo === 'shipping') return partialSum + 0;
+    if (
+      discount.minItemsRequiredForDiscount &&
+      discount.minItemsRequiredForDiscount > amountOfProducts
+    )
+      return partialSum + 0;
+    if (discount.type === 'flat') return partialSum + discount.value;
+    if (!nextTier) return (remainingToSpend * discount.value) / 100;
+
+    return (remainingToSpend * discount.value) / 100;
+
+    // const tierLimit = nextTier.entryLevelSpend - tier.entryLevelSpend;
+    // const deltaToSpend = maxTeirSpendDiscountDelta(tierLimit, discount.value / 100);
+    // const maxTierToSpend = (tier.amountToSpendToNextTier || 0) + deltaToSpend - (amountSpentForYear - nextTier.entryLevelSpend);
+
+    // const tierBase = nextTier ? (remainingToSpend > maxTierToSpend ? maxTierToSpend : remainingToSpend) : remainingToSpend;
+    // const discountAmount = getFullDiscoutnAmount2(tierBase, tierLimit, discount.value / 100);
+    // return {
+    //   discountAmount,
+    //   tierBase,
+    // };
+  };
 
 // const getFullDiscountAmmount = (tierBase: number, percentage: number) => {
 //   let discount = 0;
