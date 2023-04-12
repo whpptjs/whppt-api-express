@@ -14,7 +14,7 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
   if (!memberId) return Promise.resolve(0);
 
   const year = new Date().getFullYear();
-  const startYear = new Date(`1/1/${year - 2} 10:30`);
+  const startYear = new Date(`1/1/${year - 1} 10:30`);
   const endYear = new Date(`1/1/${year + 1} 10:30`);
 
   return $database.then(database => {
