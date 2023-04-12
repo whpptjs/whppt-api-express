@@ -4,16 +4,47 @@ describe('Member Discount', () => {
   describe('Given a new member spends $4000', () => {
     const spentThisYear = 0;
     it('it should give all three discounts', () => {
-      const currentPurchaseAmount = 4000;
+      const currentPurchaseAmount = 4000 * 100;
       const amountOfProducts = 6;
-      const { discounts } = calculateMembersTotalSavings(
+      const { ffDiscountApplied } = calculateMembersTotalSavings(
         tiers,
         currentPurchaseAmount,
         spentThisYear,
         amountOfProducts
       );
 
-      expect(discounts).toEqual(true);
+      expect(ffDiscountApplied / 100).toEqual(111.111);
+    });
+  });
+  describe('Given a exisitng member spends $4000, and has spent $720 this period', () => {
+    const spentThisYear = 720 * 100;
+    it('it should give all three discounts', () => {
+      const currentPurchaseAmount = 4000 * 100;
+      const amountOfProducts = 6;
+      const { ffDiscountApplied } = calculateMembersTotalSavings(
+        tiers,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts
+      );
+
+      expect(ffDiscountApplied / 100).toEqual(31.11);
+    });
+  });
+  describe('Given a exisitng member spends $4000, and has spent $4000 this period', () => {
+    const spentThisYear = 4000 * 100;
+    it('it should give all three discounts', () => {
+      const currentPurchaseAmount = 4000 * 100;
+      const amountOfProducts = 6;
+      const { ffDiscountApplied, total } = calculateMembersTotalSavings(
+        tiers,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts
+      );
+
+      expect(ffDiscountApplied / 100).toEqual(0);
+      expect(total).toEqual(spentThisYear);
     });
   });
 });

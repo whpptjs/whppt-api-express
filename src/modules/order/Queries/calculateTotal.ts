@@ -248,7 +248,7 @@ const membersTotalSavings = (
   };
 
   const discounts = applyDiscountsRecursively(
-    [tier, ...tier.nextTiers],
+    [tier, ...(tier.nextTiers ? tier.nextTiers : [])],
     subTotal,
     amountSpentForYear,
     []
@@ -272,10 +272,10 @@ const membersShippingSaving = (
 
   let selectedDiscountTier: MembershipTier = tier;
 
-  if (tier.nextTiers.length) {
-    tier.nextTiers.sort((a, b) => a.entryLevelSpend - b.entryLevelSpend);
+  if (tier.nextTiers?.length) {
+    tier.nextTiers?.sort((a, b) => a.entryLevelSpend - b.entryLevelSpend);
 
-    tier.nextTiers.forEach(tier => {
+    tier.nextTiers?.forEach(tier => {
       if (amountSpentForYear + itemsCostInCents >= tier.entryLevelSpend)
         selectedDiscountTier = tier;
     });
