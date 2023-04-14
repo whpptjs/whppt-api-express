@@ -28,7 +28,7 @@ export type MembershipTier = {
       href: any;
     };
   };
-  nextTiers: MembershipTier[];
+  nextTiers?: MembershipTier[];
   amountSpentForYear: number;
 };
 

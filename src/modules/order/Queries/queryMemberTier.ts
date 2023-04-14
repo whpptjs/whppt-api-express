@@ -38,7 +38,7 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
         return { ...lockedTier, amountToSpendToNextTier: 0 } as MembershipTier;
 
       return queryMemberAmountSpentForYear(context, { memberId }).then(
-        amountSpentForYear => {
+        ({ discountAppliedForYear, amountSpentForYear }) => {
           const sortedTiers = orderBy(
             membershipOptions.membershipTiers,
             ['level'],
@@ -53,9 +53,10 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
 
           return {
             ...currentTier,
+            discountAppliedForYear,
             amountSpentForYear,
             amountToSpendToNextTier: nextTier
-              ? nextTier.entryLevelSpend - amountSpentForYear
+              ? nextTier.entryLevelSpend - (amountSpentForYear - discountAppliedForYear)
               : 0,
             nextTiers: calculateNextTiers(membershipOptions.membershipTiers),
           } as MembershipTier;
@@ -69,7 +70,7 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
               ...t,
               amountToSpendToNextTier:
                 i === 0
-                  ? t.entryLevelSpend - amountSpentForYear
+                  ? t.entryLevelSpend - (amountSpentForYear - discountAppliedForYear)
                   : calculatePreviousTiers(i) - amountSpentForYear,
             }));
 
