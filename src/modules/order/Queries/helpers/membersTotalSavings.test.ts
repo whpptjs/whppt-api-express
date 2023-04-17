@@ -147,11 +147,9 @@ describe('Member Total Discount', () => {
 });
 
 const getTierDiscounts = (discounts: any[]) => {
-  const ffTier = discounts.find(
-    t => t.name === 'Friends of the Farm - FF (Complimentary)'
-  );
-  const trTier = discounts.find(t => t.name === 'Tally Room Member - TR');
-  const coTier = discounts.find(t => t.name === 'Clos Otto Club Member - CC');
+  const ffTier = discounts.find(t => t.level === 1);
+  const trTier = discounts.find(t => t.level === 2);
+  const coTier = discounts.find(t => t.level === 3);
 
   return { ffTier, trTier, coTier };
 };
