@@ -94,7 +94,10 @@ export const calculateTotal: CalculateTotalArgs = (
                 itemsCostInCents,
                 amountOfProducts,
                 amountSpentForYear - discountAppliedForYear
-              ).reduce((acc: number, discount: any) => acc + discount.discountApplied, 0)
+              ).reduce(
+                (acc: number, discount: any) => acc + discount.discountApplied || 0,
+                0
+              )
             : 0;
 
         const memberShippingDiscount =

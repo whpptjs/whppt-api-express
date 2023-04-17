@@ -2,11 +2,12 @@ export const footer = (payment: any) => {
   const memberShippingDiscount = payment.memberShippingDiscount / 100 || 0;
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
+  const shippingCostWithDiscount = shipping - memberShippingDiscount;
   const subtotal = payment.subTotal / 100;
   const subTotalAfterShippingAndDiscounts =
     subtotal + shipping - memberShippingDiscount - memberTotalDiscount;
   const tax = subTotalAfterShippingAndDiscounts / 11;
-  const total = subTotalAfterShippingAndDiscounts + tax;
+  const total = subTotalAfterShippingAndDiscounts;
 
   const table = {
     layout: {
@@ -62,41 +63,6 @@ export const footer = (payment: any) => {
 
   table.table.body.push([
     {
-      text: 'SHIPPING',
-      bold: true,
-      font: 'SweetSansPro',
-      alignment: 'left',
-      fontSize: 10,
-    },
-    {
-      text: `${shipping ? `$${shipping.toFixed(2)}` : 'Free'}`,
-      bold: false,
-      font: 'SweetSansPro',
-      alignment: 'right',
-      fontSize: 10,
-    },
-  ]);
-
-  if (memberShippingDiscount) {
-    table.table.body.push([
-      {
-        text: 'SHIPPING DISCOUNT',
-        bold: true,
-        font: 'SweetSansPro',
-        alignment: 'left',
-        fontSize: 10,
-      },
-      {
-        text: `(-$${memberShippingDiscount.toFixed(2)})`,
-        bold: false,
-        font: 'SweetSansPro',
-        alignment: 'right',
-        fontSize: 10,
-      },
-    ]);
-  }
-  table.table.body.push([
-    {
       text: 'TAX (incl.)',
       bold: true,
       font: 'SweetSansPro',
@@ -105,6 +71,27 @@ export const footer = (payment: any) => {
     },
     {
       text: `$${tax.toFixed(2)}`,
+      bold: false,
+      font: 'SweetSansPro',
+      alignment: 'right',
+      fontSize: 10,
+    },
+  ]);
+
+  table.table.body.push([
+    {
+      text: 'SHIPPING',
+      bold: true,
+      font: 'SweetSansPro',
+      alignment: 'left',
+      fontSize: 10,
+    },
+    {
+      text: `${
+        shippingCostWithDiscount > 0
+          ? `$${shippingCostWithDiscount.toFixed(2)}`
+          : 'Complimentary'
+      }`,
       bold: false,
       font: 'SweetSansPro',
       alignment: 'right',
