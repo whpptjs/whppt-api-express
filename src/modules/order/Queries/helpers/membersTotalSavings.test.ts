@@ -1,7 +1,7 @@
 import { calculateMembersTotalSavings } from './membersTotalSavings';
 const { round } = require('lodash');
 
-describe('Member Discount', () => {
+describe('Member Total Discount', () => {
   describe('Given a new member spends $4000', () => {
     const spentThisYear = 0;
     it('it should give all three discounts', () => {

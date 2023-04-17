@@ -112,3 +112,9 @@ export type Member = {
   contactId: string;
   amountSpent: number;
 };
+
+export type Discount = {
+  name: string;
+  discountApplied: number;
+  remainingSubtotal?: number;
+};

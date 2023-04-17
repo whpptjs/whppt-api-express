@@ -57,7 +57,7 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
         const discountAppliedForYear = orders.reduce(
           (partialSum, a) =>
             partialSum +
-            (a?.payment?.memberShippingDiscount ? a?.payment?.memberShippingDiscount : 0),
+            (a?.payment?.memberTotalDiscount ? a?.payment?.memberTotalDiscount : 0),
           0
         );
 
