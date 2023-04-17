@@ -92,8 +92,8 @@ export const calculateTotal: CalculateTotalArgs = (
             ? calculateMembersTotalSavings(
                 [memberTier, ...(memberTier.nextTiers || [])],
                 itemsCostInCents,
-                amountOfProducts,
-                amountSpentForYear - discountAppliedForYear
+                amountSpentForYear - discountAppliedForYear,
+                amountOfProducts
               ).reduce(
                 (acc: number, discount: any) => acc + discount.discountApplied || 0,
                 0
@@ -118,6 +118,9 @@ export const calculateTotal: CalculateTotalArgs = (
             : Number(itemsCostInCents) - memberTotalDiscount < 0
             ? 0
             : Number(itemsCostInCents) - memberTotalDiscount;
+
+        console.log('🚀  memberTotalDiscount:', memberTotalDiscount);
+
         const postageWithDiscount =
           itemsDiscountedCostInCents > 0
             ? Number(postageCostInCents)

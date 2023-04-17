@@ -1,10 +1,16 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { WhpptRequest } from 'src';
 import { capturePaymentIntent } from './capturePaymentIntent';
 import { createPaymentIntent } from './createPaymentIntent';
 import { getSavedCards } from './getSavedCards';
 import { payWithSavedCard } from './payWithSavedCard';
 import { saveCardOnContact } from './saveCardOnContact';
+import { ContextType } from 'src/context/Context';
+import {
+  LoggedInMemberInfo,
+  ParseMemberTokenFromCookie,
+} from '../../modules/member/Secure';
 
 const router = Router();
 
@@ -50,8 +56,13 @@ export const StripeRouter: StripeRouterConstructor = function () {
 
   router.get('/stripe/getSavedCards', (req, res) => {
     const { memberId } = req.query as { memberId: string };
+
     return (req as WhpptRequest).moduleContext
-      .then(context => getSavedCards({ context, stripe }, { memberId }))
+      .then(context =>
+        memberSecure(context, req, memberId).then(() =>
+          getSavedCards({ context, stripe }, { memberId })
+        )
+      )
       .then(data => {
         res.json(data);
       })
@@ -75,4 +86,30 @@ export const StripeRouter: StripeRouterConstructor = function () {
   });
 
   return router;
+};
+
+const memberSecure = (context: ContextType, req: any, memberId: string) => {
+  return context.$hosting.then(config => {
+    const member = parseMemberTokenFromCookie(
+      req.headers.memberauthtoken,
+      config.security.appKey
+    );
+    if (!member) return Promise.reject({ status: 404, message: 'Member not found' });
+    context.member = member;
+
+    if (context.member && context.member?.sub?._id === memberId)
+      return Promise.resolve(true);
+
+    return Promise.reject({ status: 401, message: 'Not Authrozided' });
+  });
+};
+
+const parseMemberTokenFromCookie: ParseMemberTokenFromCookie = (
+  memberauthtoken,
+  appKey
+) => {
+  const token = memberauthtoken;
+  var decoded = jwt.verify(token, appKey);
+
+  return decoded as LoggedInMemberInfo;
 };

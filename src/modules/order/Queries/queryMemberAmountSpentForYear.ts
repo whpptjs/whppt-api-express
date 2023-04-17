@@ -5,7 +5,10 @@ import { Order } from '../Models/Order';
 export type QueryMemberAmountSpentForYear = (
   context: ContextType,
   args: { memberId?: string }
-) => Promise<{ discountAppliedForYear: number; amountSpentForYear: number }>;
+) => Promise<{
+  discountAppliedForYear: number;
+  amountSpentForYear: number;
+}>;
 
 export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
   { $database },

@@ -101,9 +101,10 @@ const buildFFDiscount: any = (
   );
 
   return {
-    remainingSubtotalAfterFFDiscount: round(
-      currentPurchaseAmount - discount - tierLimit,
-      2
+    remainingSubtotalAfterFFDiscount: sumRemaining(
+      currentPurchaseAmount,
+      discount,
+      tierLimit
     ),
     ffDiscountApplied: round(discount, 2),
   };
@@ -150,9 +151,10 @@ const buildTRDiscount: any = (
   );
 
   return {
-    remainingSubtotalAfterTRDiscount: round(
-      remainingSubtotalAfterFFDiscount - tierMaxAmountSpend,
-      2
+    remainingSubtotalAfterTRDiscount: sumRemaining(
+      remainingSubtotalAfterFFDiscount,
+      0,
+      tierMaxAmountSpend
     ),
     trDiscountApplied: round(discount, 2),
   };
@@ -212,3 +214,11 @@ const calculateDiscountAmount =
 
     return (remainingToSpend * discount.value) / 100;
   };
+
+const sumRemaining = (currentPurchaseAmount = 0, discount = 0, tierLimit = 0) => {
+  const remainingSubtotalAfterFFDiscount = round(
+    currentPurchaseAmount - discount - tierLimit,
+    2
+  );
+  return remainingSubtotalAfterFFDiscount > 0 ? remainingSubtotalAfterFFDiscount : 0;
+};

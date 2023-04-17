@@ -103,6 +103,41 @@ describe('Member Total Discount', () => {
     });
   });
 
+  describe('Given a exisitng member spends $800, and has spent $0 this period', () => {
+    const spentThisYear = 0;
+    it('it should apply FF', () => {
+      const currentPurchaseAmount = 800 * 100;
+      const amountOfProducts = 6;
+      const discounts = calculateMembersTotalSavings(
+        tiers,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts
+      );
+      const { ffTier } = getTierDiscounts(discounts);
+
+      expect(round(ffTier.discountApplied / 100, 2)).toEqual(80);
+      expect(round(ffTier.remainingSubtotal / 100, 2)).toEqual(0);
+    });
+  });
+  describe('Given a exisitng member spends $300, and has spent $720 this period', () => {
+    const spentThisYear = 72000;
+    it('it should apply FF', () => {
+      const currentPurchaseAmount = 300 * 100;
+      const amountOfProducts = 6;
+      const discounts = calculateMembersTotalSavings(
+        tiers,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts
+      );
+      const { ffTier } = getTierDiscounts(discounts);
+
+      expect(round(ffTier.discountApplied / 100, 2)).toEqual(30);
+      expect(round(ffTier.remainingSubtotal / 100, 2)).toEqual(0);
+    });
+  });
+
   describe('Given a exisitng member spends $3500, and has spent $0 this period', () => {
     const spentThisYear = 0 * 100;
     it('it should give all three discounts', () => {

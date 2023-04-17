@@ -8,7 +8,10 @@ export type LoggedInMemberInfo = {
   name: string;
 };
 
-type ParseMemberTokenFromCookie = (cookies: any, appKey: string) => LoggedInMemberInfo;
+export type ParseMemberTokenFromCookie = (
+  cookies: any,
+  appKey: string
+) => LoggedInMemberInfo;
 const parseMemberTokenFromCookie: ParseMemberTokenFromCookie = (
   memberauthtoken,
   appKey
