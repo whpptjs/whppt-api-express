@@ -5,7 +5,7 @@ const { round } = require('lodash');
 
 describe('Member Shipping Discount', () => {
   it('Given a new member (FF tier) makes a $1000 purchase, with $500 discount in items total, and $20 shipping cost. The post code is metro', () => {
-    const ffTier = tiers.find(t => t.name === 'Friends of the Farm - FF (Complimentary)');
+    const ffTier = tiers.find(t => t.level === 1);
 
     if (!ffTier) throw new Error('FF tier not found');
 
@@ -28,7 +28,7 @@ describe('Member Shipping Discount', () => {
   });
 
   it('Given a new member (FF tier) makes a $1000 purchase, with $300 discount in items total, and $20 shipping cost. The post code is regional', () => {
-    const ffTier = tiers.find(t => t.name === 'Friends of the Farm - FF (Complimentary)');
+    const ffTier = tiers.find(t => t.level === 1);
 
     if (!ffTier) throw new Error('FF tier not found');
 
@@ -52,7 +52,7 @@ describe('Member Shipping Discount', () => {
 
   it('Given a member with $500 yearly spent, makes a $1000 purchase, with $50 discount in items total, and $30 shipping cost. The post code is metro', () => {
     // current tier
-    const ffTier = tiers.find(t => t.name === 'Friends of the Farm - FF (Complimentary)');
+    const ffTier = tiers.find(t => t.level === 1);
 
     if (!ffTier) throw new Error('FF tier not found');
 
@@ -76,7 +76,7 @@ describe('Member Shipping Discount', () => {
 
   it('Given a member with $500 yearly spent, makes a $1000 purchase, with $50 discount in items total, and $30 shipping cost. The post code is regional', () => {
     // current tier
-    const ffTier = tiers.find(t => t.name === 'Friends of the Farm - FF (Complimentary)');
+    const ffTier = tiers.find(t => t.level === 1);
 
     if (!ffTier) throw new Error('FF tier not found');
 
@@ -99,7 +99,7 @@ describe('Member Shipping Discount', () => {
   });
 
   it('Given a TR member, with $1000 spent this period, makes a $1500 purchase, with $50 discount in items total, and $30 shipping cost. The post code is metro', () => {
-    const trTier = tiers.find(t => t.name === 'Tally Room Member - TR');
+    const trTier = tiers.find(t => t.level === 2);
 
     if (!trTier) throw new Error('TR tier not found');
 
@@ -122,7 +122,7 @@ describe('Member Shipping Discount', () => {
   });
 
   it('Given a TR member, with $1000 spent this period, makes a $1500 purchase, with $50 discount in items total, and $30 shipping cost. The post code is regional', () => {
-    const trTier = tiers.find(t => t.name === 'Tally Room Member - TR');
+    const trTier = tiers.find(t => t.level === 2);
 
     if (!trTier) throw new Error('TR tier not found');
 

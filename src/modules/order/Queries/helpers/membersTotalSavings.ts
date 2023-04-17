@@ -15,9 +15,9 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
   amountOfProducts
 ) => {
   const discounts: any[] = [];
-  const ffTier = tiers.find(t => t.name === 'Friends of the Farm - FF (Complimentary)');
-  const trTier = tiers.find(t => t.name === 'Tally Room Member - TR');
-  const coTier = tiers.find(t => t.name === 'Clos Otto Club Member - CC');
+  const ffTier = tiers.find(t => t.level === 1);
+  const trTier = tiers.find(t => t.level === 2);
+  const coTier = tiers.find(t => t.level === 3);
 
   const { remainingSubtotalAfterFFDiscount, ffDiscountApplied } = buildFFDiscount(
     currentPurchaseAmount,
@@ -29,6 +29,7 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
 
   discounts.push({
     name: ffTier?.name,
+    level: ffTier?.level,
     discountApplied: ffDiscountApplied,
     remainingSubtotal: remainingSubtotalAfterFFDiscount,
   });
@@ -46,6 +47,7 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
 
   discounts.push({
     name: trTier?.name,
+    level: trTier?.level,
     discountApplied: trDiscountApplied,
     remainingSubtotal: remainingSubtotalAfterTRDiscount,
   });
@@ -60,6 +62,7 @@ export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
 
   discounts.push({
     name: coTier?.name,
+    level: coTier?.level,
     discountApplied: coDiscountApplied,
   });
 
@@ -160,6 +163,12 @@ const buildCODiscount: any = (
   coTier: MembershipTier,
   amountOfProducts: number
 ) => {
+  if (!coTier) {
+    return {
+      coDiscountApplied: 0,
+    };
+  }
+
   const discount = coTier.discounts.reduce(
     calculateDiscountAmount(remainingSubtotalAfterTRDiscount, amountOfProducts, coTier),
     0
