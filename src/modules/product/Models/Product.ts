@@ -24,4 +24,5 @@ export type Product = {
   customFields: {
     [key: string]: string | any | undefined;
   };
+  freeDelivery?: boolean;
 };

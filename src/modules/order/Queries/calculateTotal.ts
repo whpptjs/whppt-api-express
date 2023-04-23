@@ -33,6 +33,7 @@ export const calculateTotal: CalculateTotalArgs = (
   return loadOrderWithProducts(ctx, { _id: orderId }).then(order => {
     return Promise.all([
       getShippingCost(ctx, {
+        items: order.items,
         postcode: order.shipping?.address?.postCode,
         pickup: order.shipping?.pickup || false,
         domainId,
@@ -118,8 +119,6 @@ export const calculateTotal: CalculateTotalArgs = (
             : Number(itemsCostInCents) - memberTotalDiscount < 0
             ? 0
             : Number(itemsCostInCents) - memberTotalDiscount;
-
-        console.log('🚀  memberTotalDiscount:', memberTotalDiscount);
 
         const postageWithDiscount =
           itemsDiscountedCostInCents > 0
