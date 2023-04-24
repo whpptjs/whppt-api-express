@@ -5,16 +5,35 @@ export type CalculateMembersTotalSavingsArgs = (
   tiers: MembershipTier[],
   currentPurchaseAmount: number,
   spentThisPeriod: number,
-  amountOfProducts: number
+  amountOfProducts: number,
+  lockToTier?: string
 ) => any[];
 
 export const calculateMembersTotalSavings: CalculateMembersTotalSavingsArgs = (
   tiers,
   currentPurchaseAmount,
   spentThisYear,
-  amountOfProducts
+  amountOfProducts,
+  lockToTier
 ) => {
   const discounts: any[] = [];
+
+  if (lockToTier) {
+    const lockedTier = tiers.find(t => t._id === lockToTier);
+    if (!lockedTier) return [];
+
+    discounts.push({
+      name: lockedTier.name,
+      level: lockedTier.level,
+      discountApplied: lockedTier.discounts.reduce(
+        calculateDiscountAmount(currentPurchaseAmount, amountOfProducts),
+        0
+      ),
+    });
+
+    return discounts;
+  }
+
   const ffTier = tiers.find(t => t.level === 1);
   const trTier = tiers.find(t => t.level === 2);
   const coTier = tiers.find(t => t.level === 3);

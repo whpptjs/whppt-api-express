@@ -35,7 +35,11 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
         : undefined;
 
       if (lockedTier)
-        return { ...lockedTier, amountToSpendToNextTier: 0 } as MembershipTier;
+        return {
+          ...lockedTier,
+          lockToTier: member.lockToTier,
+          amountToSpendToNextTier: 0,
+        } as MembershipTier;
 
       return queryMemberAmountSpentForYear(context, { memberId }).then(
         ({ discountAppliedForYear, amountSpentForYear }) => {
