@@ -48,6 +48,11 @@ const listOrders: HttpModule<
               },
             },
             {
+              orderNumber: {
+                $regex: search,
+              },
+            },
+            {
               'contact.email': {
                 $regex: search,
               },
