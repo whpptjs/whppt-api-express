@@ -20,6 +20,9 @@ const search: HttpModule<
     const projection = {
       _id: 1,
       name: 1,
+      productCode: 1,
+      vintage: 1,
+      freeDelivery: 1,
     };
 
     if (search)
