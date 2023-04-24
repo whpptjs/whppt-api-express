@@ -43,9 +43,7 @@ const listOrders: HttpModule<
               },
             },
             {
-              orderNumber: {
-                $regex: Number(search),
-              },
+              orderNumber: Number(search),
             },
             {
               orderNumber: {
