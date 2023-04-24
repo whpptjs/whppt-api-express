@@ -108,19 +108,16 @@ const listSales: HttpModule<
             {
               $project: {
                 paymentAmount: '$payment.subTotal',
-                quantities: '$items.quantity',
-              },
-            },
-            {
-              $unwind: {
-                path: '$quantities',
+                quantities: { $sum: '$items.quantity' },
               },
             },
             {
               $group: {
                 _id: null,
                 salesTotal: {
-                  $sum: '$paymentAmount',
+                  $sum: {
+                    $add: '$paymentAmount',
+                  },
                 },
                 itemsTotal: {
                   $sum: {
