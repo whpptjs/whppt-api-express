@@ -11,7 +11,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
 
       const { ffTier, trTier, coTier } = getTierDiscounts(discounts);
@@ -33,7 +34,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier, trTier, coTier } = getTierDiscounts(discounts);
 
@@ -54,7 +56,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier } = getTierDiscounts(discounts);
 
@@ -72,7 +75,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier, trTier } = getTierDiscounts(discounts);
 
@@ -92,7 +96,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier, trTier } = getTierDiscounts(discounts);
 
@@ -112,7 +117,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier } = getTierDiscounts(discounts);
 
@@ -120,6 +126,7 @@ describe('Member Total Discount', () => {
       expect(round(ffTier.remainingSubtotal / 100, 2)).toEqual(0);
     });
   });
+
   describe('Given a exisitng member spends $300, and has spent $720 this period', () => {
     const spentThisYear = 72000;
     it('it should apply FF', () => {
@@ -147,7 +154,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier, trTier, coTier } = getTierDiscounts(discounts);
 
@@ -168,7 +176,8 @@ describe('Member Total Discount', () => {
         tiers,
         currentPurchaseAmount,
         spentThisYear,
-        amountOfProducts
+        amountOfProducts,
+        ''
       );
       const { ffTier, trTier, coTier } = getTierDiscounts(discounts);
 
@@ -177,6 +186,63 @@ describe('Member Total Discount', () => {
       expect(round(trTier.discountApplied / 100, 2)).toEqual(50);
       expect(round(trTier.remainingSubtotal / 100, 2)).toEqual(3250.01);
       expect(round(coTier.discountApplied / 100, 2)).toEqual(812.5);
+    });
+  });
+
+  describe('Given a member with tier locked on FF', () => {
+    const spentThisYear = 1800 * 100;
+
+    it('it should give FF discounts', () => {
+      const currentPurchaseAmount = 3500 * 100;
+      const amountOfProducts = 6;
+      const discounts = calculateMembersTotalSavings(
+        lockedFFTier,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts,
+        '7MYh2mUTrwO12g4rC3Xez'
+      );
+      const { ffTier } = getTierDiscounts(discounts);
+
+      expect(round(ffTier.discountApplied / 100, 2)).toEqual(350);
+    });
+  });
+
+  describe('Given a member with tier locked on TR', () => {
+    const spentThisYear = 1800 * 100;
+
+    it('it should give TR', () => {
+      const currentPurchaseAmount = 3500 * 100;
+      const amountOfProducts = 6;
+      const discounts = calculateMembersTotalSavings(
+        lockedTRTier,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts,
+        '82GWdv2CbRMMR_745Pxqc'
+      );
+      const { trTier } = getTierDiscounts(discounts);
+
+      expect(round(trTier.discountApplied / 100, 2)).toEqual(700);
+    });
+  });
+
+  describe('Given a member with tier locked on CO', () => {
+    const spentThisYear = 1800 * 100;
+
+    it('it should give CO', () => {
+      const currentPurchaseAmount = 3500 * 100;
+      const amountOfProducts = 6;
+      const discounts = calculateMembersTotalSavings(
+        lockedCOTier,
+        currentPurchaseAmount,
+        spentThisYear,
+        amountOfProducts,
+        '29lRIFebMkUQgvHY72zyp'
+      );
+      const { coTier } = getTierDiscounts(discounts);
+
+      expect(round(coTier.discountApplied / 100, 2)).toEqual(875);
     });
   });
 });
@@ -286,5 +352,117 @@ const tiers = [
     shortName: 'Clos Member',
     amountSpentForYear: 0,
     amountToSpendToNextTier: 200000,
+  },
+];
+
+const lockedFFTier = [
+  {
+    _id: '7MYh2mUTrwO12g4rC3Xez',
+    name: 'Friends of the Farm - FF (Complimentary)',
+    discounts: [
+      {
+        _id: 'er55oyn0KMNRvdAMX3K3-',
+        appliedTo: 'total' as 'total',
+        type: 'percentage' as 'percentage',
+        value: 10,
+        shipping: {},
+        minItemsRequiredForDiscount: 6,
+      },
+    ],
+    level: 1,
+    entryLevelSpend: 0,
+    messageToMembers: {
+      link: { type: 'page' as 'page', text: 'Test test', href: '/about' },
+      _id: '701emyWup0ta8p1SsuRO-',
+      message: 'This is a message to Friends of the Farm type of member',
+    },
+    lockToTier: '7MYh2mUTrwO12g4rC3Xez',
+    amountToSpendToNextTier: 0,
+    lifetimeSpend: 227018,
+  },
+];
+
+const lockedTRTier = [
+  {
+    _id: '82GWdv2CbRMMR_745Pxqc',
+    name: 'Tally Room Member - TR',
+    discounts: [
+      {
+        _id: 'swPC9ktM3lY8Xv-YOMv0c',
+        appliedTo: 'total' as 'total',
+        type: 'percentage' as 'percentage',
+        value: 20,
+        shipping: {},
+      },
+      {
+        _id: 'nfBcCrstHhRc7Iv6DTKaa',
+        appliedTo: 'shipping' as 'shipping',
+        type: 'percentage' as 'percentage',
+        value: 10,
+        shipping: {
+          text: 'Australian Metro',
+          value: 'aus_metro',
+          constraint: 'postcodeGrouping',
+        },
+      },
+    ],
+    level: 2,
+    entryLevelSpend: 100000,
+    messageToMembers: {
+      link: { type: 'page' as 'page', text: 'Test test', href: '/about' },
+      _id: 'uEyppzdyoQS4e1K6DT5S4',
+      message: 'This is a message to Tally Room type of member',
+    },
+    lockToTier: '82GWdv2CbRMMR_745Pxqc',
+    amountToSpendToNextTier: 0,
+    lifetimeSpend: 227018,
+  },
+];
+
+const lockedCOTier = [
+  {
+    _id: '29lRIFebMkUQgvHY72zyp',
+    name: 'Clos Otto Club Member - CC',
+    discounts: [
+      {
+        _id: 'VYHbg-au-lanO6_LTCYpq',
+        appliedTo: 'total' as 'total',
+        type: 'percentage' as 'percentage',
+        value: 25,
+        shipping: {},
+      },
+      {
+        _id: '2w7ioZmfHZYa4AadKhpqU',
+        appliedTo: 'shipping' as 'shipping',
+        type: 'percentage' as 'percentage',
+        value: 100,
+        shipping: {
+          text: 'Australian Metro',
+          value: 'aus_metro',
+          constraint: 'postcodeGrouping',
+        },
+      },
+      {
+        _id: 'jSUgyunG_-rGyqXRbk7Ov',
+        appliedTo: 'shipping' as 'shipping',
+        type: 'flat' as 'flat',
+        value: 2000,
+        shipping: {
+          text: 'Australian Regional',
+          value: 'aus_regional',
+          constraint: 'postcodeGrouping',
+        },
+      },
+    ],
+    level: 3,
+    entryLevelSpend: 200000,
+    messageToMembers: {
+      link: { type: 'page' as 'page', text: 'Test test', href: '/about' },
+      _id: 'hEmRi7ezUX_HPQFcW5OlJ',
+      message: 'This is a message to Closs Otto type of member',
+    },
+    lockToTier: '29lRIFebMkUQgvHY72zyp',
+    amountToSpendToNextTier: 0,
+    lifetimeSpend: 227018,
   },
 ];

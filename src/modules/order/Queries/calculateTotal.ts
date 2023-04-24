@@ -94,7 +94,8 @@ export const calculateTotal: CalculateTotalArgs = (
                 [memberTier, ...(memberTier.nextTiers || [])],
                 itemsCostInCents,
                 amountSpentForYear - discountAppliedForYear,
-                amountOfProducts
+                amountOfProducts,
+                memberTier.lockToTier || ''
               ).reduce(
                 (acc: number, discount: any) => acc + discount.discountApplied || 0,
                 0

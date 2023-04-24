@@ -29,7 +29,8 @@ export type MembershipTier = {
     };
   };
   nextTiers?: MembershipTier[];
-  amountSpentForYear: number;
+  amountSpentForYear?: number;
+  lockToTier?: string;
 };
 
 export type MembershipOptions = {
