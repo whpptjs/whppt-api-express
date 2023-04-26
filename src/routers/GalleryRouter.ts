@@ -141,7 +141,9 @@ export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
         if (!$database) throw new Error('Database connection is required');
         return $database.then(db => {
           return db.document.fetch<GalleryItem>('gallery', id).then(item => {
-            res.redirect(`/gallery-file/doc/${id}/${item?.fileInfo?.originalname}`);
+            res.redirect(
+              `/${apiPrefix}/gallery-file/doc/${id}/${item?.fileInfo?.originalname}`
+            );
           });
         });
       })
