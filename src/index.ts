@@ -104,6 +104,22 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
+  router.use((_: any, res: any, next: NextFunction) => {
+    res.type = res.type
+      ? res.type
+      : (value: string) => {
+          res.setHeader('Content-Type', value);
+          return res;
+        };
+
+    res.header = res.header
+      ? res.header
+      : (key: string, value: string) => {
+          res.setHeader(key, value);
+          return res;
+        };
+    next();
+  });
 
   router.use((req: any, _: any, next: NextFunction) => {
     // TODO: Work towards a generic db and not specifically mongo here.
@@ -134,11 +150,11 @@ export const Whppt = (config: WhpptConfig) => {
     next();
   });
 
+  router.use(GalleryRouter($logger, config.apiPrefix || 'api'));
   router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
   router.use(RedirectsRouter());
   router.use(FileRouter($logger));
   router.use(ImageRouter($logger));
-  router.use(GalleryRouter($logger, config.apiPrefix || 'api'));
   router.use(SeoRouter());
   router.use(StripeRouter());
   router.use(PdfRouter());
