@@ -156,7 +156,7 @@ export const Whppt = (config: WhpptConfig) => {
   router.use(FileRouter($logger));
   router.use(ImageRouter($logger));
   router.use(SeoRouter());
-  router.use(StripeRouter());
+  router.use(StripeRouter($logger, config.apiPrefix || 'api'));
   router.use(PdfRouter());
   router.use(CsvRouter());
 

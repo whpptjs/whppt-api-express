@@ -19,9 +19,7 @@ export const calculateShippingPrice: CalculateShippingPrice = (items, price) => 
   let bottles = 0;
   items.forEach((item: OrderItemWithProduct) => {
     if (item.product?.freeDelivery) return;
-    if (item.product?.customFields.quantityUnitOfMeasure === 'item') {
-      bottles += item.quantity * item.product?.customFields?.qtyOfItemsInProduct || 1;
-    }
+
     if (item.product?.customFields.quantityUnitOfMeasure === 'pack') {
       const itemsInPacks = item.product?.customFields?.packItems || [];
       bottles +=
@@ -32,6 +30,7 @@ export const calculateShippingPrice: CalculateShippingPrice = (items, price) => 
           }, 0) +
         item.quantity;
     }
+    bottles += item.quantity * item.product?.customFields?.qtyOfItemsInProduct || 1;
   });
 
   return calculateBoxes(bottles) * Number(price);
