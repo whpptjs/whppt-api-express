@@ -19,6 +19,7 @@ export const createContactAndPublish: CreateContactArgs = (
   return document
     .saveWithEvents('contacts', contact, events, { session })
     .then(() => {
+      if (process.env.DRAFT !== 'true') return;
       return document.publishWithEvents('contacts', contact, events, {
         session,
       });
