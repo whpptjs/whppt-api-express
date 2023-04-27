@@ -151,12 +151,12 @@ export const Whppt = (config: WhpptConfig) => {
   });
 
   router.use(GalleryRouter($logger, config.apiPrefix || 'api'));
+  router.use(StripeRouter($logger, config.apiPrefix || 'api'));
   router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
   router.use(RedirectsRouter());
   router.use(FileRouter($logger));
   router.use(ImageRouter($logger));
   router.use(SeoRouter());
-  router.use(StripeRouter($logger, config.apiPrefix || 'api'));
   router.use(PdfRouter());
   router.use(CsvRouter());
 
