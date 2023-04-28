@@ -26,8 +26,8 @@ export type OrderWithProductInfo = {
 
 const router = Router();
 
-export const PdfRouter = () => {
-  router.get('/pdf/dispatchList/:orderIds', (req: any, res: any) => {
+export const PdfRouter = (apiPrefix: string) => {
+  router.get(`/${apiPrefix}/pdf/dispatchList/:orderIds`, (req: any, res: any) => {
     const ordersWithProductInfo: OrderWithProductInfo[] = [];
     const orderIds = req.params.orderIds.split(',');
 
@@ -92,7 +92,7 @@ export const PdfRouter = () => {
     });
   });
 
-  router.get('/pdf/orderReceipt', (req: any, res: any) => {
+  router.get(`/${apiPrefix}/pdf/orderReceipt`, (req: any, res: any) => {
     const orderId = req.query.orderId;
     const domainId = req.query.domainId;
 

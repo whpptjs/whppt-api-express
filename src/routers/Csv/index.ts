@@ -8,8 +8,8 @@ import { addUnitDiscountsToOrder } from '../../modules/order/Helpers/AddUnitDisc
 
 const router = Router();
 
-export const CsvRouter = () => {
-  router.get('/csv/productSales', (req: any, res: any) => {
+export const CsvRouter = (apiPrefix: string) => {
+  router.get(`/${apiPrefix}/csv/productSales`, (req: any, res: any) => {
     return (req as WhpptRequest).moduleContext.then(context => {
       return context.$database.then(database => {
         const { db } = database as WhpptMongoDatabase;

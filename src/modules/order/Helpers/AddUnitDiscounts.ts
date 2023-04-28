@@ -10,7 +10,9 @@ export const addUnitDiscountsToOrder = (order: OrderWithProducts) => {
     ...order,
     items: order.items.map((item: OrderItemWithProduct) => {
       const purchasedPrice = Number(item.purchasedPrice);
-      const unitPriceWithDiscount = purchasedPrice * orderLevelDiscountPercentage;
+      const unitPriceWithDiscount = orderLevelDiscountPercentage
+        ? purchasedPrice * orderLevelDiscountPercentage
+        : purchasedPrice;
 
       const orgPrice = Number(item.originalPrice || item.product?.price || 0);
 

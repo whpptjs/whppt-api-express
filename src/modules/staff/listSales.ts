@@ -112,6 +112,12 @@ const listSales: HttpModule<
               },
             },
             {
+              $match: {
+                paymentAmount: { $gt: 0 },
+                quantities: { $gt: 0 },
+              },
+            },
+            {
               $group: {
                 _id: null,
                 salesTotal: {
