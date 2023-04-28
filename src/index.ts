@@ -112,6 +112,13 @@ export const Whppt = (config: WhpptConfig) => {
           return res;
         };
 
+    res.contentType = res.contentType
+      ? res.contentType
+      : (value: string) => {
+          res.setHeader('Content-Type', value);
+          return res;
+        };
+
     res.header = res.header
       ? res.header
       : (key: string, value: string) => {
