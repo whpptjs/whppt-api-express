@@ -29,8 +29,9 @@ export const calculateShippingPrice: CalculateShippingPrice = (items, price) => 
             return acc;
           }, 0) +
         item.quantity;
+      return;
     }
-    bottles += item.quantity * item.product?.customFields?.qtyOfItemsInProduct || 1;
+    bottles += item.quantity * (item.product?.customFields?.qtyOfItemsInProduct || 1);
   });
 
   return calculateBoxes(bottles) * Number(price);

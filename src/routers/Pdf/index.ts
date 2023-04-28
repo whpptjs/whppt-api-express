@@ -95,10 +95,8 @@ export const PdfRouter = (apiPrefix: string) => {
         });
       })
       .catch(err => {
-        return Promise.reject({
-          status: (err && err.status) || 500,
-          error: err,
-        });
+        console.log('🚀 PDF err:', err);
+        return res.status(500).send(`PDF router failed: ${err.message}`);
       });
   });
 
@@ -150,10 +148,8 @@ export const PdfRouter = (apiPrefix: string) => {
         });
       })
       .catch(err => {
-        return Promise.reject({
-          status: (err && err.status) || 500,
-          error: err,
-        });
+        console.log('🚀 PDF err:', err);
+        return res.status(500).send(`PDF router failed: ${err.message}`);
       });
   });
 
