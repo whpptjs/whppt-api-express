@@ -63,23 +63,6 @@ export const footer = (payment: any) => {
 
   table.table.body.push([
     {
-      text: 'TAX (incl.)',
-      bold: true,
-      font: 'SweetSansPro',
-      alignment: 'left',
-      fontSize: 10,
-    },
-    {
-      text: `$${tax.toFixed(2)}`,
-      bold: false,
-      font: 'SweetSansPro',
-      alignment: 'right',
-      fontSize: 10,
-    },
-  ]);
-
-  table.table.body.push([
-    {
       text: 'SHIPPING',
       bold: true,
       font: 'SweetSansPro',
@@ -101,7 +84,7 @@ export const footer = (payment: any) => {
 
   table.table.body.push([
     {
-      text: 'TOTAL (incl. GST)',
+      text: `TOTAL (incl. $${tax.toFixed(2)} GST)`,
       bold: true,
       font: 'SweetSansPro',
       alignment: 'left',
