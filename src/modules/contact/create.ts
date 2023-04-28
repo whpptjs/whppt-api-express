@@ -34,17 +34,16 @@ const create: HttpModule<
             return document
               .saveWithEvents('contacts', contact, events, { session })
               .then(() => {
-                return document
-                  .publishWithEvents('contacts', contact, events, {
+                return ToggleSubscription(
+                  { ...context, document },
+                  { contact, isSubscribed },
+                  session
+                ).then(() => {
+                  if (process.env.DRAFT !== 'true') return;
+                  return document.publishWithEvents('contacts', contact, events, {
                     session,
-                  })
-                  .then(() => {
-                    return ToggleSubscription(
-                      { ...context, document },
-                      { contact, isSubscribed },
-                      session
-                    );
                   });
+                });
               });
           }).then(() => contact);
         });
