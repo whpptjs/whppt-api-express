@@ -31,79 +31,92 @@ export const PdfRouter = (apiPrefix: string) => {
     const ordersWithProductInfo: OrderWithProductInfo[] = [];
     const orderIds = req.params.orderIds.split(',');
 
-    return (req as WhpptRequest).moduleContext.then(context => {
-      Promise.all([
-        ...orderIds.map((orderId: any) => {
-          return loadOrderWithProducts(context, { _id: orderId }).then(
-            orderWithProducts => {
-              if (orderWithProducts.staffId) {
-                return context.$database.then(database => {
-                  const { document } = database;
+    return (req as WhpptRequest).moduleContext
+      .then(context => {
+        Promise.all([
+          ...orderIds.map((orderId: any) => {
+            return loadOrderWithProducts(context, { _id: orderId }).then(
+              orderWithProducts => {
+                if (orderWithProducts.staffId) {
+                  return context.$database.then(database => {
+                    const { document } = database;
 
-                  return document
-                    .query<Staff>('staff', {
-                      filter: { _id: orderWithProducts.staffId },
-                    })
-                    .then(staff => {
-                      if (staff) {
-                        return document
-                          .query<Contact>('contacts', {
-                            filter: { _id: staff.contactId },
-                          })
-                          .then(staffContactInfo => {
-                            return ordersWithProductInfo.push(
-                              composeOrderData({ ...orderWithProducts, staffContactInfo })
-                            );
-                          });
-                      } else {
-                        return ordersWithProductInfo.push(
-                          composeOrderData(orderWithProducts)
-                        );
-                      }
-                    });
-                });
-              } else {
-                return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
+                    return document
+                      .query<Staff>('staff', {
+                        filter: { _id: orderWithProducts.staffId },
+                      })
+                      .then(staff => {
+                        if (staff) {
+                          return document
+                            .query<Contact>('contacts', {
+                              filter: { _id: staff.contactId },
+                            })
+                            .then(staffContactInfo => {
+                              return ordersWithProductInfo.push(
+                                composeOrderData({
+                                  ...orderWithProducts,
+                                  staffContactInfo,
+                                })
+                              );
+                            });
+                        } else {
+                          return ordersWithProductInfo.push(
+                            composeOrderData(orderWithProducts)
+                          );
+                        }
+                      });
+                  });
+                } else {
+                  return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
+                }
               }
-            }
-          );
-        }),
-      ]).then(() => {
-        ordersWithProductInfo.forEach((order: OrderWithProductInfo) => {
-          order.items.map(
-            (product: OrderItem & { product: Product & { vintage: string } }) => {
-              return {
-                name: product.product?.name,
-                vintage: product.product?.vintage,
-                quantity: product.quantity,
-              };
+            );
+          }),
+        ]).then(() => {
+          ordersWithProductInfo.forEach((order: OrderWithProductInfo) => {
+            order.items.map(
+              (product: OrderItem & { product: Product & { vintage: string } }) => {
+                return {
+                  name: product.product?.name,
+                  vintage: product.product?.vintage,
+                  quantity: product.quantity,
+                };
+              }
+            );
+          });
+
+          return createPdfBinary(
+            buildDispatchListPdf({ products: ordersWithProductInfo }),
+            function (binary: any) {
+              res.contentType('application/pdf');
+              res.send(binary);
             }
           );
         });
-
-        return createPdfBinary(
-          buildDispatchListPdf({ products: ordersWithProductInfo }),
-          function (binary: any) {
-            res.contentType('application/pdf');
-            res.send(binary);
-          }
-        );
+      })
+      .catch(err => {
+        return Promise.reject({
+          status: (err && err.status) || 500,
+          error: err,
+        });
       });
-    });
   });
 
   router.get(`/${apiPrefix}/pdf/orderReceipt`, (req: any, res: any) => {
     const orderId = req.query.orderId;
     const domainId = req.query.domainId;
 
-    return (req as WhpptRequest).moduleContext.then(context => {
-      return loadOrderWithProducts(context, { _id: orderId }).then(order => {
-        return context.$database.then(database => {
-          const { document } = database;
+    return (req as WhpptRequest).moduleContext
+      .then(context => {
+        return loadOrderWithProducts(context, { _id: orderId }).then(order => {
+          return context.$database.then(database => {
+            const { document } = database;
 
-          if (order.memberId) {
-            return queryMemberTier(context, { memberId: order.memberId, domainId }).then(
-              (memberTier: any) => {
+            if (order.memberId) {
+              return queryMemberTier(context, {
+                memberId: order.memberId,
+                domainId,
+              }).then((memberTier: any) => {
                 return document
                   .query<Contact>('contacts', {
                     filter: { _id: order.contact?._id },
@@ -117,26 +130,31 @@ export const PdfRouter = (apiPrefix: string) => {
                       }
                     );
                   });
-              }
-            );
-          } else {
-            return document
-              .query<Contact>('contacts', {
-                filter: { _id: order.contact?._id },
-              })
-              .then(contact => {
-                return createPdfBinary(
-                  buildReceiptPdf({ order, contact }),
-                  function (binary: any) {
-                    res.contentType('application/pdf');
-                    res.send(binary);
-                  }
-                );
               });
-          }
+            } else {
+              return document
+                .query<Contact>('contacts', {
+                  filter: { _id: order.contact?._id },
+                })
+                .then(contact => {
+                  return createPdfBinary(
+                    buildReceiptPdf({ order, contact }),
+                    function (binary: any) {
+                      res.contentType('application/pdf');
+                      res.send(binary);
+                    }
+                  );
+                });
+            }
+          });
+        });
+      })
+      .catch(err => {
+        return Promise.reject({
+          status: (err && err.status) || 500,
+          error: err,
         });
       });
-    });
   });
 
   return router;

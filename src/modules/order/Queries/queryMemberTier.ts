@@ -27,7 +27,7 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
         filter: { _id: `membershipOptions_${domainId}` },
       }),
     ]).then(([member, membershipOptions]) => {
-      assert(member, 'Member not found');
+      assert(member, `Member not found for ID:${memberId}`);
       assert(membershipOptions, 'Member Tiers not found');
 
       const lockedTier = member?.lockToTier
