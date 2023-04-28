@@ -12,7 +12,7 @@ export type LoadOrderWithProductsArgs = (
     postcode?: string;
     domainId: string;
     pickup?: boolean;
-    override: ShippingCost;
+    override?: ShippingCost;
     items: OrderItemWithProduct[];
   }
 ) => Promise<ShippingCost>;
