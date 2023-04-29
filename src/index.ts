@@ -104,7 +104,7 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
-  router.use((_: any, res: any, next: NextFunction) => {
+  router.use((req: any, res: any, next: NextFunction) => {
     res.type = res.type
       ? res.type
       : (value: string) => {
@@ -125,6 +125,13 @@ export const Whppt = (config: WhpptConfig) => {
           res.setHeader(key, value);
           return res;
         };
+    console.log('🚀 req:', req);
+    req.get = req.get
+      ? req.get
+      : (key: string) => {
+          return req.header(key);
+        };
+
     next();
   });
 
