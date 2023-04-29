@@ -94,6 +94,14 @@ export const StripeRouter: StripeRouterConstructor = function (__, apiPrefix) {
 
 const memberSecure = (context: ContextType, req: any, memberId: string) => {
   return context.$hosting.then(config => {
+    const staff = parseMemberTokenFromCookie(
+      req.headers.staffauthtoken,
+      config.security.appKey
+    );
+    if (staff) {
+      context.staff = staff;
+      Promise.resolve(true);
+    }
     const member = parseMemberTokenFromCookie(
       req.headers.memberauthtoken,
       config.security.appKey
