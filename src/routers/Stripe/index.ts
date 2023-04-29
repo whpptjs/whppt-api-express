@@ -97,10 +97,10 @@ const memberSecure = (context: ContextType, req: any, memberId: string) => {
     const staff = parseMemberTokenFromCookie(
       req.headers.staffauthtoken,
       config.security.appKey
-    );
-    if (staff) {
+    ) as any;
+    if (staff?.sub?._id && staff?.sub?.isActive) {
       context.staff = staff;
-      Promise.resolve(true);
+      return Promise.resolve(true);
     }
     const member = parseMemberTokenFromCookie(
       req.headers.memberauthtoken,

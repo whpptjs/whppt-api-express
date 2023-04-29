@@ -125,7 +125,6 @@ export const Whppt = (config: WhpptConfig) => {
           res.setHeader(key, value);
           return res;
         };
-    console.log('🚀 req:', req);
     req.get = req.get
       ? req.get
       : (key: string) => {
