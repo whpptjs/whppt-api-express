@@ -18,7 +18,7 @@ const saveNote: HttpModule<{ memberId: string; note: string }, Note> = {
           note,
           date: new Date(),
           //TODO add staff SECURE
-          by: {
+          author: {
             _id: staff?.sub?._id,
             name: staff?.sub?.username,
           },

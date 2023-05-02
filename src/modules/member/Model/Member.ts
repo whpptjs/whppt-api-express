@@ -13,7 +13,7 @@ export type Member = {
 export type Note = {
   _id: string;
   note: string;
-  by: { _id: string; name: string } | string;
+  author: { _id: string; name: string } | string;
   date: Date;
 };
 export type MemberContact = Member & { contact: Contact };
