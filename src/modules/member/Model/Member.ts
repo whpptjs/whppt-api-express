@@ -1,5 +1,4 @@
 import { Contact } from 'src/modules/contact/Models/Contact';
-import { Staff } from 'src/modules/staff/Model';
 
 export type Member = {
   _id: string;
@@ -14,7 +13,7 @@ export type Member = {
 export type Note = {
   _id: string;
   note: string;
-  by: Staff | Member | string;
+  by: { _id: string; name: string } | string;
   date: Date;
 };
 export type MemberContact = Member & { contact: Contact };

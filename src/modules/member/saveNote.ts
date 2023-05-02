@@ -4,7 +4,7 @@ import { Member, Note } from './Model';
 import { Secure } from '../staff/Secure';
 
 const saveNote: HttpModule<{ memberId: string; note: string }, Note> = {
-  exec({ $database, $id, createEvent }, { memberId, note }) {
+  exec({ $database, $id, createEvent, staff }, { memberId, note }) {
     assert(memberId, 'A contact Id is required');
 
     return $database.then(database => {
@@ -18,7 +18,10 @@ const saveNote: HttpModule<{ memberId: string; note: string }, Note> = {
           note,
           date: new Date(),
           //TODO add staff SECURE
-          by: 'ADD STAFF SECURE',
+          by: {
+            _id: staff?.sub?._id,
+            name: staff?.sub?.username,
+          },
         };
 
         const memberEvents = [createEvent('AddedNoteToMember', { memberId, memberNote })];
