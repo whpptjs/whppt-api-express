@@ -128,7 +128,7 @@ export const Whppt = (config: WhpptConfig) => {
     req.get = req.get
       ? req.get
       : (key: string) => {
-          return req.header(key);
+          return req.headers[key];
         };
 
     next();
