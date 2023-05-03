@@ -69,26 +69,26 @@ const signUp: HttpModule<
             return document
               .saveWithEvents('contacts', newContact, events, { session })
               .then(() => {
+                // return document
+                //   .publishWithEvents('contacts', newContact, events, {
+                //     session,
+                //   })
+                //   .then(() => {
                 return document
-                  .publishWithEvents('contacts', newContact, events, {
+                  .saveWithEvents('members', member, memberEvents, {
                     session,
                   })
                   .then(() => {
-                    return document
-                      .saveWithEvents('members', member, memberEvents, {
-                        session,
-                      })
-                      .then(() => {
-                        return ToggleSubscription(
-                          { ...context, document },
-                          {
-                            contact: newContact,
-                            optInMarketing: optInMarketing || false,
-                          },
-                          session
-                        );
-                      });
+                    return ToggleSubscription(
+                      { ...context, document },
+                      {
+                        contact: newContact,
+                        optInMarketing: optInMarketing || false,
+                      },
+                      session
+                    );
                   });
+                // });
               });
           }).then(() => member);
         });
