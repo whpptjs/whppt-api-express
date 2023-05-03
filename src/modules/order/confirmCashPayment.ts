@@ -7,6 +7,7 @@ import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 import { Order, OrderItemWithProduct } from './Models/Order';
 import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
 import { Staff } from '../staff/Model';
+import { getOrderTemplate } from '../email/Templates/emailReceipt';
 
 const confirmCashPayment: HttpModule<
   { staffMemberId: string; orderId: string; domainId: string },
@@ -97,6 +98,20 @@ const confirmCashPayment: HttpModule<
                   return startTransaction((session: any) => {
                     return document.saveWithEvents('orders', loadedOrder, events, {
                       session,
+                    });
+                  }).then(() => {
+                    const email = orderWithProducts?.contact?.email;
+                    if (!email) return Promise.resolve();
+                    return context.$email.send({
+                      to: email,
+                      subject: `Hentley Farm receipt${
+                        orderWithProducts.orderNumber || orderWithProducts._id
+                          ? ` for order #${
+                              orderWithProducts.orderNumber || orderWithProducts._id
+                            }`
+                          : ''
+                      }`,
+                      html: getOrderTemplate(orderWithProducts),
                     });
                   });
                 }
