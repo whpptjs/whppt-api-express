@@ -10,10 +10,7 @@ module.exports = {
       .collection('users')
       .findOne(
         {
-          $or: [
-            { username: new RegExp(`^${username}$`, 'iu') },
-            { email: new RegExp(`^${username}$`, 'iu') },
-          ],
+          $or: [{ username: username }, { email: username }],
         },
         {
           username: true,
