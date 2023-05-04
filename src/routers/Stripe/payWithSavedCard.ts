@@ -32,6 +32,10 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
         subTotal,
         memberTotalDiscount,
         memberShippingDiscount,
+        originalTotal,
+        originalSubTotal,
+        overrideTotalPrice,
+        discountApplied,
       }) => {
         return stripe.paymentIntents
           .create({
@@ -60,6 +64,10 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                       memberTotalDiscount,
                       memberShippingDiscount,
                       shippingCost,
+                      originalTotal,
+                      overrideTotalPrice,
+                      discountApplied,
+                      originalSubTotal,
                     },
                   });
 
@@ -76,6 +84,10 @@ export const payWithSavedCard: PayWithSavedCardArgs = (
                         amount: total,
                         customerId,
                         cardId,
+                        originalTotal,
+                        overrideTotalPrice,
+                        discountApplied,
+                        originalSubTotal,
                       },
                       ageConfirmed,
                     }),

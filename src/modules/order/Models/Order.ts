@@ -11,7 +11,8 @@ export type Order = {
   billing?: Billing;
   shipping?: Shipping;
   discountIds?: string;
-  checkoutStatus: 'pending' | 'paid' | 'refunded';
+  checkoutStatus: 'pending' | 'paid' | 'refunded' | 'requestingACall' | 'cancelled';
+  requestContactPhone?: string;
   dispatchedStatus?: 'pending' | 'packed' | 'dispatched';
   createdAt?: Date;
   payment?: Payment;
@@ -24,6 +25,9 @@ export type Order = {
     status: 'pending' | 'paid';
     amount: number;
   };
+  overrides?: {
+    total: number;
+  };
   staffId?: string;
 };
 
@@ -31,6 +35,7 @@ export type ShippingCost = {
   price: number | string | undefined;
   allowCheckout: boolean;
   message?: string;
+  override?: boolean;
   type: 'aus_metro' | 'aus_regional' | 'international' | 'pickup';
 };
 
@@ -58,6 +63,8 @@ export type OrderItem = {
   productId?: string;
   quantity: number;
   purchasedPrice?: number;
+  overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type OrderWithProducts = Order & {
@@ -69,6 +76,9 @@ export type OrderItemWithProduct = OrderItem & {
   _id: string;
   productId?: string;
   quantity: number;
+  purchasedPrice?: number;
+  overidedPrice?: number;
+  originalPrice?: number;
 };
 
 export type Payment = {
@@ -79,6 +89,9 @@ export type Payment = {
   subTotal: number;
   memberTotalDiscount: number;
   memberShippingDiscount: number;
+  discountApplied?: number;
+  overrideTotalPrice?: number;
+  originalSubTotal?: number;
 };
 
 export type AusPostShipping = {
@@ -98,4 +111,10 @@ export type Member = {
   loyaltyLevel: string;
   contactId: string;
   amountSpent: number;
+};
+
+export type Discount = {
+  name: string;
+  discountApplied: number;
+  remainingSubtotal?: number;
 };

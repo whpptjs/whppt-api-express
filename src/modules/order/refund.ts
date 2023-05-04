@@ -72,6 +72,10 @@ const refund: HttpModule<
                       _id: orderId,
                       refundReason,
                     }),
+                    context.createEvent('OrderPaymentRefunded', {
+                      _id: orderId,
+                      refundReason,
+                    }),
                   ];
 
                   return startTransaction(session => {

@@ -3,6 +3,8 @@ import { assign, omit } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Order, OrderItemWithProduct } from './Models/Order';
 import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
+import { getOrderTemplate } from '../email/Templates/emailReceipt';
+
 import * as validations from './Validations';
 
 const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string }, void> =
@@ -39,7 +41,11 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                 checkoutStatus: 'paid',
                 items: orderWithProducts.items.map((item: OrderItemWithProduct) => {
                   return omit(
-                    { ...item, purchasedPrice: item.product?.price },
+                    {
+                      ...item,
+                      purchasedPrice: item.overidedPrice || item.product?.price,
+                      originalPrice: item.product?.price,
+                    },
                     'product'
                   );
                 }),
@@ -58,12 +64,25 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
               //TODO add these events
               //   events: [
               //     giftCardUsed,
-              //     confirmationEmailQueued,
               // ]
 
               return startTransaction(session => {
                 return document.saveWithEvents('orders', loadedOrder, events, {
                   session,
+                });
+              }).then(() => {
+                const email = orderWithProducts?.contact?.email;
+                if (!email) return Promise.resolve();
+                return context.$email.send({
+                  to: email,
+                  subject: `Hentley Farm receipt${
+                    orderWithProducts.orderNumber || orderWithProducts._id
+                      ? ` for order #${
+                          orderWithProducts.orderNumber || orderWithProducts._id
+                        }`
+                      : ''
+                  }`,
+                  html: getOrderTemplate(orderWithProducts),
                 });
               });
             }

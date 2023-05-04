@@ -7,9 +7,20 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
   exec({ $database }, { searchBy }) {
     if (!searchBy) return Promise.resolve([] as Member[]);
     const query = [
-      { firstName: { $regex: searchBy, $options: 'i' } },
-      { lastName: { $regex: searchBy, $options: 'i' } },
-      { email: { $regex: searchBy, $options: 'i' } },
+      {
+        $or: [
+          { firstName: { $regex: searchBy, $options: 'i' } },
+          { lastName: { $regex: searchBy, $options: 'i' } },
+          {
+            $and: [
+              { firstName: { $regex: searchBy.split(' ')[0], $options: 'i' } },
+              { lastName: { $regex: searchBy.split(' ')[1] || '', $options: 'i' } },
+            ],
+          },
+          { email: { $regex: searchBy, $options: 'i' } },
+          { _id: searchBy },
+        ],
+      },
     ];
 
     //TODO make this a mongo search query
@@ -45,13 +56,14 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
                 _id: '$member._id',
                 contactId: '$member.contactId',
                 username: '$member.username',
-                createdAt: '$createdAt',
+                createdAt: '$member.createdAt',
                 contact: {
                   _id: '$_id',
                   firstName: '$firstName',
                   lastName: '$lastName',
                   email: '$email',
                   phone: '$phone',
+                  mobile: '$mobile',
                   company: '$company',
                   billing: '$billing',
                   shipping: '$shipping',

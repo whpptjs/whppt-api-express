@@ -1,8 +1,8 @@
-export const composeOrderData = (orderWithProducts: any) => {
-  const sanitizeAddressString = (item?: string) => {
-    return item ? `${item}, ` : '';
-  };
+export const sanitizeAddressString = (item?: string) => {
+  return item ? `${item}, ` : '';
+};
 
+export const composeOrderData = (orderWithProducts: any) => {
   return {
     orderId: orderWithProducts._id,
     updatedAt: orderWithProducts.updatedAt,

@@ -39,17 +39,30 @@ const signUp: HttpModule<{ name: string; email: string }, void> = {
               isSubscribed: true,
             } as Contact;
             events.push(createEvent('ContactCreated', contact));
-            events.push(createEvent('ContactSubscribed', contact));
+
+            events.push(
+              createEvent('ContactOptedInForMarketing', {
+                contactId: contact._id,
+                isSubscribed: true,
+              })
+            );
           } else {
             contact = usedEmail;
             contact.isSubscribed = true;
-            events.push(createEvent('ContactSubscribed', contact));
+            events.push(
+              createEvent('ContactOptedInForMarketing', {
+                contactId: contact._id,
+                isSubscribed: true,
+              })
+            );
           }
 
           return startTransaction(session => {
             return document
               .saveWithEvents('contacts', contact, events, { session })
               .then(() => {
+                if (process.env.DRAFT !== 'true') return;
+
                 return document.publishWithEvents('contacts', contact, events, {
                   session,
                 });

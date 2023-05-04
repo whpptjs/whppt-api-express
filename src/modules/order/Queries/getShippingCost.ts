@@ -1,25 +1,35 @@
+import { OrderItemWithProduct } from './../Models/Order';
 import assert from 'assert';
 import { ContextType } from 'src/context/Context';
 import { Delivery } from 'src/modules/delivery/Models/Delivery';
 import { postcodeInRange } from '../../delivery/Queries/postcodeRange';
 import { ShippingCost } from '../Models/Order';
+import { calculateShippingPrice } from './helpers/calculateShippingPrice';
 
 export type LoadOrderWithProductsArgs = (
   context: ContextType,
-  args: { postcode?: string; domainId: string; pickup?: boolean }
+  args: {
+    postcode?: string;
+    domainId: string;
+    pickup?: boolean;
+    override?: ShippingCost;
+    items: OrderItemWithProduct[];
+  }
 ) => Promise<ShippingCost>;
 
 export const getShippingCost: LoadOrderWithProductsArgs = (
   { $database },
-  { postcode, domainId, pickup }
+  { postcode, domainId, pickup, override, items }
 ) => {
-  if (pickup)
+  if (pickup || !postcode)
     return Promise.resolve({
       price: 0,
       allowCheckout: true,
       message: '',
       type: 'pickup',
     });
+
+  if (override?.override) return Promise.resolve(override);
   return $database.then(({ document }) => {
     assert(postcode, 'Postcode is required');
     assert(domainId, 'DomainId is required');
@@ -30,7 +40,7 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
 
       if (metro)
         return {
-          price: delivery.aus_metro.price || 0,
+          price: calculateShippingPrice(items, delivery.aus_metro.price) || 0,
           allowCheckout: delivery.aus_metro.allowCheckout,
           message: delivery.aus_metro.message,
           type: 'aus_metro',
@@ -38,14 +48,14 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
 
       if (regional)
         return {
-          price: delivery.aus_regional.price || 0,
+          price: calculateShippingPrice(items, delivery.aus_regional.price) || 0,
           allowCheckout: delivery.aus_regional.allowCheckout,
           message: delivery.aus_regional.message,
           type: 'aus_regional',
         };
 
       return {
-        price: delivery.international?.price || 0,
+        price: calculateShippingPrice(items, delivery.international?.price) || 0,
         allowCheckout: delivery.international?.allowCheckout || false,
         message: delivery.international?.message,
         type: 'international',

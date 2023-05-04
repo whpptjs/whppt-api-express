@@ -10,16 +10,17 @@ const changeDetails: HttpModule<
     firstName: string;
     lastName: string;
     phone: string;
+    mobile: string;
     contactId: string;
     company: string;
     email: string;
-    optInMarketing: boolean;
+    isSubscribed: boolean;
   },
   void
 > = {
   exec(
     context,
-    { firstName, lastName, phone, company, contactId, email, optInMarketing }
+    { firstName, lastName, phone, company, contactId, email, isSubscribed, mobile }
   ) {
     assert(firstName, 'A First name is required');
     assert(lastName, 'A last name is required');
@@ -36,7 +37,18 @@ const changeDetails: HttpModule<
         assert(contact, 'Unable to find Contact.');
         if (email) assert(!emailInUse, 'Email already in use.');
 
-        if (noChanges(contact, { firstName, lastName, phone, company, email })) return;
+        if (
+          noChanges(contact, {
+            firstName,
+            lastName,
+            phone,
+            company,
+            email,
+            mobile,
+            isSubscribed,
+          })
+        )
+          return;
 
         const contactEvents = [
           createEvent('ContactDetailsChanged', {
@@ -44,18 +56,20 @@ const changeDetails: HttpModule<
             firstName,
             lastName,
             phone,
+            mobile,
             company,
             email,
             from: {
               firstName: contact.firstName,
               lastName: contact.lastName,
               phone: contact.phone,
+              mobile: contact.mobile,
               company: contact.company,
               email: contact.email,
             },
           }),
         ];
-        assign(contact, { firstName, lastName, phone, company });
+        assign(contact, { firstName, lastName, phone, company, mobile });
 
         return startTransaction(session => {
           return saveContactAndPublish(
@@ -65,7 +79,7 @@ const changeDetails: HttpModule<
           ).then(() => {
             return ToggleSubscription(
               { ...context, document },
-              { contact, optInMarketing },
+              { contact, isSubscribed },
               session
             );
           });
@@ -81,14 +95,18 @@ const noChanges = (
     firstName,
     lastName,
     phone,
+    mobile,
     company,
     email,
+    isSubscribed,
   }: {
     firstName: string;
     lastName: string;
     phone: string;
+    mobile: string;
     company: string;
     email: string;
+    isSubscribed: boolean;
   }
 ) => {
   return (
@@ -96,7 +114,9 @@ const noChanges = (
     contact.lastName === lastName &&
     contact.company === company &&
     contact.email === email &&
-    contact.phone === phone
+    contact.phone === phone &&
+    contact.mobile === mobile &&
+    contact.isSubscribed === isSubscribed
   );
 };
 

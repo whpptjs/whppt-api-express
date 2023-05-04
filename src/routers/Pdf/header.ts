@@ -18,7 +18,7 @@ const header = (orderId: string, updatedAt: string) => [
             verticalAlignment: 'middle',
             fillColor: '#D4CAB7',
             color: [36, 36, 36],
-            margin: [50, 20, 50, 0],
+            margin: [50, 20, 50, 10],
             layout: 'noBorders',
             table: {
               verticalAlignment: 'middle',
@@ -26,31 +26,96 @@ const header = (orderId: string, updatedAt: string) => [
               body: [
                 [
                   {
-                    text: `Order ID: ${orderId}`,
-                    fontSize: 20,
-                    font: 'Roxborough',
-                    alignment: 'left',
-                    verticalAlignment: 'bottom',
-                  },
-                  {
-                    image: path.join(rootDirectory, 'images', 'logo', 'logo.png'),
-                    width: 79,
-                    height: 30,
-                    alignment: 'right',
-                  },
-                ],
-                [
-                  {
-                    text: `Order date: ${format(new Date(updatedAt), 'dd LLL y')}`,
-                    fontSize: 10,
-                    font: 'Roxborough',
+                    alignment: 'center',
                     verticalAlignment: 'middle',
-                    alignment: 'left',
+                    fillColor: '#D4CAB7',
+                    color: [36, 36, 36],
+                    layout: 'noBorders',
+                    table: {
+                      verticalAlignment: 'middle',
+                      widths: ['*'],
+                      body: [
+                        [
+                          {
+                            image: path.join(rootDirectory, 'images', 'logo', 'logo.png'),
+                            width: 90,
+                            height: 34,
+                            alignment: 'left',
+                          },
+                        ],
+                        [
+                          {
+                            text: `Order ID: ${orderId}`,
+                            fontSize: 12,
+                            font: 'Roxborough',
+                            alignment: 'left',
+                            verticalAlignment: 'bottom',
+                          },
+                        ],
+                        [
+                          {
+                            text: `Order date: ${format(
+                              new Date(updatedAt),
+                              'dd LLL y'
+                            )}`,
+                            fontSize: 12,
+                            font: 'Roxborough',
+                            verticalAlignment: 'middle',
+                            alignment: 'left',
+                          },
+                        ],
+                      ],
+                    },
                   },
                   {
-                    text: '',
-                    fontSize: 10,
-                    font: 'Roxborough',
+                    alignment: 'center',
+                    verticalAlignment: 'middle',
+                    fillColor: '#D4CAB7',
+                    color: [36, 36, 36],
+                    layout: 'noBorders',
+                    margin: [0, 20, 0, 0],
+                    table: {
+                      verticalAlignment: 'middle',
+                      widths: ['*'],
+                      body: [
+                        [
+                          {
+                            text: `Cnr Gerald Roberts Rd, Jenke Rd, Seppeltsfield, SA 5355`,
+                            font: 'Roxborough',
+                            fontSize: 8,
+                            alignment: 'right',
+                            verticalAlignment: 'bottom',
+                          },
+                        ],
+                        [
+                          {
+                            text: '08 8562 8427 - 08 8333 0246 (fax)',
+                            fontSize: 8,
+                            font: 'Roxborough',
+                            alignment: 'right',
+                            verticalAlignment: 'bottom',
+                          },
+                        ],
+                        [
+                          {
+                            text: 'ABN (33 097 614 661)',
+                            fontSize: 8,
+                            font: 'Roxborough',
+                            alignment: 'right',
+                            verticalAlignment: 'bottom',
+                          },
+                        ],
+                        [
+                          {
+                            text: 'Liquor Production and Sales Licence: 57605063',
+                            fontSize: 8,
+                            font: 'Roxborough',
+                            alignment: 'right',
+                            verticalAlignment: 'bottom',
+                          },
+                        ],
+                      ],
+                    },
                   },
                 ],
               ],

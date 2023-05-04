@@ -43,6 +43,9 @@ const listOrders: HttpModule<
               },
             },
             {
+              orderNumber: Number(search),
+            },
+            {
               orderNumber: {
                 $regex: search,
               },
@@ -63,7 +66,7 @@ const listOrders: HttpModule<
       }
       if (dateTo) {
         query.$and.push({
-          createdAt: { $lt: new Date(dateTo) },
+          createdAt: { $lt: dateTo ? new Date(dateTo) : new Date() },
         });
       }
       if (origin) {

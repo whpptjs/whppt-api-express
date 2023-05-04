@@ -73,7 +73,7 @@ export function getOrderTemplate(order: any) {
         <td valign="top" style="padding: 35px;">
           <h2
             style="color:#ffffff;font-weight:500;font-size:24px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
-            Order ${order.number || order._id},<br />
+            Order #${order.orderNumber || order._id},<br />
           </h2>
           <p
             style="color:#ACACAC;font-weight:normal;font-size:16px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:30px">
@@ -118,12 +118,12 @@ export function getOrderTemplate(order: any) {
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
-              ${memberTotalDiscount && getMemberDiscount(memberTotalDiscount)}
+              ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${shipping.toFixed(2)}</td>
               </tr>
-              ${memberShippingDiscount && getShippingDiscount(memberShippingDiscount)}
+              ${memberShippingDiscount ? getShippingDiscount(memberShippingDiscount) : ''}
               <tr>
                 <th scope="row" colspan="2" style=${getRowStyle()}>Total</th>
                 <td style=${getRowStyle()}>

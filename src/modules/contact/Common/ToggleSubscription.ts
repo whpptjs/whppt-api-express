@@ -3,31 +3,33 @@ import { Contact } from '../Models/Contact';
 
 type SubscriptionArgs = (
   context: ContextType & { document: any },
-  args: { contact: Contact; optInMarketing: boolean },
+  args: { contact: Contact; isSubscribed: boolean },
   session: any
 ) => Promise<void>;
 
 export const ToggleSubscription: SubscriptionArgs = (
   { document, createEvent },
-  { contact, optInMarketing },
+  { contact, isSubscribed },
   session
 ) => {
-  if (contact.isSubscribed === optInMarketing) return Promise.resolve();
-  contact.isSubscribed = optInMarketing;
+  if (contact.isSubscribed === isSubscribed) return Promise.resolve();
+  contact.isSubscribed = isSubscribed;
   const events = [
-    optInMarketing
+    isSubscribed
       ? createEvent('ContactOptedInForMarketing', {
           contactId: contact._id,
-          isSubscribed: optInMarketing,
+          isSubscribed,
         })
       : createEvent('ContactOptedOutForMarketing', {
           contactId: contact._id,
-          isSubscribed: optInMarketing,
+          isSubscribed,
         }),
   ];
   return document
     .saveWithEvents('contacts', contact, events, { session })
     .then(() => {
+      if (process.env.DRAFT !== 'true') return;
+
       return document.publishWithEvents('contacts', contact, events, {
         session,
       });

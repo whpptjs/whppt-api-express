@@ -15,10 +15,13 @@ const sixMonths = oneDay * 30 * 6;
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single('file');
 
-export type GalleryRouterConstructor = ($logger: LoggerService) => Router;
+export type GalleryRouterConstructor = (
+  $logger: LoggerService,
+  apiPrefix: string
+) => Router;
 
-export const GalleryRouter: GalleryRouterConstructor = $logger => {
-  router.post('/gallery/upload', upload, (req: any, res: Response) => {
+export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
+  router.post(`/${apiPrefix}/gallery/upload`, upload, (req: any, res: Response) => {
     const { file } = req;
     const { domainId, type } = req.body;
 
@@ -39,7 +42,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
   });
 
   router.get(
-    `/gallery/image/:imageId`,
+    `/${apiPrefix}/gallery-file/image/:imageId`,
     cache({ ttl: sixMonths }),
     (req: Request, res: Response) => {
       return (req as WhpptRequest).moduleContext
@@ -63,7 +66,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
   );
 
   router.get(
-    `/gallery/svg/:svgId`,
+    `/${apiPrefix}/gallery-file/svg/:svgId`,
     cache({ ttl: sixMonths }),
     (req: Request, res: Response) => {
       return (req as WhpptRequest).moduleContext
@@ -85,7 +88,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
   );
 
   router.get(
-    `/gallery/video/:videoId`,
+    `/${apiPrefix}/gallery-file/video/:videoId`,
     cache({ ttl: sixMonths }),
     (req: Request, res: Response) => {
       return (req as WhpptRequest).moduleContext
@@ -107,7 +110,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
   );
 
   router.get(
-    '/gallery/doc/:id/:name',
+    `/${apiPrefix}/gallery-file/doc/:id/:name`,
     cache({ ttl: sixMonths }),
     (req: Request, res: Response) => {
       const { id } = req.params;
@@ -130,7 +133,7 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
     }
   );
 
-  router.get('/gallery/file/:id', (req: Request, res: Response) => {
+  router.get(`/${apiPrefix}/gallery-file/file/:id`, (req: Request, res: Response) => {
     const { id } = req.params;
 
     return (req as WhpptRequest).moduleContext
@@ -138,7 +141,9 @@ export const GalleryRouter: GalleryRouterConstructor = $logger => {
         if (!$database) throw new Error('Database connection is required');
         return $database.then(db => {
           return db.document.fetch<GalleryItem>('gallery', id).then(item => {
-            res.redirect(`/gallery/file/${id}/${item?.fileInfo?.originalname}`);
+            res.redirect(
+              `/${apiPrefix}/gallery-file/doc/${id}/${item?.fileInfo?.originalname}`
+            );
           });
         });
       })

@@ -8,7 +8,7 @@ import * as validations from './Validations';
 
 export type OrderRecordContactInformationArgs = {
   orderId: string;
-  contact: OrderContact & { optInMarketing: boolean };
+  contact: OrderContact & { isSubscribed: boolean };
 };
 
 const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, void> = {
@@ -43,10 +43,6 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                     lastName: contact?.lastName || 'Website',
                     email: contact?.email || '',
                   };
-              console.log(
-                '🚀 ~ file: recordContactInformation.ts:39 ~ return$database.then ~ contactToUse',
-                contactToUse
-              );
 
               const event = createEvent('OrderContactInformationUpdated', {
                 _id: loadedOrder._id,
@@ -69,7 +65,7 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                         { ...context, document },
                         {
                           contact: contactToUse as Contact,
-                          optInMarketing: contact.optInMarketing,
+                          isSubscribed: contact.isSubscribed,
                         },
                         session
                       );
@@ -85,7 +81,7 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                           { ...context, document },
                           {
                             contact: contactToUse as Contact,
-                            optInMarketing: contact.optInMarketing,
+                            isSubscribed: contact.isSubscribed,
                           },
                           session
                         );

@@ -58,9 +58,21 @@ export const findActiveStaff = (db: WhpptDatabase, username: string) => {
       contact,
       "The username / email address you entered isn't connected to an account."
     );
-    return db.document.query<Staff>('staff', {
-      filter: { contactId: contact._id },
-    });
+    return db.document
+      .query<Staff>('staff', {
+        filter: { contactId: contact._id },
+      })
+      .then(staff => {
+        if (!staff)
+          return Promise.reject(
+            new Error(
+              "The username / email address you entered isn't connected to an account."
+            )
+          );
+        if (!staff.isActive)
+          return Promise.reject(new Error('This account has been deactivated.'));
+        return staff;
+      });
   });
 };
 

@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { ToggleSubscription } from '../contact/Common/ToggleSubscription';
 import { Address, Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
@@ -13,29 +12,21 @@ const signUp: HttpModule<
     password: string;
     termsAndConditions: boolean;
     contactId?: string;
-    optInMarketing?: boolean;
   },
   Member
 > = {
   exec(
     context,
-    {
-      address,
-      email,
-      firstName,
-      lastName,
-      password,
-      termsAndConditions,
-      contactId,
-      optInMarketing,
-    }
+    { address, email, firstName, lastName, password, termsAndConditions, contactId }
   ) {
     assert(email, 'An email is required');
     assert(firstName, 'First Name is required');
     assert(lastName, 'Last Name is required');
     assert(password, 'Password is required');
     assert(termsAndConditions, 'Terms And Conditions must be accepted');
+
     const { $database, $id, createEvent, $security } = context;
+
     return $database.then(database => {
       const { document, startTransaction } = database;
 
@@ -49,7 +40,9 @@ const signUp: HttpModule<
           email,
           shipping: { address },
           billing: { address },
+          isSubscribed: true,
         } as Contact;
+
         return $security.encrypt(password).then(hashedPassword => {
           const member = {
             _id: $id.newId(),
@@ -63,32 +56,43 @@ const signUp: HttpModule<
               newContact
             ),
           ];
+
+          if (!contact?._id)
+            events.push(
+              createEvent('ContactOptedInForMarketing', {
+                contactId: newContact._id,
+                isSubscribed: true,
+              })
+            );
+
           const memberEvents = [createEvent('MemberCreated', member)];
 
           return startTransaction(session => {
             return document
               .saveWithEvents('contacts', newContact, events, { session })
               .then(() => {
-                // return document
-                //   .publishWithEvents('contacts', newContact, events, {
-                //     session,
-                //   })
-                //   .then(() => {
                 return document
                   .saveWithEvents('members', member, memberEvents, {
                     session,
                   })
                   .then(() => {
-                    return ToggleSubscription(
-                      { ...context, document },
-                      {
-                        contact: newContact,
-                        optInMarketing: optInMarketing || false,
-                      },
-                      session
-                    );
+                    if (process.env.DRAFT !== 'true') return;
+
+                    return document
+                      .publishWithEvents('contacts', newContact, events, {
+                        session,
+                      })
+                      .then(() => {
+                        return document.publishWithEvents(
+                          'members',
+                          member,
+                          memberEvents,
+                          {
+                            session,
+                          }
+                        );
+                      });
                   });
-                // });
               });
           }).then(() => member);
         });

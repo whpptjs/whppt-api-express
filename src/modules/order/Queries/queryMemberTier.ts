@@ -5,78 +5,94 @@ import {
   MembershipTier,
 } from 'src/modules/membershipTier/Models/MembershipTier';
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
-import { Order } from '../Models/Order';
 import orderBy from 'lodash/orderBy';
+import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
 
 export type QueryMemberTier = (
   context: ContextType,
-  args: { memberId?: string; domainId: string }
+  args: { memberId?: string; domainId: string; orderId?: string }
 ) => Promise<MembershipTier>;
 
-export const queryMemberTier: QueryMemberTier = (
-  { $database },
-  { memberId, domainId }
-) => {
+export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }) => {
   if (!memberId) return Promise.resolve({} as MembershipTier);
-  return $database.then(database => {
+
+  return context.$database.then(database => {
     assert(domainId, 'Domain Id required');
 
-    const year = new Date().getFullYear();
-    const startYear = new Date(`1/1/${year} 10:30`);
-    const endYear = new Date(`1/1/${year + 1} 10:30`);
-
     const { db, document } = database as WhpptMongoDatabase;
+
     return Promise.all([
+      db.collection('members').findOne({ _id: memberId }),
       document.query<MembershipOptions>('site', {
         filter: { _id: `membershipOptions_${domainId}` },
       }),
-      db
-        .collection('orders')
-        .aggregate<Order>([
-          {
-            $match: {
-              memberId: memberId,
-              'payment.status': 'paid',
+    ]).then(([member, membershipOptions]) => {
+      assert(member, `Member not found for ID:${memberId}`);
+      assert(membershipOptions, 'Member Tiers not found');
 
-              $and: [
-                {
-                  updatedAt: {
-                    $gte: startYear,
-                  },
-                },
-                {
-                  updatedAt: { $lt: endYear },
-                },
-              ],
-            },
-          },
-          {
-            $project: {
-              payment: 1,
-            },
-          },
-        ])
-        .toArray(),
-    ]).then(([tiers, orders]) => {
-      assert(tiers, 'MembershipTiers not found.');
+      const lockedTier = member?.lockToTier
+        ? membershipOptions?.membershipTiers?.find(tier => tier._id === member.lockToTier)
+        : undefined;
 
-      const sortedTiers = orderBy(tiers.membershipTiers, ['level'], ['desc']);
+      if (lockedTier)
+        return {
+          ...lockedTier,
+          lockToTier: member.lockToTier,
+          amountToSpendToNextTier: 0,
+        } as MembershipTier;
 
-      const amountSpentForYear = orders.reduce(
-        (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
-        0
+      return queryMemberAmountSpentForYear(context, { memberId }).then(
+        ({ discountAppliedForYear, amountSpentForYear }) => {
+          const sortedTiers = orderBy(
+            membershipOptions.membershipTiers,
+            ['level'],
+            ['desc']
+          ) as MembershipTier[];
+
+          const currentTier = sortedTiers.find(
+            t => t.entryLevelSpend <= amountSpentForYear
+          );
+          const nextTierLevel = (currentTier?.level || 0) + 1;
+          const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
+
+          return {
+            ...currentTier,
+            discountAppliedForYear,
+            amountSpentForYear,
+            amountToSpendToNextTier: nextTier
+              ? nextTier.entryLevelSpend - (amountSpentForYear - discountAppliedForYear)
+              : 0,
+            nextTiers: calculateNextTiers(membershipOptions.membershipTiers),
+          } as MembershipTier;
+
+          function calculateNextTiers(tiers: MembershipTier[]) {
+            const nextTiers: MembershipTier[] = currentTier
+              ? tiers.filter(t => t.level > currentTier.level)
+              : tiers;
+
+            return nextTiers.map((t, i) => ({
+              ...t,
+              amountToSpendToNextTier:
+                i === 0
+                  ? t.entryLevelSpend - (amountSpentForYear - discountAppliedForYear)
+                  : calculatePreviousTiers(i) - amountSpentForYear,
+            }));
+
+            function calculatePreviousTiers(currentTierIndex: number) {
+              const totalToSpendInThisAndPrevTiers =
+                tiers.reduce((acc, t, i) => {
+                  if (currentTierIndex < i) {
+                    return acc + t.entryLevelSpend;
+                  }
+
+                  return acc;
+                }, 0) || 0;
+
+              return totalToSpendInThisAndPrevTiers;
+            }
+          }
+        }
       );
-
-      const currentTier = sortedTiers.find(t => t.entryLevelSpend <= amountSpentForYear);
-      const nextTierLevel = (currentTier?.level || 0) + 1;
-      const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
-
-      return {
-        ...currentTier,
-        amountToSpendToNextTier: nextTier
-          ? nextTier.entryLevelSpend - amountSpentForYear
-          : 0,
-      } as MembershipTier;
     });
   });
 };

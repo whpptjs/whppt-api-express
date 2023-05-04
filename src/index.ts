@@ -30,6 +30,7 @@ import { ContextType } from './context/Context';
 import { adminDbConfig } from './Services/Hosting/adminDbConfig';
 import { StripeRouter } from './routers/Stripe/index';
 import { PdfRouter } from './routers/index';
+import { CsvRouter } from './routers/index';
 
 export * from './Services/Config';
 export * from './modules/HttpModule';
@@ -103,6 +104,35 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
+  router.use((req: any, res: any, next: NextFunction) => {
+    res.type = res.type
+      ? res.type
+      : (value: string) => {
+          res.setHeader('Content-Type', value);
+          return res;
+        };
+
+    res.contentType = res.contentType
+      ? res.contentType
+      : (value: string) => {
+          res.setHeader('Content-Type', value);
+          return res;
+        };
+
+    res.header = res.header
+      ? res.header
+      : (key: string, value: string) => {
+          res.setHeader(key, value);
+          return res;
+        };
+    req.get = req.get
+      ? req.get
+      : (key: string) => {
+          return req.headers[key];
+        };
+
+    next();
+  });
 
   router.use((req: any, _: any, next: NextFunction) => {
     // TODO: Work towards a generic db and not specifically mongo here.
@@ -133,14 +163,15 @@ export const Whppt = (config: WhpptConfig) => {
     next();
   });
 
-  router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
+  router.use(GalleryRouter($logger, config.apiPrefix || 'api'));
+  router.use(StripeRouter($logger, config.apiPrefix || 'api'));
+  router.use(PdfRouter(config.apiPrefix || 'api'));
+  router.use(CsvRouter(config.apiPrefix || 'api'));
   router.use(RedirectsRouter());
+  router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
   router.use(FileRouter($logger));
   router.use(ImageRouter($logger));
-  router.use(GalleryRouter($logger));
   router.use(SeoRouter());
-  router.use(StripeRouter());
-  router.use(PdfRouter());
 
   if (config.routers && config.routers.length) {
     config.routers.forEach(entry => {

@@ -17,8 +17,10 @@ export type Staff = {
   password?: string;
   createdAt?: Date;
   department?: StaffDepartment;
+  marketArea?: MarketArea;
   isActive?: boolean;
 };
 
 export type StaffContact = Staff & { contact: Contact };
 export type StaffDepartment = 'Cellar Door' | 'Office' | 'Restaurant';
+export type MarketArea = 'Cellar Door' | 'Restaurant' | 'Cellar Door – Direct' | 'Direct';

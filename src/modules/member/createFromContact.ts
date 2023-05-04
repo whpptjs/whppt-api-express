@@ -5,10 +5,10 @@ import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
 
 const createFromContact: HttpModule<
-  { contactId: string; optInMarketing?: boolean },
+  { contactId: string; isSubscribed?: boolean },
   Member
 > = {
-  exec(context, { contactId, optInMarketing }) {
+  exec(context, { contactId, isSubscribed }) {
     assert(contactId, 'A contact Id is required');
     const { $database, $id, createEvent } = context;
 
@@ -35,7 +35,7 @@ const createFromContact: HttpModule<
             .then(() => {
               return ToggleSubscription(
                 { ...context, document },
-                { contact, optInMarketing: optInMarketing || false },
+                { contact, isSubscribed: isSubscribed || false },
                 session
               );
             });

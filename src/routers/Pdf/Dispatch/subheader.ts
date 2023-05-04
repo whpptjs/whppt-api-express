@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter } from './capitalize';
+import { capitalizeFirstLetter } from '../capitalize';
 
 export const subheader = (shipping: any) => {
   const shippingDetails = [

@@ -2,6 +2,8 @@ import { HttpModule } from '../HttpModule';
 
 import assert from 'assert';
 import { Order } from './Models/Order';
+import { getNewOrderNumber } from './Queries/getNewOrderNumber';
+import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 
 const createOrderWithProduct: HttpModule<
   { productId: string; quantity: number; orderId?: string | undefined },
@@ -16,7 +18,9 @@ const createOrderWithProduct: HttpModule<
     assert(quantity, 'Product quantity is required.');
     const quantityAsNumber = Number(quantity);
     assert(quantityAsNumber > 0, 'Product quantity must be higher than 0.');
-    return $database.then(({ document, startTransaction }) => {
+    return $database.then(database => {
+      const { db, document, startTransaction } = database as WhpptMongoDatabase;
+
       const order = {
         _id: $id.newId(),
         items: [],
@@ -25,13 +29,18 @@ const createOrderWithProduct: HttpModule<
 
       const events = [] as any[];
 
-      events.push(createEvent('CreatedOrder', order));
       const orderItem = { _id: $id.newId(), productId, quantity: quantityAsNumber };
-      events.push(createEvent('OrderItemAddedToOrder', { _id: order._id, orderItem }));
       Object.assign(order.items, [orderItem]);
 
       return startTransaction(session => {
-        return document.saveWithEvents('orders', order, events, { session });
+        return getNewOrderNumber(db).then(orderNumber => {
+          order.orderNumber = orderNumber;
+          events.push(createEvent('CreatedOrder', order));
+          events.push(
+            createEvent('OrderItemAddedToOrder', { _id: order._id, orderItem })
+          );
+          return document.saveWithEvents('orders', order, events, { session });
+        });
       }).then(() => order);
     });
   },

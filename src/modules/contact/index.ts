@@ -5,6 +5,7 @@ import changeBillingDetails from './changeBillingDetails';
 import changeShippingDetails from './changeShippingDetails';
 import checkEmailAvailability from './checkEmailAvailability';
 import canBeLinkedToStaff from './canBeLinkedToStaff';
+import search from './search';
 
 export const contact = {
   create,
@@ -14,4 +15,5 @@ export const contact = {
   changeShippingDetails,
   checkEmailAvailability,
   canBeLinkedToStaff,
+  search,
 };

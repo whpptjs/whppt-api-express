@@ -3,6 +3,7 @@ import { Order } from './Models/Order';
 import { loadOrder } from './Queries/loadOrder';
 import assert from 'assert';
 import { assign } from 'lodash';
+import { Staff } from '../staff/Model';
 
 const markOrderAsPointOfSale: HttpModule<{ orderId: string; staffId: string }, Order> = {
   authorise({ $roles }, { user }) {
@@ -11,26 +12,33 @@ const markOrderAsPointOfSale: HttpModule<{ orderId: string; staffId: string }, O
   exec(context, { orderId, staffId }) {
     assert(orderId, 'An Order id is required');
 
-    return loadOrder(context, orderId).then(loadedOrder => {
-      assert(loadedOrder, 'Order not found.');
+    return context.$database.then(database => {
+      const { document, startTransaction } = database;
 
-      if (!loadedOrder._id)
-        return Promise.reject({ status: 404, message: 'Order not found' });
+      return loadOrder(context, orderId).then(loadedOrder => {
+        return document
+          .query<Staff>('staff', { filter: { _id: staffId } })
+          .then(staff => {
+            assert(loadedOrder, 'Order not found.');
 
-      assign(loadedOrder, {
-        ...loadedOrder,
-        fromPos: true,
-        staffId,
-      });
+            if (!loadedOrder._id)
+              return Promise.reject({ status: 404, message: 'Order not found' });
 
-      const events = [context.createEvent('MarkedOrderAsPos', loadedOrder)];
+            assign(loadedOrder, {
+              ...loadedOrder,
+              fromPos: true,
+              staff: {
+                _id: staff && staff._id,
+                marketArea: staff && staff.marketArea,
+              },
+            });
 
-      return context.$database.then(database => {
-        const { document, startTransaction } = database;
+            const events = [context.createEvent('MarkedOrderAsPos', loadedOrder)];
 
-        return startTransaction(session => {
-          return document.saveWithEvents('orders', loadedOrder, events, { session });
-        });
+            return startTransaction(session => {
+              return document.saveWithEvents('orders', loadedOrder, events, { session });
+            });
+          });
       });
     });
   },
