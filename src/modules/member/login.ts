@@ -30,11 +30,13 @@ const login: HttpModule<{ username: string; password: string }, any> = {
                 new Error("The password that you've entered is incorrect.")
               );
 
-            return $security.createToken(apiKey, omit(member, 'password')).then(token => {
-              return {
-                token,
-              };
-            });
+            return $security
+              .createToken(apiKey, omit(member, ['password', 'notes']))
+              .then(token => {
+                return {
+                  token,
+                };
+              });
           });
       });
     });
