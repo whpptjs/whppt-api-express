@@ -32,8 +32,13 @@ export const queryMemberLifetimeSpend: QueryMemberLifetimeSpend = (
       .toArray()
       .then(orders => {
         if (!orders || !orders.length) return 0;
+
         return orders.reduce(
-          (partialSum, a) => partialSum + (a?.payment?.amount ? a?.payment?.amount : 0),
+          (partialSum, a) =>
+            partialSum +
+            (a?.payment?.subTotal
+              ? a?.payment?.subTotal - (a?.payment?.discountApplied || 0)
+              : 0),
           0
         );
       });
