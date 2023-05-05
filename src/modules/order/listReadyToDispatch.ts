@@ -46,6 +46,7 @@ const listReadyToDispatch: HttpModule<
                       _id: '$_id',
                       date: '$payment.date',
                       checkoutStatus: '$checkoutStatus',
+                      orderNumber: '$orderNumber',
                       dispatchedStatus: '$dispatchedStatus',
                       shipmentId: '$shipping.ausPost.shipmentId',
                       payment: {
