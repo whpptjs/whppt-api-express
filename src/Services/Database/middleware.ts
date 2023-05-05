@@ -21,6 +21,7 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
 ) => {
   return {
     waitForAdminDbConnection(_, res, next) {
+      console.log('🚀  waitForAdminDbConnection:');
       adminDb
         .then(() => next())
         .catch(err => {

@@ -79,11 +79,13 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use(
     cors((req: any, callback) => {
-      console.log('🚀  Checking Cors: ', req.query);
+      console.log('🚀  Checking Cors: ', req.query, req.apiKey);
 
       $hosting
         .getConfig(req.apiKey)
         .then(hostingConfig => {
+          console.log('🚀 hostingConfig:', hostingConfig);
+
           const whitelist = [...corsWhitelist, ...hostingConfig.cors];
           const corsOptions =
             req.headers.origin && whitelist.indexOf(req.headers.origin) !== -1
@@ -91,6 +93,12 @@ export const Whppt = (config: WhpptConfig) => {
               : { origin: false };
           $logger.dev(
             'CORS check complete: origin: %s, whitelist %s, options: %o',
+            req.headers.origin,
+            whitelist,
+            corsOptions
+          );
+          console.log(
+            '🚀 CALLING CORS CALLBACK',
             req.headers.origin,
             whitelist,
             corsOptions
