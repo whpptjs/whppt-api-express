@@ -26,7 +26,7 @@ export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
     const { file } = req;
     const { domainId, type } = req.body;
 
-    if (!file) return { message: 'File not found' };
+    if (!file) return res.status(404).json({ message: 'File not found' });
 
     return (req as WhpptRequest).moduleContext.then(({ $gallery }) => {
       console.log('🚀 GALLERY GOT GALLERY');

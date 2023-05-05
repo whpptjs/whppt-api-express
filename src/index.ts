@@ -79,6 +79,8 @@ export const Whppt = (config: WhpptConfig) => {
 
   router.use(
     cors((req: any, callback) => {
+      console.log('🚀  Checking Cors: ', req.query);
+
       $hosting
         .getConfig(req.apiKey)
         .then(hostingConfig => {
@@ -96,7 +98,7 @@ export const Whppt = (config: WhpptConfig) => {
           callback(null, corsOptions);
         })
         .catch(err => {
-          $logger.dev('CORS check error: ', err);
+          $logger.error('CORS check error: ', err);
           callback(err);
         });
     })
