@@ -32,7 +32,7 @@ const listReadyToDispatch: HttpModule<
                 $match: {
                   $or: [
                     {
-                      '$payment.date': { $gte: forteenDaysAgo },
+                      'payment.date': { $gte: forteenDaysAgo },
                       dispatchedStatus: { $ne: 'dispatched' },
                     },
                   ],
@@ -86,7 +86,7 @@ const listReadyToDispatch: HttpModule<
                 $match: {
                   $or: [
                     {
-                      '$payment.date': { $gte: forteenDaysAgo },
+                      'payment.date': { $gte: forteenDaysAgo },
                       dispatchedStatus: { $ne: 'dispatched' },
                     },
                   ],
