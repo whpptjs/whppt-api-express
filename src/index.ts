@@ -84,7 +84,7 @@ export const Whppt = (config: WhpptConfig) => {
       $hosting
         .getConfig(req.apiKey)
         .then(hostingConfig => {
-          console.log('🚀 hostingConfig:', hostingConfig);
+          console.log('🚀 hostingConfig:', req.query, req.apiKey);
 
           const whitelist = [...corsWhitelist, ...hostingConfig.cors];
           const corsOptions =
@@ -97,12 +97,7 @@ export const Whppt = (config: WhpptConfig) => {
             whitelist,
             corsOptions
           );
-          console.log(
-            '🚀 CALLING CORS CALLBACK',
-            req.headers.origin,
-            whitelist,
-            corsOptions
-          );
+          console.log('🚀 CALLING CORS CALLBACK', req.query, req.apiKey);
           callback(null, corsOptions);
         })
         .catch(err => {
@@ -115,6 +110,8 @@ export const Whppt = (config: WhpptConfig) => {
   router.use($database.middleware.waitForApiDbConnection);
   router.use($security.authenticate);
   router.use((req: any, res: any, next: NextFunction) => {
+    console.log('🚀CUSTOM FUNCTIONS START', req.query, req.apiKey);
+
     res.type = res.type
       ? res.type
       : (value: string) => {
@@ -141,10 +138,13 @@ export const Whppt = (config: WhpptConfig) => {
           return req.headers[key];
         };
 
+    console.log('🚀CUSTOM FUNCTIONS END', req.query, req.apiKey);
+
     next();
   });
 
   router.use((req: any, _: any, next: NextFunction) => {
+    console.log('CONTEXT START', req.query, req.apiKey);
     // TODO: Work towards a generic db and not specifically mongo here.
     const dbConnection = $database.getConnection(req.apiKey);
     const hostingConfig = $hosting.getConfig(req.apiKey);
@@ -170,6 +170,8 @@ export const Whppt = (config: WhpptConfig) => {
       req.apiKey,
       $auspost
     );
+    console.log('CONTEXT END', req.query, req.apiKey);
+
     next();
   });
 

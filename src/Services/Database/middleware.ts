@@ -20,11 +20,12 @@ export const DatabaseMiddleware: DatabaseMiddlewareFactory = (
   adminDb
 ) => {
   return {
-    waitForAdminDbConnection(_, res, next) {
-      console.log('🚀  waitForAdminDbConnection:');
+    waitForAdminDbConnection(req, res, next) {
+      console.log('🚀  waitForAdminDbConnection:', req.query, req.apiKey);
       adminDb
         .then(() => next())
         .catch(err => {
+          console.log('🚀 waitForAdminDbConnection ~ err:', err, req.query, req.apiKey);
           const msg = 'Could not connect to the admin DB. The service as shut down.';
           logger.error(`${msg} : ${err}`);
           res.status(500).send(msg);
