@@ -70,7 +70,7 @@ export function getOrderTemplate(order: any) {
   const shipping = Number(order?.payment?.shippingCost?.price) / 100;
   const subtotal = getSubtotal(order);
   const subTotalAfterShippingAndDiscounts =
-    subtotal + shipping - memberShippingDiscount - memberTotalDiscount;
+    subtotal + shipping - Number(memberShippingDiscount) - Number(memberTotalDiscount);
   const tax = subTotalAfterShippingAndDiscounts / 11;
 
   const template = /* HTML */ `
@@ -132,7 +132,11 @@ export function getOrderTemplate(order: any) {
               ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${shipping.toFixed(2)}</td>
+                <td style=${getRowStyle()}>
+                  &nbsp;&nbsp;${shipping === 0
+                    ? 'Complimentary'
+                    : `$${shipping.toFixed(2)}`}
+                </td>
               </tr>
               ${memberShippingDiscount ? getShippingDiscount(memberShippingDiscount) : ''}
               <tr>
