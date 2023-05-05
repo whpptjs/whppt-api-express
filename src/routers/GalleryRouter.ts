@@ -22,12 +22,15 @@ export type GalleryRouterConstructor = (
 
 export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
   router.post(`/${apiPrefix}/gallery/upload`, upload, (req: any, res: Response) => {
+    console.log('🚀 GALLERY START OF ROUTE');
     const { file } = req;
     const { domainId, type } = req.body;
 
     if (!file) return { message: 'File not found' };
 
     return (req as WhpptRequest).moduleContext.then(({ $gallery }) => {
+      console.log('🚀 GALLERY GOT GALLERY');
+
       if (!$gallery) throw new Error('Gallery is required');
       return $gallery
         .upload({ file, domainId, type })
@@ -35,6 +38,7 @@ export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
           return res.json(galleryItem);
         })
         .catch(err => {
+          console.log('🚀 ~ file: GalleryRouter.ts:38 ~ return ~ err:', err);
           $logger.error(err);
           res.status(err.http_code || 500).send(err);
         });

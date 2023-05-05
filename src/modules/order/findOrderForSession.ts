@@ -16,7 +16,7 @@ const findOrderForSession: HttpModule<
       : memberId
       ? { checkoutStatus: 'pending', memberId }
       : undefined;
-    if (!query) return Promise.reject({ status: 404, message: 'Order Not Found.' });
+    if (!orderId) return Promise.resolve({});
     return loadOrderWithProducts(context, query);
   },
 };

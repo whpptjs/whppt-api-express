@@ -51,8 +51,11 @@ export const S3: S3Constructor = $hosting => {
             Metadata: meta,
           })
         )
-        .then(() => {})
+        .then(() => {
+          console.log('🚀 GALLERY UPLOAD PASSED');
+        })
         .catch(err => {
+          console.log('🚀 GALLERY return$hosting.then ~ err:', err);
           throw new Error(err?.message || 'Uploading image failed.');
         });
     });
