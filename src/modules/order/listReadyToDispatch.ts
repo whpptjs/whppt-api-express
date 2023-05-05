@@ -2,6 +2,7 @@ import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 import { Secure } from '../staff/Secure';
 import { Order } from './Models/Order';
+import { sub } from 'date-fns';
 
 const listReadyToDispatch: HttpModule<
   { currentPage: string; size: string },
@@ -10,6 +11,10 @@ const listReadyToDispatch: HttpModule<
   exec({ $database }, { currentPage = '1', size = '10' }) {
     return $database.then(database => {
       const { db } = database as WhpptMongoDatabase;
+      const forteenDaysAgo = sub(new Date(), {
+        days: 14,
+      });
+
       return Promise.all([
         db
           .collection('orders')
@@ -20,6 +25,17 @@ const listReadyToDispatch: HttpModule<
                   checkoutStatus: 'paid',
                   'payment.status': 'paid',
                   'shipping.pickup': { $ne: true },
+                  legacyOrder: { $exists: false },
+                },
+              },
+              {
+                $match: {
+                  $or: [
+                    {
+                      '$payment.date': { $gte: forteenDaysAgo },
+                      dispatchedStatus: { $ne: 'dispatched' },
+                    },
+                  ],
                 },
               },
               {
@@ -62,9 +78,18 @@ const listReadyToDispatch: HttpModule<
                 $match: {
                   checkoutStatus: 'paid',
                   'payment.status': 'paid',
-                  'shipping.pickup': {
-                    $ne: true,
-                  },
+                  'shipping.pickup': { $ne: true },
+                  legacyOrder: { $exists: false },
+                },
+              },
+              {
+                $match: {
+                  $or: [
+                    {
+                      '$payment.date': { $gte: forteenDaysAgo },
+                      dispatchedStatus: { $ne: 'dispatched' },
+                    },
+                  ],
                 },
               },
               {
