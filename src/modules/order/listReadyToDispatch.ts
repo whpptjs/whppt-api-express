@@ -56,27 +56,30 @@ const listReadyToDispatch: HttpModule<
           .toArray(),
         db
           .collection('orders')
-          .aggregate<Order>([
-            {
-              $match: {
-                checkoutStatus: 'paid',
-                'payment.status': 'paid',
-                'shipping.pickup': {
-                  $ne: true,
-                },
-              },
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$payment.date',
+          .aggregate<Order>(
+            [
+              {
+                $match: {
+                  checkoutStatus: 'paid',
+                  'payment.status': 'paid',
+                  'shipping.pickup': {
+                    $ne: true,
                   },
                 },
               },
-            },
-          ])
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: '%Y-%m-%d',
+                      date: '$payment.date',
+                    },
+                  },
+                },
+              },
+            ],
+            { allowDiskUse: true }
+          )
           .toArray(),
       ]).then(([orders, total]) => {
         return { orders, total: total.length };
