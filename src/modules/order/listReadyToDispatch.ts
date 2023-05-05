@@ -13,43 +13,46 @@ const listReadyToDispatch: HttpModule<
       return Promise.all([
         db
           .collection('orders')
-          .aggregate<Order>([
-            {
-              $match: {
-                checkoutStatus: 'paid',
-                'payment.status': 'paid',
-                'shipping.pickup': { $ne: true },
+          .aggregate<Order>(
+            [
+              {
+                $match: {
+                  checkoutStatus: 'paid',
+                  'payment.status': 'paid',
+                  'shipping.pickup': { $ne: true },
+                },
               },
-            },
-            {
-              $group: {
-                _id: { $dateToString: { format: '%Y-%m-%d', date: '$payment.date' } },
-                orders: {
-                  $push: {
-                    _id: '$_id',
-                    date: '$payment.date',
-                    checkoutStatus: '$checkoutStatus',
-                    dispatchedStatus: '$dispatchedStatus',
-                    shipmentId: '$shipping.ausPost.shipmentId',
-                    payment: {
-                      amount: '$payment.amount',
+              {
+                $group: {
+                  _id: { $dateToString: { format: '%Y-%m-%d', date: '$payment.date' } },
+                  orders: {
+                    $push: {
+                      _id: '$_id',
+                      date: '$payment.date',
+                      checkoutStatus: '$checkoutStatus',
+                      dispatchedStatus: '$dispatchedStatus',
+                      shipmentId: '$shipping.ausPost.shipmentId',
+                      payment: {
+                        amount: '$payment.amount',
+                      },
                     },
                   },
                 },
               },
-            },
-            {
-              $sort: {
-                _id: -1,
+              {
+                $sort: {
+                  _id: -1,
+                },
               },
-            },
-            {
-              $skip: parseInt(size) * parseInt(currentPage),
-            },
-            {
-              $limit: parseInt(size),
-            },
-          ])
+              {
+                $skip: parseInt(size) * parseInt(currentPage),
+              },
+              {
+                $limit: parseInt(size),
+              },
+            ],
+            { allowDiskUse: true }
+          )
           .toArray(),
         db
           .collection('orders')
