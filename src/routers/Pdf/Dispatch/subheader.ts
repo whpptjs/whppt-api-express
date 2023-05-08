@@ -35,11 +35,11 @@ export const subheader = (shipping: any, contact: any) => {
             {
               text: `${
                 shipping.contact?.firstName
-                  ? capitalizeFirstLetter(shipping.contact.firstName)
+                  ? capitalizeFirstLetter(shipping?.contact?.firstName)
                   : ''
               } ${
                 shipping.contact?.lastName
-                  ? capitalizeFirstLetter(shipping.contact.lastName)
+                  ? capitalizeFirstLetter(shipping?.contact?.lastName)
                   : ''
               }`,
               style: 'shippingAddress',
@@ -72,7 +72,7 @@ export const subheader = (shipping: any, contact: any) => {
     },
   ];
 
-  if (!!shipping.contact.company) {
+  if (!!shipping.contact?.company) {
     shippingDetails.push({
       layout: 'noBorders',
       table: {
@@ -90,7 +90,7 @@ export const subheader = (shipping: any, contact: any) => {
           ],
           [
             {
-              text: `${shipping.contact.company}`,
+              text: `${shipping.contact?.company}`,
               style: 'shippingAddress',
               margin: [50, 0, 0, 10],
             },

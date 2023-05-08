@@ -84,24 +84,7 @@ export const footer = (payment: any) => {
 
   table.table.body.push([
     {
-      text: 'TAX (incl.)',
-      bold: true,
-      font: 'SweetSansPro',
-      alignment: 'left',
-      fontSize: 10,
-    },
-    {
-      text: `$${tax.toFixed(2)}`,
-      bold: false,
-      font: 'SweetSansPro',
-      alignment: 'right',
-      fontSize: 10,
-    },
-  ]);
-
-  table.table.body.push([
-    {
-      text: 'TOTAL',
+      text: `TOTAL - (including $${tax.toFixed(2)} Tax)`,
       bold: true,
       font: 'SweetSansPro',
       alignment: 'left',
