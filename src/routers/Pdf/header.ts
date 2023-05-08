@@ -45,7 +45,7 @@ const header = (orderId: string, updatedAt: string) => [
                         ],
                         [
                           {
-                            text: `Order ID: ${orderId}`,
+                            text: `Order #: ${orderId}`,
                             fontSize: 12,
                             font: 'Roxborough',
                             alignment: 'left',
