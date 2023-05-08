@@ -1,14 +1,13 @@
 const assert = require('assert');
 
 module.exports = {
-  exec(
-    { $mongo: { $unpublish, $db, $startTransaction, $record }, $publishing },
-    { _id, collection, user }
-  ) {
+  exec(context, { _id, collection, user }) {
     assert(_id, 'A Page Id must be provided.');
     assert(collection, 'Please provide a collection');
-
-    let unpublishedPage;
+    const {
+      $mongo: { $unpublish, $db, $startTransaction, $record },
+      $publishing,
+    } = context;
 
     return $startTransaction(async session => {
       await $db
@@ -16,7 +15,8 @@ module.exports = {
         .updateOne({ _id }, { $set: { published: false } }, { session });
       await $unpublish(collection, _id, { session });
       await $record(collection, 'unpublish', { data: _id, user }, { session });
-      unpublishedPage = $publishing.onUnPublish ? _id : undefined;
-    }).then(() => unpublishedPage);
+      if ($publishing.onUnPublish)
+        await $publishing.onUnPublish(context, { _id }, collection);
+    }).then(() => _id);
   },
 };

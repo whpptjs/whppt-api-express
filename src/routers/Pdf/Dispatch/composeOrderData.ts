@@ -4,7 +4,7 @@ export const sanitizeAddressString = (item?: string) => {
 
 export const composeOrderData = (orderWithProducts: any) => {
   return {
-    orderId: orderWithProducts._id,
+    orderId: orderWithProducts.orderNumber || orderWithProducts._id,
     updatedAt: orderWithProducts.updatedAt,
     shipping: {
       contact: orderWithProducts?.shipping?.contactDetails,
@@ -22,6 +22,6 @@ export const composeOrderData = (orderWithProducts: any) => {
     },
     items: orderWithProducts.items,
     note: orderWithProducts.note || '',
-    staffContactInfo: orderWithProducts.staffContactInfo || '',
+    staff: orderWithProducts.staff || '',
   };
 };

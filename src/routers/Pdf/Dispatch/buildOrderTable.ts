@@ -75,7 +75,7 @@ const buildOrderTable = (orders: OrderWithProductInfo[]) => {
       ...subheader(order.shipping),
       table,
       ...note(order.note),
-      ...staff(order.staffContactInfo),
+      ...staff(order.staff),
       { text: '', pageBreak: `${index >= len - 1 ? '' : 'after'}` },
     ]);
   });

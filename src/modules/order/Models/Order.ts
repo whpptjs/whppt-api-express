@@ -28,7 +28,11 @@ export type Order = {
   overrides?: {
     total: number;
   };
-  staffId?: string;
+  staff?: {
+    _id: string;
+    username: string;
+    marketArea: string;
+  };
 };
 
 export type ShippingCost = {

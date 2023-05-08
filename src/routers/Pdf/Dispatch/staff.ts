@@ -18,16 +18,14 @@ export const staff = (staffContactInfo: any) => {
               ],
               [
                 {
-                  text: `${staffContactInfo.firstName || ''} ${
-                    staffContactInfo.lastName || ''
-                  }`,
+                  text: `${staffContactInfo.username || staffContactInfo._id || ''}}`,
                   style: 'shippingAddress',
                   margin: [50, 0, 0, 0],
                 },
               ],
               [
                 {
-                  text: `${staffContactInfo.email || ''}`,
+                  text: `${staffContactInfo.marketArea || ''}`,
                   style: 'shippingAddress',
                   margin: [50, 0, 0, 10],
                 },

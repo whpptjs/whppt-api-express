@@ -2,7 +2,6 @@ import { queryMemberTier } from './../../modules/order/Queries/queryMemberTier';
 import { Router } from 'express';
 import { WhpptRequest } from 'src';
 import buildDispatchListPdf from './Dispatch/buildDispatchListPdf';
-import { Staff } from './../../modules/staff/Model';
 import { composeOrderData } from './Dispatch/composeOrderData';
 import { Contact } from './../../modules/contact/Models/Contact';
 import { Product } from './../../modules/product/Models/Product';
@@ -21,7 +20,7 @@ export type OrderWithProductInfo = {
   };
   items: any;
   note: any;
-  staffContactInfo: any;
+  staff: any;
 };
 
 const router = Router();
@@ -33,42 +32,43 @@ export const PdfRouter = (apiPrefix: string) => {
 
     return (req as WhpptRequest).moduleContext
       .then(context => {
-        Promise.all([
+        return Promise.all([
           ...orderIds.map((orderId: any) => {
             return loadOrderWithProducts(context, { _id: orderId }).then(
               orderWithProducts => {
-                if (orderWithProducts.staffId) {
-                  return context.$database.then(database => {
-                    const { document } = database;
+                return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
+                // if (staffId) {
+                //   return context.$database.then(database => {
+                //     const { document } = database;
 
-                    return document
-                      .query<Staff>('staff', {
-                        filter: { _id: orderWithProducts.staffId },
-                      })
-                      .then(staff => {
-                        if (staff) {
-                          return document
-                            .query<Contact>('contacts', {
-                              filter: { _id: staff.contactId },
-                            })
-                            .then(staffContactInfo => {
-                              return ordersWithProductInfo.push(
-                                composeOrderData({
-                                  ...orderWithProducts,
-                                  staffContactInfo,
-                                })
-                              );
-                            });
-                        } else {
-                          return ordersWithProductInfo.push(
-                            composeOrderData(orderWithProducts)
-                          );
-                        }
-                      });
-                  });
-                } else {
-                  return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
-                }
+                //     return document
+                //       .query<Staff>('staff', {
+                //         filter: { _id: staffId },
+                //       })
+                //       .then(staff => {
+                //         if (staff) {
+                //           return document
+                //             .query<Contact>('contacts', {
+                //               filter: { _id: staff.contactId },
+                //             })
+                //             .then(staffContactInfo => {
+                //               return ordersWithProductInfo.push(
+                //                 composeOrderData({
+                //                   ...orderWithProducts,
+                //                   staffContactInfo,
+                //                 })
+                //               );
+                //             });
+                //         } else {
+                //           return ordersWithProductInfo.push(
+                //             composeOrderData(orderWithProducts)
+                //           );
+                //         }
+                //       });
+                //   });
+                // } else {
+                //   return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
+                // }
               }
             );
           }),

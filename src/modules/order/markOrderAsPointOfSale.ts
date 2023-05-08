@@ -29,6 +29,7 @@ const markOrderAsPointOfSale: HttpModule<{ orderId: string; staffId: string }, O
               fromPos: true,
               staff: {
                 _id: staff && staff._id,
+                username: staff && staff.username,
                 marketArea: staff && staff.marketArea,
               },
             });
