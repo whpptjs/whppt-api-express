@@ -20,7 +20,7 @@ export const staff = (staffContactInfo: any) => {
                 {
                   text: `Username / Id: ${
                     staffContactInfo.username || staffContactInfo._id || ''
-                  }}`,
+                  }`,
                   style: 'shippingAddress',
                   margin: [50, 0, 0, 0],
                 },
