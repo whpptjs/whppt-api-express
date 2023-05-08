@@ -102,17 +102,17 @@ export const calculateTotal: CalculateTotalArgs = (
               )
             : 0;
 
-        const memberShippingDiscount =
-          memberTier?.discounts && !overrideTotalPrice
-            ? calculateMemberShippingSavings(
-                memberTier,
-                shippingCost,
-                itemsCostInCents,
-                memberTotalDiscount,
-                amountOfProducts,
-                amountSpentForYear - discountAppliedForYear
-              )
-            : 0;
+        // memberTier?.discounts && !overrideTotalPrice
+        const memberShippingDiscount = memberTier?.discounts
+          ? calculateMemberShippingSavings(
+              memberTier,
+              shippingCost,
+              itemsCostInCents,
+              memberTotalDiscount,
+              amountOfProducts,
+              amountSpentForYear - discountAppliedForYear
+            )
+          : 0;
 
         const itemsWithDiscount =
           itemsDiscountedCostInCents > 0
