@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from '../capitalize';
 
-export const subheader = (shipping: any) => {
+export const subheader = (shipping: any, contact: any) => {
   const shippingDetails = [
     {
       layout: 'noBorders',
@@ -15,6 +15,20 @@ export const subheader = (shipping: any) => {
               font: 'SweetSansPro',
               style: 'shippingAddress',
               margin: [50, 30, 0, 0],
+            },
+          ],
+          [
+            {
+              text: `${contact?.email} `,
+              style: 'shippingAddress',
+              margin: [50, 0, 0, 0],
+            },
+          ],
+          [
+            {
+              text: `${contact?.phoneNumber} `,
+              style: 'shippingAddress',
+              margin: [50, 0, 0, 0],
             },
           ],
           [

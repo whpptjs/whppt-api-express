@@ -36,7 +36,19 @@ export const PdfRouter = (apiPrefix: string) => {
           ...orderIds.map((orderId: any) => {
             return loadOrderWithProducts(context, { _id: orderId }).then(
               orderWithProducts => {
-                return ordersWithProductInfo.push(composeOrderData(orderWithProducts));
+                return context.$database.then(database => {
+                  const { document } = database;
+
+                  return document
+                    .query<Contact>('contacts', {
+                      filter: { _id: orderWithProducts.contact?._id || 'unknown_guest' },
+                    })
+                    .then(contact => {
+                      return ordersWithProductInfo.push(
+                        composeOrderData(orderWithProducts, contact)
+                      );
+                    });
+                });
                 // if (staffId) {
                 //   return context.$database.then(database => {
                 //     const { document } = database;

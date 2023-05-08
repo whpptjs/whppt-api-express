@@ -72,7 +72,7 @@ const buildOrderTable = (orders: OrderWithProductInfo[]) => {
 
     tables.push([
       ...header(order.orderId, order.updatedAt),
-      ...subheader(order.shipping),
+      ...subheader(order.shipping, order.contact),
       table,
       ...note(order.note),
       ...staff(order.staff),

@@ -2,10 +2,14 @@ export const sanitizeAddressString = (item?: string) => {
   return item ? `${item}, ` : '';
 };
 
-export const composeOrderData = (orderWithProducts: any) => {
+export const composeOrderData = (orderWithProducts: any, contact?: any) => {
   return {
     orderId: orderWithProducts.orderNumber || orderWithProducts._id,
     updatedAt: orderWithProducts.updatedAt,
+    contact: {
+      email: orderWithProducts.contact.email || contact.email,
+      phoneNumber: contact.mobile || contact.phoneNumber,
+    },
     shipping: {
       contact: orderWithProducts?.shipping?.contactDetails,
       street: `${
