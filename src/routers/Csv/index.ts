@@ -119,7 +119,7 @@ export const CsvRouter = (apiPrefix: string) => {
                     item.quantity * (item.unitPriceWithDiscount / 100),
                     order.fromPos ? 'POS' : 'Web',
                     order.isDiner ? 'Yes' : 'No',
-                    order._id,
+                    order.orderNumber || order._id,
                     order.dispatchedStatus === 'dispatched' ? 'Yes' : 'No',
                   ]);
                 });

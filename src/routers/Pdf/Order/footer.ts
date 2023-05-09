@@ -2,10 +2,11 @@ export const footer = (payment: any) => {
   const memberShippingDiscount = payment.memberShippingDiscount / 100 || 0;
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
-  const shippingCostWithDiscount = shipping - memberShippingDiscount;
+  const shippingCostWithDiscount =
+    shipping - memberShippingDiscount > 0 ? shipping - memberShippingDiscount : 0;
   const subtotal = payment.subTotal / 100;
   const subTotalAfterShippingAndDiscounts =
-    subtotal + shipping - memberShippingDiscount - memberTotalDiscount;
+    subtotal + shippingCostWithDiscount - memberTotalDiscount;
   const tax = subTotalAfterShippingAndDiscounts / 11;
   const total = subTotalAfterShippingAndDiscounts;
 
