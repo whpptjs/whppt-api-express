@@ -131,7 +131,7 @@ export const CsvRouter = (apiPrefix: string) => {
         });
       })
       .catch(err => {
-        console.log('🚀  err:', err);
+        console.log('🚀  err csv:', err);
         return res.status(500).send(err);
       });
   });
