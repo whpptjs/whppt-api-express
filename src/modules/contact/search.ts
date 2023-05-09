@@ -8,10 +8,20 @@ const search: HttpModule<{ searchBy: string }, Contact[]> = {
     if (!searchBy) return Promise.resolve([] as Contact[]);
 
     const query = [
-      { firstName: { $regex: searchBy, $options: 'i' } },
-      { lastName: { $regex: searchBy, $options: 'i' } },
-      { email: { $regex: searchBy, $options: 'i' } },
-      { _id: searchBy },
+      {
+        $or: [
+          { firstName: { $regex: searchBy, $options: 'i' } },
+          { lastName: { $regex: searchBy, $options: 'i' } },
+          {
+            $and: [
+              { firstName: { $regex: searchBy.split(' ')[0], $options: 'i' } },
+              { lastName: { $regex: searchBy.split(' ')[1] || '', $options: 'i' } },
+            ],
+          },
+          { email: { $regex: searchBy, $options: 'i' } },
+          { _id: searchBy },
+        ],
+      },
     ];
 
     return $database.then(database => {
