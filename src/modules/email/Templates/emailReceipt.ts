@@ -34,11 +34,28 @@ function getSubtotal(order: any) {
     : 0;
 }
 
-function getMemberDiscount(memberTotalDiscount: number) {
+function getItemDiscounts(_discount: number) {
+  return /* HTML */ `
+    <tr>
+      <th style=${getRowStyle()} scope="row" colspan="2">Item/s Discount</th>
+      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
+    </tr>
+  `;
+}
+
+function getDiscountApplied(_discount: number) {
+  return /* HTML */ `
+    <tr>
+      <th style=${getRowStyle()} scope="row" colspan="2">Order discount</th>
+      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
+    </tr>
+  `;
+}
+function getMemberDiscount(_discount: number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="2">Member discount</th>
-      <td style=${getRowStyle()}>- $${memberTotalDiscount.toFixed(2)}</td>
+      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
     </tr>
   `;
 }
@@ -67,11 +84,28 @@ export function getOrderTemplate(order: any) {
   const memberShippingDiscount =
     Number(order?.payment?.memberShippingDiscount) / 100 || 0;
   const memberTotalDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
+  const discountApplied = Number(order?.payment?.discountApplied) / 100 || 0;
+  const totalDiscounted = order?.overrides?.total;
   const shipping = Number(order?.payment?.shippingCost?.price) / 100;
   const subtotal = getSubtotal(order);
   const subTotalAfterShippingAndDiscounts =
     subtotal + shipping - Number(memberShippingDiscount) - Number(memberTotalDiscount);
   const tax = subTotalAfterShippingAndDiscounts / 11;
+
+  const itemsDiscountedCostInCents =
+    order && order.items.length
+      ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
+          const price = Number(
+            item.overidedPrice || item.overidedPrice === 0
+              ? item.overidedPrice
+              : undefined
+          );
+          if (!price) return acc;
+          return acc + price * Number(item.quantity);
+        }, 0)
+      : 0;
+
+  const itemsDiscountedCost = itemsDiscountedCostInCents / 100;
 
   const template = /* HTML */ `
     <table
@@ -129,10 +163,14 @@ export function getOrderTemplate(order: any) {
               ${getOrderItems(order)}
             </tbody>
             <tfoot>
+              ${itemsDiscountedCost ? getItemDiscounts(itemsDiscountedCost) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
+              ${totalDiscounted && discountApplied
+                ? getDiscountApplied(discountApplied)
+                : ''}
               ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>

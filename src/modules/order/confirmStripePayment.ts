@@ -73,15 +73,31 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
               }).then(() => {
                 const email = orderWithProducts?.contact?.email;
                 if (!email) return Promise.resolve();
-                return context.$email.send({
-                  to: email,
-                  subject: `Hentley Farm receipt${
-                    loadedOrder.orderNumber || loadedOrder._id
-                      ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
-                      : ''
-                  }`,
-                  html: getOrderTemplate(loadedOrder),
-                });
+                return context.$email
+                  .send({
+                    to: email,
+                    subject: `Hentley Farm receipt${
+                      loadedOrder.orderNumber || loadedOrder._id
+                        ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
+                        : ''
+                    }`,
+                    html: getOrderTemplate({
+                      ...loadedOrder,
+                      items: loadedOrder.items.map(lo => {
+                        const orderItem = orderWithProducts.items.find(
+                          i => i._id === lo._id
+                        ) as OrderItemWithProduct;
+                        return {
+                          ...lo,
+                          product: orderItem.product || {},
+                        };
+                      }),
+                    }),
+                  })
+                  .catch((err: unknown) => {
+                    console.log('🚀 Sending Stripe payemnt route Email err:', err);
+                    return;
+                  });
               });
             }
           );
