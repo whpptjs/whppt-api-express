@@ -122,9 +122,7 @@ export const calculateTotal: CalculateTotalArgs = (
             : Number(itemsCostInCents) - memberTotalDiscount;
 
         const postageWithDiscount =
-          itemsDiscountedCostInCents > 0
-            ? Number(postageCostInCents)
-            : Number(postageCostInCents) - memberShippingDiscount < 0
+          Number(postageCostInCents) - memberShippingDiscount < 0
             ? 0
             : Number(postageCostInCents) - memberShippingDiscount;
 

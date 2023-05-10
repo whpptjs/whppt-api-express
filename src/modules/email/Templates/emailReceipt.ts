@@ -100,7 +100,9 @@ export function getOrderTemplate(order: any) {
               : undefined
           );
           if (!price) return acc;
-          return acc + price * Number(item.quantity);
+          return (
+            acc + ((Number(item.product?.price) || 0) - price) * Number(item.quantity)
+          );
         }, 0)
       : 0;
 
@@ -183,11 +185,9 @@ export function getOrderTemplate(order: any) {
               </tr>
               ${memberShippingDiscount ? getShippingDiscount(memberShippingDiscount) : ''}
               <tr>
-                <th style=${getRowStyle()} scope="row" colspan="2">Tax (incl.)</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${tax.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <th scope="row" colspan="2" style=${getRowStyle()}>Total</th>
+                <th scope="row" colspan="2" style=${getRowStyle()}>
+                  Total - (Tax incl. $${tax.toFixed(2)})
+                </th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${total.toFixed(2)}</td>
               </tr>
             </tfoot>
