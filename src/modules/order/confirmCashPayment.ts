@@ -100,18 +100,16 @@ const confirmCashPayment: HttpModule<
                       session,
                     });
                   }).then(() => {
-                    const email = orderWithProducts?.contact?.email;
+                    const email = loadedOrder?.contact?.email;
                     if (!email) return Promise.resolve();
                     return context.$email.send({
                       to: email,
                       subject: `Hentley Farm receipt${
-                        orderWithProducts.orderNumber || orderWithProducts._id
-                          ? ` for order #${
-                              orderWithProducts.orderNumber || orderWithProducts._id
-                            }`
+                        loadedOrder.orderNumber || loadedOrder._id
+                          ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
                           : ''
                       }`,
-                      html: getOrderTemplate(orderWithProducts),
+                      html: getOrderTemplate(loadedOrder),
                     });
                   });
                 }

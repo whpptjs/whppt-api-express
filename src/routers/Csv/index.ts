@@ -120,7 +120,7 @@ export const CsvRouter = (apiPrefix: string) => {
                     order.fromPos ? 'POS' : 'Web',
                     order.isDiner ? 'Yes' : 'No',
                     order.orderNumber || order._id,
-                    order.dispatchedStatus === 'dispatched' ? 'Yes' : 'No',
+                    order.shipping?.pickup ? 'No' : 'Yes',
                   ]);
                 });
               });

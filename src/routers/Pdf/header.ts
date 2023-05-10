@@ -45,6 +45,15 @@ const header = (orderId: string, updatedAt: string) => [
                         ],
                         [
                           {
+                            text: `Tax Invoice`,
+                            fontSize: 12,
+                            font: 'Roxborough',
+                            verticalAlignment: 'middle',
+                            alignment: 'left',
+                          },
+                        ],
+                        [
+                          {
                             text: `Order #: ${orderId}`,
                             fontSize: 12,
                             font: 'Roxborough',

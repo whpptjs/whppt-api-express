@@ -168,8 +168,8 @@ export const footer = /* HTML */ `
                     Copyright © 2023 Hentley Farm Wines, All rights reserved. <br />
                     <br />
                     <br />
-                    This email was sent by: <b>Hentley Farm</b><br />35 Edward St Norwood,
-                    SA, 5067, AU
+                    This email was sent by: <b>Hentley Farm</b><br />Gerald Roberts Rd,
+                    Jenke Rd, Seppeltsfield SA 5355
                   </td>
                 </tr>
               </table>

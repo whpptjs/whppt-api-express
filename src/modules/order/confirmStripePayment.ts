@@ -76,13 +76,11 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                 return context.$email.send({
                   to: email,
                   subject: `Hentley Farm receipt${
-                    orderWithProducts.orderNumber || orderWithProducts._id
-                      ? ` for order #${
-                          orderWithProducts.orderNumber || orderWithProducts._id
-                        }`
+                    loadedOrder.orderNumber || loadedOrder._id
+                      ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
                       : ''
                   }`,
-                  html: getOrderTemplate(orderWithProducts),
+                  html: getOrderTemplate(loadedOrder),
                 });
               });
             }
