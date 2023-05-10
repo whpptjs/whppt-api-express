@@ -84,7 +84,7 @@ export function getOrderTemplate(order: any) {
   const memberShippingDiscount =
     Number(order?.payment?.memberShippingDiscount) / 100 || 0;
   const memberTotalDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
-  const totalDiscounted = order?.overrides?.total;
+  const totalDiscounted = order?.overrides?.total / 100 || 0;
   const shipping = Number(order?.payment?.shippingCost?.price) / 100;
   const subtotal = getSubtotal(order);
   const subTotalAfterShippingAndDiscounts =
@@ -105,6 +105,10 @@ export function getOrderTemplate(order: any) {
       : 0;
 
   const itemsDiscountedCost = itemsDiscountedCostInCents / 100;
+
+  const total = totalDiscounted
+    ? totalDiscounted
+    : subtotal + shipping - memberTotalDiscount - memberShippingDiscount;
 
   const template = /* HTML */ `
     <table
@@ -167,7 +171,7 @@ export function getOrderTemplate(order: any) {
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
-              ${totalDiscounted ? getDiscountApplied(totalDiscounted) : ''}
+              ${totalDiscounted ? getDiscountApplied(subtotal - totalDiscounted) : ''}
               ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
@@ -184,14 +188,7 @@ export function getOrderTemplate(order: any) {
               </tr>
               <tr>
                 <th scope="row" colspan="2" style=${getRowStyle()}>Total</th>
-                <td style=${getRowStyle()}>
-                  &nbsp;&nbsp;$${(
-                    subtotal +
-                    shipping -
-                    totalDiscounted -
-                    memberShippingDiscount
-                  ).toFixed(2)}
-                </td>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${total.toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>

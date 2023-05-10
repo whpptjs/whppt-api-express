@@ -94,9 +94,10 @@ const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string 
                       }),
                     }),
                   })
-                  .catch((err: unknown) => {
-                    console.log('🚀 Sending Stripe payemnt route Email err:', err);
-                    return;
+                  .catch(() => {
+                    throw new Error(
+                      'Confirmation email sending failed. Order was processed and paid for.'
+                    );
                   });
               });
             }

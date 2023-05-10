@@ -123,9 +123,10 @@ const confirmCashPayment: HttpModule<
                           }),
                         }),
                       })
-                      .catch((err: unknown) => {
-                        console.log('🚀 Sending Email err:', err);
-                        return;
+                      .catch(() => {
+                        throw new Error(
+                          'Confirmation email sending failed. Order was processed and paid for.'
+                        );
                       });
                   });
                 }
