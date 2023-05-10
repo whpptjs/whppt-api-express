@@ -89,7 +89,7 @@ export const calculateTotal: CalculateTotalArgs = (
             : undefined;
 
         const memberTotalDiscount =
-          memberTier?.discounts && !overrideTotalPrice
+          memberTier?.discounts && !overrideTotalPrice && !itemsDiscountedCostInCents
             ? calculateMembersTotalSavings(
                 [memberTier, ...(memberTier.nextTiers || [])],
                 itemsCostInCents,

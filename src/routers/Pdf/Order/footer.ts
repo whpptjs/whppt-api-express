@@ -1,4 +1,5 @@
-export const footer = (payment: any) => {
+export const footer = (payment: any, order: any) => {
+  const pickup = order?.shipping?.pickup || false;
   const memberShippingDiscount = payment.memberShippingDiscount / 100 || 0;
   const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
   const shipping = payment.shippingCost?.price / 100;
@@ -72,7 +73,9 @@ export const footer = (payment: any) => {
     },
     {
       text: `${
-        shippingCostWithDiscount > 0
+        pickup
+          ? 'Pickup'
+          : shippingCostWithDiscount > 0
           ? `$${shippingCostWithDiscount.toFixed(2)}`
           : 'Complimentary'
       }`,

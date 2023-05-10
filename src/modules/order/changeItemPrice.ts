@@ -14,10 +14,7 @@ const changeItemPrice: HttpModule<
     const { $database, createEvent } = context;
     assert(orderId, 'Order Id is required.');
     assert(orderItemId, 'Order Item Id is required.');
-    console.log(
-      '🚀 ~ file: changeItemPrice.ts:20 ~ exec ~ overidedPrice:',
-      overidedPrice
-    );
+
     assert(overidedPrice || overidedPrice === 0, 'Product Override price is required.');
     const overidedPriceAsNumber = Number(overidedPrice);
     assert(overidedPriceAsNumber >= 0, 'Product Price must be 0 or higher.');
