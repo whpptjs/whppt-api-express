@@ -84,7 +84,6 @@ export function getOrderTemplate(order: any) {
   const memberShippingDiscount =
     Number(order?.payment?.memberShippingDiscount) / 100 || 0;
   const memberTotalDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
-  const discountApplied = Number(order?.payment?.discountApplied) / 100 || 0;
   const totalDiscounted = order?.overrides?.total;
   const shipping = Number(order?.payment?.shippingCost?.price) / 100;
   const subtotal = getSubtotal(order);
@@ -168,9 +167,7 @@ export function getOrderTemplate(order: any) {
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
-              ${totalDiscounted && discountApplied
-                ? getDiscountApplied(discountApplied)
-                : ''}
+              ${totalDiscounted ? getDiscountApplied(totalDiscounted) : ''}
               ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
@@ -191,7 +188,7 @@ export function getOrderTemplate(order: any) {
                   &nbsp;&nbsp;$${(
                     subtotal +
                     shipping -
-                    memberTotalDiscount -
+                    totalDiscounted -
                     memberShippingDiscount
                   ).toFixed(2)}
                 </td>
