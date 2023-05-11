@@ -30,6 +30,9 @@ export type MembershipTier = {
   };
   nextTiers?: MembershipTier[];
   amountSpentForYear?: number;
+  discountAppliedForYear?: number;
+  amountToSpendToNextTier?: number;
+  amountSpentWithDiscount?: number;
   lockToTier?: string;
 };
 

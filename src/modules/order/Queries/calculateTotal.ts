@@ -3,7 +3,7 @@ import { Order, OrderItem, OrderItemWithProduct, ShippingCost } from '../Models/
 import { getShippingCost } from './getShippingCost';
 import { loadOrderWithProducts } from './loadOrderWithProducts';
 import { queryMemberTier } from './queryMemberTier';
-import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
+// import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
 import { calculateMembersTotalSavings } from './helpers/membersTotalSavings';
 import { calculateMemberShippingSavings } from './helpers/membersShippingSavings';
 
@@ -42,129 +42,128 @@ export const calculateTotal: CalculateTotalArgs = (
           : ({} as ShippingCost),
       }),
       queryMemberTier(ctx, { domainId, memberId, orderId }),
-      queryMemberAmountSpentForYear(ctx, { memberId }),
-    ]).then(
-      ([shippingCost, memberTier, { discountAppliedForYear, amountSpentForYear }]) => {
-        const itemsCostInCents =
-          order && order.items.length
-            ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
-                const price = Number(
-                  item.overidedPrice || item.overidedPrice === 0
-                    ? item.overidedPrice
-                    : item.product?.price
-                );
-                return acc + price * Number(item.quantity);
-              }, 0)
-            : 0;
-        const itemsDiscountedCostInCents =
-          order && order.items.length
-            ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
-                const price = Number(
-                  item.overidedPrice || item.overidedPrice === 0
-                    ? item.overidedPrice
-                    : undefined
-                );
-                if (!price) return acc;
-                return acc + price * Number(item.quantity);
-              }, 0)
-            : 0;
-        const itemsOriginalCostInCents =
-          order && order.items.length
-            ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
-                const price = Number(item.product?.price);
-                return acc + price * Number(item.quantity);
-              }, 0)
-            : 0;
+      // queryMemberAmountSpentForYear(ctx, { memberId }),
+    ]).then(([shippingCost, memberTier]) => {
+      // ]).then(([shippingCost, memberTier, { currentYear }]) => {
+      const itemsCostInCents =
+        order && order.items.length
+          ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
+              const price = Number(
+                item.overidedPrice || item.overidedPrice === 0
+                  ? item.overidedPrice
+                  : item.product?.price
+              );
+              return acc + price * Number(item.quantity);
+            }, 0)
+          : 0;
+      const itemsDiscountedCostInCents =
+        order && order.items.length
+          ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
+              const price = Number(
+                item.overidedPrice || item.overidedPrice === 0
+                  ? item.overidedPrice
+                  : undefined
+              );
+              if (!price) return acc;
+              return acc + price * Number(item.quantity);
+            }, 0)
+          : 0;
+      const itemsOriginalCostInCents =
+        order && order.items.length
+          ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
+              const price = Number(item.product?.price);
+              return acc + price * Number(item.quantity);
+            }, 0)
+          : 0;
 
-        const postageCostInCents =
-          order?.shipping?.shippingCost?.price || shippingCost?.price || 0;
+      const postageCostInCents =
+        order?.shipping?.shippingCost?.price || shippingCost?.price || 0;
 
-        if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
+      if (!shippingCost.allowCheckout) throw new Error(shippingCost.message);
 
-        const amountOfProducts = calcAmountOfProducts(order);
+      const amountOfProducts = calcAmountOfProducts(order);
 
-        const overrideTotalPrice =
-          order?.overrides?.total || order?.overrides?.total === 0
-            ? Number(order?.overrides?.total)
-            : undefined;
+      const overrideTotalPrice =
+        order?.overrides?.total || order?.overrides?.total === 0
+          ? Number(order?.overrides?.total)
+          : undefined;
 
-        const memberTotalDiscount =
-          memberTier?.discounts && !overrideTotalPrice && !itemsDiscountedCostInCents
-            ? calculateMembersTotalSavings(
-                [memberTier, ...(memberTier.nextTiers || [])],
-                itemsCostInCents,
-                amountSpentForYear - discountAppliedForYear,
-                amountOfProducts,
-                memberTier.lockToTier || ''
-              ).reduce(
-                (acc: number, discount: any) => acc + discount.discountApplied || 0,
-                0
-              )
-            : 0;
-
-        // memberTier?.discounts && !overrideTotalPrice
-        const memberShippingDiscount = memberTier?.discounts
-          ? calculateMemberShippingSavings(
-              memberTier,
-              shippingCost,
+      const memberTotalDiscount =
+        memberTier?.discounts && !overrideTotalPrice && !itemsDiscountedCostInCents
+          ? calculateMembersTotalSavings(
+              [memberTier, ...(memberTier.nextTiers || [])],
               itemsCostInCents,
-              memberTotalDiscount,
+              memberTier.amountSpentWithDiscount || 0,
               amountOfProducts,
-              amountSpentForYear - discountAppliedForYear
+              memberTier.lockToTier || ''
+            ).reduce(
+              (acc: number, discount: any) => acc + discount.discountApplied || 0,
+              0
             )
           : 0;
 
-        const itemsWithDiscount =
-          itemsDiscountedCostInCents > 0
-            ? Number(itemsCostInCents)
-            : Number(itemsCostInCents) - memberTotalDiscount < 0
-            ? 0
-            : Number(itemsCostInCents) - memberTotalDiscount;
+      // memberTier?.discounts && !overrideTotalPrice
+      const memberShippingDiscount = memberTier?.discounts
+        ? calculateMemberShippingSavings(
+            memberTier,
+            shippingCost,
+            itemsCostInCents,
+            memberTotalDiscount,
+            amountOfProducts,
+            memberTier.amountSpentWithDiscount || 0
+          )
+        : 0;
 
-        const postageWithDiscount =
-          Number(postageCostInCents) - memberShippingDiscount < 0
-            ? 0
-            : Number(postageCostInCents) - memberShippingDiscount;
+      const itemsWithDiscount =
+        itemsDiscountedCostInCents > 0
+          ? Number(itemsCostInCents)
+          : Number(itemsCostInCents) - memberTotalDiscount < 0
+          ? 0
+          : Number(itemsCostInCents) - memberTotalDiscount;
 
-        const total =
-          overrideTotalPrice || overrideTotalPrice == 0
-            ? overrideTotalPrice
-            : itemsWithDiscount + postageWithDiscount;
+      const postageWithDiscount =
+        Number(postageCostInCents) - memberShippingDiscount < 0
+          ? 0
+          : Number(postageCostInCents) - memberShippingDiscount;
 
-        const subTotal =
-          overrideTotalPrice || overrideTotalPrice == 0
-            ? overrideTotalPrice
-            : itemsCostInCents;
-        const originalTotal = itemsWithDiscount + postageWithDiscount;
+      const total =
+        overrideTotalPrice || overrideTotalPrice == 0
+          ? overrideTotalPrice
+          : itemsWithDiscount + postageWithDiscount;
 
-        const totalOverrideOfOriginalTotal = overrideTotalPrice
-          ? originalTotal - overrideTotalPrice
-          : undefined;
+      const subTotal =
+        overrideTotalPrice || overrideTotalPrice == 0
+          ? overrideTotalPrice
+          : itemsCostInCents;
+      const originalTotal = itemsWithDiscount + postageWithDiscount;
 
-        const itemOverridesDiscount = itemsDiscountedCostInCents
-          ? itemsOriginalCostInCents - itemsDiscountedCostInCents
-          : undefined;
+      const totalOverrideOfOriginalTotal = overrideTotalPrice
+        ? originalTotal - overrideTotalPrice
+        : undefined;
 
-        const discountApplied = Number(
-          (totalOverrideOfOriginalTotal &&
-            totalOverrideOfOriginalTotal + (itemOverridesDiscount || 0)) ||
-            itemOverridesDiscount ||
-            memberTotalDiscount
-        );
+      const itemOverridesDiscount = itemsDiscountedCostInCents
+        ? itemsOriginalCostInCents - itemsDiscountedCostInCents
+        : undefined;
 
-        return {
-          total,
-          subTotal,
-          originalSubTotal: itemsCostInCents,
-          shippingCost: order?.shipping?.shippingCost || shippingCost,
-          memberTotalDiscount,
-          memberShippingDiscount,
-          originalTotal,
-          overrideTotalPrice,
-          discountApplied,
-        };
-      }
-    );
+      const discountApplied = Number(
+        (totalOverrideOfOriginalTotal &&
+          totalOverrideOfOriginalTotal + (itemOverridesDiscount || 0)) ||
+          itemOverridesDiscount ||
+          memberTotalDiscount
+      );
+
+      return {
+        total,
+        subTotal,
+        originalSubTotal: itemsCostInCents,
+        shippingCost: order?.shipping?.shippingCost || shippingCost,
+        memberTotalDiscount,
+        memberShippingDiscount,
+        originalTotal,
+        overrideTotalPrice,
+        discountApplied,
+      };
+    });
   });
 };
 
