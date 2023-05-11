@@ -1,15 +1,15 @@
-export const footer = (payment: any, order: any) => {
-  const pickup = order?.shipping?.pickup || false;
-  const memberShippingDiscount = payment.memberShippingDiscount / 100 || 0;
-  const memberTotalDiscount = payment.memberTotalDiscount / 100 || 0;
-  const shipping = payment.shippingCost?.price / 100;
-  const shippingCostWithDiscount =
-    shipping - memberShippingDiscount > 0 ? shipping - memberShippingDiscount : 0;
-  const subtotal = payment.subTotal / 100;
-  const subTotalAfterShippingAndDiscounts =
-    subtotal + shippingCostWithDiscount - memberTotalDiscount;
-  const tax = subTotalAfterShippingAndDiscounts / 11;
-  const total = subTotalAfterShippingAndDiscounts;
+import { buildOrderForDisplay } from 'src/modules/email/helpers/buildOrderForDisplay';
+
+export const footer = (order: any) => {
+  const {
+    total,
+    subtotal,
+    itemsDiscountedAmount,
+    totalDiscountedFromTotal,
+    membersDiscount,
+    tax,
+    shipping,
+  } = buildOrderForDisplay(order);
 
   const table = {
     layout: {
@@ -22,29 +22,46 @@ export const footer = (payment: any, order: any) => {
     },
     table: {
       widths: ['*', '*'],
-      body: [
-        [
-          {
-            text: 'SUBTOTAL',
-            bold: true,
-            font: 'SweetSansPro',
-            fontSize: 10,
-            alignment: 'left',
-          },
-          {
-            text: `$${subtotal.toFixed(2)}`,
-            bold: false,
-            font: 'SweetSansPro',
-            alignment: 'right',
-            fontSize: 10,
-          },
-        ],
-      ],
+      body: [],
     },
     margin: [50, 5, 50, 5],
-  };
+  } as any;
 
-  if (memberTotalDiscount) {
+  if (membersDiscount) {
+    table.table.body.push([
+      {
+        text: "ITEM'S DISCOUNTED",
+        bold: true,
+        font: 'SweetSansPro',
+        alignment: 'left',
+        fontSize: 10,
+      },
+      {
+        text: `(-$${itemsDiscountedAmount})`,
+        bold: false,
+        font: 'SweetSansPro',
+        alignment: 'right',
+        fontSize: 10,
+      },
+    ]);
+  }
+  table.table.body.push([
+    {
+      text: 'SUBTOTAL',
+      bold: true,
+      font: 'SweetSansPro',
+      fontSize: 10,
+      alignment: 'left',
+    },
+    {
+      text: `$${subtotal.toFixed(2)}`,
+      bold: false,
+      font: 'SweetSansPro',
+      alignment: 'right',
+      fontSize: 10,
+    },
+  ]);
+  if (membersDiscount) {
     table.table.body.push([
       {
         text: 'MEMBER DISCOUNT',
@@ -54,7 +71,25 @@ export const footer = (payment: any, order: any) => {
         fontSize: 10,
       },
       {
-        text: `(-$${memberTotalDiscount.toFixed(2)})`,
+        text: `(-$${membersDiscount})`,
+        bold: false,
+        font: 'SweetSansPro',
+        alignment: 'right',
+        fontSize: 10,
+      },
+    ]);
+  }
+  if (totalDiscountedFromTotal) {
+    table.table.body.push([
+      {
+        text: 'ORDER DISCOUNT',
+        bold: true,
+        font: 'SweetSansPro',
+        alignment: 'left',
+        fontSize: 10,
+      },
+      {
+        text: `(-$${totalDiscountedFromTotal})`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
@@ -72,13 +107,7 @@ export const footer = (payment: any, order: any) => {
       fontSize: 10,
     },
     {
-      text: `${
-        pickup
-          ? 'Pickup'
-          : shippingCostWithDiscount > 0
-          ? `$${shippingCostWithDiscount.toFixed(2)}`
-          : 'Complimentary'
-      }`,
+      text: `${shipping}`,
       bold: false,
       font: 'SweetSansPro',
       alignment: 'right',
@@ -88,14 +117,14 @@ export const footer = (payment: any, order: any) => {
 
   table.table.body.push([
     {
-      text: `TOTAL - (including $${tax.toFixed(2)} Tax)`,
+      text: `TOTAL - (including $${tax} Tax)`,
       bold: true,
       font: 'SweetSansPro',
       alignment: 'left',
       fontSize: 12,
     },
     {
-      text: `$${total.toFixed(2)}`,
+      text: `$${total}`,
       bold: false,
       font: 'SweetSansPro',
       alignment: 'right',

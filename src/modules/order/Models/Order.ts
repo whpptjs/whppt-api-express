@@ -96,6 +96,7 @@ export type Payment = {
   discountApplied?: number;
   overrideTotalPrice?: number;
   originalSubTotal?: number;
+  shippingCost?: ShippingCost;
 };
 
 export type AusPostShipping = {

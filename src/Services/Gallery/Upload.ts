@@ -21,10 +21,7 @@ export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) 
       assert(type, 'File type is required');
 
       const { buffer, mimetype, originalname } = file;
-      console.log('🚀 GALLERY ~ fileType from BUFFER STARTING');
       return fileType.fromBuffer(buffer).then(fileType => {
-        console.log('🚀 GALLERY ~ fileType from BUFFER FINISHED');
-
         const newGalleryItem: GalleryItem = {
           _id: $id.newId(),
           domainId,

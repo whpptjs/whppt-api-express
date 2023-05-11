@@ -1,5 +1,5 @@
-import { OrderItemWithProduct } from 'src/modules/order/Models/Order';
 import { layout } from './layout';
+import { buildOrderForDisplay } from '../helpers/buildOrderForDisplay';
 
 function getOrderItems(order: any) {
   if (order.items?.length) {
@@ -22,56 +22,28 @@ function getOrderItems(order: any) {
   }
 }
 
-function getSubtotal(order: any) {
-  return order && order.items.length
-    ? order.items.reduce(
-        (acc: number, item: OrderItemWithProduct) =>
-          acc +
-          (Number(item?.purchasedPrice || item.product?.price || 0) / 100) *
-            Number(item.quantity),
-        0
-      )
-    : 0;
-}
-
-function getItemDiscounts(_discount: number) {
+function getItemDiscounts(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="2">Item/s Discount</th>
-      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
+      <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
 
-function getDiscountApplied(_discount: number) {
+function getDiscountApplied(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="2">Order discount</th>
-      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
+      <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
-function getMemberDiscount(_discount: number) {
+function getMemberDiscount(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="2">Member discount</th>
-      <td style=${getRowStyle()}>- $${_discount.toFixed(2)}</td>
-    </tr>
-  `;
-}
-
-function getShippingDiscount(memberShippingDiscount: number) {
-  return /* HTML */ `
-    <tr>
-      <th style=${getRowStyle()} scope="row" colspan="2">Shipping discount</th>
-      <td style=${getRowStyle()}>
-        -
-        $${memberShippingDiscount > 0
-          ? memberShippingDiscount?.toFixed(2)
-          : memberShippingDiscount == 0
-          ? 'Complimentary'
-          : '-'}
-      </td>
+      <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
@@ -81,36 +53,15 @@ function getRowStyle() {
 }
 
 export function getOrderTemplate(order: any) {
-  const memberShippingDiscount =
-    Number(order?.payment?.memberShippingDiscount) / 100 || 0;
-  const memberTotalDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
-  const totalDiscounted = order?.overrides?.total / 100 || 0;
-  const shipping = Number(order?.payment?.shippingCost?.price) / 100;
-  const subtotal = getSubtotal(order);
-  const subTotalAfterShippingAndDiscounts =
-    subtotal + shipping - Number(memberShippingDiscount) - Number(memberTotalDiscount);
-  const tax = subTotalAfterShippingAndDiscounts / 11;
-
-  const itemsDiscountedCostInCents =
-    order && order.items.length
-      ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
-          const price = Number(
-            item.overidedPrice || item.overidedPrice === 0
-              ? item.overidedPrice
-              : undefined
-          );
-          if (!price) return acc;
-          return (
-            acc + ((Number(item.product?.price) || 0) - price) * Number(item.quantity)
-          );
-        }, 0)
-      : 0;
-
-  const itemsDiscountedCost = itemsDiscountedCostInCents / 100;
-
-  const total = totalDiscounted
-    ? totalDiscounted
-    : subtotal + shipping - memberTotalDiscount - memberShippingDiscount;
+  const {
+    total,
+    subtotal,
+    itemsDiscountedAmount,
+    totalDiscountedFromTotal,
+    membersDiscount,
+    tax,
+    shipping,
+  } = buildOrderForDisplay(order);
 
   const template = /* HTML */ `
     <table
@@ -168,27 +119,24 @@ export function getOrderTemplate(order: any) {
               ${getOrderItems(order)}
             </tbody>
             <tfoot>
-              ${itemsDiscountedCost ? getItemDiscounts(itemsDiscountedCost) : ''}
+              ${itemsDiscountedAmount ? getItemDiscounts(itemsDiscountedAmount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
               </tr>
-              ${totalDiscounted ? getDiscountApplied(subtotal - totalDiscounted) : ''}
-              ${memberTotalDiscount ? getMemberDiscount(memberTotalDiscount) : ''}
+              ${totalDiscountedFromTotal
+                ? getDiscountApplied(totalDiscountedFromTotal)
+                : ''}
+              ${membersDiscount ? getMemberDiscount(membersDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
-                <td style=${getRowStyle()}>
-                  &nbsp;&nbsp;${shipping === 0
-                    ? 'Complimentary'
-                    : `$${shipping.toFixed(2)}`}
-                </td>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${shipping}</td>
               </tr>
-              ${memberShippingDiscount ? getShippingDiscount(memberShippingDiscount) : ''}
               <tr>
                 <th scope="row" colspan="2" style=${getRowStyle()}>
-                  Total - (Tax incl. $${tax.toFixed(2)})
+                  Total - (Tax incl. $${tax})
                 </th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${total.toFixed(2)}</td>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${total}</td>
               </tr>
             </tfoot>
           </table>

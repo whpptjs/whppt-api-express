@@ -21,7 +21,7 @@ const docDefinition = ({ order, contact, memberTier }: any) => {
       ...header(order.orderNumber || order._id, order.updatedAt),
       ...subheader(order, contact, memberTier),
       ...buildReceiptItems(order.items),
-      footer(order.payment, order),
+      footer(order),
     ],
     pageMargins: [0, 0],
   };
