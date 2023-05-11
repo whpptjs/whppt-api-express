@@ -1,4 +1,4 @@
-import { buildOrderForDisplay } from 'src/modules/email/helpers/buildOrderForDisplay';
+import { buildOrderForDisplay } from '../../../modules/email/helpers/buildOrderForDisplay';
 
 export const footer = (order: any) => {
   const {
