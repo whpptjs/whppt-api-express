@@ -7,7 +7,6 @@ import {
 type MembershipYearlyCalc = {
   amount: number;
   discountApplied: number;
-  amountWithDiscount: number;
 };
 
 export type CalculateMembershipTier = (
@@ -49,10 +48,8 @@ export const calculateMembershipTier: CalculateMembershipTier = (
     ...currentTier,
     discountAppliedForYear: currentYear.discountApplied,
     amountSpentForYear: currentYear.amount,
-    amountSpentWithDiscount: currentYear.amountWithDiscount,
-    amountToSpendToNextTier: nextTier
-      ? nextTier.entryLevelSpend - currentYear.amountWithDiscount
-      : 0,
+    amountSpentWithDiscount: currentYear.amount,
+    amountToSpendToNextTier: nextTier ? nextTier.entryLevelSpend - currentYear.amount : 0,
     nextTiers: calculateNextTiers(
       membershipOptions.membershipTiers,
       currentTier,
@@ -74,7 +71,7 @@ const calculateNextTiers = (
     ...t,
     amountToSpendToNextTier:
       i === 0
-        ? t.entryLevelSpend - currentYear.amountWithDiscount
+        ? t.entryLevelSpend - currentYear.amount
         : calculatePreviousTiers(tiers, i) - currentYear.amount,
   }));
 };

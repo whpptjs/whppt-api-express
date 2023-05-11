@@ -1,7 +1,7 @@
 import { calculateMembershipTier } from './calculateMembershipTier';
 import { tiers as membershipTiers } from './tiersForTesting';
 describe('Calculate membership tier', () => {
-  it('Given fresh user', () => {
+  it('Given fresh user - will be FF ', () => {
     const currentYear = {
       amount: 0,
       discountApplied: 0,
@@ -27,7 +27,7 @@ describe('Calculate membership tier', () => {
     expect(tier.amountToSpendToNextTier).toEqual(100000);
     expect(tier.nextTiers?.length).toEqual(2);
   });
-  it('Given user that has spent 1500 this year', () => {
+  it('Given user that has spent 1500 this year - will be TR, $500 left to CC', () => {
     const currentYear = {
       amount: 1650 * 100,
       discountApplied: 150 * 100,
@@ -53,7 +53,7 @@ describe('Calculate membership tier', () => {
     expect(tier.amountToSpendToNextTier).toEqual(50000);
     expect(tier.nextTiers?.length).toEqual(1);
   });
-  it('Given user that has spent 1500 last year', () => {
+  it('Given user that has spent 1500 last year - Will be TR But  $2000 to CC', () => {
     const previousYear = {
       amount: 1650 * 100,
       discountApplied: 150 * 100,
@@ -79,7 +79,7 @@ describe('Calculate membership tier', () => {
     expect(tier.amountToSpendToNextTier).toEqual(200000);
     expect(tier.nextTiers?.length).toEqual(1);
   });
-  it('Given user that has spent 2500 this year', () => {
+  it('Given user that has spent 2500 this year -- will be CC', () => {
     const currentYear = {
       amount: 2650 * 100,
       discountApplied: 250 * 100,
@@ -106,7 +106,7 @@ describe('Calculate membership tier', () => {
     expect(tier.nextTiers?.length).toEqual(0);
   });
 
-  it('Given user that has spent 1200 last year and 100 this year', () => {
+  it('Given user that has spent 1200 last year and 100 this year -- TR but $1900 to CC', () => {
     const currentYear = {
       amount: 110 * 100,
       discountApplied: 10 * 100,

@@ -5,7 +5,6 @@ import { Order } from '../Models/Order';
 type MembershipYearlyCalc = {
   amount: number;
   discountApplied: number;
-  amountWithDiscount: number;
 };
 
 export type QueryMemberAmountSpentForYear = (
@@ -25,12 +24,10 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
       currentYear: {
         amount: 0,
         discountApplied: 0,
-        amountWithDiscount: 0,
       },
       previousYear: {
         amount: 0,
         discountApplied: 0,
-        amountWithDiscount: 0,
       },
     });
 
@@ -51,36 +48,34 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
         .aggregate<Order>(buildQuery(memberId, startOfLastYear, startOfThisYear))
         .toArray(),
     ]).then(([thisYearsOrders, lastYearsOrders]) => {
-      const amountSpentForYear = calcAmount(thisYearsOrders);
+      const amountSpentForYear = calcAmountSpentTowardsMembership(thisYearsOrders);
       const discountAppliedForYear = calcDiscount(thisYearsOrders);
-      const amountSpentForLastYear = calcAmount(lastYearsOrders);
+      const amountSpentForLastYear = calcAmountSpentTowardsMembership(lastYearsOrders);
       const discountAppliedForLastYear = calcDiscount(lastYearsOrders);
 
       return {
         currentYear: {
           amount: amountSpentForYear,
           discountApplied: discountAppliedForYear,
-          amountWithDiscount: amountSpentForYear - amountSpentForYear,
         },
         previousYear: {
           amount: amountSpentForLastYear,
           discountApplied: discountAppliedForLastYear,
-          amountWithDiscount: amountSpentForLastYear - discountAppliedForLastYear,
         },
       };
     });
   });
 };
 
-const calcAmount = (orders: Order[]) => {
-  return orders.reduce(
-    (partialSum: number, a) =>
-      partialSum +
-      (a?.payment?.subTotal
-        ? a?.payment?.subTotal - (a?.payment?.discountApplied || 0)
-        : 0),
-    0
-  );
+const calcAmountSpentTowardsMembership = (orders: Order[]) => {
+  return orders.reduce((partialSum: number, _order) => {
+    const amount = _order?.payment?.amount || 0;
+    const shippingCost = Number(
+      _order?.payment?.shippingCost?.price || _order?.shipping?.shippingCost?.price || 0
+    );
+
+    return partialSum + (amount - shippingCost);
+  }, 0);
 };
 const calcDiscount = (orders: Order[]) => {
   return orders.reduce(

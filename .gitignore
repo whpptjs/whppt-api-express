@@ -9,3 +9,4 @@ package-lock.json
 .idea
 /types
 /dist
+./coverage
