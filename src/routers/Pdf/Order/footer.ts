@@ -89,7 +89,7 @@ export const footer = (order: any) => {
         fontSize: 10,
       },
       {
-        text: `(-$${totalDiscountedFromTotal})`,
+        text: `-$${totalDiscountedFromTotal}`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
