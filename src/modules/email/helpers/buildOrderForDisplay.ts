@@ -31,7 +31,7 @@ export const buildOrderForDisplay = (order: any) => {
     ? 'Pickup'
     : shippingCost === 0
     ? 'Complimentary'
-    : shippingCost.toFixed(2);
+    : `$${shippingCost.toFixed(2)}`;
   const subtotal = getSubtotal(order);
   //   const subTotalAfterShippingAndDiscounts =
   //     subtotal + shipping - Number(memberShippingDiscount) - Number(memberTotalDiscount);

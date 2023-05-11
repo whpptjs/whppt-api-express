@@ -27,7 +27,7 @@ export const footer = (order: any) => {
     margin: [50, 5, 50, 5],
   } as any;
 
-  if (membersDiscount) {
+  if (itemsDiscountedAmount) {
     table.table.body.push([
       {
         text: "ITEM'S DISCOUNTED",
@@ -37,7 +37,7 @@ export const footer = (order: any) => {
         fontSize: 10,
       },
       {
-        text: `(-$${itemsDiscountedAmount})`,
+        text: `-$${itemsDiscountedAmount}`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',
@@ -71,7 +71,7 @@ export const footer = (order: any) => {
         fontSize: 10,
       },
       {
-        text: `(-$${membersDiscount})`,
+        text: `-$${membersDiscount}`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',

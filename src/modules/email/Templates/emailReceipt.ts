@@ -130,7 +130,7 @@ export function getOrderTemplate(order: any) {
               ${membersDiscount ? getMemberDiscount(membersDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${shipping}</td>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;${shipping}</td>
               </tr>
               <tr>
                 <th scope="row" colspan="2" style=${getRowStyle()}>

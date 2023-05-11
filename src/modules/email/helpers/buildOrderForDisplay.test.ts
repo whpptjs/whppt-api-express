@@ -16,7 +16,7 @@ describe('Prep order for display', () => {
     expect(subtotal).toEqual('74.50');
     expect(itemsDiscountedAmount).toEqual(0);
     expect(totalDiscountedFromTotal).toEqual(0);
-    expect(shipping).toEqual('15.00');
+    expect(shipping).toEqual('$15.00');
     expect(tax).toEqual('8.14');
     expect(membersDiscount).toEqual(0);
   });
@@ -35,7 +35,7 @@ describe('Prep order for display', () => {
     expect(subtotal).toEqual('59.60');
     expect(itemsDiscountedAmount).toEqual('14.90');
     expect(totalDiscountedFromTotal).toEqual('37.30');
-    expect(shipping).toEqual('15.00');
+    expect(shipping).toEqual('$15.00');
     expect(tax).toEqual('3.39');
     expect(membersDiscount).toEqual(0);
   });
