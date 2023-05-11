@@ -122,7 +122,7 @@ export function getOrderTemplate(order: any) {
               ${itemsDiscountedAmount ? getItemDiscounts(itemsDiscountedAmount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal.toFixed(2)}</td>
+                <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal}</td>
               </tr>
               ${totalDiscountedFromTotal
                 ? getDiscountApplied(totalDiscountedFromTotal)

@@ -115,6 +115,25 @@ describe('Prep order for display', () => {
     expect(tax).toEqual('62.73');
     expect(membersDiscount).toEqual('230.00');
   });
+  it('Given order from CC with shipping selected', () => {
+    const {
+      total,
+      subtotal,
+      itemsDiscountedAmount,
+      totalDiscountedFromTotal,
+      membersDiscount,
+      tax,
+      shipping,
+    } = buildOrderForDisplay(orderShipping);
+
+    expect(total).toEqual('10800.00');
+    expect(subtotal).toEqual('12000.00');
+    expect(itemsDiscountedAmount).toEqual('3000.00');
+    expect(totalDiscountedFromTotal).toEqual('1200.00');
+    expect(shipping).toEqual('Complimentary');
+    expect(tax).toEqual('981.82');
+    expect(membersDiscount).toEqual(0);
+  });
 });
 
 const standardOrder = {
@@ -383,5 +402,54 @@ const clientLegacyOrder = {
   shipping: {
     _id: '644a9aa159b246173be50b07',
     shippingCost: 0,
+  },
+};
+
+const orderShipping = {
+  _id: 'm4slhigpdv7',
+  checkoutStatus: 'paid',
+
+  items: [
+    {
+      productId: '644a9f06742cca79e8b4cb9a',
+      quantity: 1,
+      _id: 'm4slhigph1u',
+      overidedPrice: 1200000,
+      purchasedPrice: 1200000,
+      originalPrice: 1500000,
+    },
+  ],
+  orderNumber: 300158,
+  overrides: {
+    total: 1080000,
+  },
+  fromPos: true,
+  shipping: {
+    pickup: false,
+    shippingCost: {
+      price: 0,
+      allowCheckout: true,
+      message: null,
+      type: 'aus_metro',
+    },
+  },
+  payment: {
+    status: 'paid',
+    amount: 1080000,
+    subTotal: 1080000,
+    memberTotalDiscount: 0,
+    memberShippingDiscount: 0,
+    shippingCost: {
+      price: 0,
+      allowCheckout: true,
+      message: null,
+      type: 'aus_metro',
+    },
+    originalTotal: 1200000,
+    overrideTotalPrice: 1080000,
+    discountApplied: 420000,
+    originalSubTotal: 1200000,
+
+    type: 'card',
   },
 };

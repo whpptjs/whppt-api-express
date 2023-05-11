@@ -54,7 +54,7 @@ export const footer = (order: any) => {
       alignment: 'left',
     },
     {
-      text: `$${subtotal.toFixed(2)}`,
+      text: `$${subtotal}`,
       bold: false,
       font: 'SweetSansPro',
       alignment: 'right',

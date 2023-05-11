@@ -18,10 +18,15 @@ export const buildOrderForDisplay = (order: any) => {
   const membersDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
   const totalDiscounted = (order?.overrides?.total || 0) / 100 || 0;
 
-  const shippingCost =
-    Number(order?.payment?.shippingCost?.price || order?.shipping?.shippingCost || 0) /
+  const _shippingCost =
+    Number(
+      order?.payment?.shippingCost?.price || order?.shipping?.shippingCost?.price || 0
+    ) /
       100 -
     memberShippingDiscount;
+
+  const shippingCost = _shippingCost >= 0 ? _shippingCost : 0;
+
   const shipping = order?.shipping?.pickup
     ? 'Pickup'
     : shippingCost === 0
