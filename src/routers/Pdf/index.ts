@@ -168,7 +168,7 @@ export const PdfRouter = (apiPrefix: string) => {
   return router;
 };
 
-const createPdfBinary = (doc: any, callback: any) => {
+export const createPdfBinary = (doc: any, callback: any) => {
   const chunks: any = [];
   let result;
 

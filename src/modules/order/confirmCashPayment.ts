@@ -1,3 +1,4 @@
+import { fromBase64 } from 'b64-lite';
 import { assign, omit } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import assert from 'assert';
@@ -8,6 +9,9 @@ import { Order, OrderItemWithProduct } from './Models/Order';
 import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
 import { Staff } from '../staff/Model';
 import { getOrderTemplate } from '../email/Templates/emailReceipt';
+import { createPdfBinary } from '../../routers/Pdf';
+import buildReceiptPdf from '../../routers/Pdf/Order/buildReceiptPdf';
+import { Contact } from '../contact/Models/Contact';
 
 const confirmCashPayment: HttpModule<
   { staffMemberId: string; orderId: string; domainId: string },
@@ -101,16 +105,14 @@ const confirmCashPayment: HttpModule<
                     });
                   }).then(() => {
                     const email = loadedOrder?.contact?.email;
-                    if (!email) return Promise.resolve();
-                    return context.$email
-                      .send({
-                        to: email,
-                        subject: `Hentley Farm receipt${
-                          loadedOrder.orderNumber || loadedOrder._id
-                            ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
-                            : ''
-                        }`,
-                        html: getOrderTemplate({
+                    if (!email || !loadedOrder.contact?._id) return Promise.resolve();
+                    return document
+                      .query<Contact>('contacts', {
+                        filter: { _id: loadedOrder.contact?._id },
+                      })
+                      .then(contact => {
+                        if (!contact) return Promise.resolve();
+                        const paidOrderWithProducts = {
                           ...loadedOrder,
                           items: loadedOrder.items.map(lo => {
                             const orderItem = orderWithProducts.items.find(
@@ -121,11 +123,43 @@ const confirmCashPayment: HttpModule<
                               product: orderItem.product || {},
                             };
                           }),
-                        }),
-                      })
-                      .catch(() => {
-                        throw new Error(
-                          'Confirmation email sending failed. Order was processed and paid for.'
+                        };
+                        return createPdfBinary(
+                          buildReceiptPdf({ order: paidOrderWithProducts, contact }),
+                          function (binary: any) {
+                            // res.contentType('application/pdf');
+                            // res.send(binary);
+                            const attachmentContent = fromBase64(binary);
+
+                            const attachments = [
+                              {
+                                Filename: 'attachment.pdf',
+                                Data: attachmentContent,
+                              },
+                            ];
+                            return context.$email
+                              .send(
+                                {
+                                  to: email,
+                                  subject: `Hentley Farm receipt${
+                                    paidOrderWithProducts.orderNumber ||
+                                    paidOrderWithProducts._id
+                                      ? ` for order #${
+                                          paidOrderWithProducts.orderNumber ||
+                                          paidOrderWithProducts._id
+                                        }`
+                                      : ''
+                                  }`,
+                                  html: getOrderTemplate(paidOrderWithProducts),
+                                },
+                                attachments
+                              )
+                              .catch(() => {
+                                throw new Error(
+                                  'Confirmation email sending failed. Order was processed and paid for.'
+                                );
+                              });
+                          }
                         );
                       });
                   });
