@@ -80,7 +80,7 @@ const buildReceiptItems = (items: any) => {
                   ],
                   [
                     {
-                      text: `${item.product.customFields.vintage}`,
+                      text: `${item.product.customFields.vintage || ''}`,
                       styles: 'tableCell',
                       alignment: 'left',
                       font: 'SweetSansPro',

@@ -9,9 +9,11 @@ function getOrderItems(order: any) {
     for (let item of items) {
       itemsHtml +=
         '<tr><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
-        item.quantity.toString() +
-        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         (item?.product?.name || 'Legacy Item') +
+        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        (item?.product?.customFields.vintage || '') +
+        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        item.quantity.toString() +
         '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         '&nbsp;&nbsp;$' +
         ((item.purchasedPrice || item?.product?.price) / 100).toFixed(2).toString() +
@@ -114,6 +116,11 @@ export function getOrderTemplate(order: any, domainId?: string) {
                   scope="col"
                   style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Product
+                </th>
+                <th
+                  scope="col"
+                  style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
+                  Vintage
                 </th>
                 <th
                   scope="col"
