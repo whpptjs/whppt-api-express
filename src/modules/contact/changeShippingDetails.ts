@@ -2,6 +2,7 @@ import assert from 'assert';
 import { assign } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Contact, ContactShipping } from './Models/Contact';
+import { saveContactAndPublish } from './Common/SaveContact';
 
 export type ChangeContactShippingArgs = {
   contactId: string;
@@ -45,7 +46,12 @@ const changeShippingDetails: HttpModule<ChangeContactShippingArgs, void> = {
         });
 
         return startTransaction(session => {
-          return document.saveWithEvents('contacts', contact, [event], { session });
+          return saveContactAndPublish(
+            { ...context, document },
+            { contact, events: [event] },
+            session
+          );
+          // return document.saveWithEvents('contacts', contact, [event], { session });
         });
       });
     });
