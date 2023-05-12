@@ -7,6 +7,7 @@ import {
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 import { queryMemberAmountSpentForYear } from './queryMemberAmountSpentForYear';
 import { calculateMembershipTier } from './helpers/calculateMembershipTier';
+import { queryMemberLifetimeSpend } from './queryMemberLifetimeSpend';
 
 export type QueryMemberTier = (
   context: ContextType,
@@ -43,7 +44,17 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
 
       return queryMemberAmountSpentForYear(context, { memberId }).then(
         ({ currentYear, previousYear }) => {
-          return calculateMembershipTier(membershipOptions, currentYear, previousYear);
+          const tier = calculateMembershipTier(
+            membershipOptions,
+            currentYear,
+            previousYear
+          );
+          return queryMemberLifetimeSpend(context, { memberId }).then(lifetimeSpend => {
+            return {
+              ...tier,
+              lifetimeSpend,
+            };
+          });
         }
       );
     });

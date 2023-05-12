@@ -118,7 +118,7 @@ export function getOrderTemplate(order: any) {
             <tbody>
               ${getOrderItems(order)}
             </tbody>
-            <tfoot>
+            <tfoot style="background-color: #242424">
               ${itemsDiscountedAmount ? getItemDiscounts(itemsDiscountedAmount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>

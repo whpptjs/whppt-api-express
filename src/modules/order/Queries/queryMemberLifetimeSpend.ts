@@ -33,13 +33,15 @@ export const queryMemberLifetimeSpend: QueryMemberLifetimeSpend = (
       .then(orders => {
         if (!orders || !orders.length) return 0;
 
-        return orders.reduce((partialSum, a) => {
-          const _subtotal = a?.payment?.subTotal
-            ? a?.payment?.subTotal - (a?.payment?.discountApplied || 0)
+        const totalAmount = orders.reduce((partialSum, a) => {
+          const _subtotal = a?.payment?.amount
+            ? a?.payment?.amount - Number(a?.payment?.shippingCost?.price || 0)
             : 0;
           const subtotal = _subtotal >= 0 ? _subtotal : 0;
           return partialSum + subtotal;
         }, 0);
+
+        return totalAmount;
       });
   });
 };
