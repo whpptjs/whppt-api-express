@@ -27,7 +27,7 @@ function getOrderItems(order: any) {
 function getItemDiscounts(_discount: string | number) {
   return /* HTML */ `
     <tr>
-      <th style=${getRowStyle()} scope="row" colspan="2">Item/s Discount</th>
+      <th style=${getRowStyle()} scope="row" colspan="3">Item/s Discount</th>
       <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
@@ -36,7 +36,7 @@ function getItemDiscounts(_discount: string | number) {
 function getDiscountApplied(_discount: string | number) {
   return /* HTML */ `
     <tr>
-      <th style=${getRowStyle()} scope="row" colspan="2">Order discount</th>
+      <th style=${getRowStyle()} scope="row" colspan="3">Order discount</th>
       <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
@@ -44,7 +44,7 @@ function getDiscountApplied(_discount: string | number) {
 function getMemberDiscount(_discount: string | number) {
   return /* HTML */ `
     <tr>
-      <th style=${getRowStyle()} scope="row" colspan="2">Member discount</th>
+      <th style=${getRowStyle()} scope="row" colspan="3">Member discount</th>
       <td style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
@@ -140,7 +140,7 @@ export function getOrderTemplate(order: any, domainId?: string) {
             <tfoot style="background-color: #242424">
               ${itemsDiscountedAmount ? getItemDiscounts(itemsDiscountedAmount) : ''}
               <tr>
-                <th style=${getRowStyle()} scope="row" colspan="2">Subtotal</th>
+                <th style=${getRowStyle()} scope="row" colspan="3">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal}</td>
               </tr>
               ${totalDiscountedFromTotal
@@ -148,11 +148,11 @@ export function getOrderTemplate(order: any, domainId?: string) {
                 : ''}
               ${membersDiscount ? getMemberDiscount(membersDiscount) : ''}
               <tr>
-                <th style=${getRowStyle()} scope="row" colspan="2">Shipping</th>
+                <th style=${getRowStyle()} scope="row" colspan="3">Shipping</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;${shipping}</td>
               </tr>
               <tr>
-                <th scope="row" colspan="2" style=${getRowStyle()}>
+                <th scope="row" colspan="3" style=${getRowStyle()}>
                   Total - (Tax incl. $${tax})
                 </th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${total}</td>
