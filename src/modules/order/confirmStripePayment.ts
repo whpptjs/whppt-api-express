@@ -7,104 +7,109 @@ import { getOrderTemplate } from '../email/Templates/emailReceipt';
 
 import * as validations from './Validations';
 
-const confirmStripePayment: HttpModule<{ orderId: string; paymentIntent: string }, void> =
-  {
-    exec(context, { orderId, paymentIntent }) {
-      assert(orderId, 'Order Id not found');
-      assert(paymentIntent, 'Payment Intent not provided');
-      return context.$database.then(({ document, startTransaction }) => {
-        return document.fetch<Order>('orders', orderId).then(loadedOrder => {
-          return loadOrderWithProducts(context, { _id: orderId }).then(
-            orderWithProducts => {
-              assert(loadedOrder, 'Order not found');
-              validations.canBeModified(loadedOrder);
+const confirmStripePayment: HttpModule<
+  { orderId: string; paymentIntent: string; domainId: string },
+  void
+> = {
+  exec(context, { orderId, paymentIntent, domainId }) {
+    assert(orderId, 'Order Id not found');
+    assert(paymentIntent, 'Payment Intent not provided');
+    return context.$database.then(({ document, startTransaction }) => {
+      return document.fetch<Order>('orders', orderId).then(loadedOrder => {
+        return loadOrderWithProducts(context, { _id: orderId }).then(
+          orderWithProducts => {
+            assert(loadedOrder, 'Order not found');
+            validations.canBeModified(loadedOrder);
 
-              assert(
-                loadedOrder.stripe?.intentId === paymentIntent,
-                'Payment Intent Id doesnt not match'
-              );
+            assert(
+              loadedOrder.stripe?.intentId === paymentIntent,
+              'Payment Intent Id doesnt not match'
+            );
 
-              assign(loadedOrder, {
+            assign(loadedOrder, {
+              ...loadedOrder,
+              stripe: {
+                ...loadedOrder.stripe,
+                status: 'paid',
+                intentId: loadedOrder.stripe.intentId || paymentIntent,
+                date: new Date(),
+              },
+              payment: {
+                ...loadedOrder.payment,
+                status: 'paid',
+                date: new Date(),
+                type: 'card',
+              },
+              checkoutStatus: 'paid',
+              items: orderWithProducts.items.map((item: OrderItemWithProduct) => {
+                return omit(
+                  {
+                    ...item,
+                    purchasedPrice: item.overidedPrice || item.product?.price,
+                    originalPrice: item.product?.price,
+                  },
+                  'product'
+                );
+              }),
+            });
+            const events = [
+              context.createEvent('OrderPaymentConfirmedThroughStripe', {
+                _id: orderId,
+                paymentIntent,
+              }),
+              context.createEvent('ProductsConfirmedToOrder', {
+                _id: orderId,
+                items: loadedOrder.items,
+              }),
+            ];
+
+            //TODO add these events
+            //   events: [
+            //     giftCardUsed,
+            // ]
+
+            return startTransaction(session => {
+              return document.saveWithEvents('orders', loadedOrder, events, {
+                session,
+              });
+            }).then(() => {
+              const email = orderWithProducts?.contact?.email;
+              if (!email) return Promise.resolve();
+              const paidOrderWithProducts = {
                 ...loadedOrder,
-                stripe: {
-                  ...loadedOrder.stripe,
-                  status: 'paid',
-                  intentId: loadedOrder.stripe.intentId || paymentIntent,
-                  date: new Date(),
-                },
-                payment: {
-                  ...loadedOrder.payment,
-                  status: 'paid',
-                  date: new Date(),
-                  type: 'card',
-                },
-                checkoutStatus: 'paid',
-                items: orderWithProducts.items.map((item: OrderItemWithProduct) => {
-                  return omit(
-                    {
-                      ...item,
-                      purchasedPrice: item.overidedPrice || item.product?.price,
-                      originalPrice: item.product?.price,
-                    },
-                    'product'
+                items: loadedOrder.items.map(lo => {
+                  const orderItem = orderWithProducts.items.find(
+                    i => i._id === lo._id
+                  ) as OrderItemWithProduct;
+                  return {
+                    ...lo,
+                    product: orderItem.product || {},
+                  };
+                }),
+              };
+              return context.$email
+                .send({
+                  to: email,
+                  subject: `Hentley Farm receipt${
+                    paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
+                      ? ` for order #${
+                          paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
+                        }`
+                      : ''
+                  }`,
+                  html: getOrderTemplate(paidOrderWithProducts, domainId),
+                })
+                .catch(() => {
+                  throw new Error(
+                    'Confirmation email sending failed. Order was processed and paid for.'
                   );
-                }),
-              });
-              const events = [
-                context.createEvent('OrderPaymentConfirmedThroughStripe', {
-                  _id: orderId,
-                  paymentIntent,
-                }),
-                context.createEvent('ProductsConfirmedToOrder', {
-                  _id: orderId,
-                  items: loadedOrder.items,
-                }),
-              ];
-
-              //TODO add these events
-              //   events: [
-              //     giftCardUsed,
-              // ]
-
-              return startTransaction(session => {
-                return document.saveWithEvents('orders', loadedOrder, events, {
-                  session,
                 });
-              }).then(() => {
-                const email = orderWithProducts?.contact?.email;
-                if (!email) return Promise.resolve();
-                return context.$email
-                  .send({
-                    to: email,
-                    subject: `Hentley Farm receipt${
-                      loadedOrder.orderNumber || loadedOrder._id
-                        ? ` for order #${loadedOrder.orderNumber || loadedOrder._id}`
-                        : ''
-                    }`,
-                    html: getOrderTemplate({
-                      ...loadedOrder,
-                      items: loadedOrder.items.map(lo => {
-                        const orderItem = orderWithProducts.items.find(
-                          i => i._id === lo._id
-                        ) as OrderItemWithProduct;
-                        return {
-                          ...lo,
-                          product: orderItem.product || {},
-                        };
-                      }),
-                    }),
-                  })
-                  .catch(() => {
-                    throw new Error(
-                      'Confirmation email sending failed. Order was processed and paid for.'
-                    );
-                  });
-              });
-            }
-          );
-        });
+            });
+          }
+        );
       });
-    },
-  };
+    });
+  },
+};
 
 export default confirmStripePayment;
