@@ -52,7 +52,7 @@ function getRowStyle() {
   return 'color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;';
 }
 
-export function getOrderTemplate(order: any) {
+export function getOrderTemplate(order: any, domainId?: string) {
   const {
     total,
     subtotal,
@@ -62,6 +62,18 @@ export function getOrderTemplate(order: any) {
     tax,
     shipping,
   } = buildOrderForDisplay(order);
+
+  const invoiceUrl = domainId
+    ? `https://www.hentleyfarm.com.au/api/pdf/orderReceipt?orderId=${order._id}&domainId=${domainId}`
+    : '';
+
+  const invoice = invoiceUrl
+    ? `<a
+            href=${invoiceUrl}
+            style="color:#ffffff;font-weight:300;font-size:14px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
+            View Online Invoice<br />
+          </a>`
+    : '';
 
   const template = /* HTML */ `
     <table
@@ -140,6 +152,7 @@ export function getOrderTemplate(order: any) {
               </tr>
             </tfoot>
           </table>
+          ${invoice}
         </td>
       </tr>
     </table>
