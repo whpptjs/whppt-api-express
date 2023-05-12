@@ -7,7 +7,7 @@ import { ContextType } from 'src/context/Context';
 import { HttpError } from './HttpError';
 
 export type Email = { to: string; subject: string; html: string };
-export type EmailService = { send: (email: Email) => Promise<void> };
+export type EmailService = { send: (email: Email, attachments: any) => Promise<void> };
 export type EmailServiceConstructor = (context: ContextType) => Promise<EmailService>;
 
 export const EmailService: EmailServiceConstructor = ({ $hosting, $logger }) => {
@@ -28,7 +28,7 @@ export const EmailService: EmailServiceConstructor = ({ $hosting, $logger }) => 
     $logger.dev('Configuring email client: %o', clientConfig);
     const client = new SESv2Client(clientConfig);
     return {
-      send: (email: any) => {
+      send: (email: any, attachments: any) => {
         if (!fromAddress)
           throw new HttpError(
             500,
@@ -39,7 +39,7 @@ export const EmailService: EmailServiceConstructor = ({ $hosting, $logger }) => 
             500,
             'Cannot send email without a feedback address. Check env.EMAIL_FEEDBACK_ADDRESS'
           );
-        const input: SendEmailCommandInput = {
+        const input: SendEmailCommandInput & { Attachments?: any[] } = {
           FromEmailAddress: fromAddress,
           Destination: {
             ToAddresses: [email.to],
@@ -52,6 +52,7 @@ export const EmailService: EmailServiceConstructor = ({ $hosting, $logger }) => 
             },
           },
         };
+        if (attachments) input.Attachments = attachments;
         $logger.dev('Sending email: %o', input);
         if (input?.Content?.Simple?.Body?.Html?.Data)
           input.Content.Simple.Body.Html.Data = email.html;
