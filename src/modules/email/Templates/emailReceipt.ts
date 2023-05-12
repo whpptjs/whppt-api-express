@@ -107,7 +107,7 @@ export function getOrderTemplate(order: any, domainId?: string) {
           <table
             cellspacing="0"
             cellpadding="6"
-            style="width: 100%; border: 1px solid #937a4a;"
+            style="width: 100%;border: 1px solid #937a4a;margin-bottom:10px"
             border="1"
             bordercolor="#937a4a">
             <thead>
