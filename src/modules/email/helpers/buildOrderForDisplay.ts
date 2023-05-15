@@ -16,7 +16,7 @@ export const buildOrderForDisplay = (order: any) => {
   const memberShippingDiscount =
     Number(order?.payment?.memberShippingDiscount) / 100 || 0;
   const membersDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
-  const totalDiscounted = (order?.overrides?.total || 0) / 100 || 0;
+  const totalDiscounted = order?.overrides?.total && order?.overrides?.total / 100;
 
   const _shippingCost =
     Number(
@@ -52,11 +52,14 @@ export const buildOrderForDisplay = (order: any) => {
       : 0;
   const itemsDiscountedAmount = itemsDiscountedCostInCents / 100;
   const totalDiscountedFromTotal =
-    totalDiscounted && subtotal ? subtotal + shippingCost - totalDiscounted : 0;
+    (totalDiscounted || totalDiscounted === 0) && subtotal
+      ? subtotal + shippingCost - totalDiscounted
+      : 0;
 
-  const total = totalDiscounted
-    ? totalDiscounted
-    : subtotal + shippingCost - membersDiscount;
+  const total =
+    totalDiscounted || totalDiscounted === 0
+      ? totalDiscounted
+      : subtotal + shippingCost - membersDiscount;
   const tax = total / 11;
 
   return {

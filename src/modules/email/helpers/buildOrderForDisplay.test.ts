@@ -134,6 +134,25 @@ describe('Prep order for display', () => {
     expect(tax).toEqual('981.82');
     expect(membersDiscount).toEqual(0);
   });
+  it('Tasting Stock', () => {
+    const {
+      total,
+      subtotal,
+      itemsDiscountedAmount,
+      totalDiscountedFromTotal,
+      membersDiscount,
+      tax,
+      shipping,
+    } = buildOrderForDisplay(tastingStock);
+
+    expect(total).toEqual('0.00');
+    expect(subtotal).toEqual('541.50');
+    expect(itemsDiscountedAmount).toEqual(0);
+    expect(totalDiscountedFromTotal).toEqual('541.50');
+    expect(shipping).toEqual('Pickup');
+    expect(tax).toEqual('0.00');
+    expect(membersDiscount).toEqual(0);
+  });
 });
 
 const standardOrder = {
@@ -451,5 +470,73 @@ const orderShipping = {
     originalSubTotal: 1200000,
 
     type: 'card',
+  },
+};
+
+const tastingStock = {
+  _id: 'tlhdo2h70o',
+  checkoutStatus: 'paid',
+  items: [
+    {
+      _id: 'tlho2h70p',
+      productId: 'vlb619yws',
+      quantity: 1,
+      purchasedPrice: 7450,
+      originalPrice: 7450,
+    },
+    {
+      productId: 'vlb648a2t',
+      quantity: 1,
+      _id: 'tlho2h83g',
+      purchasedPrice: 5400,
+      originalPrice: 5400,
+    },
+    {
+      productId: 'vlb5zzl3o',
+      quantity: 1,
+      _id: 'tlho2h8ci',
+      purchasedPrice: 3450,
+      originalPrice: 3450,
+    },
+    {
+      productId: 'vlb5yvezk',
+      quantity: 1,
+      _id: 'tlho2h8kf',
+      purchasedPrice: 2850,
+      originalPrice: 2850,
+    },
+    {
+      productId: 'vlb62055s',
+      quantity: 1,
+      _id: 'tlho2h9sz',
+      purchasedPrice: 35000,
+      originalPrice: 35000,
+    },
+  ],
+  orderNumber: 300977,
+  overrides: {
+    total: 0,
+  },
+  payment: {
+    status: 'paid',
+    type: 'cash',
+
+    amount: 0,
+    subTotal: 0,
+    memberTotalDiscount: 0,
+    memberShippingDiscount: 0,
+    shippingCost: {
+      price: 0,
+      allowCheckout: true,
+      message: '',
+      type: 'pickup',
+    },
+    originalTotal: 54150,
+    originalSubTotal: 54150,
+    overrideTotalPrice: 0,
+    discountApplied: 0,
+  },
+  shipping: {
+    pickup: true,
   },
 };
