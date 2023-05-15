@@ -1,4 +1,5 @@
 import { NextFunction, Router, Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 
 import { WhpptConfig } from './Services/Config';
@@ -165,12 +166,13 @@ export const Whppt = (config: WhpptConfig) => {
   });
 
   router.use(GalleryRouter($logger, config.apiPrefix || 'api'));
+  router.use(express.json());
   router.use(StripeRouter($logger, config.apiPrefix || 'api'));
   router.use(PdfRouter(config.apiPrefix || 'api'));
   router.use(CsvRouter(config.apiPrefix || 'api'));
+  router.use(FileRouter($logger));
   router.use(RedirectsRouter());
   router.use(ModulesRouter($logger, config.apiPrefix || 'api'));
-  router.use(FileRouter($logger));
   router.use(ImageRouter($logger));
   router.use(SeoRouter());
 
