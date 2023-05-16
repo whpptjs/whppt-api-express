@@ -109,6 +109,7 @@ const listOrders: HttpModule<
             {
               $project: {
                 member: 0,
+                stripe: 0,
               },
             },
             {
