@@ -12,8 +12,12 @@ const listOrders: HttpModule<
   {
     search: string;
     limit: string;
-    dateFrom: string;
-    dateTo: string;
+    dateFromYear?: number;
+    dateFromMonth?: number;
+    dateFromDay?: number;
+    dateToYear?: number;
+    dateToMonth?: number;
+    dateToDay?: number;
     currentPage: string;
     status: string;
     origin?: string;
@@ -22,7 +26,19 @@ const listOrders: HttpModule<
 > = {
   exec(
     { $database },
-    { search, dateFrom, dateTo, limit = '10', currentPage = '0', status, origin }
+    {
+      search,
+      dateFromYear,
+      dateFromMonth,
+      dateFromDay,
+      dateToYear,
+      dateToMonth,
+      dateToDay,
+      limit = '10',
+      currentPage = '0',
+      status,
+      origin,
+    }
   ) {
     return $database.then(database => {
       const { db, queryDocuments } = database as WhpptMongoDatabase;
@@ -59,16 +75,17 @@ const listOrders: HttpModule<
         });
       }
 
-      if (dateFrom) {
+      if (dateFromYear && dateFromMonth && dateFromDay) {
         query.$and.push({
-          createdAt: { $gte: new Date(dateFrom) },
+          createdAt: { $gte: new Date(dateFromYear, dateFromMonth, dateFromDay) },
         });
       }
-      if (dateTo) {
+      if (dateToYear && dateToMonth && dateToDay) {
         query.$and.push({
-          createdAt: { $lt: dateTo ? new Date(dateTo) : new Date() },
+          createdAt: { $lt: new Date(dateToYear, dateToMonth, dateToDay) },
         });
       }
+
       if (origin) {
         query.$and.push({
           fromPos: { $exists: origin === 'pos' },

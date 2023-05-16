@@ -7,8 +7,12 @@ import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 
 const getProductSales: HttpModule<
   {
-    dateFrom?: string;
-    dateTo?: string;
+    dateFromYear?: number;
+    dateFromMonth?: number;
+    dateFromDay?: number;
+    dateToYear?: number;
+    dateToMonth?: number;
+    dateToDay?: number;
     limit: string;
     currentPage: string;
     origin: string;
@@ -22,7 +26,19 @@ const getProductSales: HttpModule<
   },
   exec(
     context,
-    { dateFrom, dateTo, limit = '10', currentPage = '0', origin, marketArea, customerId }
+    {
+      dateFromYear,
+      dateFromMonth,
+      dateFromDay,
+      dateToYear,
+      dateToMonth,
+      dateToDay,
+      limit = '10',
+      currentPage = '0',
+      origin,
+      marketArea,
+      customerId,
+    }
   ) {
     return context.$database.then(database => {
       const { db } = database as WhpptMongoDatabase;
@@ -31,15 +47,14 @@ const getProductSales: HttpModule<
         $and: [{ _id: { $exists: true }, checkoutStatus: 'paid' }],
       } as any;
 
-      if (dateFrom) {
+      if (dateFromYear && dateFromMonth && dateFromDay) {
         query.$and.push({
-          createdAt: { $gte: new Date(dateFrom) },
+          createdAt: { $gte: new Date(dateFromYear, dateFromMonth, dateFromDay) },
         });
       }
-
-      if (dateTo) {
+      if (dateToYear && dateToMonth && dateToDay) {
         query.$and.push({
-          createdAt: { $lt: dateTo ? new Date(dateTo) : new Date() },
+          createdAt: { $lt: new Date(dateToYear, dateToMonth, dateToDay) },
         });
       }
 
