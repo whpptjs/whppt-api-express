@@ -19,6 +19,7 @@ export type Order = {
   updatedAt?: Date;
   note?: string;
   fromPos?: boolean;
+  isDiner?: boolean;
   number?: string | number;
   stripe?: {
     intentId: string;
@@ -73,6 +74,13 @@ export type OrderItem = {
 
 export type OrderWithProducts = Order & {
   items?: OrderItemWithProduct[];
+};
+export type OrderWithProductsAndDiscounts = Order & {
+  items?: OrderItemDiscountsWithProducts[];
+};
+export type OrderItemDiscountsWithProducts = OrderItemWithProduct & {
+  totalDiscountApplied?: number | string;
+  revenue?: number | string;
 };
 
 export type OrderItemWithProduct = OrderItem & {

@@ -69,7 +69,7 @@ const changeDetails: HttpModule<
             },
           }),
         ];
-        assign(contact, { firstName, lastName, phone, company, mobile });
+        assign(contact, { firstName, email, lastName, phone, company, mobile });
 
         return startTransaction(session => {
           return saveContactAndPublish(

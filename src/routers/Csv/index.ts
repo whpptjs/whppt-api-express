@@ -81,12 +81,8 @@ export const CsvRouter = (apiPrefix: string) => {
               const headers = [
                 'CODE',
                 'PRODUCT NAME',
-                'ORIGINAL PRICE',
-                'DISCOUNT %(ADJUSTED)',
-                'PRICE SOLD',
-                'DISCOUNT %(APPORTIONED)',
+                'PRICE',
                 'TOTAL DISCOUNT %',
-                'UNIT PRICE',
                 '# SOLD',
                 'REVENUE(S)',
                 'SOURCE',
@@ -105,18 +101,13 @@ export const CsvRouter = (apiPrefix: string) => {
 
               orders.forEach((order: any) => {
                 order.items.forEach((item: any) => {
-                  const manualAdjustedDiscount = Number(item.manualAdjustedDiscount) || 0;
                   csvStream.write([
                     item.product?.productCode,
                     item.product?.name,
                     item.originalPrice / 100,
-                    manualAdjustedDiscount.toFixed(2),
-                    item.purchasedPrice / 100,
-                    (item.discountApplied - manualAdjustedDiscount).toFixed(2),
-                    item.discountApplied.toFixed(2),
-                    item.unitPriceWithDiscount / 100,
+                    item.totalDiscountApplied,
                     item.quantity,
-                    item.quantity * (item.unitPriceWithDiscount / 100),
+                    item.revenue / 100,
                     order.fromPos ? 'POS' : 'Web',
                     order.isDiner ? 'Yes' : 'No',
                     order.orderNumber || order._id,
