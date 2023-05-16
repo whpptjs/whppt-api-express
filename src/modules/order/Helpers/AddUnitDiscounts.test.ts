@@ -1,9 +1,9 @@
 import { OrderWithProducts } from '../Models/Order';
 import { addUnitDiscountsToOrder } from './AddUnitDiscounts';
-describe('Prep order for discounts', () => {
-  it('Given standard order with no discounts', () => {
-    const order = addUnitDiscountsToOrder(standardOrder);
 
+describe('Prep order for discounts', () => {
+  it('Given an order with no discounts', () => {
+    const order = addUnitDiscountsToOrder(standardOrder);
     const item = order.items[0];
     expect(item.originalPrice).toEqual(7450);
     expect(item.quantity).toEqual(1);

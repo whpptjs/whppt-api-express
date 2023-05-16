@@ -29,14 +29,12 @@ describe('Calculate membership tier', () => {
   });
   it('Given user that has spent 1500 this year - will be TR, $500 left to CC', () => {
     const currentYear = {
-      amount: 1650 * 100,
+      amount: 1500 * 100,
       discountApplied: 150 * 100,
-      amountWithDiscount: 1500 * 100,
     };
     const previousYear = {
       amount: 0,
       discountApplied: 0,
-      amountWithDiscount: 0,
     };
     const tier = calculateMembershipTier(
       { _id: '', membershipTiers },
@@ -48,7 +46,7 @@ describe('Calculate membership tier', () => {
     expect(tier.name).toEqual('Tally Room Member - TR');
     expect(tier.shortName).toEqual('Tally Room');
     expect(tier.entryLevelSpend).toEqual(100000);
-    expect(tier.amountSpentForYear).toEqual(165000);
+    expect(tier.amountSpentForYear).toEqual(150000);
     expect(tier.discountAppliedForYear).toEqual(15000);
     expect(tier.amountToSpendToNextTier).toEqual(50000);
     expect(tier.nextTiers?.length).toEqual(1);
@@ -108,14 +106,12 @@ describe('Calculate membership tier', () => {
 
   it('Given user that has spent 1200 last year and 100 this year -- TR but $1900 to CC', () => {
     const currentYear = {
-      amount: 110 * 100,
+      amount: 100 * 100,
       discountApplied: 10 * 100,
-      amountWithDiscount: 100 * 100,
     };
     const previousYear = {
-      amount: 1320 * 100,
+      amount: 1200 * 100,
       discountApplied: 120 * 100,
-      amountWithDiscount: 1200 * 100,
     };
     const tier = calculateMembershipTier(
       { _id: '', membershipTiers },
@@ -127,7 +123,7 @@ describe('Calculate membership tier', () => {
     expect(tier.name).toEqual('Tally Room Member - TR');
     expect(tier.shortName).toEqual('Tally Room');
     expect(tier.entryLevelSpend).toEqual(100000);
-    expect(tier.amountSpentForYear).toEqual(11000);
+    expect(tier.amountSpentForYear).toEqual(10000);
     expect(tier.discountAppliedForYear).toEqual(1000);
     expect(tier.amountToSpendToNextTier).toEqual(190000);
     expect(tier.nextTiers?.length).toEqual(1);

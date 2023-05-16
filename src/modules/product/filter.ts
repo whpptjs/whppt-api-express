@@ -114,6 +114,7 @@ function sortLookup(key: string) {
     case 'name (a-z)':
       return {
         name: 1,
+        vintage: -1,
       };
     case 'name (z-a)':
       return {
@@ -128,6 +129,6 @@ function sortLookup(key: string) {
         price: -1,
       };
     default:
-      return { name: 1 };
+      return { name: 1, vintage: -1 };
   }
 }
