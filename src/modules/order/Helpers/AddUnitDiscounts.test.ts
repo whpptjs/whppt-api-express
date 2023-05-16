@@ -9,6 +9,7 @@ describe('Prep order for discounts', () => {
     expect(item.quantity).toEqual(1);
     expect(item.totalDiscountApplied).toEqual(0);
     expect(item.revenue).toEqual(7450);
+    expect(item.shippingCostPrice).toEqual(1500);
     expect(order.fromPos).toEqual(true);
     expect(order.isDiner).toEqual(false);
     expect(order.shipping?.pickup).toEqual(true);
@@ -19,6 +20,7 @@ describe('Prep order for discounts', () => {
     expect(item.originalPrice).toEqual(9450);
     expect(item.quantity).toEqual(6);
     expect(item.totalDiscountApplied).toEqual(11.816578483245166);
+    expect(item.shippingCostPrice).toEqual(2250);
     expect(item.revenue).toEqual(49999.99999999999);
     expect(order.fromPos).toEqual(true);
     expect(order.isDiner).toEqual(false);
@@ -29,6 +31,7 @@ describe('Prep order for discounts', () => {
     const item = order.items[0];
     expect(item.originalPrice).toEqual(9450);
     expect(item.quantity).toEqual(1);
+    expect(item.shippingCostPrice).toEqual(300);
     expect(item.totalDiscountApplied).toEqual(20.000000000000007);
     expect(item.revenue).toEqual(7559.999999999999);
     expect(order.fromPos).toEqual(false);
@@ -40,6 +43,7 @@ describe('Prep order for discounts', () => {
     const item = order.items[0];
     expect(item.originalPrice).toEqual(7450);
     expect(item.quantity).toEqual(2);
+    expect(item.shippingCostPrice).toEqual(0);
     expect(item.totalDiscountApplied).toEqual(10);
     expect(item.revenue).toEqual(13410);
     expect(order.fromPos).toEqual(true);
@@ -98,6 +102,13 @@ const overridedTotal = {
       purchasedPrice: 9450,
       originalPrice: 9450,
     },
+    {
+      _id: 'ddd',
+      productId: 'vlb615hxc',
+      quantity: 2,
+      purchasedPrice: 9450,
+      originalPrice: 9450,
+    },
   ],
   orderNumber: 3008297,
   payment: {
@@ -107,10 +118,11 @@ const overridedTotal = {
     memberTotalDiscount: 0,
     memberShippingDiscount: 0,
     shippingCost: {
-      price: 0,
+      price: 3000,
       allowCheckout: true,
       message: '',
       type: 'pickup',
+      pickup: false,
     },
     originalTotal: 56700,
     overrideTotalPrice: 50000,
@@ -135,7 +147,7 @@ const overridedItem = {
     },
     {
       productId: 'ulgxmiopl',
-      quantity: 1,
+      quantity: 4,
       _id: 'tlhlo3wrq',
       overidedPrice: 5560,
       purchasedPrice: 5560,
@@ -150,10 +162,11 @@ const overridedItem = {
     memberTotalDiscount: 0,
     memberShippingDiscount: 0,
     shippingCost: {
-      price: 0,
+      price: 1500,
       allowCheckout: true,
       message: '',
       type: 'pickup',
+      pickup: false,
     },
     originalTotal: 13120,
     overrideTotalPrice: null,

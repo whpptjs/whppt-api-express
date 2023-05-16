@@ -81,6 +81,7 @@ export type OrderWithProductsAndDiscounts = Order & {
 export type OrderItemDiscountsWithProducts = OrderItemWithProduct & {
   totalDiscountApplied?: number | string;
   revenue?: number | string;
+  shippingCostPrice?: number | string;
 };
 
 export type OrderItemWithProduct = OrderItem & {
@@ -91,6 +92,8 @@ export type OrderItemWithProduct = OrderItem & {
   purchasedPrice?: number;
   overidedPrice?: number;
   originalPrice?: number;
+  //legacy
+  productName?: string;
 };
 
 export type Payment = {

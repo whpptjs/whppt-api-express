@@ -1,3 +1,4 @@
+import { sumBy } from 'lodash';
 import {
   OrderItemWithProduct,
   OrderWithProducts,
@@ -18,6 +19,12 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
       ? order.payment?.memberTotalDiscount / order.payment.originalSubTotal
       : 0;
 
+  const shippingCost = order.payment?.shippingCost?.price
+    ? Number(order.payment?.shippingCost?.price)
+    : 0;
+  const amountOfItems = sumBy(order.items, (i: any) => i.quantity);
+  const shippingCostPer = shippingCost / amountOfItems;
+
   return {
     ...order,
     items: order.items.map((item: OrderItemWithProduct) => {
@@ -26,6 +33,7 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
       const unitPriceWithDiscount = orderLevelDiscountPercentage
         ? purchasedPrice * orderLevelDiscountPercentage
         : purchasedPrice;
+
       const unitPriceWithMemberDiscount = memberLevelDiscountPercentage
         ? purchasedPrice - purchasedPrice * memberLevelDiscountPercentage
         : 0;
@@ -44,19 +52,12 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
         ? unitPriceWithMemberDiscount * item.quantity
         : unitPriceWithDiscount * item.quantity;
 
-      // const remainder = orgPrice - Number(item.overidedPrice || 0);
-
-      // const remainderWithOriginal = remainder / orgPrice;
-      // const manualAdjustedDiscount = (remainderWithOriginal * 100).toFixed(2);
-
       return {
         ...item,
-        // unitPriceWithDiscount: unitPriceWithDiscount.toFixed(2),
-        // discountApplied: totalDiscountOnLineItem ? totalDiscountOnLineItem * 100 : 0,
-        // manualAdjustedDiscount: item.overidedPrice ? manualAdjustedDiscount : 0,
-
+        productName: item.productName || item.product?.name,
         totalDiscountApplied,
         revenue: revenue,
+        shippingCostPrice: shippingCostPer * item.quantity,
       };
     }),
   };

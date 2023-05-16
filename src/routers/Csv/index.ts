@@ -89,6 +89,7 @@ export const CsvRouter = (apiPrefix: string) => {
                 'DINER',
                 'ORDER #',
                 'DISPATCH',
+                'SHIPPING PRICE',
               ];
 
               res.setHeader(
@@ -112,6 +113,7 @@ export const CsvRouter = (apiPrefix: string) => {
                     order.isDiner ? 'Yes' : 'No',
                     order.orderNumber || order._id,
                     order.shipping?.pickup ? 'No' : 'Yes',
+                    item.shippingCostPrice / 100,
                   ]);
                 });
               });
