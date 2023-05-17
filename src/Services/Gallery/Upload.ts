@@ -47,13 +47,12 @@ export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) 
           console.log('🚀 Upload db ');
           return startTransaction(session => {
             console.log('🚀 Upload db transaction');
-            console.log('🚀 Upload db transaction');
-            return Promise.all([
-              document.save('gallery', newGalleryItem, { session }),
-              document.publish('gallery', newGalleryItem, { session }),
-            ]).then(() => {
-              console.log('🚀 Upload db saved');
-              return $storage.upload(buffer, newGalleryItem._id, type, {});
+            return document.save('gallery', newGalleryItem, { session }).then(() => {
+              console.log('🚀 Upload db save done 2');
+              return document.publish('gallery', newGalleryItem, { session }).then(() => {
+                console.log('🚀 Upload db saved');
+                return $storage.upload(buffer, newGalleryItem._id, type, {});
+              });
             });
           }).then(() => newGalleryItem);
         });
