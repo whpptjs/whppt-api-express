@@ -43,11 +43,6 @@ export const calculateMembershipTier: CalculateMembershipTier = (
       : baseTier;
   const nextTierLevel = (currentTier?.level || 0) + 1;
   const nextTier = sortedTiers.find(t => t.level === nextTierLevel);
-  console.log(
-    '🚀 ~ file: calculateMembershipTier.ts:46 ~ nextTier:',
-    nextTier?.entryLevelSpend,
-    currentYear.amount
-  );
 
   return {
     ...currentTier,

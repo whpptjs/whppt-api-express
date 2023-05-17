@@ -60,8 +60,6 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       )}  ${sanitizeAddressString(
                         order?.shipping?.address?.suburb
                       )} ${sanitizeAddressString(
-                        order?.shipping?.address?.city
-                      )} ${sanitizeAddressString(
                         order?.shipping?.address?.state
                       )} ${sanitizeAddressString(order?.shipping?.address?.country)} 
                       ${sanitizeAddressString(order?.shipping?.address?.postCode)} `,

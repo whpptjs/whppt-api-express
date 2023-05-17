@@ -1,5 +1,5 @@
 export const sanitizeAddressString = (item?: string) => {
-  return item ? `${item}, ` : '';
+  return item && item !== 'null' ? `${item}, ` : '';
 };
 
 export const composeOrderData = (orderWithProducts: any, contact?: any) => {

@@ -98,7 +98,7 @@ const header = (orderId: string, updatedAt: string) => [
                         ],
                         [
                           {
-                            text: '08 8562 8427 - 08 8333 0246 (fax)',
+                            text: '08 8562 8427',
                             fontSize: 8,
                             font: 'Roxborough',
                             alignment: 'right',
