@@ -15,13 +15,17 @@ export type UploadGalleryItemContstructor = (
 
 export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) => {
   return ({ file, domainId, type }) => {
+    console.log('🚀 Upload starting');
+
     return Promise.resolve().then(() => {
+      console.log('🚀 Upload called');
       assert(file, 'File to upload is required');
       assert(domainId, 'Domain Id is required');
       assert(type, 'File type is required');
 
       const { buffer, mimetype, originalname } = file;
       return fileType.fromBuffer(buffer).then(fileType => {
+        console.log('🚀 Upload after buffer');
         const newGalleryItem: GalleryItem = {
           _id: $id.newId(),
           domainId,
@@ -40,11 +44,17 @@ export const Upload: UploadGalleryItemContstructor = ($id, $database, $storage) 
         };
 
         return $database.then(({ startTransaction, document }) => {
+          console.log('🚀 Upload db ');
           return startTransaction(session => {
+            console.log('🚀 Upload db transaction');
+            console.log('🚀 Upload db transaction');
             return Promise.all([
               document.save('gallery', newGalleryItem, { session }),
               document.publish('gallery', newGalleryItem, { session }),
-            ]).then(() => $storage.upload(buffer, newGalleryItem._id, type, {}));
+            ]).then(() => {
+              console.log('🚀 Upload db saved');
+              return $storage.upload(buffer, newGalleryItem._id, type, {});
+            });
           }).then(() => newGalleryItem);
         });
       });
