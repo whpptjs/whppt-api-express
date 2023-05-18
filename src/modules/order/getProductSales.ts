@@ -49,12 +49,14 @@ const getProductSales: HttpModule<
 
       if (dateFromYear && dateFromMonth && dateFromDay) {
         query.$and.push({
-          createdAt: { $gte: new Date(dateFromYear, dateFromMonth, dateFromDay) },
+          createdAt: {
+            $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
+          },
         });
       }
       if (dateToYear && dateToMonth && dateToDay) {
         query.$and.push({
-          createdAt: { $lt: new Date(dateToYear, dateToMonth, dateToDay) },
+          createdAt: { $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0) },
         });
       }
 

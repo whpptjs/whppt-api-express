@@ -14,21 +14,33 @@ export const CsvRouter = (apiPrefix: string) => {
       .then(context => {
         return context.$database.then(database => {
           const { db } = database as WhpptMongoDatabase;
-          const { dateFrom, dateTo, origin, marketArea, customerId } = req.query;
+          const {
+            dateFromYear,
+            dateFromMonth,
+            dateFromDay,
+            dateToYear,
+            dateToMonth,
+            dateToDay,
+            origin,
+            marketArea,
+            customerId,
+          } = req.query;
 
           const query = {
             $and: [{ _id: { $exists: true }, checkoutStatus: 'paid' }],
           } as any;
 
-          if (dateFrom) {
+          if (dateFromYear && dateFromMonth && dateFromDay) {
             query.$and.push({
-              createdAt: { $gte: new Date(dateFrom) },
+              $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
             });
           }
 
-          if (dateTo) {
+          if (dateToYear && dateToMonth && dateToDay) {
             query.$and.push({
-              createdAt: { $lt: dateTo ? new Date(dateTo) : new Date() },
+              createdAt: {
+                $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
+              },
             });
           }
 
