@@ -21,7 +21,7 @@ export type AusPostService = (context: ContextType) => Promise<{
     height: number;
     weight: number;
   }) => Promise<string>;
-  createLabel: (shipment_id: string) => Promise<string>;
+  // createLabel: (shipment_id: string) => Promise<string>;
   getLabel: (labelRequestId: string) => Promise<{ url: string; labelStatus: string }>;
 }>;
 
@@ -52,7 +52,7 @@ export const AusPost: AusPostService = ({ $hosting }) => {
         const _body = {
           shipments: [
             {
-              sender_references: [order._id],
+              sender_references: [order.orderNumber, order._id],
               from: {
                 name: 'Hentley Farm',
                 lines: ['Cnr Gerald Roberts and Jenke Rds'],
@@ -107,57 +107,57 @@ export const AusPost: AusPostService = ({ $hosting }) => {
             throw err;
           });
       },
-      createLabel: shipment_id => {
-        const _body = {
-          preferences: [
-            {
-              type: 'PRINT',
-              groups: [
-                {
-                  group: 'Parcel Post',
-                  layout: 'THERMAL-LABEL-A6-1PP',
-                  branded: true,
-                  left_offset: 0,
-                  top_offset: 0,
-                },
-                {
-                  group: 'Express Post',
-                  layout: 'THERMAL-LABEL-A6-1PP',
-                  branded: true,
-                  left_offset: 0,
-                  top_offset: 0,
-                },
-              ],
-            },
-          ],
-          shipments: [
-            {
-              shipment_id,
-            },
-          ],
-        };
-        return fetch(`${AUS_POST_BASE_URL}/shipping/v1/labels`, {
-          method: 'post',
-          body: JSON.stringify(_body),
-          headers,
-        })
-          .then((response: any) => {
-            return response.json().then((data: any) => {
-              if (data?.errors?.length) throw new Error(data.errors[0].message);
-              if (!data?.labels?.length)
-                throw new Error('Something went wrong getting creating label');
+      // createLabel: shipment_id => {
+      //   const _body = {
+      //     preferences: [
+      //       {
+      //         type: 'PRINT',
+      //         groups: [
+      //           {
+      //             group: 'Parcel Post',
+      //             layout: 'THERMAL-LABEL-A6-1PP',
+      //             branded: true,
+      //             left_offset: 0,
+      //             top_offset: 0,
+      //           },
+      //           {
+      //             group: 'Express Post',
+      //             layout: 'THERMAL-LABEL-A6-1PP',
+      //             branded: true,
+      //             left_offset: 0,
+      //             top_offset: 0,
+      //           },
+      //         ],
+      //       },
+      //     ],
+      //     shipments: [
+      //       {
+      //         shipment_id,
+      //       },
+      //     ],
+      //   };
+      //   return fetch(`${AUS_POST_BASE_URL}/shipping/v1/labels`, {
+      //     method: 'post',
+      //     body: JSON.stringify(_body),
+      //     headers,
+      //   })
+      //     .then((response: any) => {
+      //       return response.json().then((data: any) => {
+      //         if (data?.errors?.length) throw new Error(data.errors[0].message);
+      //         if (!data?.labels?.length)
+      //           throw new Error('Something went wrong getting creating label');
 
-              const label_request_id = data?.labels[0].request_id;
-              if (!label_request_id)
-                throw new Error('Something went wrong getting creating label');
+      //         const label_request_id = data?.labels[0].request_id;
+      //         if (!label_request_id)
+      //           throw new Error('Something went wrong getting creating label');
 
-              return label_request_id as string;
-            });
-          })
-          .catch((err: any) => {
-            throw err;
-          });
-      },
+      //         return label_request_id as string;
+      //       });
+      //     })
+      //     .catch((err: any) => {
+      //       throw err;
+      //     });
+      // },
       getLabel(labelRequestId) {
         return fetch(`${AUS_POST_BASE_URL}/shipping/v1/labels/${labelRequestId}`, {
           method: 'get',

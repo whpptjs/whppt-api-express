@@ -70,10 +70,14 @@ export const queryMemberAmountSpentForYear: QueryMemberAmountSpentForYear = (
 const calcAmountSpentTowardsMembership = (orders: Order[]) => {
   return orders.reduce((partialSum: number, _order) => {
     const amount = _order?.payment?.amount || 0;
-    const shippingCost = Number(
+    const shippingCostPreDiscount = Number(
       _order?.payment?.shippingCost?.price || _order?.shipping?.shippingCost?.price || 0
     );
-
+    const memberShippingDiscount = Number(_order?.payment?.memberShippingDiscount || 0);
+    const shippingCost =
+      shippingCostPreDiscount - memberShippingDiscount > 0
+        ? shippingCostPreDiscount - memberShippingDiscount
+        : 0;
     return partialSum + (amount - shippingCost);
   }, 0);
 };

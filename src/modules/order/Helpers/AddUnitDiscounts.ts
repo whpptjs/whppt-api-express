@@ -19,9 +19,11 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
       ? order.payment?.memberTotalDiscount / order.payment.originalSubTotal
       : 0;
 
-  const shippingCost = order.payment?.shippingCost?.price
-    ? Number(order.payment?.shippingCost?.price)
+  const memberShippingDiscount = Number(order?.payment?.memberShippingDiscount) || 0;
+  const shippingCostWithDiscount = order.payment?.shippingCost?.price
+    ? Number(order.payment?.shippingCost?.price) - memberShippingDiscount
     : 0;
+  const shippingCost = shippingCostWithDiscount > 0 ? shippingCostWithDiscount : 0;
   const amountOfItems = sumBy(order.items, (i: any) => i.quantity);
   const shippingCostPer = shippingCost / amountOfItems;
 

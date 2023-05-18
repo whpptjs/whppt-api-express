@@ -9,7 +9,7 @@ describe('Prep order for discounts', () => {
     expect(item.quantity).toEqual(1);
     expect(item.totalDiscountApplied).toEqual(0);
     expect(item.revenue).toEqual(7450);
-    expect(item.shippingCostPrice).toEqual(1500);
+    expect(item.shippingCostPrice).toEqual(400);
     expect(order.fromPos).toEqual(true);
     expect(order.isDiner).toEqual(false);
     expect(order.shipping?.pickup).toEqual(true);
@@ -73,7 +73,7 @@ const standardOrder = {
     amount: 8950,
     subTotal: 7450,
     memberTotalDiscount: 0,
-    memberShippingDiscount: 0,
+    memberShippingDiscount: 1100,
     shippingCost: {
       price: 1500,
       allowCheckout: true,

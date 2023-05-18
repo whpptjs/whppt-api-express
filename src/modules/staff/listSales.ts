@@ -144,10 +144,33 @@ const listSales: HttpModule<
           .toArray(),
       ]).then(([orders, total = 0, amounts]) => {
         const { salesTotal = 0, itemsTotal = 0 } = amounts[0] || {};
-        return { orders, total, salesTotal, itemsTotal };
+        return { orders: orders.map(prepOrder), total, salesTotal, itemsTotal };
       });
     });
   },
 };
 
 export default Secure(listSales);
+
+const prepOrder = (order: Order) => {
+  const shippingCostPreDiscount = Number(
+    order?.payment?.shippingCost?.price || order?.shipping?.shippingCost?.price || 0
+  );
+  const memberShippingDiscount = Number(order?.payment?.memberShippingDiscount || 0);
+  const shippingCost =
+    shippingCostPreDiscount - memberShippingDiscount > 0
+      ? shippingCostPreDiscount - memberShippingDiscount
+      : 0;
+  const salesTotal =
+    order?.payment?.amount && order?.payment?.amount - shippingCost > 0
+      ? order?.payment?.amount - shippingCost
+      : 0;
+
+  return {
+    ...order,
+    payment: {
+      ...order.payment,
+      salesTotal,
+    },
+  };
+};
