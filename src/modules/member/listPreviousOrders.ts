@@ -18,7 +18,7 @@ const listPreviousOrders: HttpModule<
           filter: query,
           sort: { updatedAt: -1 },
           limit: numLimit,
-          skip: numLimit * (numCurrentPage - 1),
+          skip: numLimit * numCurrentPage,
         }),
         countDocuments('orders', { filter: query }),
       ]).then(([orders, total]) => {
