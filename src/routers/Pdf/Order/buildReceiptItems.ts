@@ -70,7 +70,7 @@ const buildReceiptItems = (items: any) => {
                 body: [
                   [
                     {
-                      text: `${item.product.name}`,
+                      text: `${item.productName || item.product.name}`,
                       styles: 'tableCell',
                       alignment: 'left',
                       font: 'SweetSansPro',

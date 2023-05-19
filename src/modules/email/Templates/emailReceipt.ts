@@ -9,7 +9,7 @@ function getOrderItems(order: any) {
     for (let item of items) {
       itemsHtml +=
         '<tr><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
-        (item?.product?.name || 'Legacy Item') +
+        (item?.productName || item?.product?.name || 'Legacy Item') +
         '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         (item?.product?.customFields.vintage || '') +
         '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
