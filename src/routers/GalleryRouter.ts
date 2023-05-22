@@ -95,7 +95,7 @@ export const GalleryRouter: GalleryRouterConstructor = ($logger, apiPrefix) => {
         .then(({ $gallery }) => {
           if (!$gallery) throw new Error('Gallery is required');
           return $gallery
-            .fetchOriginal({ itemId: req.params.videoId, type: 'videos' })
+            .fetchOriginal({ itemId: req.params.videoId, type: 'video' })
             .then((response: any) => {
               if (!response) return res.status(404).send('Video not found');
 
