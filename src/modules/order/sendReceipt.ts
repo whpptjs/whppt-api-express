@@ -2,11 +2,14 @@ import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { getOrderTemplate } from '../email/Templates/emailReceipt';
 import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
-const sendReceipt: HttpModule<{ orderId: string; email: string }, void> = {
+const sendReceipt: HttpModule<
+  { orderId: string; email: string; domainId: string },
+  void
+> = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, []);
   },
-  exec(context, { orderId, email }) {
+  exec(context, { orderId, email, domainId }) {
     return loadOrderWithProducts(context, { _id: orderId }).then(order => {
       assert(order._id, 'OrderId is required');
       assert(email, 'Email is required');
@@ -18,7 +21,7 @@ const sendReceipt: HttpModule<{ orderId: string; email: string }, void> = {
             ? ` for order #${order.orderNumber || order._id}`
             : ''
         }`,
-        html: getOrderTemplate(order),
+        html: getOrderTemplate(order, domainId),
       });
     });
   },

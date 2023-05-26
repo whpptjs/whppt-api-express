@@ -66,7 +66,9 @@ export function getOrderTemplate(order: any, domainId?: string) {
   } = buildOrderForDisplay(order);
 
   const invoiceUrl = domainId
-    ? `https://www.hentleyfarm.com.au/api/pdf/orderReceipt?orderId=${order._id}&domainId=${domainId}`
+    ? `https://www.hentleyfarm.com.au/api/pdf/orderReceipt?orderId=${
+        order._id
+      }&domainId=${domainId || 'vl8z483o6'}`
     : '';
 
   const invoice = invoiceUrl
