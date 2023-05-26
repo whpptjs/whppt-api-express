@@ -2,13 +2,13 @@ import { OrderItemWithProduct } from 'src/modules/order/Models/Order';
 
 function getSubtotal(order: any) {
   return order && order.items.length
-    ? order.items.reduce(
-        (acc: number, item: OrderItemWithProduct) =>
+    ? order.items.reduce((acc: number, item: OrderItemWithProduct) => {
+        return (
           acc +
           (Number(item?.purchasedPrice || item.product?.price || 0) / 100) *
-            Number(item.quantity),
-        0
-      )
+            Number(item.quantity || 0)
+        );
+      }, 0)
     : 0;
 }
 
@@ -32,9 +32,10 @@ export const buildOrderForDisplay = (order: any) => {
     : shippingCost === 0
     ? 'Complimentary'
     : `$${shippingCost.toFixed(2)}`;
-  const subtotal = getSubtotal(order);
-  //   const subTotalAfterShippingAndDiscounts =
-  //     subtotal + shipping - Number(memberShippingDiscount) - Number(memberTotalDiscount);
+
+  const subtotal = totalDiscounted || getSubtotal(order);
+
+  const originalSubtotal = getSubtotal(order);
 
   const itemsDiscountedCostInCents =
     order && order.items.length
@@ -52,14 +53,15 @@ export const buildOrderForDisplay = (order: any) => {
       : 0;
   const itemsDiscountedAmount = itemsDiscountedCostInCents / 100;
   const totalDiscountedFromTotal =
-    (totalDiscounted || totalDiscounted === 0) && subtotal
-      ? subtotal + shippingCost - totalDiscounted
+    (totalDiscounted || totalDiscounted === 0) && originalSubtotal
+      ? originalSubtotal - totalDiscounted
       : 0;
 
   const total =
     totalDiscounted || totalDiscounted === 0
-      ? totalDiscounted
+      ? totalDiscounted + shippingCost
       : subtotal + shippingCost - membersDiscount;
+
   const tax = total / 11;
 
   return {
