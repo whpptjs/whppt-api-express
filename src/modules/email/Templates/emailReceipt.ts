@@ -139,13 +139,13 @@ export function getOrderTemplate(order: any, domainId?: string) {
             </tbody>
             <tfoot style="background-color: #242424">
               ${itemsDiscountedAmount ? getItemDiscounts(itemsDiscountedAmount) : ''}
+              ${totalDiscountedFromTotal
+                ? getDiscountApplied(totalDiscountedFromTotal)
+                : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="3">Subtotal</th>
                 <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal}</td>
               </tr>
-              ${totalDiscountedFromTotal
-                ? getDiscountApplied(totalDiscountedFromTotal)
-                : ''}
               ${membersDiscount ? getMemberDiscount(membersDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="3">Shipping</th>

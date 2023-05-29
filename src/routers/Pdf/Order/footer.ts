@@ -45,6 +45,26 @@ export const footer = (order: any) => {
       },
     ]);
   }
+
+  if (totalDiscountedFromTotal) {
+    table.table.body.push([
+      {
+        text: 'ORDER DISCOUNT',
+        bold: true,
+        font: 'SweetSansPro',
+        alignment: 'left',
+        fontSize: 10,
+      },
+      {
+        text: `-$${totalDiscountedFromTotal}`,
+        bold: false,
+        font: 'SweetSansPro',
+        alignment: 'right',
+        fontSize: 10,
+      },
+    ]);
+  }
+
   table.table.body.push([
     {
       text: 'SUBTOTAL',
@@ -61,6 +81,7 @@ export const footer = (order: any) => {
       fontSize: 10,
     },
   ]);
+
   if (membersDiscount) {
     table.table.body.push([
       {
@@ -72,24 +93,6 @@ export const footer = (order: any) => {
       },
       {
         text: `-$${membersDiscount}`,
-        bold: false,
-        font: 'SweetSansPro',
-        alignment: 'right',
-        fontSize: 10,
-      },
-    ]);
-  }
-  if (totalDiscountedFromTotal) {
-    table.table.body.push([
-      {
-        text: 'ORDER DISCOUNT',
-        bold: true,
-        font: 'SweetSansPro',
-        alignment: 'left',
-        fontSize: 10,
-      },
-      {
-        text: `-$${totalDiscountedFromTotal}`,
         bold: false,
         font: 'SweetSansPro',
         alignment: 'right',

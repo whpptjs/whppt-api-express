@@ -31,12 +31,12 @@ describe('Prep order for display', () => {
       membersDiscount,
     } = buildOrderForDisplay(itemsAndOrderDiscountedOrder);
 
-    expect(total).toEqual('37.30');
-    expect(subtotal).toEqual('59.60');
+    expect(total).toEqual('52.30');
+    expect(subtotal).toEqual('37.30');
     expect(itemsDiscountedAmount).toEqual('14.90');
-    expect(totalDiscountedFromTotal).toEqual('37.30');
+    expect(totalDiscountedFromTotal).toEqual('22.30');
     expect(shipping).toEqual('$15.00');
-    expect(tax).toEqual('3.39');
+    expect(tax).toEqual('4.75');
     expect(membersDiscount).toEqual(0);
   });
   it('Given order is for a cc member', () => {
@@ -127,7 +127,7 @@ describe('Prep order for display', () => {
     } = buildOrderForDisplay(orderShipping);
 
     expect(total).toEqual('10800.00');
-    expect(subtotal).toEqual('12000.00');
+    expect(subtotal).toEqual('10800.00');
     expect(itemsDiscountedAmount).toEqual('3000.00');
     expect(totalDiscountedFromTotal).toEqual('1200.00');
     expect(shipping).toEqual('Complimentary');
@@ -151,6 +151,25 @@ describe('Prep order for display', () => {
     expect(totalDiscountedFromTotal).toEqual('541.50');
     expect(shipping).toEqual('Pickup');
     expect(tax).toEqual('0.00');
+    expect(membersDiscount).toEqual(0);
+  });
+  it('Testing subtotal override', () => {
+    const {
+      total,
+      subtotal,
+      itemsDiscountedAmount,
+      totalDiscountedFromTotal,
+      membersDiscount,
+      tax,
+      shipping,
+    } = buildOrderForDisplay(overriddenOrder);
+
+    expect(total).toEqual('289.50');
+    expect(subtotal).toEqual('274.50');
+    expect(itemsDiscountedAmount).toEqual(0);
+    expect(totalDiscountedFromTotal).toEqual('30.50');
+    expect(shipping).toEqual('$15.00');
+    expect(tax).toEqual('26.32');
     expect(membersDiscount).toEqual(0);
   });
 });
@@ -538,5 +557,87 @@ const tastingStock = {
   },
   shipping: {
     pickup: true,
+  },
+};
+
+const overriddenOrder = {
+  _id: '83yli3t8iy5',
+  checkoutStatus: 'paid',
+  createdAt: {
+    $date: '2023-05-26T00:13:53.263Z',
+  },
+  items: [
+    {
+      _id: '83yli3t8iy6',
+      productId: 'ulc8lz84n',
+      quantity: 1,
+      purchasedPrice: 30500,
+      originalPrice: 30500,
+    },
+  ],
+  orderNumber: 300461,
+  updatedAt: {
+    $date: '2023-05-26T00:15:15.003Z',
+  },
+  overrides: {
+    total: 27450,
+  },
+  fromPos: true,
+  staff: {
+    _id: '348lcr40ye6',
+    username: null,
+    marketArea: 'sales',
+  },
+  shipping: {
+    contactDetails: {
+      firstName: 'asd',
+      lastName: 'sdf',
+      company: '',
+    },
+    address: {
+      number: '33',
+      street: 'Rose Ln',
+      suburb: 'Melbourne',
+      city: '',
+      state: 'VIC',
+      country: 'AU',
+      postCode: '3000',
+    },
+    pickup: false,
+  },
+  note: '',
+  contact: {
+    _id: 'unknown_guest',
+    createdAt: {
+      $date: '2023-02-08T01:33:17.061Z',
+    },
+    firstName: 'Unknown',
+    lastName: 'Guest',
+    name: 'Unknown Guest',
+    updatedAt: {
+      $date: '2023-02-08T01:33:17.061Z',
+    },
+  },
+  isDiner: false,
+  payment: {
+    status: 'paid',
+    type: 'cash',
+    date: {
+      $date: '2023-05-26T00:15:15.003Z',
+    },
+    amount: 27450,
+    subTotal: 27450,
+    memberTotalDiscount: 0,
+    memberShippingDiscount: 0,
+    shippingCost: {
+      price: 1500,
+      allowCheckout: true,
+      message: null,
+      type: 'aus_metro',
+    },
+    originalTotal: 27450,
+    originalSubTotal: 30500,
+    overrideTotalPrice: 27450,
+    discountApplied: 0,
   },
 };
