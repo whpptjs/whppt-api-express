@@ -15,7 +15,6 @@ function getSubtotal(order: any) {
 export const buildOrderForDisplay = (order: any) => {
   const memberShippingDiscount =
     Number(order?.payment?.memberShippingDiscount) / 100 || 0;
-  const membersDiscount = Number(order?.payment?.memberTotalDiscount) / 100 || 0;
   const totalDiscounted = order?.overrides?.total && order?.overrides?.total / 100;
 
   const _shippingCost =
@@ -56,6 +55,10 @@ export const buildOrderForDisplay = (order: any) => {
     (totalDiscounted || totalDiscounted === 0) && originalSubtotal
       ? originalSubtotal - totalDiscounted
       : 0;
+
+  const membersDiscount = !itemsDiscountedCostInCents
+    ? Number(order?.payment?.memberTotalDiscount) / 100
+    : 0;
 
   const total =
     totalDiscounted || totalDiscounted === 0

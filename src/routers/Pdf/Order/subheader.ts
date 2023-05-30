@@ -77,6 +77,12 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       alignment: 'right',
                       font: 'SweetSansPro',
                     },
+                    {
+                      text: `${contact?.company}`,
+                      fontSize: 10,
+                      alignment: 'right',
+                      font: 'SweetSansPro',
+                    },
                   ],
                 ],
               },

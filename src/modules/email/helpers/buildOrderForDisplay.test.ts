@@ -172,6 +172,25 @@ describe('Prep order for display', () => {
     expect(tax).toEqual('26.32');
     expect(membersDiscount).toEqual(0);
   });
+  it('Testing Reported Issue', () => {
+    const {
+      total,
+      subtotal,
+      itemsDiscountedAmount,
+      totalDiscountedFromTotal,
+      membersDiscount,
+      tax,
+      shipping,
+    } = buildOrderForDisplay(reportedIssue);
+
+    expect(total).toEqual('2047.13');
+    expect(subtotal).toEqual('2047.13');
+    expect(itemsDiscountedAmount).toEqual('682.38');
+    expect(totalDiscountedFromTotal).toEqual(0);
+    expect(shipping).toEqual('Complimentary');
+    expect(tax).toEqual('186.10');
+    expect(membersDiscount).toEqual(0);
+  });
 });
 
 const standardOrder = {
@@ -639,5 +658,96 @@ const overriddenOrder = {
     originalSubTotal: 30500,
     overrideTotalPrice: 27450,
     discountApplied: 0,
+  },
+};
+
+const reportedIssue = {
+  _id: 'uli9jbrp7',
+  checkoutStatus: 'paid',
+  items: [
+    {
+      _id: 'uli9jbrp8',
+      productId: 'vlbfx1hr8',
+      quantity: 12,
+      overidedPrice: 10275,
+      purchasedPrice: 10275,
+      originalPrice: 13700,
+    },
+    {
+      productId: '63e738d5021823b2ab63a390',
+      quantity: 1,
+      _id: 'uli9jcna2',
+      overidedPrice: 2437.5,
+      purchasedPrice: 2437.5,
+      originalPrice: 3250,
+    },
+    {
+      productId: '63e738d5021823b2ab63a38c',
+      quantity: 4,
+      _id: 'uli9jdpeo',
+      overidedPrice: 3375,
+      purchasedPrice: 3375,
+      originalPrice: 4500,
+    },
+    {
+      productId: 'vlb619yws',
+      quantity: 4,
+      _id: 'uli9kah5i',
+      overidedPrice: 5587.5,
+      purchasedPrice: 5587.5,
+      originalPrice: 7450,
+    },
+    {
+      productId: 'ulca05en0',
+      quantity: 1,
+      _id: 'vli9kc0kf',
+      overidedPrice: 22875,
+      purchasedPrice: 22875,
+      originalPrice: 30500,
+    },
+    {
+      productId: 'vlb62wvkc',
+      quantity: 2,
+      _id: 'vli9kddo1',
+      overidedPrice: 10125,
+      purchasedPrice: 10125,
+      originalPrice: 13500,
+    },
+  ],
+  orderNumber: 302037,
+  memberId: 'uli8k0z5h',
+  fromPos: true,
+  staff: { _id: 'ulh6ykalq', marketArea: 'Cellar Door' },
+  shipping: {
+    pickup: false,
+    shippingCost: {
+      override: true,
+      price: 0,
+      message: '',
+      type: 'overriden',
+      allowCheckout: true,
+    },
+  },
+  note: '',
+  isDiner: false,
+  ageConfirmed: true,
+  payment: {
+    status: 'paid',
+    amount: 204712.5,
+    subTotal: 204712.5,
+    memberTotalDiscount: 29831.379999999997,
+    memberShippingDiscount: 0,
+    shippingCost: {
+      override: true,
+      price: 0,
+      message: '',
+      type: 'overriden',
+      allowCheckout: true,
+    },
+    originalTotal: 204712.5,
+    overrideTotalPrice: null,
+    discountApplied: 68237.5,
+    originalSubTotal: 204712.5,
+    type: 'card',
   },
 };
