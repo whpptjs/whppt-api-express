@@ -6,7 +6,7 @@ module.exports = {
     // TODO: this needs to be fixed urgently
     return Promise.resolve();
   },
-  exec({ $mongo: { $db, $save }, $id, $security }, { newUser }) {
+  exec({ $mongo: { $db, $save }, $id, $security, apiKey }, { newUser }) {
     const { username, email } = newUser;
 
     const lowerUsername = toLower(username);
@@ -39,13 +39,15 @@ module.exports = {
         email: lowerEmail,
       };
 
-      return $security.generateAccessToken(user._id).then(({ token, tokenExpiry }) => {
-        user.passwordResetToken = { token, tokenExpiry };
+      return $security
+        .generateAccessToken(apiKey, user._id)
+        .then(({ token, tokenExpiry }) => {
+          user.passwordResetToken = { token, tokenExpiry };
 
-        return $save('users', user).then(() => {
-          return generateResetLink(token, lowerEmail);
+          return $save('users', user).then(() => {
+            return generateResetLink(token, lowerEmail);
+          });
         });
-      });
     });
   },
 };
