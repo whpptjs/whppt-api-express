@@ -53,7 +53,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                   ],
                   [
                     {
-                      text: ` ${
+                      text: `${order?.shipping?.contactDetails?.company || ''} ${
                         order?.shipping?.address?.number || ''
                       } ${sanitizeAddressString(
                         order?.shipping?.address?.street
@@ -72,13 +72,7 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                       text: `${memberTier ? `${memberTier.name}` : ''}
                       ${contact?.firstName} ${contact?.lastName}
                       ${contact?.email || ''}
-                    `,
-                      fontSize: 10,
-                      alignment: 'right',
-                      font: 'SweetSansPro',
-                    },
-                    {
-                      text: `${contact?.company}`,
+                      ${contact?.company} `,
                       fontSize: 10,
                       alignment: 'right',
                       font: 'SweetSansPro',
