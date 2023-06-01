@@ -13,3 +13,4 @@ export * from './Config';
 export * from './Database';
 export * from './Hosting';
 export * from './AusPost';
+export * from './Xero';

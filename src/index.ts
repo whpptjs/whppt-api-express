@@ -22,6 +22,7 @@ import {
   Security,
   EmailService,
   AusPost,
+  Xero,
 } from './Services';
 import { DatabaseService } from './Services/Database';
 import { MongoDatabaseConnection } from './Services/Database/Mongo/Connection';
@@ -145,6 +146,7 @@ export const Whppt = (config: WhpptConfig) => {
     const $storage = S3(hostingConfig);
     const $email = EmailService;
     const $auspost = AusPost;
+    const $xero = Xero;
 
     req.moduleContext = ModuleContext(
       $id,
@@ -159,7 +161,8 @@ export const Whppt = (config: WhpptConfig) => {
       Image($id, databasePromise, $storage, config),
       File($id, databasePromise, $storage, config),
       req.apiKey,
-      $auspost
+      $auspost,
+      $xero
     );
 
     next();

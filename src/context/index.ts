@@ -18,6 +18,7 @@ import {
   StorageService,
   EmailServiceConstructor,
   AusPostService,
+  XeroService,
 } from '../Services';
 import { WhpptMongoDatabase } from '../Services/Database/Mongo/Database';
 
@@ -39,7 +40,8 @@ const Context = (
   $image: ImageService,
   $file: FileService,
   apiKey: string,
-  $auspost: AusPostService
+  $auspost: AusPostService,
+  $xero: XeroService
 ) => {
   return Promise.resolve().then(() => {
     // TODO: Support other databases. Currently only Mongo is supported and we use it directly here.
@@ -52,6 +54,7 @@ const Context = (
         $image,
         $file,
         $security,
+        $xero,
         $mongo: database as WhpptMongoDatabase,
         $database,
         $hosting,
