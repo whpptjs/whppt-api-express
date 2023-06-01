@@ -17,8 +17,6 @@ export const composeOrderData = (orderWithProducts: any, contact?: any) => {
       } ${sanitizeAddressString(orderWithProducts?.shipping?.address?.street)} `,
       state: `${sanitizeAddressString(
         orderWithProducts?.shipping?.address?.suburb
-      )} ${sanitizeAddressString(
-        orderWithProducts?.shipping?.address?.city
       )} ${sanitizeAddressString(orderWithProducts?.shipping?.address?.state)} `,
       country: `${sanitizeAddressString(orderWithProducts?.shipping?.address?.country)} ${
         orderWithProducts?.shipping?.address?.postCode || ''
