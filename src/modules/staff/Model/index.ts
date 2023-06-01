@@ -19,6 +19,8 @@ export type Staff = {
   department?: StaffDepartment;
   marketArea?: MarketArea;
   isActive?: boolean;
+  xeroUser?: string;
+  xeroServiceGroup?: string;
 };
 
 export type StaffContact = Staff & { contact: Contact };

@@ -10,6 +10,8 @@ const createFromContact: HttpModule<
     password: string;
     department: StaffDepartment;
     marketArea: MarketArea;
+    xeroUser?: string;
+    xeroServiceGroup?: string;
   },
   Staff
 > = {
@@ -18,7 +20,7 @@ const createFromContact: HttpModule<
   },
   exec(
     { $database, $id, createEvent, $security },
-    { contactId, username, password, department, marketArea }
+    { contactId, username, password, department, marketArea, xeroUser, xeroServiceGroup }
   ) {
     assert(contactId, 'A contact Id is required');
 
@@ -40,6 +42,8 @@ const createFromContact: HttpModule<
             department,
             marketArea,
             password: hashedPassword,
+            xeroUser,
+            xeroServiceGroup,
           } as Staff;
 
           const staffEvents = [
@@ -49,6 +53,8 @@ const createFromContact: HttpModule<
               username,
               department,
               marketArea,
+              xeroUser,
+              xeroServiceGroup,
             }),
           ];
 
