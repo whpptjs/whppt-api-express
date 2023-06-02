@@ -35,8 +35,11 @@ export const getShippingCost: LoadOrderWithProductsArgs = (
     assert(domainId, 'DomainId is required');
     return document.fetch<Delivery>('site', `delivery_${domainId}`).then(delivery => {
       if (!delivery) throw new Error('Delivery must be set up');
-      const metro = postcodeInRange(delivery.aus_metro.postcodes, postcode);
-      const regional = postcodeInRange(delivery.aus_regional.postcodes, postcode);
+      const metro = postcodeInRange(delivery.aus_metro.postcodes, parseInt(postcode, 10));
+      const regional = postcodeInRange(
+        delivery.aus_regional.postcodes,
+        parseInt(postcode, 10)
+      );
 
       if (metro)
         return {

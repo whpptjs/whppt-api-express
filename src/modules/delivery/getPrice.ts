@@ -12,7 +12,10 @@ const load: HttpModule<
     assert(domainId, 'DomainId is required');
     return $database.then(({ document }) => {
       return document.fetch<Delivery>('site', `delivery_${domainId}`).then(delivery => {
-        const metro = postcodeInRange(delivery.aus_metro.postcodes, postcode);
+        const metro = postcodeInRange(
+          delivery.aus_metro.postcodes,
+          parseInt(postcode, 10)
+        );
 
         if (metro)
           return {
@@ -22,7 +25,10 @@ const load: HttpModule<
             type: 'aus_metro',
           };
 
-        const regional = postcodeInRange(delivery.aus_regional.postcodes, postcode);
+        const regional = postcodeInRange(
+          delivery.aus_regional.postcodes,
+          parseInt(postcode, 10)
+        );
 
         if (regional)
           return {
