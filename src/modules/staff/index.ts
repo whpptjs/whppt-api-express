@@ -10,6 +10,7 @@ import getMemberTier from './getMemberTier';
 import save from './save';
 import listSales from './listSales';
 import getStaffMembers from './getStaffMembers';
+import getXeroTrackingLists from './getXeroTrackingLists';
 
 export const staff = {
   login,
@@ -24,4 +25,5 @@ export const staff = {
   save,
   listSales,
   getStaffMembers,
+  getXeroTrackingLists,
 };

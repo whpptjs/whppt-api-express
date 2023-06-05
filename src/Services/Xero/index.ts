@@ -42,7 +42,7 @@ export const Xero: XeroService = () => {
           salesPersons: salesPersons.map(sg => sg.name),
         };
       } catch (err) {
-        throw err;
+        return Promise.reject(err);
       }
     },
   };

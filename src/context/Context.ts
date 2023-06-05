@@ -33,7 +33,10 @@ export type ContextType = {
   $pageTypes?: any;
   $fullUrl?: any;
   $sitemap?: any;
-  $roles: { validate: (user: any, roles: any[]) => Promise<void> };
+  $roles: {
+    validate: (user: any, roles: any[]) => Promise<void>;
+    isGuest: (user: any) => boolean;
+  };
   $env?: any;
   $publishing?: any;
   // $email: EmailService;

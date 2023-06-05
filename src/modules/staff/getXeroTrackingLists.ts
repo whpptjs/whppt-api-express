@@ -3,11 +3,10 @@ import { Secure } from './Secure';
 
 const getXeroTrackingLists: HttpModule<{ memberId: string; domainId: string }, any> = {
   authorise({ $roles }, { user }) {
-    console.log('🚀 ~ file: getXeroTrackingLists.ts:8 ~ authorise ~ user:', user);
-    return $roles.validate(user, []);
+    return Promise.resolve(!$roles.isGuest(user));
   },
   exec(context, __) {
-    return context.$xero();
+    return context.$xero().getXeroTrackingDetails();
   },
 };
 
