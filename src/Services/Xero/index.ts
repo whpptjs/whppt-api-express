@@ -2,36 +2,48 @@ import { ContextType } from '../../context/Context';
 
 import { XeroClient } from 'xero-node';
 
-// const xero = new XeroClient({
-//   clientId: 'YOUR_CLIENT_ID',
-//   clientSecret: 'YOUR_CLIENT_SECRET',
-//   redirectUris: [`http://localhost:3000/callback`],
-//   scopes: 'openid profile email accounting.transactions offline_access'.split(' '),
-//   state: 'returnPage=my-sweet-dashboard', // custom params (optional)
-//   httpTimeout: 3000, // ms (optional)
-//   clockTolerance: 10, // seconds (optional)
-// });
-
 const xero = new XeroClient({
-  clientId: 'YOUR_CLIENT_ID',
-  clientSecret: 'YOUR_CLIENT_SECRET',
+  clientId: process.env.XERO_CLIENT_ID || '',
+  clientSecret: process.env.XERO_CLIENT_SECRET || '',
   grantType: 'client_credentials',
 });
 
 export type XeroService = (context: ContextType) => {
-  getXeroTrackingDetails: () => Promise<string[]>;
+  getXeroTrackingDetails: () => Promise<{
+    salesGroups: string[];
+    salesPersons: string[];
+  }>;
 };
 
 export const Xero: XeroService = () => {
   return {
     getXeroTrackingDetails: async () => {
-      const tokenSet = await xero.getClientCredentialsToken();
-      console.log(
-        '🚀 ~ file: index.ts:31 ~ getXeroTrackingDetails: ~ tokenSet:',
-        tokenSet
-      );
-      //   res.redirect(consentUrl);
-      return Promise.resolve(['d']);
+      const salesGroups = [];
+      const salesPersons = [];
+      try {
+        await xero.getClientCredentialsToken();
+        const { body } = (await xero.accountingApi.getTrackingCategories(
+          process.env.XERO_TENANT_ID || ''
+        )) as any;
+        const _salesGroups = body.trackingCategories.find(
+          (tc: any) => tc.name === 'Sales Group'
+        );
+        const _salesPersons = body.trackingCategories.find(
+          (tc: any) => tc.name === 'Sales Person'
+        );
+        salesGroups.push(
+          ...(_salesGroups?.options.filter((sg: any) => sg.status === 'ACTIVE') || [])
+        );
+        salesPersons.push(
+          ...(_salesPersons?.options.filter((sp: any) => sp.status === 'ACTIVE') || [])
+        );
+        return {
+          salesGroups: salesGroups.map(sg => sg.name),
+          salesPersons: salesPersons.map(sg => sg.name),
+        };
+      } catch (err) {
+        throw err;
+      }
     },
   };
 };
