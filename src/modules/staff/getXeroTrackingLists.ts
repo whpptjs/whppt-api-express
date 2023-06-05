@@ -1,5 +1,4 @@
 import { HttpModule } from '../HttpModule';
-import { Secure } from './Secure';
 
 const getXeroTrackingLists: HttpModule<{ memberId: string; domainId: string }, any> = {
   authorise({ $roles }, { user }) {
@@ -10,4 +9,4 @@ const getXeroTrackingLists: HttpModule<{ memberId: string; domainId: string }, a
   },
 };
 
-export default Secure(getXeroTrackingLists);
+export default getXeroTrackingLists;
