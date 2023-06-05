@@ -12,6 +12,8 @@ const save: HttpModule<
     firstName: string;
     lastName: string;
     isActive: boolean;
+    xeroUser?: string;
+    xeroServiceGroup?: string;
   },
   Staff
 > = {
@@ -20,7 +22,17 @@ const save: HttpModule<
   },
   exec(
     { $database, createEvent },
-    { _id, contactId, department, firstName, lastName, isActive, marketArea }
+    {
+      _id,
+      contactId,
+      department,
+      firstName,
+      lastName,
+      isActive,
+      marketArea,
+      xeroUser,
+      xeroServiceGroup,
+    }
   ) {
     assert(_id, 'A Staff Id is required');
     assert(contactId, 'A contact Id is required');
@@ -38,6 +50,8 @@ const save: HttpModule<
         staffMember.isActive = isActive;
         staffMember.department = department;
         staffMember.marketArea = marketArea;
+        staffMember.xeroUser = xeroUser;
+        staffMember.xeroServiceGroup = xeroServiceGroup;
         contact.firstName = firstName;
         contact.lastName = lastName;
 
