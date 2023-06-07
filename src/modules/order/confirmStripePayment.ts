@@ -6,6 +6,7 @@ import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 import { getOrderTemplate } from '../email/Templates/emailReceipt';
 
 import * as validations from './Validations';
+import { updateProductQuantity } from '../product/Helpers/UpdateProductQuantity';
 
 const confirmStripePayment: HttpModule<
   { orderId: string; paymentIntent: string; domainId: string },
@@ -72,39 +73,47 @@ const confirmStripePayment: HttpModule<
               return document.saveWithEvents('orders', loadedOrder, events, {
                 session,
               });
-            }).then(() => {
-              const email = orderWithProducts?.contact?.email;
-              if (!email) return Promise.resolve();
-              const paidOrderWithProducts = {
-                ...loadedOrder,
-                items: loadedOrder.items.map(lo => {
-                  const orderItem = orderWithProducts.items.find(
-                    i => i._id === lo._id
-                  ) as OrderItemWithProduct;
-                  return {
-                    ...lo,
-                    product: orderItem.product || {},
-                  };
-                }),
-              };
-              return context.$email
-                .send({
-                  to: email,
-                  subject: `Hentley Farm receipt${
-                    paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
-                      ? ` for order #${
-                          paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
-                        }`
-                      : ''
-                  }`,
-                  html: getOrderTemplate(paidOrderWithProducts, domainId),
-                })
-                .catch(() => {
-                  throw new Error(
-                    'Confirmation email sending failed. Order was processed and paid for.'
-                  );
-                });
-            });
+            })
+              .then(() => {
+                return Promise.all(
+                  loadedOrder.items.map(item => {
+                    return updateProductQuantity(context, item);
+                  })
+                );
+              })
+              .then(() => {
+                const email = orderWithProducts?.contact?.email;
+                if (!email) return Promise.resolve();
+                const paidOrderWithProducts = {
+                  ...loadedOrder,
+                  items: loadedOrder.items.map(lo => {
+                    const orderItem = orderWithProducts.items.find(
+                      i => i._id === lo._id
+                    ) as OrderItemWithProduct;
+                    return {
+                      ...lo,
+                      product: orderItem.product || {},
+                    };
+                  }),
+                };
+                return context.$email
+                  .send({
+                    to: email,
+                    subject: `Hentley Farm receipt${
+                      paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
+                        ? ` for order #${
+                            paidOrderWithProducts.orderNumber || paidOrderWithProducts._id
+                          }`
+                        : ''
+                    }`,
+                    html: getOrderTemplate(paidOrderWithProducts, domainId),
+                  })
+                  .catch(() => {
+                    throw new Error(
+                      'Confirmation email sending failed. Order was processed and paid for.'
+                    );
+                  });
+              });
           }
         );
       });
