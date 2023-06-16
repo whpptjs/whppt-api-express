@@ -8,7 +8,7 @@ const getUnleashedTrackingDetails: HttpModule<
     return Promise.resolve(!$roles.isGuest(user));
   },
   exec(context, __) {
-    return context.$unleashed().$getTrackingDetails();
+    return context.$unleashed.$getTrackingDetails();
   },
 };
 

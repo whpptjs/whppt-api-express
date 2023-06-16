@@ -1,7 +1,13 @@
 import assert from 'assert';
 import { Contact } from '../contact/Models/Contact';
 import { HttpModule } from '../HttpModule';
-import { Staff, StaffDepartment, MarketArea } from './Model';
+import {
+  Staff,
+  StaffDepartment,
+  MarketArea,
+  UnleashedServiceGroup,
+  UnleashedUser,
+} from './Model';
 
 const save: HttpModule<
   {
@@ -14,6 +20,8 @@ const save: HttpModule<
     isActive: boolean;
     xeroUser?: string;
     xeroServiceGroup?: string;
+    unleashedServiceGroup: UnleashedServiceGroup;
+    unleashedUser: UnleashedUser;
   },
   Staff
 > = {
@@ -32,6 +40,8 @@ const save: HttpModule<
       marketArea,
       xeroUser,
       xeroServiceGroup,
+      unleashedServiceGroup,
+      unleashedUser,
     }
   ) {
     assert(_id, 'A Staff Id is required');
@@ -51,6 +61,8 @@ const save: HttpModule<
         staffMember.department = department;
         staffMember.marketArea = marketArea;
         staffMember.xeroUser = xeroUser;
+        staffMember.unleashedServiceGroup = unleashedServiceGroup;
+        staffMember.unleashedUser = unleashedUser;
         staffMember.xeroServiceGroup = xeroServiceGroup;
         contact.firstName = firstName;
         contact.lastName = lastName;

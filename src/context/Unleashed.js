@@ -56,20 +56,20 @@ module.exports = context => {
           throw err;
         });
     },
-    $getUnleashedTrackingDetails: () => {
+    $getTrackingDetails: () => {
       const hash = CryptoJS.HmacSHA256('', process.env.UNLEASHED_API_KEY);
       const hash64 = CryptoJS.enc.Base64.stringify(hash);
       _client.defaults.headers['api-auth-signature'] = hash64;
 
       return _client
         .get('SalesOrderGroups', { timeout: 10000 })
-        .then(({ Items: salesGroups }) => {
+        .then(({ data: salesGroups }) => {
           return _client
             .get('Salespersons', { timeout: 10000 })
-            .then(({ salesPeople }) => {
+            .then(({ data: salesPeople }) => {
               return {
-                salesGroups,
-                salesPeople,
+                salesGroups: salesGroups.Items,
+                salesPeople: salesPeople.Items,
               };
             });
         })
