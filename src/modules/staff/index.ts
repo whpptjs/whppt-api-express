@@ -11,6 +11,7 @@ import save from './save';
 import listSales from './listSales';
 import getStaffMembers from './getStaffMembers';
 import getXeroTrackingLists from './getXeroTrackingLists';
+import getUnleashedTrackingDetails from './getUnleashedTrackingDetails';
 
 export const staff = {
   login,
@@ -26,4 +27,5 @@ export const staff = {
   listSales,
   getStaffMembers,
   getXeroTrackingLists,
+  getUnleashedTrackingDetails,
 };

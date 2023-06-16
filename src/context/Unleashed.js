@@ -56,5 +56,27 @@ module.exports = context => {
           throw err;
         });
     },
+    $getUnleashedTrackingDetails: () => {
+      const hash = CryptoJS.HmacSHA256('', process.env.UNLEASHED_API_KEY);
+      const hash64 = CryptoJS.enc.Base64.stringify(hash);
+      _client.defaults.headers['api-auth-signature'] = hash64;
+
+      return _client
+        .get('SalesOrderGroups', { timeout: 10000 })
+        .then(({ Items: salesGroups }) => {
+          return _client
+            .get('Salespersons', { timeout: 10000 })
+            .then(({ salesPeople }) => {
+              return {
+                salesGroups,
+                salesPeople,
+              };
+            });
+        })
+        .catch(err => {
+          context.$logger.error(err);
+          throw err;
+        });
+    },
   };
 };
