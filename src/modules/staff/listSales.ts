@@ -60,14 +60,16 @@ const listSales: HttpModule<
 
       if (dateFromYear && dateFromMonth && dateFromDay) {
         query.$and.push({
-          updatedAt: {
+          'payment.date': {
             $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
           },
         });
       }
       if (dateToYear && dateToMonth && dateToDay) {
         query.$and.push({
-          updatedAt: { $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0) },
+          'payment.date': {
+            $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
+          },
         });
       }
 
