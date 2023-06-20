@@ -96,8 +96,8 @@ export function getOrderTemplate(order: any, domainId?: string) {
           </h2>
           <p
             style="color:#ACACAC;font-weight:normal;font-size:16px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:30px">
-            ${order.updatedAt &&
-            new Date(order.updatedAt).toLocaleDateString('en-US', {
+            ${order?.payment?.date &&
+            new Date(order?.payment?.date).toLocaleDateString('en-US', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
