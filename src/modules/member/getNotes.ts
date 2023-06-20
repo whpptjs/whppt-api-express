@@ -14,7 +14,11 @@ const listPreviousOrders: HttpModule<{ memberId: string }, Note[] | undefined> =
       }).then(members => {
         const member = members && members[0];
         if (!member) return Promise.reject({ status: 404, message: 'Member Not Found.' });
-        return member.notes || [];
+        return (
+          member.notes?.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          ) || []
+        );
       });
     });
   },
