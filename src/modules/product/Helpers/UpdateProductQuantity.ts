@@ -14,12 +14,19 @@ export const updateProductQuantity = (context: ContextType, item: OrderItem) => 
       const updatedQuantity = quantityAvailable - quantity;
       product.quantityAvailable = `${updatedQuantity}`;
 
-      const events = [context.createEvent('ProductQuantityAdjusted', product)];
+      const events = [context.createEvent('ProductQuantityDecreasedAfterSale', product)];
 
       return startTransaction((session: any) => {
-        return document.saveWithEvents('products', product, events, {
-          session,
-        });
+        return document
+          .saveWithEvents('products', product, events, {
+            session,
+          })
+          .then(() => {
+            if (process.env.DRAFT !== 'true') return;
+            return document.publishWithEvents('products', product, events, {
+              session,
+            });
+          });
       });
     });
   });
