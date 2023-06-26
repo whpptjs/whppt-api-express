@@ -52,17 +52,20 @@ const create: HttpModule<CreateProductArgs, Product> = {
             });
 
             return startTransaction(session => {
-              return document.saveWithEvents('products', product, [event], { session })
-              .then(() => {
-                if (process.env.DRAFT !== 'true') return product;
-                
-                return document.publishWithEvents('products', product, [event], {
-                  session,
-                }).then(() => {
-                  return product;
+              return document
+                .saveWithEvents('products', product, [event], { session })
+                .then(() => {
+                  if (process.env.DRAFT !== 'true') return product;
+
+                  return document
+                    .publishWithEvents('products', product, [event], {
+                      session,
+                    })
+                    .then(() => {
+                      return product;
+                    });
                 });
-              });
-            })
+            });
           }
         );
       }
