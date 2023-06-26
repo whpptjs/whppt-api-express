@@ -28,7 +28,7 @@ const changeDetails: HttpModule<ChangeDetailsArgs, void> = {
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ $database, createEvent }, { product: productData, publish }) {
+  exec({ $database, createEvent }, { product: productData }) {
     assert(productData.domainId, 'Product requires a Domain Id.');
     assert(productData._id, 'Product requires a Product Id.');
     assert(productData.name, 'Product requires a Name.');
@@ -44,7 +44,7 @@ const changeDetails: HttpModule<ChangeDetailsArgs, void> = {
             return document
               .saveWithEvents('products', product, [event], { session })
               .then(() => {
-                if (!publish) return;
+                if (process.env.DRAFT !== 'true') return;
                 return document.publishWithEvents('products', product, [event], {
                   session,
                 });

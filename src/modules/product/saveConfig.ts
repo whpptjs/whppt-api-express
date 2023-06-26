@@ -24,7 +24,12 @@ export const saveConfig: HttpModule<SaveConfigParams, void> = {
         return startTransaction(session => {
           return document
             .saveWithEvents('products', product, events, { session })
-            .then(() => {});
+            .then(() => {
+              if (process.env.DRAFT !== 'true') return;
+              return document.publishWithEvents('products', product, events, {
+                session,
+              });
+            });
         });
       });
     });
