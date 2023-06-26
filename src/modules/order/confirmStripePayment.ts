@@ -6,7 +6,7 @@ import { loadOrderWithProducts } from './Queries/loadOrderWithProducts';
 import { getOrderTemplate } from '../email/Templates/emailReceipt';
 
 import * as validations from './Validations';
-import { updateProductQuantity } from '../product/Helpers/UpdateProductQuantity';
+import { updateProductQuantityAfterSale } from '../product/Helpers/UpdateProductQuantityAfterSale';
 
 const confirmStripePayment: HttpModule<
   { orderId: string; paymentIntent: string; domainId: string },
@@ -74,13 +74,7 @@ const confirmStripePayment: HttpModule<
                 session,
               });
             })
-              .then(() => {
-                return Promise.all(
-                  loadedOrder.items.map(item => {
-                    return updateProductQuantity(context, item);
-                  })
-                );
-              })
+              .then(() => updateProductQuantityAfterSale(context, loadedOrder.items))
               .then(() => {
                 const email = orderWithProducts?.contact?.email;
                 if (!email) return Promise.resolve();

@@ -8,7 +8,7 @@ import { Order, OrderItemWithProduct } from './Models/Order';
 import { calculateTotal } from '../../modules/order/Queries/calculateTotal';
 import { Staff } from '../staff/Model';
 import { getOrderTemplate } from '../email/Templates/emailReceipt';
-import { updateProductQuantity } from '../product/Helpers/UpdateProductQuantity';
+import { updateProductQuantityAfterSale } from '../product/Helpers/UpdateProductQuantityAfterSale';
 
 const confirmCashPayment: HttpModule<
   { staffMemberId: string; orderId: string; domainId: string },
@@ -101,13 +101,9 @@ const confirmCashPayment: HttpModule<
                       session,
                     });
                   })
-                    .then(() => {
-                      return Promise.all(
-                        loadedOrder.items.map(item => {
-                          return updateProductQuantity(context, item);
-                        })
-                      );
-                    })
+                    .then(() =>
+                      updateProductQuantityAfterSale(context, loadedOrder.items)
+                    )
                     .then(() => {
                       const email = loadedOrder?.contact?.email;
                       if (!email) return Promise.resolve();
