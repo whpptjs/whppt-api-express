@@ -1,34 +1,30 @@
 import { ContextType } from './../../../context/Context';
-import { updateProductQuantity } from './UpdateProductQuantity';
+import { updateProductQuantityAfterSale } from './UpdateProductQuantityAfterSale';
 
 describe('Decrease quantity of items available in stock', () => {
   it('Result must be the product quantity minus the quantity on the order for that item', async () => {
     const context = {
       $database: Promise.resolve({
         document: {
-          fetch: jest.fn().mockImplementation((_, id) => {
-            const product = productsCollectionMock.find(product => product._id === id);
-            if (!product) return;
-
-            const orderItem = order.items.find(item => item.productId === product._id);
-            if (!orderItem) return;
-
-            product.quantityAvailable = `${
-              Number(product.quantityAvailable) - Number(orderItem.quantity)
-            }`;
-
-            return Promise.resolve(product);
-          }),
           saveWithEvents: jest
             .fn()
-            .mockImplementation((_, updatedProduct, __, ___) => updatedProduct),
+            .mockImplementation((_, updatedProduct, __, ___) =>
+              Promise.resolve(updatedProduct)
+            ),
         },
         startTransaction: jest.fn(callback => callback({})),
+        queryDocuments: jest.fn().mockImplementation((_, query) => {
+          const productIds = query.filter._id.$in;
+          const products = productsCollectionMock.filter(product =>
+            productIds.includes(product._id)
+          );
+          return Promise.resolve(products);
+        }),
       }),
       createEvent: jest.fn().mockReturnValue({}),
     } as unknown as ContextType;
 
-    await Promise.all(order.items.map(item => updateProductQuantity(context, item)));
+    await updateProductQuantityAfterSale(context, order.items);
 
     order.items.forEach(item => {
       const product = productsCollectionMock.find(p => p._id === item.productId);
@@ -41,7 +37,7 @@ describe('Decrease quantity of items available in stock', () => {
             item.productId
           );
           expect(context.createEvent).toHaveBeenCalledWith(
-            'ProductQuantityAdjusted',
+            'ProductQuantityDecreasedAfterSale',
             expect.objectContaining({
               quantityAvailable: expectedQuantity.toString(),
             })
