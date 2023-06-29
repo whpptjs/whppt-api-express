@@ -35,23 +35,22 @@ export const queryMemberTier: QueryMemberTier = (context, { memberId, domainId }
         ? membershipOptions?.membershipTiers?.find(tier => tier._id === member.lockToTier)
         : undefined;
 
-        
-        return queryMemberAmountSpentForYear(context, { memberId }).then(
-          ({ currentYear, previousYear }) => {
-            const tier = calculateMembershipTier(
-              membershipOptions,
+      return queryMemberAmountSpentForYear(context, { memberId }).then(
+        ({ currentYear, previousYear }) => {
+          if (lockedTier)
+            return {
+              ...lockedTier,
               currentYear,
-              previousYear
-            );
-            
-            if (lockedTier)
-              return {
-                ...lockedTier,
-                currentYear,
-                lockToTier: member.lockToTier,
-                amountToSpendToNextTier: 0,
-              } as MembershipTier;
-             
+              lockToTier: member.lockToTier,
+              amountToSpendToNextTier: 0,
+            } as MembershipTier;
+
+          const tier = calculateMembershipTier(
+            membershipOptions,
+            currentYear,
+            previousYear
+          );
+
           return queryMemberLifetimeSpend(context, { memberId }).then(lifetimeSpend => {
             return {
               ...tier,
