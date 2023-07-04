@@ -74,7 +74,8 @@ const sortLookup = (promise: any, key: { sortType: string; fields: any }) => {
 
   switch (_key.sortType) {
     case 'string':
-      return promise.collation({ locale: 'en' }).sort(_key.fields);
+      return promise.sort(_key.fields);
+    // return promise.collation({ locale: 'en' }).sort(_key.fields);
 
     default:
       return promise.sort(_key.fields);
