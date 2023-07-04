@@ -119,44 +119,48 @@ const listSales: HttpModule<
             },
             {
               $project: {
-                paymentAmount: {
-                  $add: [
-                    '$payment.subTotal',
-                    { $ifNull: ['$payment.shippingCost.price', 0] },
-                  ],
-                },
                 quantities: { $sum: '$items.quantity' },
-              },
-            },
-            {
-              $match: {
-                paymentAmount: { $gt: 0 },
-                quantities: { $gt: 0 },
-              },
-            },
-            {
-              $group: {
-                _id: null,
-                salesTotal: {
-                  $sum: {
-                    $add: '$paymentAmount',
-                  },
-                },
-                itemsTotal: {
-                  $sum: {
-                    $add: '$quantities',
-                  },
-                },
+                payment: 1,
               },
             },
           ])
           .toArray(),
-      ]).then(([orders, total = 0, amounts]) => {
-        const { salesTotal = 0, itemsTotal = 0 } = amounts[0] || {};
-        return { orders, total, salesTotal, itemsTotal };
+      ]).then(([orders, total = 0, orderAmounts]) => {
+        const { salesTotal = 0, itemsTotal = 0 } = calulateAmounts(orderAmounts || []);
+        return {
+          orders: removeShippingFromOrders(orders),
+          total,
+          salesTotal,
+          itemsTotal,
+        };
       });
     });
   },
+};
+
+const removeShippingFromOrders = (orders: any) => {
+  return orders.map((o: any) => ({
+    ...o,
+    payment: { ...o.payment, amount: o.payment.amount - calcShippingCost(o.payment) },
+  }));
+};
+const calulateAmounts = (orders: any) => {
+  let salesTotal = 0;
+  let itemsTotal = 0;
+
+  orders.forEach((order: any) => {
+    itemsTotal = order.quantities + itemsTotal;
+    const shipping = calcShippingCost(order.payment);
+    salesTotal = order.payment.amount - shipping + salesTotal;
+  });
+
+  return { salesTotal, itemsTotal };
+};
+
+const calcShippingCost = (payment: any) => {
+  return payment?.shippingCost?.type === 'pickup'
+    ? 0
+    : (payment?.shippingCost?.price || 0) - (payment?.memberShippingDiscount || 0) || 0;
 };
 
 export default Secure(listSales);
