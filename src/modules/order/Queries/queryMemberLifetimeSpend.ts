@@ -20,6 +20,7 @@ export const queryMemberLifetimeSpend: QueryMemberLifetimeSpend = (
         {
           $match: {
             memberId: memberId,
+            checkoutStatus: 'paid',
             'payment.status': 'paid',
           },
         },

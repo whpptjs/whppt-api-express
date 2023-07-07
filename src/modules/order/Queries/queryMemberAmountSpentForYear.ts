@@ -95,6 +95,7 @@ const buildQuery = (memberId: string, start: Date, end: Date) => [
     $match: {
       memberId: memberId,
       'payment.status': 'paid',
+      checkoutStatus: 'paid',
 
       $and: [
         {
