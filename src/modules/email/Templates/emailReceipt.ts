@@ -8,13 +8,13 @@ function getOrderItems(order: any) {
 
     for (let item of items) {
       itemsHtml +=
-        '<tr><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '<tr><td align="center" style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         (item?.productName || item?.product?.name || 'Legacy Item') +
-        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '</td><td align="center" style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         (item?.product?.customFields.vintage || '') +
-        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '</td><td align="center" style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         item.quantity.toString() +
-        '</td><td style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
+        '</td><td align="center" style="color:#ffffff;font-weight:500;font-size:14px;font-family:sweet-sans-pro, Arial, Helvetica, sans-serif;">' +
         '&nbsp;&nbsp;$' +
         ((item.purchasedPrice || item?.product?.price) / 100).toFixed(2).toString() +
         '</td></tr>';
@@ -28,7 +28,7 @@ function getItemDiscounts(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="3">Item/s Discount</th>
-      <td style=${getRowStyle()}>- $${_discount}</td>
+      <td align="center" style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
@@ -37,7 +37,7 @@ function getDiscountApplied(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="3">Order discount</th>
-      <td style=${getRowStyle()}>- $${_discount}</td>
+      <td align="center" style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
@@ -45,7 +45,7 @@ function getMemberDiscount(_discount: string | number) {
   return /* HTML */ `
     <tr>
       <th style=${getRowStyle()} scope="row" colspan="3">Member discount</th>
-      <td style=${getRowStyle()}>- $${_discount}</td>
+      <td align="center" style=${getRowStyle()}>- $${_discount}</td>
     </tr>
   `;
 }
@@ -85,7 +85,7 @@ export function getOrderTemplate(order: any, domainId?: string) {
       width="650"
       style="background-color: #242424">
       <tr>
-        <td valign="top" style="padding: 35px;">
+        <td align="center" valign="top" style="padding: 35px;">
           <h2
             style="color:#ffffff;font-weight:500;font-size:24px;font-family:Roxborough, Arial, Helvetica, sans-serif;margin-bottom:10px">
             Order Confirmation<br />
@@ -105,6 +105,7 @@ export function getOrderTemplate(order: any, domainId?: string) {
             })}
           </p>
           <table
+            align="center"
             cellspacing="0"
             cellpadding="6"
             style="width: 100%;border: 1px solid #937a4a;margin-bottom:10px"
@@ -118,16 +119,19 @@ export function getOrderTemplate(order: any, domainId?: string) {
                   Product
                 </th>
                 <th
+                  align="center"
                   scope="col"
                   style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Vintage
                 </th>
                 <th
+                  align="center"
                   scope="col"
                   style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Quantity
                 </th>
                 <th
+                  align="center"
                   scope="col"
                   style="color:#ffffff;font-weight:500;text-align:left; border: 1px solid #937a4a;">
                   Price
@@ -144,18 +148,18 @@ export function getOrderTemplate(order: any, domainId?: string) {
                 : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="3">Subtotal</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal}</td>
+                <td align="center" style=${getRowStyle()}>&nbsp;&nbsp;$${subtotal}</td>
               </tr>
               ${membersDiscount ? getMemberDiscount(membersDiscount) : ''}
               <tr>
                 <th style=${getRowStyle()} scope="row" colspan="3">Shipping</th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;${shipping}</td>
+                <td align="center" style=${getRowStyle()}>&nbsp;&nbsp;${shipping}</td>
               </tr>
               <tr>
                 <th scope="row" colspan="3" style=${getRowStyle()}>
                   Total - (Tax incl. $${tax})
                 </th>
-                <td style=${getRowStyle()}>&nbsp;&nbsp;$${total}</td>
+                <td align="center" style=${getRowStyle()}>&nbsp;&nbsp;$${total}</td>
               </tr>
             </tfoot>
           </table>
