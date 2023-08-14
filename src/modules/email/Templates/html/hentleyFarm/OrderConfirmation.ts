@@ -98,15 +98,15 @@ const orderSummary = (order: any) => {
     shipping,
   } = buildOrderForDisplay(order);
   return `
-    ${lineItem(`Item/s Discount`, itemsDiscountedAmount, !!itemsDiscountedAmount, '$')}
+    ${lineItem(`Item/s Discount`, itemsDiscountedAmount, !!itemsDiscountedAmount, '- $')}
     ${lineItem(
       `Order discount`,
       totalDiscountedFromTotal,
       !!totalDiscountedFromTotal,
-      '$'
+      '- $'
     )}
     ${lineItem(`Subtotal`, subtotal, true, '$')}
-    ${lineItem(`Member discount`, membersDiscount, !!membersDiscount, '$')}
+    ${lineItem(`Member discount`, membersDiscount, !!membersDiscount, '- $')}
     ${lineItem(`Shipping`, shipping, true, shipping === 'Complimentary' ? '' : '$')}
     ${lineItem(`Total - (Tax incl. $${tax})`, total, true, '$')}
     `;
