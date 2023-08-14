@@ -1,6 +1,6 @@
+/* eslint-disable prettier/prettier */
 export const hentleyFarmLayout = (content: any) => {
-  return `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <!--[if gte mso 9]><xml>
@@ -154,50 +154,7 @@ u+.em_body .em_full_wrap {
       </table></td>
   </tr>
 </table>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" bgcolor="#ffffff" style="background-color:#ffffff; table-layout:fixed;">
-  <tr>
-    <td align="center" valign="top"><table align="center" width="650" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff" class="em_main_table" style="width:650px; table-layout:fixed;">
-        <tr>
-          <td valign="top" align="center"><table width="650" border="0" cellspacing="0" cellpadding="0" style="width:650px;" class="em_wrapper">
-              <tr>
-                <td valign="top" height="507" background="https://ci4.googleusercontent.com/proxy/2gHF7TnqHwWZ648Xte8u0GOCSAVGtDM0aElpqKVNf6i_Yt_W-9DqQ97Y24CbrnX7Dj19RPKtTJXJOVUpGzzdxUGbHC3B_x1LlOSWS5zoWkdX8GmXFdbZb_u9OAGg_wWzkCEPiATpQ_RKcmKSKiFPT6UdBnFUZy4YAiSNfdG68ozw=s0-d-e1-ft#https://image.email.hentleyfarm.com.au/lib/fe3211737164047d711c75/m/1/57f02b34-4017-43c9-bac6-28c3b2a90a8d.jpg" bgcolor="#000000" style="height:507px; background-image:url(https://ci4.googleusercontent.com/proxy/2gHF7TnqHwWZ648Xte8u0GOCSAVGtDM0aElpqKVNf6i_Yt_W-9DqQ97Y24CbrnX7Dj19RPKtTJXJOVUpGzzdxUGbHC3B_x1LlOSWS5zoWkdX8GmXFdbZb_u9OAGg_wWzkCEPiATpQ_RKcmKSKiFPT6UdBnFUZy4YAiSNfdG68ozw=s0-d-e1-ft#https://image.email.hentleyfarm.com.au/lib/fe3211737164047d711c75/m/1/57f02b34-4017-43c9-bac6-28c3b2a90a8d.jpg);background-color: #000000; background-repeat:no-repeat;background-size:cover; background-position:center top;" ><!--[if gte mso 9]>
-<v:image xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style=" border: 0;display: inline-block; width: 650px; height: 507px;" src="https://ci4.googleusercontent.com/proxy/2gHF7TnqHwWZ648Xte8u0GOCSAVGtDM0aElpqKVNf6i_Yt_W-9DqQ97Y24CbrnX7Dj19RPKtTJXJOVUpGzzdxUGbHC3B_x1LlOSWS5zoWkdX8GmXFdbZb_u9OAGg_wWzkCEPiATpQ_RKcmKSKiFPT6UdBnFUZy4YAiSNfdG68ozw=s0-d-e1-ft#https://image.email.hentleyfarm.com.au/lib/fe3211737164047d711c75/m/1/57f02b34-4017-43c9-bac6-28c3b2a90a8d.jpg" />
-<v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style=" border: 0;display: inline-block;position: absolute; width: 650px; height: 507px;">
-<v:fill opacity="0%" color="#000000" />
-<v:textbox inset="0,0,0,0">
-<![endif]-->
-                  
-                  <table align="center" width="650" border="0" cellspacing="0" cellpadding="0" style="width:650px;" class="em_wrapper">
-                    <tr>
-                      <td width="20" style="width:20px;" class="em_side15">&nbsp;</td>
-                      <td valign="top" align="center"><table align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
-                          <tr>
-                            <td height="13" style="height:13px;">&nbsp;</td>
-                          </tr>
-                          <tr>
-                            <td valign="top" align="center"><a href="https://www.hentleyfarm.com.au/" target="_blank" style="text-decoration:none;color:#FFFFFF;"><img src="https://ci6.googleusercontent.com/proxy/XFHpY226S2m3I_QcLmYZHkotsDyoxSUef9wrN3GCfLkn_hILc54-R7LN84uVQGoU8xrSEVPWAnhtZE6NERHpJ0BTwIOGfaqc0UErsLyiixw1zUqT2ibbRt5CZX20RLkSYEvDLIj4LTTqdmaFbyMirG5ok-xgMlAOyr4UbcPx_k5D=s0-d-e1-ft#https://image.email.hentleyfarm.com.au/lib/fe3211737164047d711c75/m/1/dc32c4cd-756c-4a99-92f1-6f205108c0d4.png" width="113" alt="Hentley Farm" border="0" style="display:block;max-width:113px; font-family:Arial, Helvetica, sans-serif; font-size:15px; line-height:18px; color:#ffffff;"/></a></td>
-                          </tr>
-                          <tr>
-                            <td height="10" style="height:10px;font-size:0px;line-height:0px;">&nbsp;</td>
-                          </tr>
-                        </table></td>
-                      <td width="20" style="width:20px;" class="em_side15">&nbsp;</td>
-                    </tr>
-                  </table>
-                  
-                  <!--[if gte mso 9]>
-</v:textbox>
-</v:fill>
-</v:rect>
-</v:image>
-<![endif]--></td>
-              </tr>
-            </table></td>
-        </tr>
-       ${content}
-      </table></td>
-  </tr>
-</table>
+ ${content}
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="em_full_wrap" bgcolor="#ffffff" style="background-color:#ffffff; table-layout:fixed;">
   <tr>
     <td align="center" valign="top"><table align="center" width="650" border="0" cellspacing="0" cellpadding="0" class="em_main_table" style="width:650px; table-layout:fixed;">
