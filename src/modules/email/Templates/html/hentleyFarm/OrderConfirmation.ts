@@ -107,7 +107,12 @@ const orderSummary = (order: any) => {
     )}
     ${lineItem(`Subtotal`, subtotal, true, '$')}
     ${lineItem(`Member discount`, membersDiscount, !!membersDiscount, '- $')}
-    ${lineItem(`Shipping`, shipping, true, shipping === 'Complimentary' ? '' : '$')}
+    ${lineItem(
+      `Shipping`,
+      shipping,
+      true,
+      shipping === 'Complimentary' || shipping === 'Pickup' ? '' : '$'
+    )}
     ${lineItem(`Total - (Tax incl. $${tax})`, total, true, '$')}
     `;
 };
