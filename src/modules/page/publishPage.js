@@ -15,6 +15,11 @@ module.exports = {
     page.published = true;
     page.lastPublished = new Date();
 
+    if (page.header && page.header.startDate)
+      page.header.startDate = new Date(page.header.startDate);
+    if (page.header && page.header.endDate)
+      page.header.endDate = new Date(page.header.endDate);
+
     let publishedPage = page;
 
     return $startTransaction(async session => {
