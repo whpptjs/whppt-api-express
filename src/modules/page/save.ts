@@ -30,6 +30,10 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
       return $database.then(database => {
         const { startTransaction, db, document } = database as WhpptMongoDatabase;
         return startTransaction(async session => {
+          if (page?.header?.startDate)
+            page.header.startDate = new Date(page.header.startDate);
+          if (page?.header?.endDate) page.header.endDate = new Date(page.header.endDate);
+
           if (publish) await document.publish(_collection, page, { session });
 
           if (publish && $publishing.onPublish)
