@@ -10,9 +10,6 @@ const queryDoesMemberHaveSavedCards: HttpModule<
   },
   { hasCards: boolean; cardStatus?: 'current' | 'expired' }
 > = {
-  authorise({ $identity }, { user }) {
-    return $identity.isUser(user);
-  },
   exec(context, { memberId }) {
     assert(memberId, 'A memberId is required');
 
