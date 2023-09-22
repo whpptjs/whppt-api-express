@@ -12,6 +12,7 @@ import listSales from './listSales';
 import getStaffMembers from './getStaffMembers';
 import getXeroTrackingLists from './getXeroTrackingLists';
 import getUnleashedTrackingDetails from './getUnleashedTrackingDetails';
+import queryDoesMemberHaveSavedCards from './queryDoesMemberHaveSavedCards';
 
 export const staff = {
   login,
@@ -28,4 +29,5 @@ export const staff = {
   getStaffMembers,
   getXeroTrackingLists,
   getUnleashedTrackingDetails,
+  queryDoesMemberHaveSavedCards,
 };
