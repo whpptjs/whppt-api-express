@@ -1,3 +1,4 @@
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Secure } from './Secure';
@@ -12,7 +13,7 @@ const queryDoesMemberHaveSavedCards: HttpModule<
   authorise({ $identity }, { user }) {
     return $identity.isUser(user);
   },
-  exec({ stripe, ...context }, { memberId }) {
+  exec(context, { memberId }) {
     assert(memberId, 'A memberId is required');
 
     return getStripCustomerIdFromMember(context, stripe, memberId).then(customer => {
