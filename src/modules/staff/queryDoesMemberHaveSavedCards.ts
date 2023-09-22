@@ -32,11 +32,15 @@ const queryDoesMemberHaveSavedCards: HttpModule<
             const cardYear = details.card.exp_year as number;
 
             if (cardYear < currentYear) return;
+            if (cardYear > currentYear) {
+              cardStatus = 'current';
+              return;
+            }
             if (cardMonth < currentMonth) return;
             cardStatus = 'current';
           });
 
-          return { hasCards: false, cardStatus };
+          return { hasCards: true, cardStatus };
         });
     });
   },
