@@ -43,6 +43,8 @@ export const EmailService: EmailServiceConstructor = ({ $hosting, $logger }) => 
           FromEmailAddress: fromAddress,
           Destination: {
             ToAddresses: [email.to],
+            BccAddresses: email.bcc ? email.bcc : [],
+            CcAddresses: email.cc ? email.cc : [],
           },
           FeedbackForwardingEmailAddress: feedbackAddress,
           Content: {
