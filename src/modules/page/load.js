@@ -1,10 +1,14 @@
 const assert = require('assert');
+const { lower } = require('assert');
 
 module.exports = {
   authorise({ $roles, $mongo: { $db } }, { user, slug, collection }) {
     return $db
       .collection(collection)
-      .findOne({ slug }, { editorRoles: true, publisherRoles: true })
+      .findOne(
+        { slug: slug && slug.toLowerCase() },
+        { editorRoles: true, publisherRoles: true }
+      )
       .then(page => {
         if (!page) return { status: 404, message: 'Page not found' };
 
@@ -20,7 +24,7 @@ module.exports = {
     assert(domainId, 'Please provide a domainId');
     return $db
       .collection(collection)
-      .findOne({ slug, domainId })
+      .findOne({ slug: slug && slug.toLowerCase(), domainId })
       .then(page => {
         if (!page) return { status: 404, message: 'Page not found' };
         return page;

@@ -34,6 +34,7 @@ const save: HttpModule<{ page: any; collection?: string; user: any; publish: boo
             page.header.startDate = new Date(page.header.startDate);
           if (page?.header?.endDate) page.header.endDate = new Date(page.header.endDate);
           if (page?.header?.date) page.header.date = new Date(page.header.date);
+          if (page?.slug) page.slug = page?.slug.toLowerCase();
 
           if (publish) await document.publish(_collection, page, { session });
 
