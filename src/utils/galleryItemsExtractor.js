@@ -2,7 +2,6 @@ const { uniqBy, get, map, forEach, find, compact } = require('lodash');
 
 module.exports = function galleryItemsExtractor(pageType, page) {
   pageType.extractGalleryItems = pageType.extractGalleryItems || extractGalleryItems;
-
   const galleryItems =
     pageType && pageType.extractGalleryItems
       ? map(compact(pageType.extractGalleryItems(page)), galleryItemId => ({
@@ -25,8 +24,9 @@ const items = [];
 
 function extractGalleryItems(obj) {
   if (typeof obj !== 'object') return;
+  if (obj === null) return;
 
-  if (obj.galleryItemId) {
+  if (obj && obj.galleryItemId) {
     items.push(obj.galleryItemId);
   } else {
     Object.entries(obj).forEach(([key]) => {

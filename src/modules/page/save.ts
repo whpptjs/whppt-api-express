@@ -9,8 +9,9 @@ import galleryItemsExtractor from '../../utils/galleryItemsExtractor';
 // TODO: collection should not be passed from the client side
 const save: HttpModule<{ page: any; collection?: string; user: any; publish: boolean }> =
   {
-    authorise({ $roles }, { page, user }) {
-      return $roles.validate(user, [page.editorRoles]);
+    authorise({ $identity }, { user }) {
+      // return $roles.validate(user, [page.editorRoles]);
+      return $identity.isUser(user);
     },
     exec(context, { page, collection, user, publish }) {
       assert(page, 'Please provide a page.');

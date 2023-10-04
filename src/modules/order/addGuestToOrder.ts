@@ -31,6 +31,7 @@ const addGuestToOrder: HttpModule<{ orderId: string }, Order> = {
             assign(loadedOrder, {
               ...loadedOrder,
               contact: guestContact,
+              memberId: undefined,
             });
 
             const events = [context.createEvent('GuestAddedToOrder', { guestContact })];
