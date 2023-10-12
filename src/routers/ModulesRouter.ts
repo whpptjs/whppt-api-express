@@ -15,13 +15,14 @@ export const ModulesRouter: ModulesRouter = ($logger, apiPrefix) => {
     return (req as WhpptRequest).moduleContext.then(ctx => {
       return callModule(ctx, mod, query, { ...queryArgs, user }, req).catch(err => {
         const { status, error } = err;
-        $logger.error(
-          'Error in modules route [GET]: %s %s %O %s',
-          mod,
-          query,
-          queryArgs,
-          error || err
-        );
+        if (logRoutes(mod, query))
+          $logger.error(
+            'Error in modules route [GET]: %s %s %O %s',
+            mod,
+            query,
+            queryArgs,
+            error || err
+          );
 
         return { status: status || 500, error: error || err };
       });
@@ -36,18 +37,26 @@ export const ModulesRouter: ModulesRouter = ($logger, apiPrefix) => {
         const { status, error } = err;
 
         const _error = error && error.message ? error && error.message : error || err;
-
-        $logger.error(
-          'Error in modules route [POST]: %s %s %O %O',
-          mod,
-          command,
-          cmdArgs,
-          _error
-        );
+        if (logRoutes(mod, command))
+          $logger.error(
+            'Error in modules route [POST]: %s %s %O %O',
+            mod,
+            command,
+            cmdArgs,
+            _error
+          );
         return { status: status || 500, error: error || err };
       });
     });
   });
 
   return router;
+};
+
+type LogRoutes = (mod: string, query: string) => boolean;
+
+const logRoutes: LogRoutes = (mod, query) => {
+  const modCheck = mod === 'member';
+  const queryCheck = query === 'me' || query === 'login';
+  return !(modCheck && queryCheck);
 };
