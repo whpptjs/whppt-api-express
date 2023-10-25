@@ -19,6 +19,7 @@ module.exports = {
       page.header.startDate = new Date(page.header.startDate);
     if (page.header && page.header.endDate)
       page.header.endDate = new Date(page.header.endDate);
+    if (page.header && page.header.date) page.header.date = new Date(page.header.date);
 
     let publishedPage = page;
 
