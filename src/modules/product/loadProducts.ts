@@ -9,13 +9,19 @@ export type ProductLoadFilters = {
   search?: string;
 };
 
-const load: HttpModule<{ productIds: string }, Product[]> = {
-  exec({ $database }, { productIds }) {
+const load: HttpModule<{ productIds: string; activeOnly?: boolean }, Product[]> = {
+  exec({ $database }, { productIds, activeOnly = false }) {
     return $database.then(({ queryDocuments }) => {
+      const _query = {
+        _id: { $in: JSON.parse(productIds) },
+      } as any;
+      if (activeOnly) {
+        _query.isActive = true;
+        _query.forSaleOnWebsite = true;
+        _query.quantityAvailable = { $ne: '0' };
+      }
       return queryDocuments<any>('products', {
-        filter: {
-          _id: { $in: JSON.parse(productIds) },
-        },
+        filter: _query,
         projection: {
           config: 0,
           user: 0,
