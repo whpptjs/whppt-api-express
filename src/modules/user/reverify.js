@@ -12,12 +12,12 @@ module.exports = {
       assert(existingUser, 'User not found');
 
       return $security
-        .generateAccessToken(apiKey, user._id)
+        .generateAccessToken(apiKey, existingUser._id)
         .then(({ token, tokenExpiry }) => {
           existingUser.passwordResetToken = { token, tokenExpiry };
 
           return $save('users', existingUser).then(() => {
-            return generateResetLink(token, lowerEmail);
+            return generateResetLink(token, existingUser.email);
           });
         });
     });
