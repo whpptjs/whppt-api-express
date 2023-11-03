@@ -2,9 +2,8 @@ const assert = require('assert');
 const { toLower } = require('lodash');
 
 module.exports = {
-  authorise() {
-    // TODO: this needs to be fixed urgently
-    return Promise.resolve();
+  authorise({ $roles }, { user }) {
+    return Promise.resolve(!$roles.isGuest(user));
   },
   exec({ $mongo: { $db, $save }, $id, $security, apiKey }, { newUser }) {
     const { username, email } = newUser;
