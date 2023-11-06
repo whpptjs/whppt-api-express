@@ -162,7 +162,7 @@ u+.em_body .em_full_wrap {
           <td align="center" valign="top" style="padding: 19px 40px 25px;border-bottom: 1px solid #937A4A;" bgcolor="#242424" class="em_aside_15"><table width="100%" border="0" cellspacing="0" cellpadding="0">
               <tbody>
                 <tr>
-                  <td valign="top" align="center" ><a href="https://www.hentleyfarm.com.au/" target="_blank" style="text-decoration: none;"><img src="https://ci3.googleusercontent.com/proxy/hns64gWKDe_-9gEVugLA7pWwonZnD1VEf0_sDN0dF8ajCniCNdOezf_O5cIHnxfrWhmjHbFv4rUTRD8RTaJ51nZcan8FvG4CBhtkIKJ7p-GwfEklO7CVwndBTkcySbP_-PBloBPlpynsdnh-VbXocC9li1YytEtu86sXiEZGvzZY=s0-d-e1-ft#https://www.hentleyfarm.com.au/logo.svg" width="113" alt="Hentley Farm" border="0" style="display:block;max-width:113px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:18px;color:#ffffff;"/></a></td>
+                  <td valign="top" align="center" ><a href="https://www.hentleyfarm.com.au/" target="_blank" style="text-decoration: none;"><img src="https://www.hentleyfarm.com.au/logo.svg" width="113" alt="Hentley Farm" border="0" style="display:block;max-width:113px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:18px;color:#ffffff;"/></a></td>
                 </tr>
                 <tr>
                   <td align="center" valign="top" style="padding-top: 33px;" class="em_ptop"><table border="0" cellspacing="0" cellpadding="0" align="center">
