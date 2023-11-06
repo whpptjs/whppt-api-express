@@ -31,13 +31,11 @@ export const footer = /* HTML */ `
                     bgcolor="#242424">
                     <a href="#" target="_blank" style="text-decoration:none;">
                       <img
-                        src="https://www.hentleyfarm.com.au/logo.svg"
+                        src="https://image.email.hentleyfarm.com.au/lib/fe3211737164047d711c75/m/1/70a6f8f2-8b4b-4b39-83e1-dcf817f66ad7.png"
                         width="113"
                         alt="Hentley Farm"
                         border="0"
-                        style="display:block;
-                      font-family:'Georgia', Arial, sans-serif; font-size:10px;
-                      line-height:13px; color:#ffffff; max-width:113px;"
+                        style="display:block; font-family:'Georgia', Arial, sans-serif; font-size:10px; line-height:13px; color:#ffffff; max-width:113px;"
                     /></a>
                   </td>
                 </tr>
