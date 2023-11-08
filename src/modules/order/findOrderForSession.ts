@@ -12,7 +12,11 @@ const findOrderForSession: HttpModule<
   },
   exec(context, { orderId, memberId }) {
     const _idQuery = { _id: orderId };
-    const _memberIdQuery = { checkoutStatus: 'pending', memberId };
+    const _memberIdQuery = {
+      checkoutStatus: 'pending',
+      fromPos: { $or: [{ $exists: false }, { $eq: false }] },
+      memberId,
+    };
 
     const query =
       orderId && memberId
