@@ -35,6 +35,7 @@ const login: HttpModule<{ username: string; password: string }, any> = {
               .then(token => {
                 return {
                   token,
+                  memberId: member._id,
                 };
               });
           });

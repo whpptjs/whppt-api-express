@@ -6,13 +6,21 @@ import { getNewOrderNumber } from './Queries/getNewOrderNumber';
 import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 
 const createOrderWithProduct: HttpModule<
-  { productId: string; quantity: number; orderId?: string | undefined },
+  {
+    productId: string;
+    quantity: number;
+    orderId?: string | undefined;
+    fromPos?: boolean;
+  },
   Order
 > = {
   authorise({ $roles }, { user }) {
     return $roles.validate(user, []);
   },
-  exec({ $id, $database, createEvent }, { productId, quantity, orderId }) {
+  exec(
+    { $id, $database, createEvent },
+    { productId, quantity, orderId, fromPos = false }
+  ) {
     assert(!orderId, 'Order Id is not required.');
     assert(productId, 'Product Id is required.');
     assert(quantity, 'Product quantity is required.');
@@ -25,6 +33,7 @@ const createOrderWithProduct: HttpModule<
         _id: $id.newId(),
         items: [],
         checkoutStatus: 'pending',
+        fromPos,
       } as Order;
 
       const events = [] as any[];
