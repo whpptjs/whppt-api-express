@@ -46,19 +46,10 @@ const findOrder: FindOrder = (context, orderId, memberId) => {
       document.query<Order>('orders', { filter: _idQuery }),
       db.collection('orders').find(_memberIdQuery).sort({ updatedAt: -1 }).toArray(),
     ]).then(([mainOrder, memberOrders]) => {
-      console.log(
-        '🚀 ~ file: findOrderForSession.ts:49 ~ ]).then ~ mainOrder:',
-        mainOrder?._id
-      );
       const _memberOrder = memberOrders.length && (memberOrders[0] as any);
-      console.log(
-        '🚀 ~ file: findOrderForSession.ts:71 ~ ]).then ~ _memberOrder:',
-        _memberOrder?._id
-      );
 
       return mainOrder ? orderId : _memberOrder ? _memberOrder?._id : undefined;
     });
-    // return document.query<Order>('orders', { filter: matchQuery }).then(order => {
   });
 };
 

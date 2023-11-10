@@ -33,6 +33,7 @@ export const calculateTotal: CalculateTotalArgs = (
       getShippingCost(ctx, {
         items: order.items,
         postcode: order.shipping?.address?.postCode,
+        country: order.shipping?.address?.country,
         pickup: order.shipping?.pickup || false,
         domainId,
         override: order?.shipping?.shippingCost?.override
