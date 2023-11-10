@@ -4,10 +4,10 @@ import { Delivery } from './Models/Delivery';
 import { postcodeInRange } from './Queries/postcodeRange';
 
 const load: HttpModule<
-  { domainId: string; postcode: string },
+  { domainId: string; postcode: string; country: string },
   { price: number | string | undefined; allowCheckout: boolean; message?: string }
 > = {
-  exec({ $database }, { domainId, postcode }) {
+  exec({ $database }, { domainId, postcode, country }) {
     assert(postcode, 'Postcode is required');
     assert(domainId, 'DomainId is required');
     return $database.then(({ document }) => {
@@ -16,6 +16,14 @@ const load: HttpModule<
           delivery.aus_metro.postcodes,
           parseInt(postcode, 10)
         );
+
+        if (!country || (country !== 'AU' && country !== 'Australia'))
+          return {
+            price: delivery.international.price,
+            allowCheckout: delivery.international.allowCheckout,
+            message: delivery.international.message,
+            type: 'international',
+          };
 
         if (metro)
           return {
