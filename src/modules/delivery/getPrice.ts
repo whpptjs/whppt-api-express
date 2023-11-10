@@ -19,7 +19,7 @@ const load: HttpModule<
         );
         const acceptableAULocations = ['au', 'australia', 'aus'];
 
-        if (!country || !find(acceptableAULocations, a => a.toLowerCase() === country))
+        if (!country || !find(acceptableAULocations, a => a === country.toLowerCase()))
           return {
             price: delivery.international.price,
             allowCheckout: delivery.international.allowCheckout,

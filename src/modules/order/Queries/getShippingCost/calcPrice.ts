@@ -37,7 +37,7 @@ export const calcShipingCost: CalcShipingCost = ({
   );
   const acceptableAULocations = ['au', 'australia', 'aus'];
 
-  if (!country || !find(acceptableAULocations, a => a.toLowerCase() === country))
+  if (!country || !find(acceptableAULocations, a => a === country.toLowerCase()))
     return {
       price: calculateShippingPrice(items, delivery.international?.price) || 0,
       allowCheckout: delivery.international?.allowCheckout || false,
