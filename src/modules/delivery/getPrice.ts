@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { find } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import { Delivery } from './Models/Delivery';
 import { postcodeInRange } from './Queries/postcodeRange';
@@ -16,8 +17,9 @@ const load: HttpModule<
           delivery.aus_metro.postcodes,
           parseInt(postcode, 10)
         );
+        const acceptableAULocations = ['au', 'australia', 'aus'];
 
-        if (!country || (country !== 'AU' && country !== 'Australia'))
+        if (!country || !find(acceptableAULocations, a => a.toLowerCase() === country))
           return {
             price: delivery.international.price,
             allowCheckout: delivery.international.allowCheckout,

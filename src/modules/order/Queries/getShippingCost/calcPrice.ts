@@ -1,3 +1,4 @@
+import { find } from 'lodash';
 import { Delivery } from '../../../delivery/Models/Delivery';
 import { postcodeInRange } from '../../../delivery/Queries/postcodeRange';
 import { OrderItemWithProduct, ShippingCost } from './../../Models/Order';
@@ -34,7 +35,9 @@ export const calcShipingCost: CalcShipingCost = ({
     delivery.aus_regional.postcodes,
     parseInt(postcode, 10)
   );
-  if (!country || (country !== 'AU' && country !== 'Australia'))
+  const acceptableAULocations = ['au', 'australia', 'aus'];
+
+  if (!country || !find(acceptableAULocations, a => a.toLowerCase() === country))
     return {
       price: calculateShippingPrice(items, delivery.international?.price) || 0,
       allowCheckout: delivery.international?.allowCheckout || false,
