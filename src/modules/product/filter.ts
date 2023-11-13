@@ -57,14 +57,14 @@ const filter: HttpModule<
           ? (query.$and = [
               ...query.$and,
               {
-                'customFields.filterNames': {
+                'customFields.filterName': {
                   $in: filters.filterNames.map(f => f.value),
                 },
               },
             ])
           : (query.$and = [
               {
-                'customFields.filterNames': {
+                'customFields.filterName': {
                   $in: filters.filterNames.map(f => f.value),
                 },
               },
