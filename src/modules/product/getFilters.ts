@@ -15,8 +15,13 @@ const getFilters: HttpModule<{
         queryDistinct('products', { distinct: 'customFields.vintage' }).then(vintages => {
           return vintages.sort().reverse();
         }),
-      ]).then(([collections, styles, vintages]) => {
-        return { collections, styles, vintages };
+        queryDistinct('products', { distinct: 'customFields.filterName' }).then(
+          filterNames => {
+            return filterNames.sort().reverse();
+          }
+        ),
+      ]).then(([collections, styles, vintages, filterNames]) => {
+        return { collections, styles, vintages, filterNames };
       });
     });
   },
