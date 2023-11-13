@@ -50,7 +50,10 @@ const filter: HttpModule<
           : (query.$and = [{ 'customFields.varietal': filters.style }]),
       };
     }
-    if (filters.filterNames && !filters.filterNames.find(f => f.value === 'all')) {
+    if (
+      filters?.filterNames?.length &&
+      !filters.filterNames.find(f => f.value === 'all')
+    ) {
       query = {
         ...query,
         $and: query.$and
