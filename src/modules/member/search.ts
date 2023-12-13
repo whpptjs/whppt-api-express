@@ -67,6 +67,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
                   company: '$company',
                   billing: '$billing',
                   shipping: '$shipping',
+                  isSubscribed: '$isSubscribed',
                 },
               },
             },

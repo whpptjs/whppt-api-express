@@ -20,7 +20,7 @@ const changeDetails: HttpModule<
 > = {
   exec(
     context,
-    { firstName, lastName, phone, company, contactId, email, isSubscribed, mobile }
+    { firstName, lastName, phone, company, contactId, email, isSubscribed = true, mobile }
   ) {
     assert(firstName, 'A First name is required');
     assert(lastName, 'A last name is required');
@@ -50,15 +50,19 @@ const changeDetails: HttpModule<
         )
           return;
 
+        const newDetails = {
+          firstName: firstName || contact.firstName,
+          lastName: lastName || contact.lastName,
+          phone: phone || contact.phone,
+          mobile: mobile || contact.mobile,
+          company: company || contact.company,
+          email: email || contact.email,
+        };
+
         const contactEvents = [
           createEvent('ContactDetailsChanged', {
             contactId: contact._id,
-            firstName,
-            lastName,
-            phone,
-            mobile,
-            company,
-            email,
+            ...newDetails,
             from: {
               firstName: contact.firstName,
               lastName: contact.lastName,
@@ -69,7 +73,7 @@ const changeDetails: HttpModule<
             },
           }),
         ];
-        assign(contact, { firstName, email, lastName, phone, company, mobile });
+        assign(contact, newDetails);
 
         return startTransaction(session => {
           return saveContactAndPublish(
