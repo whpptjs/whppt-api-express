@@ -42,8 +42,11 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
 
       const orgPrice = Number(item.originalPrice || item.product?.price || 0);
 
-      const percentagePaidOnLineItem = unitPriceWithDiscount / orgPrice;
-      const totalDiscountOnLineItem = 1 - percentagePaidOnLineItem;
+      const percentagePaidOnLineItem = orgPrice ? unitPriceWithDiscount / orgPrice : 0;
+
+      const totalDiscountOnLineItem =
+        percentagePaidOnLineItem !== 0 ? 1 - percentagePaidOnLineItem : 0;
+
       const totalDiscountApplied = totalDiscountOnLineItem
         ? totalDiscountOnLineItem * 100
         : memberLevelDiscountPercentage

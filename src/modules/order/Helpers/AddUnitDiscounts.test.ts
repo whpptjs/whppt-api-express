@@ -50,6 +50,38 @@ describe('Prep order for discounts', () => {
     expect(order.isDiner).toEqual(false);
     expect(order.shipping?.pickup).toEqual(true);
   });
+  it('Given order with a FRIEGHT', () => {
+    const order = addUnitDiscountsToOrder(frieghtOrder);
+    const items = order.items;
+    expect(items[0].originalPrice).toEqual(3600);
+    expect(items[0].quantity).toEqual(6);
+    expect(items[0].shippingCostPrice).toEqual(0);
+    expect(items[0].totalDiscountApplied).toEqual(25);
+    expect(items[0].revenue).toEqual(16200);
+    expect(items[1].originalPrice).toEqual(3250);
+    expect(items[1].quantity).toEqual(18);
+    expect(items[1].shippingCostPrice).toEqual(0);
+    expect(items[1].totalDiscountApplied).toEqual(25);
+    expect(items[1].revenue).toEqual(43875);
+    expect(items[2].originalPrice).toEqual(6950);
+    expect(items[2].quantity).toEqual(12);
+    expect(items[2].shippingCostPrice).toEqual(0);
+    expect(items[2].totalDiscountApplied).toEqual(25);
+    expect(items[2].revenue).toEqual(62550);
+
+    expect(items[3].originalPrice).toEqual(2750);
+    expect(items[3].quantity).toEqual(24);
+    expect(items[3].shippingCostPrice).toEqual(0);
+    expect(items[3].totalDiscountApplied).toEqual(25);
+    expect(items[3].revenue).toEqual(49500);
+
+    expect(items[4].originalPrice).toEqual(0);
+    expect(items[4].quantity).toEqual(1);
+    expect(items[4].shippingCostPrice).toEqual(0);
+    expect(items[4].totalDiscountApplied).toEqual(0);
+    expect(items[4].revenue).toEqual(106500);
+    expect(order.shipping?.pickup).toEqual(true);
+  });
 });
 
 const standardOrder = {
@@ -199,5 +231,61 @@ const memerDiscount = {
     overrideTotalPrice: null,
     discountApplied: 5090,
     originalSubTotal: 50900,
+  },
+} as unknown as OrderWithProducts;
+
+const frieghtOrder = {
+  _id: 'tloxmrov0',
+  items: [
+    {
+      productId: 'ulkkh78yx',
+      quantity: 6,
+      _id: 'tloxpua55',
+      overidedPrice: 2700,
+      purchasedPrice: 2700,
+      originalPrice: 3600,
+    },
+    {
+      productId: '63e738d5021823b2ab63a390',
+      quantity: 18,
+      _id: 'tloxputwa',
+      overidedPrice: 2437.5,
+      purchasedPrice: 2437.5,
+      originalPrice: 3250,
+    },
+    {
+      productId: 'ulgxmiopl',
+      quantity: 12,
+      _id: 'tloxpv7m6',
+      overidedPrice: 5212.5,
+      purchasedPrice: 5212.5,
+      originalPrice: 6950,
+    },
+    {
+      productId: 'uln1adkee',
+      quantity: 24,
+      _id: 'tloxpvh61',
+      overidedPrice: 2062.5,
+      purchasedPrice: 2062.5,
+      originalPrice: 2750,
+    },
+    {
+      productId: 'ulbg2gbq7',
+      quantity: 1,
+      _id: 'tloxpw2nz',
+      overidedPrice: 106500,
+      purchasedPrice: 106500,
+      originalPrice: 0,
+    },
+  ],
+  orderNumber: 326646,
+  shipping: {
+    pickup: true,
+    shippingCost: {
+      price: 0,
+      allowCheckout: true,
+      message: '',
+      type: 'pickup',
+    },
   },
 } as unknown as OrderWithProducts;
