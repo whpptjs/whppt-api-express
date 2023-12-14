@@ -1,6 +1,6 @@
 import { calculateMembersTotalSavings } from './membersTotalSavings';
 import { calculateMemberShippingSavings } from './membersShippingSavings';
-import { Order, OrderItem, OrderItemWithProduct, ShippingCost } from '../../Models/Order';
+import { Order, OrderItemWithProduct, ShippingCost } from '../../Models/Order';
 import { MembershipTier } from 'src/modules/membershipTier/Models/MembershipTier';
 
 export const calculateOrderCosts = ([shippingCost, memberTier, order]: [
@@ -126,9 +126,32 @@ export const calculateOrderCosts = ([shippingCost, memberTier, order]: [
 
 const calcAmountOfProducts = (order: Order) => {
   return (
-    order?.items?.reduce(
-      (partialSum: number, item: OrderItem) => partialSum + item.quantity,
-      0
-    ) || 0
+    order?.items?.reduce((partialSum: number, item: OrderItemWithProduct) => {
+      console.log(
+        '🚀 ~ file: calculateOrderCosts.ts:130 ~ order?.items?.reduce ~ item:',
+        item
+      );
+      const packItemsQuantity = item?.product?.customFields?.packItems?.reduce(
+        (ps: any, pi: any) => ps + pi.qty,
+        0
+      );
+      if (!packItemsQuantity || packItemsQuantity === 0)
+        return partialSum + item.quantity;
+      return partialSum + item.quantity * packItemsQuantity;
+    }, 0) || 0
   );
 };
+
+// const amountOfProducts = useMemo(() => {
+//   return (
+//     order?.items?.reduce((partialSum, item) => {
+//       const packItemsQuantity = item?.product?.customFields?.packItems?.reduce(
+//         (ps: any, pi: any) => ps + pi.qty,
+//         0
+//       );
+//       if (!packItemsQuantity || packItemsQuantity === 0)
+//         return partialSum + item.quantity;
+//       return partialSum + item.quantity * packItemsQuantity;
+//     }, 0) || 0
+//   );
+// }, [order?.items]);

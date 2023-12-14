@@ -41,8 +41,8 @@ export const calculateTotal: CalculateTotalArgs = (
           : ({} as ShippingCost),
       }),
       queryMemberTier(ctx, { domainId, memberId, orderId }),
-      order,
-    ]).then(([shippingCost, memberTier, order]) => {
+    ]).then(([shippingCost, memberTier]) => {
+      console.log('🚀  order:', order);
       return calculateOrderCosts([shippingCost, memberTier, order]);
     });
   });
