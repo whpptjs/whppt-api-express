@@ -47,11 +47,15 @@ export const addUnitDiscountsToOrder: AddUnitDiscountsToOrder = order => {
       const totalDiscountOnLineItem =
         percentagePaidOnLineItem !== 0 ? 1 - percentagePaidOnLineItem : 0;
 
-      const totalDiscountApplied = totalDiscountOnLineItem
-        ? totalDiscountOnLineItem * 100
-        : memberLevelDiscountPercentage
-        ? memberLevelDiscountPercentage * 100
-        : 0;
+      const totalDiscountApplied = Number(
+        Number(
+          totalDiscountOnLineItem
+            ? totalDiscountOnLineItem * 100
+            : memberLevelDiscountPercentage
+            ? memberLevelDiscountPercentage * 100
+            : 0
+        ).toFixed(2)
+      );
 
       const revenue = unitPriceWithMemberDiscount
         ? unitPriceWithMemberDiscount * item.quantity

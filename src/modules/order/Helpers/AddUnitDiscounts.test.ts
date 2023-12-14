@@ -19,7 +19,7 @@ describe('Prep order for discounts', () => {
     const item = order.items[0];
     expect(item.originalPrice).toEqual(9450);
     expect(item.quantity).toEqual(6);
-    expect(item.totalDiscountApplied).toEqual(11.816578483245166);
+    expect(item.totalDiscountApplied).toEqual(11.82);
     expect(item.shippingCostPrice).toEqual(2250);
     expect(item.revenue).toEqual(49999.99999999999);
     expect(order.fromPos).toEqual(true);
@@ -32,7 +32,7 @@ describe('Prep order for discounts', () => {
     expect(item.originalPrice).toEqual(9450);
     expect(item.quantity).toEqual(1);
     expect(item.shippingCostPrice).toEqual(300);
-    expect(item.totalDiscountApplied).toEqual(20.000000000000007);
+    expect(item.totalDiscountApplied).toEqual(20);
     expect(item.revenue).toEqual(7559.999999999999);
     expect(order.fromPos).toEqual(false);
     expect(order.isDiner).toEqual(true);
