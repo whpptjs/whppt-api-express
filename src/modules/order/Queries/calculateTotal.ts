@@ -42,7 +42,6 @@ export const calculateTotal: CalculateTotalArgs = (
       }),
       queryMemberTier(ctx, { domainId, memberId, orderId }),
     ]).then(([shippingCost, memberTier]) => {
-      console.log('🚀  order:', order);
       return calculateOrderCosts([shippingCost, memberTier, order]);
     });
   });
