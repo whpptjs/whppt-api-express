@@ -51,10 +51,6 @@ const listOrders: HttpModule<
 
       const querySecondPart = {} as any;
 
-      if (origin) {
-        querySecondPart.fromPos = { $exists: origin === 'pos' };
-      }
-
       if (search && search !== 'undefined') {
         querySecondPart.$or = [
           {
@@ -119,7 +115,10 @@ const listOrders: HttpModule<
           $match: query,
         },
       ];
-      if (!isEmpty(querySecondPart)) queryOrder.push(querySecondPart);
+      if (origin) {
+        queryOrder.push({ $match: { fromPos: { $exists: origin === 'pos' } } });
+      }
+      if (!isEmpty(querySecondPart)) queryOrder.push({ $match: querySecondPart });
 
       return Promise.all([
         db
@@ -145,8 +144,28 @@ const listOrders: HttpModule<
             },
           ])
           .toArray(),
-        db.collection('orders').countDocuments(query),
-      ]).then(([orders, total = 0]) => {
+        db
+          .collection('orders')
+          .aggregate<{ count: number }>([
+            ...queryOrder,
+            {
+              $project: {
+                _id: 1,
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 },
+              },
+            },
+          ])
+          .toArray(),
+
+        // db.collection('orders').countDocuments(query),
+      ]).then(([orders, total = []]) => {
+        const _total = total[0] ? total[0].count || 0 : 0;
+
         const contactIds = orders.map(o => o.contact?._id);
         return queryDocuments('contacts', {
           filter: { _id: { $in: contactIds } },
@@ -165,7 +184,7 @@ const listOrders: HttpModule<
                 },
               };
             }),
-            total,
+            total: _total,
           };
         });
       });
