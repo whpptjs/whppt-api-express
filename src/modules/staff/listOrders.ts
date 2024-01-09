@@ -116,7 +116,16 @@ const listOrders: HttpModule<
         },
       ];
       if (origin) {
-        queryOrder.push({ $match: { fromPos: { $exists: origin === 'pos' } } });
+        // queryOrder.push({ $match: { fromPos: { $exists: origin === 'pos' } } });
+        if (origin === 'pos') {
+          queryOrder.push({ $match: { fromPos: true } });
+        } else {
+          queryOrder.push({
+            $match: {
+              $or: [{ fromPos: { $exists: false } }, { fromPos: false }],
+            },
+          });
+        }
       }
       if (!isEmpty(querySecondPart)) queryOrder.push({ $match: querySecondPart });
 
