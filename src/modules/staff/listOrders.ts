@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 import { HttpModule } from '../HttpModule';
 import type { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
 import { Order } from '../order/Models/Order';
@@ -44,67 +45,87 @@ const listOrders: HttpModule<
       const { db, queryDocuments } = database as WhpptMongoDatabase;
 
       const query = {
-        $and: [
-          { _id: { $exists: true } },
-          { checkoutStatus: status ? status : { $exists: true } },
-        ],
+        _id: { $exists: true },
+        checkoutStatus: status ? status : { $exists: true },
       } as any;
 
-      if (search && search !== 'undefined') {
-        query.$and.push({
-          $or: [
-            {
-              _id: {
-                $regex: search,
-              },
-            },
-            {
-              orderNumber: Number(search),
-            },
-            {
-              orderNumber: {
-                $regex: search,
-              },
-            },
-            {
-              'contact.email': {
-                $regex: search,
-              },
-            },
-          ],
-        });
-      }
-
-      if (dateFromYear && dateFromMonth && dateFromDay) {
-        query.$and.push({
-          'payment.date': {
-            $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
-          },
-        });
-      }
-      if (dateToYear && dateToMonth && dateToDay) {
-        query.$and.push({
-          'payment.date': {
-            $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
-          },
-        });
-      }
+      const querySecondPart = {} as any;
 
       if (origin) {
-        query.$and.push({
-          fromPos: { $exists: origin === 'pos' },
-        });
+        querySecondPart.fromPos = { $exists: origin === 'pos' };
+      }
+
+      if (search && search !== 'undefined') {
+        querySecondPart.$or = [
+          {
+            _id: {
+              $regex: search,
+            },
+          },
+          {
+            orderNumber: Number(search),
+          },
+          {
+            orderNumber: {
+              $regex: search,
+            },
+          },
+          {
+            'contact.email': {
+              $regex: search,
+            },
+          },
+        ];
+      }
+
+      if (
+        dateFromYear &&
+        dateFromMonth &&
+        dateFromDay &&
+        dateToYear &&
+        dateToMonth &&
+        dateToDay
+      ) {
+        querySecondPart.$and = [
+          {
+            'payment.date': {
+              $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
+            },
+          },
+          {
+            'payment.date': {
+              $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
+            },
+          },
+        ];
+      } else {
+        if (dateFromYear && dateFromMonth && dateFromDay) {
+          querySecondPart['payment.date'] = {
+            $gte: new Date(dateFromYear, dateFromMonth, dateFromDay, 0, 0, 0, 0),
+          };
+        }
+
+        if (dateToYear && dateToMonth && dateToDay) {
+          querySecondPart['payment.date'] = {
+            $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
+          };
+        }
       }
 
       //TODO Some reason unwind is limiting results/
+
+      const queryOrder = [
+        {
+          $match: query,
+        },
+      ];
+      if (!isEmpty(querySecondPart)) queryOrder.push(querySecondPart);
 
       return Promise.all([
         db
           .collection('orders')
           .aggregate<Order>([
-            {
-              $match: query,
-            },
+            ...queryOrder,
             {
               $sort: {
                 updatedAt: -1,
@@ -127,26 +148,26 @@ const listOrders: HttpModule<
         db.collection('orders').countDocuments(query),
       ]).then(([orders, total = 0]) => {
         const contactIds = orders.map(o => o.contact?._id);
-        return queryDocuments('contacts', { filter: { _id: { $in: contactIds } } }).then(
-          contacts => {
-            return {
-              orders: orders.map(order => {
-                const _contactId = order?.contact?._id;
-                const _contact = contacts.find(c => c._id === _contactId);
-                return {
-                  ...order,
-                  contact: {
-                    _id: order?.contact?._id,
-                    firstName: _contact?.firstName,
-                    lastName: _contact?.lastName,
-                    email: order?.contact?.email,
-                  },
-                };
-              }),
-              total,
-            };
-          }
-        );
+        return queryDocuments('contacts', {
+          filter: { _id: { $in: contactIds } },
+        }).then(contacts => {
+          return {
+            orders: orders.map(order => {
+              const _contactId = order?.contact?._id;
+              const _contact = contacts.find(c => c._id === _contactId);
+              return {
+                ...order,
+                contact: {
+                  _id: order?.contact?._id,
+                  firstName: _contact?.firstName,
+                  lastName: _contact?.lastName,
+                  email: order?.contact?.email,
+                },
+              };
+            }),
+            total,
+          };
+        });
       });
     });
   },
