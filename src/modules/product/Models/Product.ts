@@ -14,6 +14,8 @@ export type Product = {
   unitOfMeasure?: string;
   price?: string;
   isActive: boolean;
+  forSaleOnWebsite?: boolean;
+  forSaleOnPos?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   featureImageId?: string;

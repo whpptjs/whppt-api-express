@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { Order } from '../Models/Order';
+import { Product } from 'src/modules/product/Models/Product';
 
 export const canBeModified = (order: Order) =>
   assert(
@@ -17,3 +18,13 @@ export const itemExists = (order: Order, orderItemId: string) =>
     order.items.filter(i => i._id === orderItemId),
     'Order Item was not found on order.'
   );
+export const productAvailbleForSale = ({
+  product,
+  fromWebsite = false,
+}: {
+  product: Product;
+  fromWebsite?: boolean;
+}) => {
+  assert(product.isActive, 'Product not available.');
+  if (fromWebsite) assert(product.forSaleOnWebsite, 'Product not available.');
+};

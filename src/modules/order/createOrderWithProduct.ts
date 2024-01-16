@@ -4,6 +4,8 @@ import assert from 'assert';
 import { Order } from './Models/Order';
 import { getNewOrderNumber } from './Queries/getNewOrderNumber';
 import { WhpptMongoDatabase } from '../../Services/Database/Mongo/Database';
+import { Product } from '../product/Models/Product';
+import * as validations from './Validations';
 
 const createOrderWithProduct: HttpModule<
   {
@@ -11,6 +13,7 @@ const createOrderWithProduct: HttpModule<
     quantity: number;
     orderId?: string | undefined;
     fromPos?: boolean;
+    fromWebsite?: boolean;
   },
   Order
 > = {
@@ -19,7 +22,7 @@ const createOrderWithProduct: HttpModule<
   },
   exec(
     { $id, $database, createEvent },
-    { productId, quantity, orderId, fromPos = false }
+    { productId, quantity, orderId, fromPos = false, fromWebsite = false }
   ) {
     assert(!orderId, 'Order Id is not required.');
     assert(productId, 'Product Id is required.');
@@ -28,29 +31,34 @@ const createOrderWithProduct: HttpModule<
     assert(quantityAsNumber > 0, 'Product quantity must be higher than 0.');
     return $database.then(database => {
       const { db, document, startTransaction } = database as WhpptMongoDatabase;
+      return document
+        .query<Product>('products', { filter: { _id: productId } })
+        .then(product => {
+          assert(product, 'Product not found.');
+          validations.productAvailbleForSale({ product, fromWebsite });
+          const order = {
+            _id: $id.newId(),
+            items: [],
+            checkoutStatus: 'pending',
+            fromPos,
+          } as Order;
 
-      const order = {
-        _id: $id.newId(),
-        items: [],
-        checkoutStatus: 'pending',
-        fromPos,
-      } as Order;
+          const events = [] as any[];
 
-      const events = [] as any[];
+          const orderItem = { _id: $id.newId(), productId, quantity: quantityAsNumber };
+          Object.assign(order.items, [orderItem]);
 
-      const orderItem = { _id: $id.newId(), productId, quantity: quantityAsNumber };
-      Object.assign(order.items, [orderItem]);
-
-      return startTransaction(session => {
-        return getNewOrderNumber(db).then(orderNumber => {
-          order.orderNumber = orderNumber;
-          events.push(createEvent('CreatedOrder', order));
-          events.push(
-            createEvent('OrderItemAddedToOrder', { _id: order._id, orderItem })
-          );
-          return document.saveWithEvents('orders', order, events, { session });
+          return startTransaction(session => {
+            return getNewOrderNumber(db).then(orderNumber => {
+              order.orderNumber = orderNumber;
+              events.push(createEvent('CreatedOrder', order));
+              events.push(
+                createEvent('OrderItemAddedToOrder', { _id: order._id, orderItem })
+              );
+              return document.saveWithEvents('orders', order, events, { session });
+            });
+          }).then(() => order);
         });
-      }).then(() => order);
     });
   },
 };
