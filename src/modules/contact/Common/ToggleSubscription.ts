@@ -12,19 +12,17 @@ export const ToggleSubscription: SubscriptionArgs = (
   { contact, isSubscribed },
   session
 ) => {
-  if (contact.isSubscribed === isSubscribed) return Promise.resolve();
-  contact.isSubscribed = isSubscribed;
+  if (!isSubscribed || contact.isSubscribed === isSubscribed) return Promise.resolve();
+
+  contact.isSubscribed = true;
+
   const events = [
-    isSubscribed
-      ? createEvent('ContactOptedInForMarketing', {
-          contactId: contact._id,
-          isSubscribed,
-        })
-      : createEvent('ContactOptedOutForMarketing', {
-          contactId: contact._id,
-          isSubscribed,
-        }),
+    createEvent('ContactOptedInForMarketing', {
+      contactId: contact._id,
+      isSubscribed,
+    }),
   ];
+
   return document
     .saveWithEvents('contacts', contact, events, { session })
     .then(() => {
@@ -36,3 +34,15 @@ export const ToggleSubscription: SubscriptionArgs = (
     })
     .then(() => contact);
 };
+
+// const events = [
+//   isSubscribed
+//     ? createEvent('ContactOptedInForMarketing', {
+//         contactId: contact._id,
+//         isSubscribed,
+//       })
+//     : createEvent('ContactOptedOutForMarketing', {
+//         contactId: contact._id,
+//         isSubscribed,
+//       }),
+// ];
