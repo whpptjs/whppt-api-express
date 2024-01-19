@@ -127,10 +127,6 @@ export const calculateOrderCosts = ([shippingCost, memberTier, order]: [
 const calcAmountOfProducts = (order: Order) => {
   return (
     order?.items?.reduce((partialSum: number, item: OrderItemWithProduct) => {
-      console.log(
-        '🚀 ~ file: calculateOrderCosts.ts:130 ~ order?.items?.reduce ~ item:',
-        item
-      );
       const packItemsQuantity = item?.product?.customFields?.packItems?.reduce(
         (ps: any, pi: any) => ps + pi.qty,
         0

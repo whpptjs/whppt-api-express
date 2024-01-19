@@ -42,6 +42,7 @@ const recordContactInformation: HttpModule<OrderRecordContactInformationArgs, vo
                     firstName: contact?.firstName || 'Guest',
                     lastName: contact?.lastName || 'Website',
                     email: contact?.email || '',
+                    isSubscribed: true,
                   };
 
               const event = createEvent('OrderContactInformationUpdated', {
