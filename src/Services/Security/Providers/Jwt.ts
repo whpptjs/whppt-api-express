@@ -29,7 +29,6 @@ export const JwtProvider: SecurityProviderConstructor = ({ $id, $hosting, config
             maxAge: '7d',
           };
           jwt.verify(rawJwtToken, securityConfig.security.appKey, opts, (err: any) => {
-            if (err) console.log('🚀 JWT VERIFY ERROR: ', err);
             done(err, securityConfig.security.appKey);
           });
         })
