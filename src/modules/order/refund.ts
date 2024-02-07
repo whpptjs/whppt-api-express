@@ -8,7 +8,13 @@ import { findActiveStaff } from '../staff/login';
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const refund: HttpModule<
-  { orderId: string; refundReason: string; username: string; password: string; incShipping?: boolean },
+  {
+    orderId: string;
+    refundReason: string;
+    username: string;
+    password: string;
+    incShipping?: boolean;
+  },
   void
 > = {
   exec(context, { orderId, refundReason, username, password, incShipping = false }) {
@@ -38,9 +44,9 @@ const refund: HttpModule<
                   var amount =
                     (loadedOrder?.payment?.subTotal || 0) -
                     (loadedOrder?.payment?.memberTotalDiscount || 0);
-                  if(incShipping) {
-                    amount += (Number(loadedOrder?.payment?.shippingCost?.price) || 0);
-                  }  
+                  if (incShipping) {
+                    amount += Number(loadedOrder?.payment?.shippingCost?.price) || 0;
+                  }
                   assign(loadedOrder, {
                     ...loadedOrder,
                     checkoutStatus: 'refunded',
