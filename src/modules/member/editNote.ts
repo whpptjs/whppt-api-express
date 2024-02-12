@@ -4,7 +4,7 @@ import { Member } from './Model';
 import { Secure } from '../staff/Secure';
 import { WhpptMongoDatabase } from 'src/Services/Database/Mongo/Database';
 
-const editNote: HttpModule<{ memberId: string; noteId: string, note: string }, Member> = {
+const editNote: HttpModule<{ memberId: string; noteId: string; note: string }, Member> = {
   exec({ $database }, { memberId, noteId, note }) {
     assert(memberId, 'A contact Id is required');
 
