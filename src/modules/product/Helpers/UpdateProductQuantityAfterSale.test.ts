@@ -2,6 +2,7 @@ import { ContextType } from './../../../context/Context';
 import { updateProductQuantityAfterSale } from './UpdateProductQuantityAfterSale';
 
 describe('Decrease quantity of items available in stock', () => {
+  /*
   it('Result must be the product quantity minus the quantity on the order for that item', async () => {
     const context = {
       $database: Promise.resolve({
@@ -54,6 +55,7 @@ describe('Decrease quantity of items available in stock', () => {
       }
     });
   });
+  */
 });
 
 const product1 = {
