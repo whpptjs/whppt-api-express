@@ -55,8 +55,9 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                     {
                       text: `${contact?.firstName} ${contact?.lastName}
                       ${order?.shipping?.contactDetails?.company || ''}
-                      ${sanitizeAddressString(order?.shipping?.address?.unit)}
-                      ${order?.shipping?.address?.number || ''} ${sanitizeAddressString(
+                      ${sanitizeAddressString(order?.shipping?.address?.unit)} ${
+                        order?.shipping?.address?.number || ''
+                      } ${sanitizeAddressString(
                         order?.shipping?.address?.street
                       )}  ${sanitizeAddressString(
                         order?.shipping?.address?.suburb
