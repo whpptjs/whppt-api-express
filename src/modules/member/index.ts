@@ -8,6 +8,8 @@ import changePassword from './changePassword';
 import search from './search';
 import getNotes from './getNotes';
 import saveNote from './saveNote';
+import editNote from './editNote';
+import deleteNote from './deleteNote';
 import forgottenPassword from './forgottenPassword';
 import resetPassword from './resetPassword';
 import signUp from './signUp';
@@ -24,7 +26,9 @@ export const member = {
   changePassword,
   search,
   saveNote,
+  editNote,
   getNotes,
+  deleteNote,
   forgottenPassword,
   resetPassword,
   getMemberTier,
