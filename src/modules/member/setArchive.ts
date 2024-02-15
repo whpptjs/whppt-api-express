@@ -3,7 +3,7 @@ import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
 import { Secure } from '../staff/Secure';
 
-const setArchives: HttpModule<{ memberId: string, isArchived: boolean }, Member> = {
+const setArchives: HttpModule<{ memberId: string; isArchived: boolean }, Member> = {
   exec({ $database, createEvent }, { memberId, isArchived }) {
     assert(memberId, 'A memberId is required');
 
@@ -12,18 +12,19 @@ const setArchives: HttpModule<{ memberId: string, isArchived: boolean }, Member>
 
       return document.fetch<Member>('members', memberId).then(loadedMember => {
         assert(loadedMember, 'Could not find member.');
-        
-        const newArchiveState = isArchived
-        const memberEvents = [createEvent('ArchiveMember', {memberId, newArchiveState})];
+
+        const newArchiveState = isArchived;
+        const memberEvents = [
+          createEvent('ArchiveMember', { memberId, newArchiveState }),
+        ];
         loadedMember.isArchived = isArchived;
 
         return startTransaction(session => {
           return document.saveWithEvents('members', loadedMember, memberEvents, {
             session,
           });
-        }).then(()=>loadedMember)
-      })
-      
+        }).then(() => loadedMember);
+      });
     });
   },
 };
