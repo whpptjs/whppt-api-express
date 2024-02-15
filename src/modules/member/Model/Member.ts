@@ -8,6 +8,7 @@ export type Member = {
   lockToTier?: string;
   createdAt?: Date;
   notes?: Note[];
+  isArchived?: boolean;
 };
 
 export type Note = {

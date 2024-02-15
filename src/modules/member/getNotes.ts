@@ -2,7 +2,7 @@ import assert from 'assert';
 import { HttpModule } from '../HttpModule';
 import { Member, Note } from './Model';
 
-const listPreviousOrders: HttpModule<{ memberId: string }, Note[] | undefined> = {
+const getNotes: HttpModule<{ memberId: string }, Note[] | undefined> = {
   exec({ $database }, { memberId }) {
     assert(memberId, 'A memberId is required');
 
@@ -21,4 +21,4 @@ const listPreviousOrders: HttpModule<{ memberId: string }, Note[] | undefined> =
 };
 
 //TODO add staff secure
-export default listPreviousOrders;
+export default getNotes;
