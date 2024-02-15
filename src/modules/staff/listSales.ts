@@ -68,7 +68,7 @@ const listSales: HttpModule<
       if (dateToYear && dateToMonth && dateToDay) {
         query.$and.push({
           'payment.date': {
-            $lt: new Date(dateToYear, dateToMonth, dateToDay, 0, 0, 0, 0),
+            $lt: new Date(dateToYear, dateToMonth, dateToDay, 23, 59, 59, 0),
           },
         });
       }

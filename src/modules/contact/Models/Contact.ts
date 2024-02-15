@@ -16,6 +16,7 @@ export type Contact = {
 };
 
 export type Address = {
+  unit?: string;
   number: string;
   street: string;
   suburb: string;

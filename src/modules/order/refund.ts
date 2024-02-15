@@ -8,10 +8,16 @@ import { findActiveStaff } from '../staff/login';
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const refund: HttpModule<
-  { orderId: string; refundReason: string; username: string; password: string },
+  {
+    orderId: string;
+    refundReason: string;
+    username: string;
+    password: string;
+    incShipping?: boolean;
+  },
   void
 > = {
-  exec(context, { orderId, refundReason, username, password }) {
+  exec(context, { orderId, refundReason, username, password, incShipping = false }) {
     assert(orderId, 'Order Id not found');
     assert(refundReason, 'A Reason not provided');
     assert(username, 'A username or email address is required.');
@@ -35,9 +41,12 @@ const refund: HttpModule<
                     loadedOrder?.stripe?.status === 'paid',
                     'Order not in a paid status'
                   );
-                  const amount =
+                  var amount =
                     (loadedOrder?.payment?.subTotal || 0) -
                     (loadedOrder?.payment?.memberTotalDiscount || 0);
+                  if (incShipping) {
+                    amount += Number(loadedOrder?.payment?.shippingCost?.price) || 0;
+                  }
                   assign(loadedOrder, {
                     ...loadedOrder,
                     checkoutStatus: 'refunded',
