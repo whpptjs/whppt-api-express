@@ -15,6 +15,7 @@ import resetPassword from './resetPassword';
 import signUp from './signUp';
 import getMemberTier from './getMemberTier';
 import overrideMemberTier from './overrideMemberTier';
+import setArchive from './setArchive';
 
 export const member = {
   createFromContact,
@@ -34,4 +35,5 @@ export const member = {
   getMemberTier,
   signUp,
   overrideMemberTier,
+  setArchive,
 };
