@@ -3,7 +3,7 @@ import { HttpModule } from '../HttpModule';
 import { Member } from './Model';
 import { Secure } from '../staff/Secure';
 
-const setArchives: HttpModule<{ memberId: string; isArchived: boolean }, Member> = {
+const setArchive: HttpModule<{ memberId: string; isArchived: boolean }, Member> = {
   exec({ $database, createEvent }, { memberId, isArchived }) {
     assert(memberId, 'A memberId is required');
 
@@ -30,4 +30,4 @@ const setArchives: HttpModule<{ memberId: string; isArchived: boolean }, Member>
 };
 
 //TODO add staff secure
-export default Secure(setArchives);
+export default Secure(setArchive);
