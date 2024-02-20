@@ -57,7 +57,7 @@ const search: HttpModule<{ searchBy: string }, Member[]> = {
                 contactId: '$member.contactId',
                 username: '$member.username',
                 createdAt: '$member.createdAt',
-                isArhived: '$member.isArchived',
+                isArchived: '$member.isArchived',
                 contact: {
                   _id: '$_id',
                   firstName: '$firstName',
