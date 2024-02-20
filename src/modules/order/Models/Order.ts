@@ -70,6 +70,7 @@ export type OrderItem = {
   purchasedPrice?: number;
   overidedPrice?: number;
   originalPrice?: number;
+  maxQuantity?: number;
 };
 
 export type OrderWithProducts = Order & {

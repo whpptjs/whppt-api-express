@@ -6,7 +6,7 @@ import * as validations from './Validations';
 import { Product } from '../product/Models/Product';
 
 const addOrderItem: HttpModule<
-  { productId: string; orderId: string; quantity: number; fromWebsite: boolean },
+  { productId: string; orderId: string; quantity: number; fromWebsite: boolean, maxQuantity?: number },
   void
 > = {
   authorise({ $roles }, { user }) {
@@ -14,7 +14,7 @@ const addOrderItem: HttpModule<
   },
   exec(
     { $database, createEvent, $id },
-    { productId, orderId, quantity, fromWebsite = false }
+    { productId, orderId, quantity, fromWebsite = false, maxQuantity }
   ) {
     assert(orderId, 'Order Id is required.');
     assert(productId, 'Product Id is required.');
@@ -36,7 +36,7 @@ const addOrderItem: HttpModule<
 
           const events = [] as any[];
 
-          loadedOrder.items.push({ productId, quantity, _id: $id.newId() });
+          loadedOrder.items.push({ productId, quantity, _id: $id.newId(), maxQuantity });
 
           events.push(
             createEvent('OrderItemAddedToOrder', {
