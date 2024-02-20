@@ -2,6 +2,10 @@ export const sanitizeAddressString = (item?: string) => {
   return item && item !== 'null' ? `${item}, ` : '';
 };
 
+export const sanitizeUnitString = (item?: string) => {
+  return item && item !== 'null' ? `${item}/` : '';
+};
+
 export const composeOrderData = (orderWithProducts: any, contact?: any) => {
   return {
     orderId: orderWithProducts.orderNumber || orderWithProducts._id,

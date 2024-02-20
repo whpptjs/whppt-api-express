@@ -1,4 +1,4 @@
-import { sanitizeAddressString } from '../Dispatch/composeOrderData';
+import { sanitizeAddressString, sanitizeUnitString } from '../Dispatch/composeOrderData';
 // import { format } from 'date-fns';
 
 const subheader = (order: any, contact: any, memberTier: any) => {
@@ -53,8 +53,11 @@ const subheader = (order: any, contact: any, memberTier: any) => {
                   ],
                   [
                     {
-                      text: `${order?.shipping?.contactDetails?.company || ''}
-                       ${order?.shipping?.address?.number || ''} ${sanitizeAddressString(
+                      text: `${contact?.firstName} ${contact?.lastName}
+                      ${order?.shipping?.contactDetails?.company || ''}
+                      ${sanitizeUnitString(order?.shipping?.address?.unit)} ${
+                        order?.shipping?.address?.number || ''
+                      } ${sanitizeAddressString(
                         order?.shipping?.address?.street
                       )}  ${sanitizeAddressString(
                         order?.shipping?.address?.suburb

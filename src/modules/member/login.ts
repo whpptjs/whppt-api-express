@@ -46,8 +46,12 @@ const login: HttpModule<{ username: string; password: string }, any> = {
 
 const findMember = (db: WhpptDatabase, username: string) => {
   return Promise.all([
-    db.document.query<Member>('members', { filter: { username } }),
-    db.document.query<Contact>('contacts', { filter: { email: username } }),
+    db.document.query<Member>('members', {
+      filter: { username: new RegExp(`^${username}$`, 'iu') },
+    }),
+    db.document.query<Contact>('contacts', {
+      filter: { email: new RegExp(`^${username}$`, 'iu') },
+    }),
   ]).then(([member, contact]) => {
     if (member) return member;
     assert(
