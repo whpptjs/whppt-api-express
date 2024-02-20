@@ -6,7 +6,13 @@ import * as validations from './Validations';
 import { Product } from '../product/Models/Product';
 
 const addOrderItem: HttpModule<
-  { productId: string; orderId: string; quantity: number; fromWebsite: boolean, maxQuantity?: number },
+  {
+    productId: string;
+    orderId: string;
+    quantity: number;
+    fromWebsite: boolean;
+    maxQuantity?: number;
+  },
   void
 > = {
   authorise({ $roles }, { user }) {
